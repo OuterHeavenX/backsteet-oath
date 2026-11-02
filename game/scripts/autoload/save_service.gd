@@ -9,7 +9,7 @@ signal import_finished(ok: bool, message: String)
 const SAVE_VERSION := 2
 const SLOTS := 3
 const MAX_BYTES := 262144
-const GAME_VERSION := "1.1.0-rc2"
+const GAME_VERSION := "1.2.0-rc1"
 
 var current_slot := 1
 var last_error := ""

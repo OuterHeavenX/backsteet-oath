@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.2.0-rc1 (2026-11-02): a longer game
+- **New story chapter, "The Underline"** (Act III opener, on the main path):
+  - Mara works out that Greyline moves its cargo under the river. The Neon Mile rooftops' fire escape drops into
+    the abandoned 1971 subway.
+  - Three new rooms, fought through in order: Kessler St. Station, Service Tunnel 3 and the Greyline Cargo Vault.
+  - A new gang, **the Moles**, Greyline's tunnel crew in hard hats and hi-vis.
+  - A new boss, **Ruth "Lantern" Kowal**. She wields a shovel, and at half health she kills the lights: the vault
+    goes dark except for her lantern, and two Moles join in.
+  - Beating her opens the service ladder to Floodgate Bridge and a new journal entry about the stolen deeds.
+  - New music track for the Underline.
+- **Benny's ladder** (Rec Center, after Duke): nine bouts against every gang, scaled to your level, ending with
+  champion **Mae "Iron" Okafor**.
+  - Rewards: cash and XP per bout, the **Ladder Belt** at bout five, and the **Iron Wraps** for beating Mae.
+  - A knockout ends the night: no defeat screen and no penalty.
+  - Replayable, and your best bout is recorded.
+- **Four new side jobs:**
+  - **Static on the Line** (Ines, Neon Mile pharmacy): win back the ambulance radio from the Saint called Flicker.
+  - **Last Train Home** (Otis, Kessler St. Station): find a conductor's brass punch in the tunnel crates.
+  - **Wet Paint** (Kiki, Canal Market gate): run two tagger crews off her mural.
+  - **Heavy Thumb** (Sal, Canal Walk): take rigged weights from three Greyline inspectors in three districts.
+- **New Game+:** finished saves can restart the story from the title screen.
+  - You keep your level, stats, techniques, gear, bag and cash.
+  - Each cycle, enemies gain +35% HP and +25% power plus one tier, every wave brings an extra fighter, and bosses
+    gain +40% HP. XP and cash grow +25% per cycle.
+  - An NG+ badge shows on the HUD.
+- **New items:** a new weapon (the shovel) and two gear pieces. The map shows the Underline.
+- The save format is unchanged, and older saves load. Saves already past the garage scene can walk the Underline
+  but skip its boss.
+
 ## 1.1.0-rc2 (2026-11-02): playtest reporting
 - **Show FPS** (Settings): a small corner readout with the current frame rate and the slowest recent frame, coloured
   green at 55 FPS and above, amber at 30 FPS and above, red below that.

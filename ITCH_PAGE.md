@@ -21,7 +21,7 @@
 | Content note | Cartoon fistfights and improvised-weapon violence (no blood, no guns). Mild peril, arson mentioned in the story. |
 
 ### Embed options (HTML upload)
-- Upload `backstreet-oath-v1.1.0-rc2-web.zip` and tick **"This file will be played in the browser"**.
+- Upload `backstreet-oath-v1.2.0-rc1-web.zip` and tick **"This file will be played in the browser"**.
 - Viewport: **1280 × 720**. Tick **Mobile friendly** (orientation: **Landscape**), **Fullscreen button**.
   Leave **"Automatically start on page load"** off; the game waits for a click or key press to start audio anyway.
 - **SharedArrayBuffer support: leave OFF.** The build is single-threaded and needs no special headers.
@@ -40,7 +40,7 @@ and gang bosses with something to say.
 **Fight like it's 1988**
 - Combos, finishers, running attacks, jump kicks, a guard with a forgiving *perfect guard* reward.
 - Grab dizzy thugs and throw them into their friends. Lift crates and trash cans. Roll a tire down the street.
-- 16 weapons in 6 families: wrenches and batons, bats and pipes, chains and belts, bottles and bricks, road signs...
+- 17 weapons in 6 families: wrenches and batons, bats, pipes and shovels, chains and belts, bottles and bricks, road signs...
 - Ten fighting manuals to buy and master, from the Rising Kick to the secret Oath Breaker.
 
 **Grow like an RPG**
@@ -49,10 +49,13 @@ and gang bosses with something to say.
 - Weapon mastery and Mara's workbench upgrades.
 
 **A neighborhood worth saving**
-- Six districts: Old Quarter, Canal Market, Ironworks Yard, Neon Mile, Floodgate Road and Rook's Warehouse.
-- Six boss fights with readable patterns, including a two-phase finale.
+- Six districts and an abandoned subway: Old Quarter, Canal Market, Ironworks Yard, Neon Mile, the Underline,
+  Floodgate Road and Rook's Warehouse.
+- Seven boss fights with readable patterns, including a lights-out tunnel brawl and a two-phase finale.
 - A complete story with funny, heartfelt dialogue, a real ending, credits and postgame free roam.
-- Six side jobs: find a runaway terrier, escort a nervous bookseller, settle an arcade feud, win the Alley Cat Cup...
+- Ten side jobs: find a runaway terrier, escort a nervous bookseller, rescue a muralist's wall, unrig a fishmonger's
+  scale, win the Alley Cat Cup...
+- Benny's nine-bout fight ladder with a six-year champion to dethrone, and New Game+ for tougher streets.
 
 **Play your way**
 - Keyboard, any controller (Steam Deck native Linux build) or touch controls in mobile browsers (landscape).
@@ -81,9 +84,9 @@ This build was produced in an environment whose network policy **blocks itch.io 
 2. Install butler (https://itch.io/docs/butler/) and log in once: `butler login`.
 3. Push the three channels from the `release/` folder:
    ```bash
-   butler push backstreet-oath-v1.1.0-rc2-web.zip            <your-account>/backstreet-oath:html5 --userversion 1.1.0-rc2
-   butler push backstreet-oath-v1.1.0-rc2-linux-x86_64.zip   <your-account>/backstreet-oath:linux --userversion 1.1.0-rc2
-   butler push backstreet-oath-v1.1.0-rc2-windows-x86_64.zip <your-account>/backstreet-oath:windows --userversion 1.1.0-rc2
+   butler push backstreet-oath-v1.2.0-rc1-web.zip            <your-account>/backstreet-oath:html5 --userversion 1.2.0-rc1
+   butler push backstreet-oath-v1.2.0-rc1-linux-x86_64.zip   <your-account>/backstreet-oath:linux --userversion 1.2.0-rc1
+   butler push backstreet-oath-v1.2.0-rc1-windows-x86_64.zip <your-account>/backstreet-oath:windows --userversion 1.2.0-rc1
    butler status <your-account>/backstreet-oath
    ```
 4. On the page's Edit screen: mark the `html5` upload "played in the browser", set the viewport to 1280×720, and

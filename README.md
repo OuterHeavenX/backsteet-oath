@@ -4,7 +4,7 @@ An original 2D belt-scrolling action RPG set in Bellwether, a fictional late-198
 Walk the streets with depth, punch, kick and jump, grab whatever's lying around, buy food and fighting
 manuals, level up, and take your neighborhood back from the man in the gray coat.
 
-**Version:** 1.1.0-rc2 (visual upgrade of 1.0.0-rc3/rc4; feature-complete and tested by automated play; no human playtest yet)
+**Version:** 1.2.0-rc1 (visual upgrade of 1.0.0-rc3/rc4; feature-complete and tested by automated play; no human playtest yet)
 **Engine:** Godot **4.7.2-stable** (official build), GDScript, Compatibility renderer (WebGL 2 / OpenGL 3.3)
 **Platforms:** Web (HTML5, itch.io), Linux x86_64 (Steam Deck native), Windows x86_64 (built, not run-tested)
 
@@ -15,13 +15,14 @@ manuals, level up, and take your neighborhood back from the man in the gray coat
 ## What's in the box
 - Inked, cel-shaded 2D art at 2× density: fully animated cast of 60, 30 layered and lit rooms, material-specific
   combat effects and staged story scenes. See [docs/visual/UPGRADE_REPORT.md](docs/visual/UPGRADE_REPORT.md).
-- Six connected districts, 20 street/arena rooms and 10 interiors; story-gated shortcuts and a River Line bus.
+- Six connected districts plus the Underline subway: 23 street/arena rooms and 10 interiors, story-gated shortcuts and a River Line bus.
 - Belt-scroller combat: ground plane + jump height, lane-aware hitboxes, combos, finishers, guard + perfect
   guard, running attacks, jump attacks, carry/throw dizzy enemies, 16 weapons in 6 behavior families.
 - RPG layer: levels 1–20, five stats with a stat point per level (balanced auto-spend by default), 29 food and
   medicine items with capped permanent boosts, 10 purchasable techniques, weapon mastery, workbench upgrades.
-- Six bosses (Duke, the Pike sisters, Otto, Jett, Captain Holt, Victor Rook with two phases) plus a story duel
-  and a mini-boss; six side jobs; finished dialogue, ending, credits and postgame free roam.
+- Seven bosses (Duke, the Pike sisters, Otto, Jett, Ruth Kowal, Captain Holt, Victor Rook with two phases) plus a story
+  duel and a mini-boss; ten side jobs; Benny's nine-bout ladder; New Game+; finished dialogue, ending, credits and
+  postgame free roam.
 - 3 save slots with backup and corruption recovery, JSON export/import, keyboard/controller rebinding,
   touch controls, accessibility options (text size and speed, shake/flash, Relaxed difficulty).
 
@@ -49,7 +50,7 @@ godot --headless --import
 godot --headless --export-release "Web" ../build/web/index.html
 godot --headless --export-release "Linux" ../build/linux/BackstreetOath.x86_64
 godot --headless --export-release "Windows" ../build/windows/BackstreetOath.exe
-python3 ../tools/package.py 1.1.0-rc2   # versioned zips in release/
+python3 ../tools/package.py 1.2.0-rc1   # versioned zips in release/
 ```
 Regenerate the v2 art (Python 3 + Pillow + numpy; `pip install imagequant` for the final optimisation step):
 ```bash
@@ -68,7 +69,8 @@ their output are kept as fallbacks (excluded from exports).
 cd game
 godot --headless res://tests/unit_tests.tscn                        # 7,775 checks: data, assets (incl. v2 contract), stats, saves, combat
 godot --headless --fixed-fps 60 res://tests/feature_tests.tscn      # techniques, weapons, boss AI
-godot --headless --fixed-fps 60 res://tests/quest_tests.tscn        # all six side jobs end-to-end
+godot --headless --fixed-fps 60 res://tests/quest_tests.tscn        # the original six side jobs end-to-end
+godot --headless --fixed-fps 60 res://tests/expansion_tests.tscn    # 1.2: Underline boss path, 4 new side jobs, ladder, NG+
 godot --headless --fixed-fps 60 res://tests/autoplay.tscn           # bot plays the whole campaign via input actions
 ```
 Browser tests (Playwright + Chromium): `node tools/webtest/game_test.js <url> <outdir>`, `tools/webtest/touch_test.js` and
