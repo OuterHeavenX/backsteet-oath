@@ -34,12 +34,14 @@ def smooth(u):
 
 # ----------------------------------------------------------------------------- locomotion
 
-def cycle(n, stride, beta, lift, lean, arms, expr, run=False, base=None, carry=False, civ=False):
+def cycle(n, stride, beta, lift, lean, mode, expr, run=False, base=None, toe_bias=0.0, sway=0.0, roll=0.0,
+          twist_amp=None):
     """Distance-planted locomotion cycle.
 
     Each foot is planted for `beta` of the cycle and moves back at exactly the
-    body speed (stride/n per frame), so the planted foot is fixed in the world."""
-    base = base or {}
+    body speed (stride/n per frame), so the planted foot is fixed in the world.
+    mode picks the arm action (hero/brawler/heavy/flanker/blocker/weapon/thrower/civ/carry)."""
+    base = dict(base or GUARD)
     A = beta * stride / 2.0
     frames, vels = [], []
     stand = NORMAL['thigh'] + NORMAL['shin'] + NORMAL['ankle']
@@ -52,83 +54,292 @@ def cycle(n, stride, beta, lift, lean, arms, expr, run=False, base=None, carry=F
                 x = A - phi * stride
                 y = 0.0
                 prog = phi / beta
-                toe = -12.0 * (1 - prog) ** 3 + (24.0 if run else 16.0) * max(0.0, prog - 0.65) / 0.35
+                toe = -12.0 * (1 - prog) ** 3 + (26.0 if run else 16.0) * max(0.0, prog - 0.6) / 0.4 + toe_bias * prog
                 lifted = False
             else:
                 u = (phi - beta) / (1 - beta)
                 x = -A + 2 * A * smooth(u)
                 if run:
-                    x -= 3.2 * math.sin(math.pi * u) * (1 - u) * 1.6
-                    y = -(1.0 + lift * math.sin(math.pi * min(1.0, u * 1.15)) ** 0.9)
-                    toe = 42.0 * (1 - u) - 6.0 * u
+                    x -= 5.0 * math.sin(math.pi * u) * (1 - u)          # heel kick behind
+                    y = -(1.2 + lift * math.sin(math.pi * min(1.0, u * 1.1)) ** 0.85)
+                    toe = 48.0 * (1 - u) - 8.0 * u
                 else:
                     y = -lift * math.sin(math.pi * u) ** 1.2
-                    toe = 18.0 * (1 - u) - 10.0 * u
+                    toe = 18.0 * (1 - u) - 10.0 * u + toe_bias * 0.5
                 lifted = True
             feet[side] = (x, y, toe, lifted)
-        # hip height from planted feet (natural bob), stance knee slightly bent
-        hx = 0.0
-        hy = -stand * (0.965 if not run else 0.92)
+        hx = sway * math.sin(2 * math.pi * ph)
+        hy = -stand * (0.965 if not run else 0.915)
         planted = [f for f in feet.values() if not f[3]]
         for (x, y, toe, _) in planted:
             dx = x - hx
             reach = math.sqrt(max((NORMAL['thigh'] + NORMAL['shin']) ** 2 * 0.985 - dx * dx, 1.0)) + NORMAL['ankle']
             hy = max(hy, -reach)
+        hy += roll * (0.5 + 0.5 * math.cos(4 * math.pi * ph))
         if run:
             if not planted:
-                hy -= 1.0
+                hy -= 1.6
             else:
-                # compression at mid stance
                 for side in ('n', 'f'):
                     phi = (ph + (0.0 if side == 'n' else 0.5)) % 1.0
                     if phi < beta:
-                        hy += 1.3 * math.sin(math.pi * phi / beta)
-        # arms swing opposite to the legs
+                        hy += 1.5 * math.sin(math.pi * phi / beta)
         s_n = -math.cos(2 * math.pi * ph)          # near arm forward when near leg is back
         s_f = -s_n
+        ta = twist_amp if twist_amp is not None else 0.24
         kw = dict(base)
-        if carry:
+        kw.update(hand_n='fist', hand_f='fist')
+        if mode == 'carry':
             kw.update(hn=(2.0, -49.8 + 0.3 * s_n), hf=(5.4, -49.4 + 0.3 * s_f), hand_n='open', hand_f='open',
-                      eb_n='back', eb_f='fwd', twist=0.0, lean=lean, expr='effort', near_arm_back=True)
+                      eb_n='back', eb_f='fwd', twist=0.0, expr='effort', near_arm_back=True)
         elif run:
-            kw.update(hn=(1.5 + 7.5 * s_n, -25.5 - 3.5 * s_n), hf=(1.0 + 7.0 * s_f, -26.0 - 3.5 * s_f),
-                      twist=0.32 * s_f, ptwist=-0.3 * s_f, lean=lean, eb_n='down', eb_f='down')
-        elif civ:
+            kw.update(hn=(2.0 + 9.0 * s_n, -25.0 - 5.0 * s_n), hf=(1.5 + 8.4 * s_f, -25.6 - 4.8 * s_f),
+                      twist=0.4 * s_f, ptwist=-0.34 * s_f, eb_n='down', eb_f='down')
+        elif mode == 'civ':
             kw.update(hn=(2.4 + 4.6 * s_n, -17.2 - 0.9 * abs(s_n)), hf=(0.2 + 4.2 * s_f, -17.8 - 0.8 * abs(s_f)),
-                      hand_n='relax', hand_f='relax', twist=0.18 * s_f, ptwist=-0.2 * s_f, lean=lean,
-                      eb_n='back', eb_f='back')
-        else:
-            sw_n = 4.6 * s_n if s_n > 0 else 2.6 * s_n
-            sw_f = 4.4 * s_f if s_f > 0 else 2.4 * s_f
+                      hand_n='relax', hand_f='relax', twist=0.18 * s_f, ptwist=-0.2 * s_f, eb_n='back', eb_f='back')
+        elif mode == 'heavy':
+            kw.update(hn=(5.6 + (3.6 if s_n > 0 else 2.4) * s_n, -23.6 - 1.2 * max(s_n, 0)),
+                      hf=(7.2 + (3.4 if s_f > 0 else 2.2) * s_f, -24.6 - 1.2 * max(s_f, 0)),
+                      twist=0.34 * s_f, ptwist=-0.3 * s_f, eb_n='down', eb_f='down')
+        elif mode == 'flanker':
+            kw.update(hn=(8.0 + 2.2 * s_n, -27.0 - 0.9 * abs(s_n)), hf=(12.0 + 2.0 * s_f, -29.4 - 0.8 * abs(s_f)),
+                      twist=0.2 * s_f, ptwist=-0.2 * s_f, eb_n='down', eb_f='down')
+        elif mode == 'blocker':
+            kw.update(hn=(8.4 + 0.6 * s_n, -34.2 + 0.3 * s_n), hf=(10.6 + 0.6 * s_f, -36.4 + 0.3 * s_f),
+                      twist=0.12 * s_f, ptwist=-0.18 * s_f, eb_n='down', eb_f='down')
+        elif mode == 'weapon':
+            kw.update(hn=(6.2 + 1.6 * s_n, -25.2 - 0.6 * max(s_n, 0)), wang=-42.0 + 10.0 * s_n,
+                      hf=(3.0 + (4.4 if s_f > 0 else 2.4) * s_f, -21.6 - 1.6 * max(s_f, 0)), hand_f='fist',
+                      twist=0.22 * s_f, ptwist=-0.26 * s_f, eb_n='down', eb_f='back')
+        elif mode == 'thrower':
+            kw.update(hn=(5.4 + 0.8 * s_n, -28.6 + 0.4 * s_n), hand_n='open',
+                      hf=(3.0 + (4.4 if s_f > 0 else 2.4) * s_f, -21.6 - 1.6 * max(s_f, 0)),
+                      twist=0.22 * s_f, ptwist=-0.26 * s_f, eb_n='down', eb_f='back')
+        else:   # hero / brawler
+            k = 1.25 if mode == 'brawler' else 1.0
+            sw_n = 4.6 * k * s_n if s_n > 0 else 2.6 * k * s_n
+            sw_f = 4.4 * k * s_f if s_f > 0 else 2.4 * k * s_f
             kw.update(hn=(3.6 + sw_n, -21.0 - 1.6 * max(s_n, 0)), hf=(3.0 + sw_f, -21.6 - 1.6 * max(s_f, 0)),
-                      twist=0.24 * s_f, ptwist=-0.28 * s_f, lean=lean, eb_n='back', eb_f='back')
+                      twist=ta * s_f, ptwist=-0.28 * s_f, eb_n='back', eb_f='back')
         kw.update(hip=(hx, hy), fn=feet['n'][:2], ff=feet['f'][:2], toe_n=feet['n'][2], toe_f=feet['f'][2],
-                  lift_n=feet['n'][3], lift_f=feet['f'][3], expr=expr,
-                  tilt=-2.0 + 1.2 * math.sin(4 * math.pi * ph))
+                  lift_n=feet['n'][3], lift_f=feet['f'][3], expr=expr, lean=lean + (2.0 * math.sin(4 * math.pi * ph) if roll else 0.0),
+                  tilt=base.get('tilt', -2.0) * 0.5 - 1.0 + 1.2 * math.sin(4 * math.pi * ph))
         frames.append(P(**kw))
         vels.append((stride / n, 0.0))
     return frames, vels
 
 
-# ----------------------------------------------------------------------------- fighter set
+STYLE_BASE = {
+    'hero': GUARD,
+    'brawler': dict(GUARD, hip=(-0.4, -16.6), lean=8.0, twist=0.2, hn=(7.8, -27.0), hf=(12.6, -30.6), fn=(6.0, 0.0),
+                    ff=(-5.6, 0.0), toe_f=6.0, tilt=-4.0),
+    'heavy': dict(GUARD, hip=(-0.6, -15.6), lean=11.0, twist=0.15, hn=(9.0, -25.2), hf=(13.2, -27.4), fn=(7.0, 0.0),
+                  ff=(-6.6, 0.0), toe_f=0.0, tilt=-5.0),
+    'flanker': dict(GUARD, hip=(-0.8, -15.3), lean=13.0, twist=0.3, hn=(9.0, -27.2), hf=(13.4, -29.8), fn=(6.4, 0.0),
+                    ff=(-6.0, 0.0), toe_f=26.0, tilt=-6.0),
+    'blocker': dict(GUARD, hip=(-0.4, -16.4), lean=9.0, twist=0.0, hn=(8.6, -34.6), hf=(10.8, -36.8), fn=(5.0, 0.0),
+                    ff=(-5.4, 0.0), toe_f=4.0, tilt=-9.0),
+    'weapon': dict(GUARD, hip=(-0.6, -16.6), lean=6.0, twist=0.45, hn=(4.4, -34.6), hf=(12.0, -29.6), hand_f='open',
+                   fn=(6.0, 0.0), ff=(-5.6, 0.0), toe_f=6.0, tilt=-3.0, wang=-125.0),
+    'thrower': dict(GUARD, hip=(-0.6, -16.8), lean=5.0, twist=0.35, hn=(3.2, -31.2), hand_n='open', hf=(11.6, -28.6),
+                    hand_f='open', fn=(5.6, 0.0), ff=(-5.4, 0.0), toe_f=10.0, tilt=-2.0, wang=-60.0),
+}
+# locomotion per style: walk (stride, beta, lift, lean, toe_bias, sway, roll, twist), run (stride, lean, lift)
+STYLE_WALK = {
+    'hero': (38.0, 0.60, 3.2, 7.0, 0.0, 0.0, 0.0, 0.24), 'brawler': (36.0, 0.60, 3.0, 5.0, 0.0, 0.0, 0.0, 0.36),
+    'heavy': (30.0, 0.64, 2.4, 10.0, 0.0, 0.7, 0.7, 0.34), 'flanker': (42.0, 0.55, 4.4, 12.0, 14.0, 0.0, 0.0, 0.2),
+    'blocker': (32.0, 0.62, 2.6, 8.0, 0.0, 0.0, 0.0, 0.12), 'weapon': (36.0, 0.60, 3.0, 6.0, 0.0, 0.0, 0.0, 0.22),
+    'thrower': (36.0, 0.60, 3.0, 5.0, 0.0, 0.0, 0.0, 0.22),
+}
+STYLE_RUN = {'hero': (62.0, 22.0, 9.5), 'brawler': (60.0, 21.0, 9.0), 'heavy': (54.0, 17.0, 7.5),
+             'flanker': (68.0, 25.0, 10.5), 'blocker': (58.0, 20.0, 8.5), 'weapon': (60.0, 21.0, 9.0),
+             'thrower': (60.0, 21.0, 9.0)}
 
-def fighter_anims():
-    A = {}
 
-    # idle: breathing + small boxer weight shift, one blink
-    fr = []
+def idle_frames(style, base):
+    fr, vel = [], []
+    hx, hy = base['hip']
+    nx, ny = base['hn']
+    fx, fy = base['hf']
     for i in range(6):
         th = 2 * math.pi * i / 6
-        fr.append(G(hip=(-0.3 + 0.25 * math.sin(th), -16.9 + 0.38 * math.sin(th)),
-                    lean=6.0 + 0.7 * math.sin(th - 0.4),
-                    hn=(7.4, -28.6 + 0.55 * math.sin(th - 0.7)), hf=(12.2 + 0.2 * math.sin(th), -33.2 + 0.5 * math.sin(th - 0.9)),
-                    tilt=-3.0 + 0.9 * math.sin(th - 1.1), blink=(i == 4)))
-    A['idle'] = dict(frames=fr, fps=8, loop=True, vel=[(0, 0.35 * math.cos(2 * math.pi * i / 6)) for i in range(6)])
+        s1 = math.sin(th)
+        d = dict(base)
+        if style == 'heavy':
+            d.update(hip=(hx + 0.2 * s1, hy + 0.55 * s1), lean=base['lean'] + 1.5 * math.sin(th - 0.5),
+                     hn=(nx, ny + 0.9 * math.sin(th - 0.6)), hf=(fx + 0.3 * s1, fy + 0.8 * math.sin(th - 0.8)),
+                     tilt=base['tilt'] + 1.3 * math.sin(th - 1.0))
+        elif style == 'flanker':
+            b = abs(math.sin(th))
+            d.update(hip=(hx, hy - 0.9 * b + 0.25), toe_f=base['toe_f'] + 12 * b, toe_n=7 * b,
+                     hn=(nx, ny - 0.9 * b), hf=(fx + 0.4 * s1, fy - 0.8 * b), tilt=base['tilt'] + 0.8 * s1)
+        elif style == 'blocker':
+            d.update(hip=(hx, hy + 0.25 * s1), hn=(nx, ny + 0.3 * math.sin(th - 0.6)), hf=(fx, fy + 0.3 * math.sin(th - 0.8)),
+                     tilt=base['tilt'] + 0.4 * s1, lean=base['lean'] + 0.4 * s1)
+        elif style == 'weapon':
+            d.update(hip=(hx, hy + 0.35 * s1), hn=(nx, ny + 0.6 * math.sin(th - 0.4)), wang=base['wang'] + 9.0 * s1,
+                     hf=(fx + 0.3 * s1, fy + 0.5 * math.sin(th - 0.8)), tilt=base['tilt'] + 0.8 * math.sin(th - 1.1))
+        elif style == 'thrower':
+            toss = max(0.0, s1)
+            d.update(hip=(hx, hy + 0.3 * s1), hn=(nx, ny - 3.4 * toss), hf=(fx, fy + 0.4 * math.sin(th - 0.8)),
+                     tilt=base['tilt'] - 2.0 * toss)
+        elif style == 'brawler':
+            d.update(hip=(hx + 0.45 * s1, hy + 0.35 * s1), twist=base['twist'] + 0.16 * s1,
+                     hn=(nx, ny + 0.5 * math.sin(th - 0.7)), hf=(fx + 0.3 * s1, fy + 0.5 * math.sin(th - 0.9)),
+                     tilt=base['tilt'] + 0.9 * math.sin(th - 1.1))
+        else:
+            d.update(hip=(hx + 0.25 * s1, hy + 0.38 * s1), lean=base['lean'] + 0.7 * math.sin(th - 0.4),
+                     hn=(nx, ny + 0.55 * math.sin(th - 0.7)), hf=(fx + 0.2 * s1, fy + 0.5 * math.sin(th - 0.9)),
+                     tilt=base['tilt'] + 0.9 * math.sin(th - 1.1))
+        d['blink'] = (i == 4)
+        fr.append(P(**d))
+        vel.append((0.0, 0.35 * math.cos(th)))
+    fps = {'heavy': 6, 'flanker': 10, 'thrower': 8}.get(style, 8)
+    return dict(frames=fr, fps=fps, loop=True, vel=vel)
 
-    fr, v = cycle(8, 38.0, 0.6, 3.2, 7.0, None, 'normal')
-    A['walk'] = dict(frames=fr, fps=14, loop=True, stride=38.0, vel=v)
-    fr, v = cycle(8, 60.0, 0.36, 8.0, 17.0, None, 'fight', run=True)
-    A['run'] = dict(frames=fr, fps=18, loop=True, stride=60.0, vel=v)
+
+def guard_frames(style, G):
+    if style == 'heavy':
+        return [G(hip=(-0.8, -15.4), lean=12, hn=(9.6, -32.0), hf=(12.4, -34.0), expr='effort', tilt=-8),
+                G(hip=(-1.0, -15.0), lean=13, hn=(9.4, -33.6), hf=(12.2, -35.6), expr='effort', tilt=-11)]
+    if style == 'blocker':
+        return [G(hip=(-0.6, -15.8), lean=11, hn=(8.6, -36.2), hf=(10.0, -38.0), expr='effort', tilt=-12),
+                G(hip=(-0.8, -15.2), lean=14, hn=(8.4, -37.0), hf=(9.8, -38.8), expr='effort', tilt=-15)]
+    if style == 'flanker':
+        return [G(hip=(-1.2, -15.8), lean=6, hn=(8.0, -34.6), hf=(10.0, -37.0), toe_f=30, expr='effort', tilt=-8),
+                G(hip=(-1.6, -15.6), lean=3, hn=(7.8, -35.4), hf=(9.6, -37.8), toe_f=34, expr='effort', tilt=-10)]
+    if style == 'weapon':
+        return [G(hip=(-0.6, -16.2), lean=8, hn=(8.6, -35.0), wang=-20, hf=(12.4, -34.6), hand_f='open', expr='effort'),
+                G(hip=(-0.8, -15.8), lean=9, hn=(9.0, -36.4), wang=-8, hf=(12.8, -36.0), hand_f='open', expr='effort',
+                  tilt=-8)]
+    return [G(hip=(-0.6, -16.4), lean=8, hn=(8.6, -34.0), hf=(10.2, -36.4), expr='effort', tilt=-6),
+            G(hip=(-0.8, -15.8), lean=10, tilt=-10, hn=(8.2, -35.6), hf=(10.0, -38.2), expr='effort')]
+
+
+def signature(sig, base, G):
+    """Boss / signature idle (6) + victory (4) overrides."""
+    out = {}
+    T = [2 * math.pi * i / 6 for i in range(6)]
+    if sig == 'duke':
+        out['idle'] = [G(hip=(-0.5, -16.2 + 0.5 * math.sin(t)), lean=5 + 1.2 * math.sin(t - 0.5), tilt=-9,
+                         hn=(7.6, -22.6 + 0.6 * math.sin(t)), wang=86 + 8 * math.sin(t), eb_n='back',
+                         hf=(11.2, -28.6 + 1.2 * max(0.0, math.sin(2 * t))), fn=(6.8, 0), ff=(-6.6, 0), toe_f=0,
+                         blink=(i == 4)) for i, t in enumerate(T)]
+        out['victory'] = [G(hn=(6.0, -22.0), hf=(8.0, -23.0), expr='grin', lean=4),
+                          G(hn=(12.4, -40.6), hf=(-7.0, -40.0), eb_n='down', eb_f='down', expr='shout', lean=-2, tilt=-8,
+                            hip=(0.0, -17.2), wang=-90),
+                          G(hn=(12.6, -41.4), hf=(-7.2, -40.8), eb_n='down', eb_f='down', expr='shout', lean=-3, tilt=-9,
+                            hip=(0.0, -17.4), wang=-90),
+                          G(hn=(11.0, -35.0), hf=(-5.0, -33.0), eb_n='down', eb_f='down', expr='grin', lean=0, wang=-80)]
+    elif sig == 'otto':
+        out['idle'] = [G(hip=(-0.6, -15.0 + 0.6 * math.sin(t)), lean=18 + 1.5 * math.sin(t - 0.5), tilt=-16,
+                         hn=(10.6, -15.8 + 0.6 * math.sin(t)), hf=(13.6, -16.6 + 0.6 * math.sin(t - 0.7)), eb_n='back',
+                         eb_f='back', fn=(7.4, 0), ff=(-7.0, 0), toe_f=0, blink=(i == 4)) for i, t in enumerate(T)]
+        out['victory'] = [G(hn=(6.0, -24.0), hf=(12.0, -30.0), hand_f='open', expr='fight'),
+                          G(hn=(12.6, -31.0), hf=(13.4, -30.0), hand_f='open', expr='shout', hip=(0.0, -17.0)),
+                          G(hn=(12.8, -31.4), hf=(13.6, -30.4), hand_f='open', expr='shout', hip=(0.0, -17.4)),
+                          G(hn=(13.0, -30.0), hf=(-7.0, -30.0), hand_n='open', hand_f='open', eb_f='down', expr='grin')]
+    elif sig == 'sergeant':
+        out['idle'] = [G(hip=(-0.4, -16.0 + 0.3 * math.sin(t)), tilt=-12 + 16 * max(0.0, math.sin(t)) - 4,
+                         hn=(5.0, -21.0), hf=(8.0, -22.0), eb_n='back', eb_f='back', fn=(6.6, 0), ff=(-6.2, 0),
+                         toe_f=0, blink=(i == 4)) for i, t in enumerate(T)]
+        up = dict(hip=(0.0, -17.6), lean=0, fn=(3.4, 0), ff=(-3.0, 0), toe_f=0, tilt=-6)
+        out['victory'] = [G(hn=(5.0, -21.0), hf=(1.0, -18.0), hand_f='relax', **up),
+                          G(hn=(8.6, -41.4), hand_n='open', eb_n='down', hf=(1.0, -18.0), hand_f='relax', expr='normal', **up),
+                          G(hn=(8.6, -41.6), hand_n='open', eb_n='down', hf=(1.0, -18.0), hand_f='relax', expr='normal', **up),
+                          G(hn=(7.0, -30.0), hf=(1.0, -18.0), hand_f='relax', expr='grin', **up)]
+    elif sig == 'jett':
+        out['idle'] = []
+        for i, t in enumerate(T):
+            b = abs(math.sin(t))
+            out['idle'].append(G(hip=(-0.8, -15.3 - 0.9 * b + 0.25), lean=11, toe_f=28 + 10 * b, toe_n=6 * b,
+                                 hn=(11.6 - (1.4 if i % 3 == 1 else 0.0), -27.4 - 0.6 * b),
+                                 hand_n='open' if i % 3 != 2 else 'relax', hf=(6.0, -26.6 - 0.6 * b), tilt=-4,
+                                 expr='normal', blink=(i == 4)))
+        out['victory'] = [G(expr='normal'),
+                          G(hn=(17.0, -35.0), hand_n='point', eb_n='down', hf=(-1.0, -23.0), eb_f='back', expr='grin',
+                            lean=0, tilt=-6, hip=(0.0, -17.4)),
+                          G(hn=(17.2, -35.4), hand_n='point', eb_n='down', hf=(-1.0, -23.0), eb_f='back', expr='grin',
+                            lean=-2, tilt=-8, hip=(0.0, -17.5)),
+                          G(hn=(15.0, -33.0), hand_n='point', eb_n='down', hf=(-1.0, -23.0), eb_f='back', expr='normal',
+                            lean=0, hip=(0.0, -17.4))]
+    elif sig == 'rhea':
+        out['idle'] = [G(hip=(0.0, -17.2 + 0.3 * math.sin(t)), lean=2, tilt=-6, hn=(7.6, -29.0 + 0.3 * math.sin(t)),
+                         wang=92, eb_n='down', hf=(-1.2, -22.6), eb_f='back', fn=(4.8, 0), ff=(-4.6, 0), toe_f=0,
+                         expr='normal', blink=(i == 4)) for i, t in enumerate(T)]
+        out['victory'] = [out['idle'][0],
+                          G(hip=(0.0, -17.4), lean=-1, tilt=-8, hn=(3.0, -37.0), wang=-150, eb_n='down', hf=(-1.0, -23.0),
+                            eb_f='back', fn=(4.8, 0), ff=(-4.6, 0), toe_f=0, expr='grin'),
+                          G(hip=(0.0, -17.5), lean=-2, tilt=-9, hn=(3.0, -37.2), wang=-150, eb_n='down', hf=(-1.0, -23.0),
+                            eb_f='back', fn=(4.8, 0), ff=(-4.6, 0), toe_f=0, expr='grin'),
+                          G(hip=(0.0, -17.4), lean=0, tilt=-6, hn=(3.0, -37.0), wang=-150, eb_n='down', hf=(-1.0, -23.0),
+                            eb_f='back', fn=(4.8, 0), ff=(-4.6, 0), toe_f=0, expr='normal')]
+    elif sig == 'lou':
+        out['idle'] = []
+        for i, t in enumerate(T):
+            b = abs(math.sin(t))
+            toss = max(0.0, math.sin(t))
+            out['idle'].append(G(hip=(-0.4, -16.6 - 0.7 * b + 0.2), lean=5, toe_f=14 + 8 * b, hn=(4.6, -31.0 - 3.2 * toss),
+                                 hand_n='open', hf=(-1.0, -22.4), eb_f='back', tilt=-3 - 2 * toss, expr='normal',
+                                 blink=(i == 4)))
+        hips = dict(hn=(3.2, -21.6), hf=(-1.4, -22.0), eb_n='back', eb_f='back')
+        out['victory'] = [G(expr='grin', **hips), G(lean=-8, tilt=-14, expr='happy', hip=(0.0, -17.4), **hips),
+                          G(lean=-10, tilt=-16, expr='happy', hip=(0.0, -17.6), **hips),
+                          G(lean=-6, tilt=-10, expr='grin', hip=(0.0, -17.4), **hips)]
+    elif sig == 'sabine':
+        out['idle'] = [G(hip=(0.0, -17.4), lean=2, tilt=-7, hn=(8.6, -27.0 + 0.8 * max(0.0, math.sin(t))),
+                         wang=-15 + 12 * math.sin(t), hf=(11.6, -26.0), hand_f='open', fn=(4.4, 0), ff=(-4.6, 0),
+                         toe_f=0, expr='normal', blink=(i == 4)) for i, t in enumerate(T)]
+        bk = dict(hip=(0.0, -17.7), lean=0, tilt=-8, hn=(-3.2, -21.5), hf=(-4.0, -21.0), near_arm_under=True,
+                  wang=120, fn=(3.4, 0), ff=(-3.2, 0), toe_f=0, expr='normal', eb_n='down', eb_f='down')
+        out['victory'] = [out['idle'][0], G(**bk), G(**dict(bk, blink=True)), G(**dict(bk, tilt=-10))]
+    elif sig == 'rook':
+        out['idle'] = [G(hip=(0.0, -17.5 + 0.2 * math.sin(t)), lean=1, tilt=-5, hn=(6.4 + 0.5 * math.sin(t), -24.6),
+                         hand_n='open', hf=(7.6, -25.4), fn=(4.0, 0), ff=(-4.4, 0), toe_f=0, expr='normal',
+                         blink=(i == 4)) for i, t in enumerate(T)]
+        out['victory'] = [out['idle'][0],
+                          G(hip=(0.0, -17.6), lean=0, tilt=-6, hn=(5.8, -33.6), hand_n='open', hf=(-1.0, -20.0),
+                            hand_f='relax', eb_f='back', fn=(4.0, 0), ff=(-4.4, 0), toe_f=0, expr='normal'),
+                          G(hip=(0.0, -17.6), lean=0, tilt=-7, hn=(5.8, -33.8), hand_n='open', hf=(-1.0, -20.0),
+                            hand_f='relax', eb_f='back', fn=(4.0, 0), ff=(-4.4, 0), toe_f=0, expr='smile'),
+                          G(hip=(0.0, -17.6), lean=0, tilt=-5, hn=(5.5, -32.6), hand_n='open', hf=(-1.0, -20.0),
+                            hand_f='relax', eb_f='back', fn=(4.0, 0), ff=(-4.4, 0), toe_f=0, expr='smile')]
+    elif sig == 'rook_p2':
+        out['idle'] = [G(hip=(-0.8, -14.6 + 0.5 * math.sin(t)), lean=17 + 1.2 * math.sin(t - 0.5), tilt=-12,
+                         hn=(11.6, -25.6 + 0.7 * math.sin(t)), hand_n='open', hf=(14.6, -28.6 + 0.6 * math.sin(t - 0.7)),
+                         hand_f='open', fn=(6.8, 0), ff=(-6.6, 0), toe_f=8, expr='angry', blink=(i == 4))
+                         for i, t in enumerate(T)]
+        out['victory'] = [out['idle'][0],
+                          G(hip=(0.0, -17.2), lean=-6, tilt=-12, hn=(13.0, -38.0), hf=(-8.0, -39.0), hand_n='open',
+                            hand_f='open', eb_n='down', eb_f='down', expr='shout'),
+                          G(hip=(0.0, -17.4), lean=-7, tilt=-14, hn=(13.2, -38.6), hf=(-8.2, -39.6), hand_n='open',
+                            hand_f='open', eb_n='down', eb_f='down', expr='shout'),
+                          G(hip=(0.0, -17.0), lean=-2, tilt=-8, hn=(11.0, -30.0), hf=(-6.0, -30.0), hand_n='open',
+                            hand_f='open', eb_n='down', eb_f='down', expr='grin')]
+    return out
+
+
+# ----------------------------------------------------------------------------- fighter set
+
+def fighter_anims(style='hero', sig=None):
+    A = {}
+    base = STYLE_BASE.get(style, GUARD)
+
+    def G(**kw):
+        d = dict(base)
+        d.update(hand_n='fist', hand_f='fist')
+        d.update(kw)
+        return P(**d)
+
+    A['idle'] = idle_frames(style, dict(base))
+    ws, wb, wl, wlean, wtoe, wsway, wroll, wtw = STYLE_WALK.get(style, STYLE_WALK['hero'])
+    fr, v = cycle(8, ws, wb, wl, wlean, style, 'normal', base=base, toe_bias=wtoe, sway=wsway, roll=wroll,
+                  twist_amp=wtw)
+    A['walk'] = dict(frames=fr, fps=12 if style == 'heavy' else 14, loop=True, stride=ws, vel=v)
+    rs, rlean, rlift = STYLE_RUN.get(style, STYLE_RUN['hero'])
+    fr, v = cycle(8, rs, 0.32, rlift, rlean, 'run', 'fight', run=True, base=base)
+    A['run'] = dict(frames=fr, fps=18, loop=True, stride=rs, vel=v)
 
     A['jump'] = dict(frames=[
         G(hip=(-0.5, -13.4), lean=14, fn=(5.2, 0), ff=(-4.6, 0), toe_f=10, hn=(-2.5, -20.5), hf=(-0.5, -21.5),
@@ -211,10 +422,11 @@ def fighter_anims():
           lift_f=True, hn=(-6.0, -32.0), hf=(4.0, -37.0), hand_n='open', expr='shout', tilt=4),
     ], contact=1, fps=12, vel=[(1, -2), (3, 0)])
     A['jump_punch'] = dict(frames=[
-        G(hip=(0.0, -17.5), lean=4, hn=(-2.0, -38.0), hf=(9.0, -32.0), fn=(5.0, -8.0), ff=(-4.0, -6.0),
-          toe_n=30, toe_f=30, lift_n=True, lift_f=True, expr='effort', wang=-140),
-        G(hip=(0.5, -17.0), lean=16, twist=-0.8, hn=(19.0, -23.0), hf=(-3.0, -33.0), hand_f='open', fn=(2.0, -9.0),
-          ff=(-6.5, -7.0), toe_n=30, toe_f=50, lift_n=True, lift_f=True, expr='shout', tilt=4, wang=20),
+        G(hip=(0.0, -17.6), lean=2, twist=0.5, hn=(-3.0, -39.0), hf=(10.0, -31.0), fn=(5.0, -8.6), ff=(-4.0, -6.4),
+          toe_n=30, toe_f=30, lift_n=True, lift_f=True, expr='effort', wang=-140, tilt=-4),
+        G(hip=(0.5, -17.2), lean=14, twist=-0.9, ptwist=-0.4, hn=(20.6, -23.4), hf=(-6.0, -35.0), hand_f='open',
+          eb_f='down', fn=(5.6, -10.4), ff=(-5.4, -7.6), toe_n=35, toe_f=55, lift_n=True, lift_f=True, expr='shout',
+          tilt=2, wang=25),
     ], contact=1, fps=12, vel=[(1, -2), (3, 3)])
     A['run_punch'] = dict(frames=[
         G(hip=(0.0, -15.8), lean=22, hn=(-1.0, -24.0), hf=(10.0, -32.0), fn=(7.0, 0), ff=(-8.0, -3.0), toe_f=40,
@@ -232,10 +444,7 @@ def fighter_anims():
           lift_f=True, hn=(-9.0, -24.0), hf=(-6.0, -30.0), hand_n='open', hand_f='open', expr='effort', tilt=-18),
     ], contact=1, fps=12, vel=[(2, -3), (5, 0), (2, 3)])
 
-    A['guard'] = dict(frames=[
-        G(hip=(-0.6, -16.4), lean=8, hn=(8.6, -34.0), hf=(10.2, -36.4), expr='effort', tilt=-6),
-        G(hip=(-0.8, -15.8), lean=10, tilt=-10, hn=(8.2, -35.6), hf=(10.0, -38.2), expr='effort'),
-    ], fps=12, loop=False, vel=[(0, 0), (0, 0.5)])
+    A['guard'] = dict(frames=guard_frames(style, G), fps=12, loop=False, vel=[(0, 0), (0, 0.5)])
 
     # ---- hit reactions (direction + strength)
     A['hurt_high'] = dict(frames=[
@@ -255,12 +464,13 @@ def fighter_anims():
           expr='pain'),
     ], fps=12, loop=False, vel=[(-2, 1), (-1, 0.5), (0, 0)])
     A['hurt_back'] = dict(frames=[
-        G(hip=(1.6, -17.0), lean=14, tilt=-24, hn=(-6.0, -26.0), hf=(-8.0, -30.0), hand_n='open', hand_f='open',
-          eb_n='down', eb_f='down', fn=(6.0, 0), ff=(-3.0, 0), toe_f=20, expr='pain_open'),
-        G(hip=(2.4, -16.4), lean=20, tilt=-12, hn=(-3.0, -24.0), hf=(-5.0, -28.0), hand_n='open', hand_f='open',
-          fn=(8.0, 0), ff=(-2.0, -2.0), toe_f=30, lift_f=True, expr='pain'),
-        G(hip=(1.0, -16.6), lean=10, tilt=-4, fn=(6.0, 0), ff=(-4.6, 0), expr='fight'),
-    ], fps=12, loop=False, vel=[(3, 0), (1.5, 0), (0, 0)])
+        G(hip=(2.6, -16.8), lean=22, tilt=-42, head=(-0.8, 0.4), hn=(-7.0, -34.0), hf=(-9.0, -38.0), hand_n='open',
+          hand_f='open', eb_n='down', eb_f='down', fn=(8.6, 0), ff=(-4.0, -1.6), toe_f=40, lift_f=True,
+          expr='pain_open'),
+        G(hip=(3.6, -15.8), lean=27, tilt=-30, head=(-0.6, 0.3), hn=(-5.0, -30.0), hf=(-7.4, -34.0), hand_n='open',
+          hand_f='open', eb_n='down', eb_f='down', fn=(10.0, 0), ff=(-2.4, -2.4), toe_f=45, lift_f=True, expr='pain'),
+        G(hip=(1.6, -16.4), lean=12, tilt=-6, fn=(7.0, 0), ff=(-4.4, 0), expr='fight'),
+    ], fps=12, loop=False, vel=[(3.5, 0), (2.0, 0), (0, 0)])
     KD = dict(tilt=-50, head=(0.0, -2.4))
     A['knockdown'] = dict(frames=[
         G(hip=(-1.5, -18.0), lean=-38, tilt=-20, fn=(6.0, -4.0), ff=(3.0, -6.0), toe_n=-10, toe_f=0, lift_n=True,
@@ -307,7 +517,7 @@ def fighter_anims():
           eb_n='back', eb_f='fwd', fn=(4.6, 0), ff=(-4.6, 0), toe_f=0, expr='effort', tilt=-5, twist=0.0,
           near_arm_back=True),
     ], fps=4, loop=True, vel=[(0, 0.3), (0, -0.3)])
-    fr, v = cycle(6, 26.0, 0.62, 2.4, 2.0, None, 'effort', carry=True, base=dict(GUARD, tilt=-8))
+    fr, v = cycle(6, 26.0, 0.62, 2.4, 2.0, 'carry', 'effort', base=dict(GUARD, tilt=-8))
     A['carry_walk'] = dict(frames=fr, fps=10, loop=True, stride=26.0, vel=v)
     A['throw'] = dict(frames=[
         G(hip=(-1.5, -16.8), lean=-14, hn=(-4.0, -49.0), hf=(-2.0, -50.0), hand_n='open', hand_f='open',
@@ -369,6 +579,12 @@ def fighter_anims():
     ], fps=8, loop=False, vel=[(0, 1), (0, -3), (0, 0), (0, 1)])
     A['talk'] = dict(frames=talk_frames(), fps=6, loop=True, vel=[(0, 0)] * 4)
     A['cower'] = dict(frames=cower_frames(), fps=10, loop=True, vel=[(0.5, 0), (-0.5, 0), (0.3, 0)])
+    if sig:
+        ov = signature(sig, base, G)
+        if 'idle' in ov:
+            A['idle'] = dict(frames=ov['idle'], fps=7, loop=True, vel=[(0, 0.3 * math.cos(2 * math.pi * i / 6)) for i in range(6)])
+        if 'victory' in ov:
+            A['victory'] = dict(frames=ov['victory'], fps=8, loop=False, vel=[(0, 1), (0, -3), (0, 0), (0, 1)])
     return A
 
 
@@ -403,9 +619,9 @@ def civilian_anims():
                      hn=(3.2, -16.9 + 0.35 * math.sin(th - 0.7)), hf=(-0.4, -17.5 + 0.3 * math.sin(th - 0.9)),
                      tilt=0.6 * math.sin(th - 1.1), blink=(i == 3)))
     A['idle'] = dict(frames=fr, fps=7, loop=True, vel=[(0, 0.3 * math.cos(2 * math.pi * i / 6)) for i in range(6)])
-    fr, v = cycle(8, 34.0, 0.62, 2.6, 3.0, None, 'normal', civ=True, base=RELAX)
+    fr, v = cycle(8, 34.0, 0.62, 2.6, 3.0, 'civ', 'normal', base=RELAX)
     A['walk'] = dict(frames=fr, fps=12, loop=True, stride=34.0, vel=v)
-    fr, v = cycle(8, 52.0, 0.38, 6.0, 12.0, None, 'scared', run=True, base=RELAX)
+    fr, v = cycle(8, 54.0, 0.34, 7.0, 16.0, 'run', 'scared', run=True, base=RELAX)
     A['run'] = dict(frames=fr, fps=16, loop=True, stride=52.0, vel=v)
     A['talk'] = dict(frames=talk_frames(), fps=6, loop=True, vel=[(0, 0)] * 4)
     A['cower'] = dict(frames=cower_frames(), fps=10, loop=True, vel=[(0.5, 0), (-0.5, 0), (0.3, 0)])
