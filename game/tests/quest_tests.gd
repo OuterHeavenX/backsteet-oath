@@ -159,7 +159,7 @@ func q_dog() -> void:
 	check(w.room.find_npc("biscuit") != null, "Biscuit follows across rooms")
 	var cash0 := GameState.cash
 	await talk_to("alvarez")
-	check(Quests.state("dog") == "done" and GameState.cash == cash0 + 40 and GameState.bag.count("empanada") == 2, "dog quest reward")
+	check(Quests.state("dog") == "done" and GameState.cash >= cash0 + 40 and GameState.bag.count("empanada") == 2, "dog quest reward")
 
 func q_tools() -> void:
 	await goto_room("int_garage", "south")

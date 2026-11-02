@@ -38,6 +38,10 @@ func _ready() -> void:
 	add_child(menu_layer)
 	rotate_overlay = RotateOverlay.new()
 	menu_layer.add_child(rotate_overlay)
+	if OS.is_debug_build():
+		var dbg := DebugOverlay.new()
+		dbg.world = self
+		add_child(dbg)
 	GameState.leveled_up.connect(_on_leveled)
 	InputPrompts.pad_disconnected.connect(_on_pad_disconnected)
 	Story.world = self
@@ -60,7 +64,8 @@ func _process(delta: float) -> void:
 	if _fps_t >= 5.0:
 		var fps := Engine.get_frames_per_second()
 		var en := room.enemies_alive() if room else 0
-		print("BO_PERF fps=%d worst_frame_ms=%.1f room=%s enemies=%d actors=%d" % [fps, _frame_max_ms, room.room_id if room else "-", en, room.actors.size() if room else 0])
+		var pp: Vector2 = room.player.position if room and room.player else Vector2.ZERO
+		print("BO_PERF fps=%d worst_frame_ms=%.1f room=%s enemies=%d actors=%d player=%d,%d state=%s touch=%s" % [fps, _frame_max_ms, room.room_id if room else "-", en, room.actors.size() if room else 0, int(pp.x), int(pp.y), room.player.state if room and room.player else "-", str(touch.visible)])
 		_fps_t = 0.0
 		_frame_max_ms = 0.0
 

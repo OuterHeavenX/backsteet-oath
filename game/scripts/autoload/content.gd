@@ -31,6 +31,17 @@ var load_errors: PackedStringArray = []
 func _ready() -> void:
 	reload()
 
+## Releases static texture/font caches so shutdown is clean (no leak warnings on exit).
+func _exit_tree() -> void:
+	SpriteLib._chars.clear()
+	SpriteLib._tex.clear()
+	Actor._shadow_cache = null
+	Actor._shader = null
+	FX._fb.clear()
+	UIKit._theme = null
+	UIKit.font_small = null
+	UIKit.font_big = null
+
 func reload() -> void:
 	load_errors.clear()
 	rooms = _load("res://data/rooms.json").get("rooms", {})

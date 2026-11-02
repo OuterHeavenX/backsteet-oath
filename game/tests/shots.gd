@@ -42,6 +42,20 @@ func _ready() -> void:
 			"room":
 				w._load_room(parts[1], parts[2] if parts.size() > 2 else "west")
 				await get_tree().create_timer(0.8).timeout
+			"boss":
+				var r2 = w.room
+				var b = r2.spawn_enemy(parts[1], r2.player.position + Vector2(float(parts[2]), 0), {})
+				r2.boss_actors = [b]
+				r2.boss_active = true
+				w.boss_bar([b])
+				Audio.play_music("boss")
+			"xp":
+				GameState.add_xp(int(parts[1]))
+				GameState.add_cash(int(parts[2]) if parts.size() > 2 else 0)
+				w.room.player.refresh_stats()
+				w.hud.levelup.visible = false
+			"weapon":
+				w.room.player.equip_weapon(parts[1])
 			"tp":
 				w.room.player.position = Vector2(float(parts[1]), float(parts[2]))
 			"menu":

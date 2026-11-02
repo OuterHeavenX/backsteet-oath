@@ -217,6 +217,10 @@ func _process(delta: float) -> void:
 			weapon_label.add_theme_color_override("font_color", UIKit.DIM)
 		set_prompt(p.current_context_text() if not world.dialogue_active() else "")
 	_update_boss()
+	var right_pad := 84.0 if world and world.touch and world.touch.visible else 6.0
+	if obj_label.offset_right != -right_pad:
+		obj_label.offset_right = -right_pad
+		obj_label.offset_left = -right_pad - 258.0
 	if levelup.visible:
 		levelup_t -= delta
 		if levelup_t <= 0.0:

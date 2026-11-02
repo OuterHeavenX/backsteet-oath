@@ -7,7 +7,7 @@ config_version=5
 
 config/name="Backstreet Oath"
 config/description="An original belt-scrolling action RPG set in Bellwether, 1988."
-config/version="0.1.0"
+config/version="1.0.0-rc1"
 run/main_scene="res://scenes/title.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://assets/ui/icon.png"
