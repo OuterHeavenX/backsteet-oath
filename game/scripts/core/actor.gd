@@ -322,8 +322,8 @@ func _knockdown_state() -> void:
 		if room:
 			room.spawn_fx("dust", position + Vector2(0, 1), 0.0)
 			room.shake(1)
-		if held != "":
-			drop_weapon(true)
+		if held != "" and not is_boss:
+			drop_weapon(true)   # bosses keep their signature weapons
 	vel = vel.move_toward(Vector2.ZERO, 600 * DT)
 	if hp <= 0:
 		_begin_death()

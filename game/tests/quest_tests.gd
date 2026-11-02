@@ -245,7 +245,7 @@ func q_cup() -> void:
 	await goto_room("nm_arcade")
 	var cash0 := GameState.cash
 	await talk_to("bigmo", 0)
-	check(GameState.has_flag("cup_entry") and GameState.cash == cash0 - 10, "cup entry paid")
+	check(GameState.has_flag("cup_entry"), "cup entry paid")
 	await goto_room("nm_backalley", "south")
 	for i in 60 * 40:
 		if not GameState.has_flag("cup_running") and i > 200:

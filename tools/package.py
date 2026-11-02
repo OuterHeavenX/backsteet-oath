@@ -52,7 +52,7 @@ def add(z, src, arc, exe=False):
         z.writestr(info, f.read(), compresslevel=9)
 
 def add_text(z, arc, text, exe=False):
-    info = zipfile.ZipInfo(arc)
+    info = zipfile.ZipInfo(arc, date_time=__import__("time").localtime()[:6])
     info.external_attr = (stat.S_IFREG | (0o755 if exe else 0o644)) << 16
     info.compress_type = zipfile.ZIP_DEFLATED
     z.writestr(info, text)
