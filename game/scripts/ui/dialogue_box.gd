@@ -24,6 +24,7 @@ var choosing := false
 var choice_result := -1
 var skip_requested := false
 var advance_cd := 0.0
+var skip_btn: Button
 
 func _init() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -62,8 +63,19 @@ func _ready() -> void:
 	v.add_child(text_label)
 	choice_box = UIKit.vbox(2)
 	v.add_child(choice_box)
+	var foot := UIKit.hbox(8)
+	v.add_child(foot)
 	hint = UIKit.label("", UIKit.DIM, 0, HORIZONTAL_ALIGNMENT_RIGHT)
-	v.add_child(hint)
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	foot.add_child(hint)
+	skip_btn = Button.new()
+	skip_btn.text = "SKIP >>"
+	skip_btn.focus_mode = Control.FOCUS_NONE
+	skip_btn.pressed.connect(func():
+		Audio.sfx("ui_cancel", -6.0, 0.0)
+		_end())
+	foot.add_child(skip_btn)
+	gui_input.connect(_on_panel_input)
 
 func play(new_lines: Array) -> void:
 	lines = new_lines
@@ -71,6 +83,8 @@ func play(new_lines: Array) -> void:
 	skip_requested = false
 	active = true
 	visible = true
+	mouse_filter = Control.MOUSE_FILTER_STOP   # tap anywhere on the street to continue
+	skip_btn.visible = true
 	Audio.duck_music(true)
 	_show_line()
 	await finished
@@ -81,6 +95,8 @@ func ask(prompt_line: Array, options: Array) -> int:
 	active = true
 	visible = true
 	choosing = true
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	skip_btn.visible = false
 	choice_result = -1
 	_show_line()
 	shown = full_text.length()
@@ -135,7 +151,10 @@ func _show_line() -> void:
 	shown = 0.0
 	text_label.visible_characters = 0
 	advance_cd = 0.12
-	hint.text = "%s Next   %s Skip" % [InputPrompts.tag("punch"), "(B)" if InputPrompts.kind == "gamepad" else ("[Esc]" if InputPrompts.kind == "keyboard" else "<tap>")]
+	match InputPrompts.kind:
+		"touch": hint.text = "Tap to continue"
+		"gamepad": hint.text = "(A) Next   (B) Skip"
+		_: hint.text = "%s or [Enter] Next   [Esc] Skip" % InputPrompts.tag("punch")
 
 func _process(delta: float) -> void:
 	if not active:
@@ -186,5 +205,6 @@ func _end() -> void:
 	active = false
 	choosing = false
 	visible = false
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Audio.duck_music(false)
 	finished.emit()

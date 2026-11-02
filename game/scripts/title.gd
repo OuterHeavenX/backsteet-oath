@@ -70,6 +70,7 @@ func _process(delta: float) -> void:
 	if not started:
 		blink += delta
 		press_label.visible = int(blink * 2.0) % 2 == 0
+		press_label.text = {"touch": "TAP TO START", "gamepad": "PRESS ANY BUTTON"}.get(InputPrompts.kind, "PRESS ANY KEY")
 
 func _input(event: InputEvent) -> void:
 	if started:

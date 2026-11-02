@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.0-rc2 (2026-11-02): touch & device identity pass (tester feedback)
+- **Tablets:** the street sits on top and the touch controls get their own deck underneath (no overlap).
+  The screen now fills taller displays instead of letterboxing.
+- **Phones:** the controls disappear while a conversation or cutscene is on screen.
+- **Context ACTION button:** replaces GRAB and relabels itself TALK / ENTER / PICK UP / LIFT / GRAB / THROW / BUS,
+  glowing when there's something to do.
+- **Buttons:** clear word labels (PUNCH, KICK, JUMP, GUARD, RUN, ACTION). On wide decks the labels sit under
+  the buttons. BAG and PAUSE moved into the deck.
+- **Dialogue:** tap anywhere on the street to continue, a visible **SKIP** button, and device-aware hints
+  ("Tap to continue", "(A) Next (B) Skip", "[J] or [Enter] Next [Esc] Skip").
+- **Menus:** every menu has a visible **< Back** button. Keyboard-only hints are hidden on touch, and touch
+  buttons are taller.
+- **Device detection:** browsers on phones and tablets start in touch mode ("TAP TO START", touch prompts
+  everywhere). Touch controls show only while touch is in use, so keyboard and controller players never see them.
+- Controls screen explains the touch layout.
+
 ## 1.0.0-rc1 (2026-11-02)
 First complete build (release candidate pending a human playtest).
 - Full campaign: prologue, three acts, ending, credits, postgame free roam.

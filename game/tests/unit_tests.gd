@@ -392,5 +392,17 @@ func test_combat_geometry() -> void:
 		if k.kind == "weapon" and k.weapon_id == "bat":
 			bats += 1
 	check(bats <= 1, "thrown weapon recoverable without duplication (%d)" % bats)
+	# touch ACTION button context labels
+	p.held = ""
+	p.weapon_spr.visible = false
+	p.position = Vector2(640, room.walk_top + 4)
+	check(p.context_short() == "ENTER", "ACTION shows ENTER at a door")
+	p.position = Vector2(470, 300)
+	room.spawn_weapon_pickup("bat", Vector2(476, 300), -1, 0.0)
+	check(p.context_short() == "PICK UP", "ACTION shows PICK UP near a weapon")
+	p.equip_weapon("baton")
+	for leftover in room.pickups.duplicate():
+		room.remove_pickup(leftover)
+	check(p.context_short() == "THROW", "ACTION shows THROW while holding a weapon")
 	room.queue_free()
 	stub.queue_free()

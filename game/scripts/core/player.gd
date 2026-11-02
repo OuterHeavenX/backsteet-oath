@@ -497,6 +497,28 @@ func on_defeated() -> void:
 	if room:
 		room.on_player_defeated()
 
+## One word for the touch ACTION button: what pressing it will do right now ("" = nothing special).
+func context_short() -> String:
+	if room == null or not control_enabled or dead:
+		return ""
+	if carried_actor or is_carrying_heavy():
+		return "THROW"
+	var ctx: Dictionary = room.find_context(self)
+	match ctx.get("type", ""):
+		"npc":
+			return "BUS" if ctx.node is Prop else "TALK"
+		"door":
+			return "ENTER"
+		"pickup":
+			return "PICK UP"
+		"prop":
+			return "LIFT"
+		"enemy":
+			return "GRAB"
+	if held != "":
+		return "THROW"
+	return ""
+
 func current_context_text() -> String:
 	if room == null or not control_enabled:
 		return ""

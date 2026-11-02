@@ -31,9 +31,25 @@ func make_frame(title: String, min_size: Vector2 = Vector2(300, 200)) -> VBoxCon
 	content = UIKit.vbox(4)
 	root_panel.add_child(content)
 	if title != "":
+		var head := UIKit.hbox(8)
+		content.add_child(head)
 		var h := UIKit.heading(title)
-		content.add_child(h)
+		h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		head.add_child(h)
+		if back_allowed:
+			head.add_child(back_button())
 	return content
+
+## Always-visible Back control (essential for touch, handy for mouse).
+func back_button() -> Button:
+	var b := Button.new()
+	b.text = "< Back"
+	b.focus_mode = Control.FOCUS_NONE
+	b.pressed.connect(func():
+		if back_allowed:
+			Audio.sfx("ui_cancel", -6.0, 0.0)
+			close())
+	return b
 
 func _ready() -> void:
 	UIKit.apply(self)

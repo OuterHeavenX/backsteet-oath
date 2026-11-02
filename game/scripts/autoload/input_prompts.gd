@@ -17,7 +17,7 @@ const PAD_ICONS := {
 	JOY_BUTTON_A: "gp_a", JOY_BUTTON_B: "gp_b", JOY_BUTTON_X: "gp_x", JOY_BUTTON_Y: "gp_y",
 	JOY_BUTTON_LEFT_SHOULDER: "gp_lb", JOY_BUTTON_RIGHT_SHOULDER: "gp_rb", JOY_BUTTON_BACK: "gp_select", JOY_BUTTON_START: "gp_start"
 }
-const TOUCH_NAMES := {"punch": "P", "kick": "K", "jump": "JUMP", "guard": "GRD", "interact": "GRAB", "run": "RUN", "status": "BAG", "pause": "II"}
+const TOUCH_NAMES := {"punch": "PUNCH", "kick": "KICK", "jump": "JUMP", "guard": "GUARD", "interact": "ACTION", "run": "RUN", "status": "BAG", "pause": "PAUSE"}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -25,6 +25,12 @@ func _ready() -> void:
 	if DisplayServer.is_touchscreen_available() and OS.has_feature("mobile"):
 		touch_seen = true
 		kind = "touch"
+	elif OS.has_feature("web"):
+		# phones and tablets report a coarse primary pointer; start them in touch mode
+		var coarse = JavaScriptBridge.eval("(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? 1 : 0", true)
+		if coarse != null and int(coarse) == 1:
+			touch_seen = true
+			kind = "touch"
 	elif Input.get_connected_joypads().size() > 0 and OS.has_feature("steamdeck"):
 		kind = "gamepad"
 
@@ -70,7 +76,7 @@ func label(action: String) -> String:
 func tag(action: String) -> String:
 	match kind:
 		"gamepad": return "(" + label(action) + ")"
-		"touch": return "<" + label(action) + ">"
+		"touch": return "[" + label(action) + "]"
 		_: return "[" + label(action) + "]"
 
 func icon_name(action: String) -> String:

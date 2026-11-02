@@ -33,6 +33,8 @@ func _ready() -> void:
 	touch = TouchControls.new()
 	touch.world = self
 	ui_layer.add_child(touch)
+	touch.layout_changed.connect(_layout_ui)
+	get_viewport().size_changed.connect(_layout_ui)
 	menu_layer = CanvasLayer.new()
 	menu_layer.layer = 20
 	add_child(menu_layer)
@@ -46,6 +48,7 @@ func _ready() -> void:
 	InputPrompts.pad_disconnected.connect(_on_pad_disconnected)
 	Story.world = self
 	Quests.world = self
+	_layout_ui()
 	_load_room(GameState.room, GameState.spawn, true)
 	if OS.has_feature("web"):
 		var q = JavaScriptBridge.eval("window.location.search", true)
@@ -68,6 +71,29 @@ func _process(delta: float) -> void:
 		print("BO_PERF fps=%d worst_frame_ms=%.1f room=%s enemies=%d actors=%d player=%d,%d state=%s touch=%s" % [fps, _frame_max_ms, room.room_id if room else "-", en, room.actors.size() if room else 0, int(pp.x), int(pp.y), room.player.state if room and room.player else "-", str(touch.visible)])
 		_fps_t = 0.0
 		_frame_max_ms = 0.0
+
+## The playfield is always 360 px tall. Taller screens (tablets, 16:10) get extra space: with touch
+## controls it becomes a control deck under the street; otherwise the street is centered.
+func playfield_top() -> float:
+	var h := get_viewport().get_visible_rect().size.y
+	var extra := h - 360.0
+	if extra <= 0.5:
+		return 0.0
+	if touch and touch.active and extra >= 72.0:
+		return 0.0
+	return floorf(extra * 0.5)
+
+func camera_center_y() -> float:
+	return get_viewport().get_visible_rect().size.y * 0.5 - playfield_top()
+
+func _layout_ui() -> void:
+	var vs := get_viewport().get_visible_rect().size
+	var top := playfield_top()
+	for c in [hud, dialogue]:
+		if c:
+			c.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			c.position = Vector2(0, top)
+			c.size = Vector2(vs.x, 360.0)
 
 func _on_leveled(level: int, gains: Dictionary) -> void:
 	hud.show_level_up(level, gains)

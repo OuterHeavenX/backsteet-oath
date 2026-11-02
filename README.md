@@ -4,7 +4,7 @@ An original 2D belt-scrolling action RPG set in Bellwether, a fictional late-198
 Walk the streets with depth, punch, kick and jump, grab whatever's lying around, buy food and fighting
 manuals, level up, and take your neighborhood back from the man in the gray coat.
 
-**Version:** 1.0.0-rc1 (release candidate: feature-complete and tested by automated play; no human playtest yet)
+**Version:** 1.0.0-rc2 (release candidate: feature-complete and tested by automated play; no human playtest yet)
 **Engine:** Godot **4.7.2-stable** (official build), GDScript, Compatibility renderer (WebGL 2 / OpenGL 3.3)
 **Platforms:** Web (HTML5, itch.io), Linux x86_64 (Steam Deck native), Windows x86_64 (built, not run-tested)
 
@@ -24,6 +24,7 @@ manuals, level up, and take your neighborhood back from the man in the gray coat
 
 ## Play
 - **Web:** open `index.html` from the web zip on any static web server (itch.io: upload the zip as an HTML game).
+- **Phones and tablets (browser):** landscape, touch controls appear automatically. Tablets get a control deck under the street.
 - **Linux / Steam Deck:** unzip, run `./start.sh` (or `BackstreetOath.x86_64`). See [STEAM_DECK.md](STEAM_DECK.md).
 - **Windows:** unzip, run `BackstreetOath.exe`.
 - Controls: [CONTROLS.md](CONTROLS.md).
@@ -45,7 +46,7 @@ godot --headless --import
 godot --headless --export-release "Web" ../build/web/index.html
 godot --headless --export-release "Linux" ../build/linux/BackstreetOath.x86_64
 godot --headless --export-release "Windows" ../build/windows/BackstreetOath.exe
-../tools/package.sh 1.0.0-rc1        # versioned zips in release/
+../tools/package.sh 1.0.0-rc2        # versioned zips in release/
 ```
 Regenerate assets (Python 3 + Pillow + numpy; fonttools for fonts; ffmpeg for audio):
 ```bash

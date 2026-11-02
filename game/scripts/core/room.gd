@@ -532,7 +532,8 @@ func _update_camera(snap: bool) -> void:
 		shake_amt *= 0.82
 	else:
 		shake_amt = 0.0
-	camera.position = Vector2(round(cam_x + off.x), round(VIEW_H * 0.5 + off.y))
+	var cy: float = world.camera_center_y() if world and world.has_method("camera_center_y") else VIEW_H * 0.5
+	camera.position = Vector2(round(cam_x + off.x), round(cy + off.y))
 
 # ---------------------------------------------------------------- collision
 func move_actor(a: Actor, d: Vector2) -> Vector2:

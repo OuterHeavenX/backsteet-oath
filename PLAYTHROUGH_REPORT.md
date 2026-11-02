@@ -1,6 +1,6 @@
 # Playthrough Report
 
-**Build:** 1.0.0-rc1 (branch `claude/backstreet-oath-build`), Godot 4.7.2-stable, Normal difficulty.
+**Build:** 1.0.0-rc2 (branch `claude/backstreet-oath-build`), Godot 4.7.2-stable, Normal difficulty.
 **Tester method:** automated bot (`game/tests/autoplay.tscn`), run headless at a fixed 60 ticks/s, so all times below are
 **in-game seconds**. The bot drives the game only through InputMap actions, the same path as a keyboard or
 controller. It uses no debug shortcuts, teleports, stat edits or cheats. It follows the main story only (no side jobs,

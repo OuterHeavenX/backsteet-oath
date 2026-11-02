@@ -17,8 +17,14 @@ func build() -> void:
 		var b := UIKit.button(("[%s]" % TABS[i]) if i == tab else TABS[i], func(): _set_tab(i), 0)
 		top.add_child(b)
 		tab_buttons.append(b)
-	var hint := UIKit.label("  %s / %s switch tabs" % ["LB" if InputPrompts.kind == "gamepad" else "Q", "RB" if InputPrompts.kind == "gamepad" else "R"], UIKit.DIM)
+	var hint_t := ""
+	match InputPrompts.kind:
+		"gamepad": hint_t = "  LB / RB switch tabs"
+		"keyboard": hint_t = "  Q / R switch tabs"
+	var hint := UIKit.label(hint_t, UIKit.DIM)
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(hint)
+	top.add_child(back_button())
 	var sc := ScrollContainer.new()
 	sc.custom_minimum_size = Vector2(540, 236)
 	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

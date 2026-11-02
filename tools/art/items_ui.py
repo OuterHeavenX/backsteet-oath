@@ -433,6 +433,13 @@ UI = [
     ('touch_btn_grab', _touch_btn('grab', _p_hand, 'GRAB')),
     ('touch_btn_run', _touch_btn('run', _p_run, 'RUN')),
     ('touch_btn_pause', touch_btn_pause), ('touch_btn_status', touch_btn_status),
+    # label-free variants: the engine draws live, context-sensitive labels on these
+    ('touch_btn_punch_bare', _touch_btn('punch', _p_fist, None)),
+    ('touch_btn_kick_bare', _touch_btn('kick', _p_kick, None)),
+    ('touch_btn_jump_bare', _touch_btn('jump', _p_jump, None)),
+    ('touch_btn_guard_bare', _touch_btn('guard', _p_guard, None)),
+    ('touch_btn_grab_bare', _touch_btn('grab', _p_hand, None)),
+    ('touch_btn_run_bare', _touch_btn('run', _p_run, None)),
     ('rotate_device', rotate_device),
 ]
 
@@ -448,6 +455,8 @@ UI_SIZES = {
     'touch_btn_punch': (56, 56), 'touch_btn_kick': (56, 56), 'touch_btn_jump': (56, 56),
     'touch_btn_guard': (56, 56), 'touch_btn_grab': (56, 56), 'touch_btn_run': (56, 56),
     'touch_btn_pause': (32, 32), 'touch_btn_status': (32, 32), 'rotate_device': (64, 64),
+    'touch_btn_punch_bare': (56, 56), 'touch_btn_kick_bare': (56, 56), 'touch_btn_jump_bare': (56, 56),
+    'touch_btn_guard_bare': (56, 56), 'touch_btn_grab_bare': (56, 56), 'touch_btn_run_bare': (56, 56),
 }
 
 NINE_PATCH = {

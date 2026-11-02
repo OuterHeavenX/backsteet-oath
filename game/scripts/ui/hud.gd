@@ -215,9 +215,9 @@ func _process(delta: float) -> void:
 			weapon_icon.texture = SpriteLib.icon("stat_atk")
 			weapon_label.text = "Fists"
 			weapon_label.add_theme_color_override("font_color", UIKit.DIM)
-		set_prompt(p.current_context_text() if not world.dialogue_active() else "")
+		set_prompt(p.current_context_text() if not world.dialogue_active() and InputPrompts.kind != "touch" else "")
 	_update_boss()
-	var right_pad := 84.0 if world and world.touch and world.touch.visible else 6.0
+	var right_pad := 84.0 if world and world.touch and world.touch.visible and not world.touch.docked else 6.0
 	if obj_label.offset_right != -right_pad:
 		obj_label.offset_right = -right_pad
 		obj_label.offset_left = -right_pad - 258.0

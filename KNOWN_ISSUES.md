@@ -1,4 +1,4 @@
-# Known Issues & Limitations (1.0.0-rc1)
+# Known Issues & Limitations (1.0.0-rc2)
 
 No known blocker or major bugs remain in the main campaign or on the tested platforms. The automated campaign
 run, feature tests, quest tests and unit tests all pass.
@@ -6,7 +6,7 @@ run, feature tests, quest tests and unit tests all pass.
 ## Release gates still open
 - **Human playtest not performed.** The campaign duration (target: 60+ minutes of active play) is an estimate
   based on an automated run of 47.4 in-game minutes; see PLAYTHROUGH_REPORT.md. This is the reason for the
-  `-rc1` label.
+  `-rc` (release candidate) label.
 - **Not tested on physical devices:** Steam Deck hardware, iPhone/Safari, Android phones, real gamepads. Desktop
   Chromium (software WebGL) and mobile emulation were tested; real-device behavior may differ.
 - **Windows build** is exported but was not launched (no Windows machine available).

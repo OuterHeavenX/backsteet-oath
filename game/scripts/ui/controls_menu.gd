@@ -10,6 +10,10 @@ var listen_cd := 0
 
 func build() -> void:
 	var c := make_frame("CONTROLS", Vector2(520, 0))
+	if InputPrompts.kind == "touch" or Settings.touch_controls == "on":
+		c.add_child(UIKit.label("TOUCH", UIKit.MUSTARD))
+		c.add_child(UIKit.wrap_label("Left pad: move along the street and its depth. PUNCH, KICK, JUMP, GUARD (hold), RUN (hold). ACTION does what its label says: TALK, ENTER, PICK UP, LIFT, GRAB a dizzy foe, THROW. Tap the street or the text box to continue a conversation; SKIP ends it. BAG opens status, PAUSE opens the menu. On tablets the controls get their own deck under the street.", 500, UIKit.CREAM))
+		c.add_child(UIKit.label("KEYBOARD & CONTROLLER", UIKit.MUSTARD))
 	c.add_child(UIKit.wrap_label("Select a binding and press the new key or controller button. Esc/B cancels. Movement: %s, or left stick / D-pad." % "WASD or arrow keys", 500, UIKit.DIM))
 	var sc := ScrollContainer.new()
 	sc.custom_minimum_size = Vector2(500, 210)

@@ -56,8 +56,9 @@ static func build_theme() -> Theme:
 	var bf := _panel_box(Color(0.42, 0.3, 0.12, 1.0), MUSTARD, 2)
 	var bp := _panel_box(Color(0.6, 0.45, 0.15, 1.0), MUSTARD, 2)
 	var bd := _panel_box(Color(0.15, 0.12, 0.16, 0.9), Color(0.3, 0.27, 0.3), 1)
+	var touch_pad := 5 if InputPrompts.kind == "touch" else 2
 	for s in [bn, bf, bp, bd]:
-		s.content_margin_left = 6; s.content_margin_right = 6; s.content_margin_top = 2; s.content_margin_bottom = 2
+		s.content_margin_left = 6; s.content_margin_right = 6; s.content_margin_top = touch_pad; s.content_margin_bottom = touch_pad
 	t.set_stylebox("normal", "Button", bn)
 	t.set_stylebox("hover", "Button", bf)
 	t.set_stylebox("focus", "Button", bf)
