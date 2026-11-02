@@ -45,6 +45,7 @@ func _ready() -> void:
 	Settings.difficulty = OS.get_environment("AUTOPLAY_DIFF") if OS.get_environment("AUTOPLAY_DIFF") != "" else "normal"
 	GameState.reset_new_game()
 	Story.new_game()
+	Story.credits_return = "title"
 	SaveService.current_slot = 3
 	w = load("res://scenes/world.tscn").instantiate()
 	get_tree().root.add_child.call_deferred(w)
@@ -68,8 +69,25 @@ func _release_all() -> void:
 		if held[a]:
 			_act(a, false)
 
+var blocked_t := 0
+var detour := 0.0
 func _move(dir: Vector2) -> void:
 	var t := 0.25
+	if w and w.room and w.room.player and absf(dir.x) > t and dir.y == 0.0:
+		var p: Player = w.room.player
+		if absf(p.vel.x) < 5.0 and p.state in ["idle", "walk", "run"]:
+			blocked_t += 1
+		else:
+			blocked_t = maxi(0, blocked_t - 2)
+		if blocked_t > 12 and detour == 0.0:
+			var mid: float = (w.room.walk_top + w.room.walk_bot) * 0.5
+			detour = 1.0 if p.position.y < mid else -1.0
+		if detour != 0.0:
+			dir.y = detour
+			if blocked_t <= 0:
+				detour = 0.0
+	else:
+		detour = 0.0
 	_set_axis("move_right", dir.x > t)
 	_set_axis("move_left", dir.x < -t)
 	_set_axis("move_down", dir.y > t)
@@ -90,7 +108,7 @@ func _physics_process(_d: float) -> void:
 	if frames > max_frames:
 		_finish("timeout")
 		return
-	if GameState.has_flag("game_complete") and (w == null or not is_instance_valid(w) or not w.is_inside_tree()):
+	if GameState.has_flag("game_complete") and Story.credits_return == "world":
 		_finish("complete")
 		return
 	if w == null or not is_instance_valid(w) or not w.is_inside_tree():

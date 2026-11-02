@@ -449,7 +449,20 @@ func from_dict(d: Dictionary) -> void:
 		stage = "intro"
 	flags = s.get("flags", {}) if typeof(s.get("flags")) == TYPE_DICTIONARY else {}
 	bosses = s.get("bosses", {}) if typeof(s.get("bosses")) == TYPE_DICTIONARY else {}
-	quests = s.get("quests", {}) if typeof(s.get("quests")) == TYPE_DICTIONARY else {}
+	quests = {}
+	var qs = s.get("quests", {})
+	if typeof(qs) == TYPE_DICTIONARY:
+		for qid in qs:
+			var q = qs[qid]
+			if typeof(q) != TYPE_DICTIONARY or not Content.quests.has(qid):
+				continue
+			var st := str(q.get("state", "inactive"))
+			if not st in ["inactive", "active", "done", "failed"]:
+				st = "inactive"
+			var entry := {"state": st, "step": clampi(int(q.get("step", 0)), 0, 9), "data": q.get("data", {}) if typeof(q.get("data", {})) == TYPE_DICTIONARY else {}}
+			if q.has("times"):
+				entry["times"] = int(q.times)
+			quests[qid] = entry
 	notes = s.get("notes", []) if typeof(s.get("notes")) == TYPE_ARRAY else []
 	var w: Dictionary = d.get("world", {})
 	room = str(w.get("room", "oq_kettle"))

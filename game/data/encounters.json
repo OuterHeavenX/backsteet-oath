@@ -1,246 +1,1881 @@
 {
-  "_doc": "Per-room gameplay. waves: trigger when the player passes x='at' (after settling in). lock = exits locked until cleared. respawn = returns after 4 room visits. boss: story-driven boss fight. events: Story.on_event hooks. prop_contents: index into rooms.json props.",
-  "rooms": {
-    "oq_kettle": {
-      "npcs": [
-        {"id": "townd", "x": 1250, "y": 236, "mode": "idle", "requires": "intro_done"},
-        {"id": "towna", "x": 1050, "y": 300, "mode": "wander", "requires": "intro_done"},
-        {"id": "duke", "x": 900, "y": 230, "mode": "idle", "requires": "boss_rook", "facing": -1}
-      ],
-      "waves": [
-        {"id": "k1", "at": 820, "requires": "intro_done & stage>=chain_dogs", "respawn": true, "enemies": [["dogs_brawler", 2], ["dogs_flanker", 1]]},
-        {"id": "k2", "at": 1250, "requires": "stage>=chain_dogs", "respawn": true, "enemies": [["dogs_brawler", 1], ["dogs_weapon", 1], ["dogs_flanker", 1]]}
-      ],
-      "events": [{"id": "intro", "at": 0, "requires": "!intro_done"}],
-      "pickups": [{"weapon": "newspaper", "x": 640, "y": 300, "requires": "intro_done"}],
-      "prop_contents": {"8": {"cash": 5}}
+ "_doc": "Per-room gameplay. waves: trigger when the player passes x='at' (after settling in). lock = exits locked until cleared. respawn = returns after 4 room visits. boss: story-driven boss fight. events: Story.on_event hooks. prop_contents: index into rooms.json props.",
+ "rooms": {
+  "oq_kettle": {
+   "npcs": [
+    {
+     "id": "townd",
+     "x": 1250,
+     "y": 236,
+     "mode": "idle",
+     "requires": "intro_done"
     },
-    "int_diner": {
-      "npcs": [
-        {"id": "dot", "x": 380, "y": 246, "mode": "behind_counter", "shop": "diner", "facing": 1},
-        {"id": "eli", "x": 150, "y": 262, "mode": "idle", "requires": "boss_rook", "facing": 1},
-        {"id": "mara", "x": 200, "y": 270, "mode": "idle", "requires": "boss_rook", "facing": -1},
-        {"id": "jett", "x": 540, "y": 300, "mode": "idle", "requires": "boss_rook", "facing": -1}
-      ]
+    {
+     "id": "towna",
+     "x": 1050,
+     "y": 300,
+     "mode": "wander",
+     "requires": "intro_done"
     },
-    "oq_brickrow": {
-      "npcs": [
-        {"id": "alvarez", "x": 900, "y": 232, "mode": "idle", "requires": "stage>=chain_dogs"},
-        {"id": "biscuit", "x": 930, "y": 236, "mode": "idle", "requires": "quest:dog=done", "talk": true},
-        {"id": "townb", "x": 320, "y": 300, "mode": "wander"},
-        {"id": "townc", "x": 1460, "y": 236, "mode": "idle", "requires": "!stage==return_home"}
-      ],
-      "waves": [
-        {"id": "b1", "at": 520, "requires": "met_mara & !stage==return_home", "respawn": true, "enemies": [["dogs_brawler", 2], ["dogs_thrower", 1]]},
-        {"id": "b2", "at": 1200, "requires": "met_mara & !stage==return_home", "respawn": true, "enemies": [["dogs_flanker", 2], ["dogs_weapon", 1]]}
-      ],
-      "events": [{"id": "setback_arrive", "at": 100, "requires": "stage==return_home & !setback_fought"}],
-      "pickups": [{"weapon": "wrench", "x": 560, "y": 300, "requires": "met_mara"}],
-      "prop_contents": {"5": {"cash": 6}}
-    },
-    "int_garage": {
-      "npcs": [
-        {"id": "mara", "x": 400, "y": 246, "mode": "behind_counter", "shop": "garage", "facing": 1, "requires": "met_mara & !stage==warehouse & !stage==rook"},
-        {"id": "eli", "x": 250, "y": 270, "mode": "idle", "requires": "boss_rook", "facing": 1}
-      ],
-      "events": [{"id": "mara_meet", "at": 0, "requires": "!met_mara"}, {"id": "setback_garage", "at": 0, "requires": "setback_fought & !act3_started"}]
-    },
-    "int_rec": {
-      "npcs": [
-        {"id": "benny", "x": 400, "y": 246, "mode": "behind_counter", "shop": "rec", "facing": 1},
-        {"id": "towna", "x": 240, "y": 280, "mode": "idle", "facing": -1}
-      ]
-    },
-    "oq_chainlot": {
-      "waves": [
-        {"id": "c1", "at": 260, "requires": "met_mara", "respawn": true, "enemies": [["dogs_brawler", 1], ["dogs_flanker", 1], ["dogs_thrower", 1]]},
-        {"id": "c2", "at": 620, "requires": "met_mara & !boss_duke", "lock": true, "lock_text": "Chain Dogs block the way!", "enemies": [["dogs_brawler", 2], ["dogs_weapon", 1], ["dogs_flanker", 1]]}
-      ],
-      "boss": {"id": "duke", "at": 940, "requires": "stage==chain_dogs", "bosses": ["duke"], "intro": "duke_intro", "music": "boss"},
-      "pickups": [{"weapon": "bat", "x": 820, "y": 300}],
-      "prop_contents": {"3": {"cash": 8}}
-    },
-    "cm_gate": {
-      "npcs": [
-        {"id": "teddy", "x": 380, "y": 238, "mode": "idle"},
-        {"id": "towna", "x": 1000, "y": 300, "mode": "wander"},
-        {"id": "townd", "x": 1480, "y": 300, "mode": "idle"}
-      ],
-      "waves": [
-        {"id": "g1", "at": 700, "requires": "stage>=market & !quest:escort=active", "respawn": true, "enemies": [["rats_brawler", 2], ["rats_thrower", 1]]},
-        {"id": "g2", "at": 1250, "requires": "stage>=market & !quest:escort=active", "respawn": true, "enemies": [["rats_weapon", 1], ["rats_flanker", 1], ["rats_thrower", 1]]}
-      ],
-      "prop_contents": {"4": {"cash": 7}}
-    },
-    "int_noodle": {
-      "npcs": [{"id": "fong", "x": 380, "y": 246, "mode": "behind_counter", "shop": "noodle", "facing": 1}]
-    },
-    "int_books": {
-      "npcs": [{"id": "hollis", "x": 400, "y": 246, "mode": "behind_counter", "shop": "books", "facing": 1, "hide_if": "quest:escort=active"}]
-    },
-    "cm_canalwalk": {
-      "waves": [
-        {"id": "w1", "at": 420, "respawn": true, "enemies": [["rats_brawler", 1], ["rats_weapon", 1], ["rats_thrower", 1]]},
-        {"id": "w2", "at": 820, "lock": true, "lock_text": "Wharf Rats close both ends of the footbridge!", "from": "both", "requires": "!boss_pikes", "enemies": [["rats_brawler", 2], ["rats_flanker", 1], ["rats_thrower", 1]]},
-        {"id": "vic", "at": 1300, "requires": "quest:tools=active & !has:toolbox", "respawn": true, "say": "A Wharf Rat with a red toolbox: Sticky Vic!", "enemies": [{"id": "rats_weapon", "name": "Sticky Vic", "weapon": "wrench", "hp_mult": 1.6, "drops": [{"key": "toolbox"}]}, ["rats_flanker", 1]]},
-        {"id": "w3", "at": 1600, "respawn": true, "enemies": [["rats_flanker", 1], ["rats_brawler", 1], ["rats_thrower", 1]]},
-        {"id": "esc", "at": 900, "requires": "quest:escort=active", "respawn": true, "from": "both", "say": "Wharf Rats! Keep them away from Mr. Hollis!", "enemies": [["rats_brawler", 2], ["rats_flanker", 1]]}
-      ],
-      "events": [{"id": "jett_duel", "at": 1240, "requires": "stage==market"}],
-      "pickups": [{"weapon": "broom", "x": 420, "y": 300}, {"weapon": "bottle", "x": 1500, "y": 290}],
-      "prop_contents": {"6": {"key": "parcel", "requires": "quest:parcels=active"}}
-    },
-    "cm_pier": {
-      "npcs": [
-        {"id": "rhea", "x": 300, "y": 240, "mode": "idle", "requires": "boss_rook"},
-        {"id": "lou", "x": 340, "y": 244, "mode": "idle", "requires": "boss_rook", "facing": -1}
-      ],
-      "waves": [
-        {"id": "p1", "at": 260, "requires": "!boss_pikes", "enemies": [["rats_brawler", 1], ["rats_weapon", 1], ["rats_thrower", 1]]},
-        {"id": "p2", "at": 400, "requires": "boss_pikes", "respawn": true, "enemies": [["rats_flanker", 1], ["rats_brawler", 1]]}
-      ],
-      "boss": {"id": "pikes", "at": 640, "requires": "stage==pikes", "bosses": ["rhea", "lou"], "intro": "pikes_intro", "music": "boss"},
-      "events": [{"id": "escort_arrive", "at": 200, "requires": "quest:escort=active"}],
-      "pickups": [{"weapon": "fish", "x": 900, "y": 300}]
-    },
-    "iy_gate": {
-      "npcs": [{"id": "townb", "x": 240, "y": 238, "mode": "idle"}],
-      "waves": [
-        {"id": "y1", "at": 480, "respawn": true, "enemies": [["yard_brawler", 1], ["yard_heavy", 1], ["yard_weapon", 1]]},
-        {"id": "y2", "at": 1150, "respawn": true, "enemies": [["yard_flanker", 2], ["yard_thrower", 1], ["yard_brawler", 1]]}
-      ],
-      "events": [{"id": "act2_card", "at": 0, "requires": "!act2_card_seen"}],
-      "pickups": [{"weapon": "wrench", "x": 700, "y": 290}, {"weapon": "pipe", "x": 1220, "y": 300}],
-      "prop_contents": {"5": {"key": "parcel", "requires": "quest:parcels=active"}}
-    },
-    "iy_spur": {
-      "npcs": [{"id": "biscuit", "x": 1560, "y": 238, "mode": "idle", "requires": "quest:dog=active & !dog_found", "talk": true, "label": "Call Biscuit"}],
-      "waves": [
-        {"id": "s1", "at": 700, "respawn": true, "enemies": [["yard_brawler", 2], ["yard_heavy", 1]]},
-        {"id": "s2", "at": 1380, "respawn": true, "requires": "rescued_gus", "enemies": [["yard_weapon", 1], ["yard_flanker", 1], ["yard_thrower", 1], ["yard_brawler", 1]]}
-      ],
-      "pickups": [{"weapon": "tire", "x": 900, "y": 300}],
-      "prop_contents": {"5": {"cash": 10}}
-    },
-    "int_canteen": {
-      "npcs": [{"id": "hank", "x": 400, "y": 246, "mode": "behind_counter", "shop": "canteen", "facing": 1}]
-    },
-    "int_switch": {
-      "npcs": [{"id": "gus", "x": 600, "y": 256, "mode": "cower", "requires": "!rescued_gus", "talk": false}],
-      "events": [{"id": "switch_fight", "at": 0, "requires": "!rescued_gus & stage>=ironworks"}],
-      "pickups": [{"weapon": "spatula", "x": 300, "y": 300}]
-    },
-    "iy_foundry": {
-      "npcs": [{"id": "otto", "x": 700, "y": 240, "mode": "idle", "requires": "boss_rook"}],
-      "waves": [
-        {"id": "f1", "at": 300, "requires": "!boss_otto", "lock": true, "lock_text": "The Yard Boys won't let you near the office!", "enemies": [["yard_heavy", 1], ["yard_weapon", 1], ["yard_brawler", 1], ["yard_thrower", 1]]},
-        {"id": "f2", "at": 400, "requires": "boss_otto", "respawn": true, "enemies": [["yard_brawler", 1], ["yard_heavy", 1]]}
-      ],
-      "boss": {"id": "otto", "at": 860, "requires": "stage==foundry", "bosses": ["otto"], "intro": "otto_intro", "music": "boss"},
-      "pickups": [{"weapon": "pipe", "x": 420, "y": 290}, {"weapon": "chain", "x": 1000, "y": 310}]
-    },
-    "nm_marquee": {
-      "npcs": [
-        {"id": "townc", "x": 520, "y": 300, "mode": "wander"},
-        {"id": "townb", "x": 1400, "y": 240, "mode": "idle"}
-      ],
-      "waves": [
-        {"id": "n1", "at": 480, "respawn": true, "enemies": [["saints_brawler", 1], ["saints_flanker", 2]]},
-        {"id": "n2", "at": 1180, "respawn": true, "enemies": [["saints_blocker", 1], ["saints_flanker", 1], ["saints_thrower", 1], ["saints_weapon", 1]]}
-      ],
-      "pickups": [{"weapon": "bottle", "x": 900, "y": 300}, {"weapon": "baton", "x": 1500, "y": 290}],
-      "prop_contents": {"6": {"key": "parcel", "requires": "quest:parcels=active"}}
-    },
-    "int_pharmacy": {
-      "npcs": [{"id": "rosa", "x": 400, "y": 246, "mode": "behind_counter", "shop": "pharmacy", "facing": 1}]
-    },
-    "nm_arcade": {
-      "npcs": [
-        {"id": "bigmo", "x": 760, "y": 232, "mode": "idle"},
-        {"id": "townc", "x": 1440, "y": 300, "mode": "wander"}
-      ],
-      "waves": [
-        {"id": "a1", "at": 980, "requires": "arcade_backroom & !boss_jett", "lock": true, "lock_text": "Neon Saints guard the fire escape!", "enemies": [["saints_flanker", 2], ["saints_blocker", 1], ["saints_weapon", 1]]},
-        {"id": "a2", "at": 1100, "requires": "boss_jett", "respawn": true, "enemies": [["saints_flanker", 1], ["saints_brawler", 1], ["saints_thrower", 1]]}
-      ],
-      "pickups": [{"weapon": "belt", "x": 1120, "y": 300}, {"weapon": "road_sign", "x": 1420, "y": 296}]
-    },
-    "int_arcade": {
-      "npcs": [
-        {"id": "lacey", "x": 240, "y": 262, "mode": "idle", "facing": 1},
-        {"id": "pip", "x": 300, "y": 280, "mode": "idle", "facing": -1},
-        {"id": "marv", "x": 500, "y": 246, "mode": "behind_counter", "shop": "snack", "facing": 1},
-        {"id": "townc", "x": 720, "y": 262, "mode": "idle", "facing": -1}
-      ],
-      "events": [{"id": "arcade_jett", "at": 0, "requires": "stage==neon"}]
-    },
-    "nm_backalley": {
-      "npcs": [{"id": "bigmo", "x": 320, "y": 236, "mode": "idle", "requires": "!cup_running"}],
-      "events": [{"id": "cup_start", "at": 0, "requires": "cup_entry"}]
-    },
-    "nm_rooftops": {
-      "npcs": [{"id": "jett", "x": 700, "y": 240, "mode": "idle", "requires": "boss_rook"}],
-      "waves": [
-        {"id": "r1", "at": 380, "respawn": true, "enemies": [["saints_flanker", 2], ["saints_thrower", 1]]},
-        {"id": "r2", "at": 760, "requires": "!boss_jett", "lock": true, "enemies": [["saints_brawler", 1], ["saints_weapon", 1], ["saints_flanker", 1]]}
-      ],
-      "boss": {"id": "jett", "at": 1080, "requires": "stage==rooftops", "bosses": ["jett"], "intro": "jett_intro2", "music": "boss"},
-      "pickups": [{"weapon": "brick", "x": 560, "y": 300}, {"weapon": "brick", "x": 1250, "y": 260}]
-    },
-    "fr_bridge": {
-      "waves": [
-        {"id": "fb1", "at": 600, "requires": "boss_sabine", "respawn": true, "enemies": [["grays_brawler", 1], ["grays_blocker", 1], ["grays_thrower", 1]]}
-      ],
-      "events": [{"id": "alliance", "at": 260, "requires": "stage==floodgate & !alliance"}],
-      "pickups": [{"weapon": "pipe", "x": 980, "y": 300}]
-    },
-    "fr_pumpstation": {
-      "npcs": [{"id": "price", "x": 1220, "y": 236, "mode": "idle", "requires": "alliance & !boss_sabine", "facing": -1}],
-      "waves": [
-        {"id": "q1", "at": 480, "respawn": true, "enemies": [["grays_blocker", 1], ["grays_brawler", 1], ["grays_thrower", 1], ["grays_flanker", 1]]},
-        {"id": "q2", "at": 1450, "requires": "!boss_sabine", "lock": true, "lock_text": "A Gray Jacket squad moves in formation!", "enemies": [["grays_blocker", 2], ["grays_weapon", 1], ["grays_thrower", 1]]}
-      ],
-      "events": [{"id": "price_meet", "at": 1120, "requires": "alliance & !met_price"}],
-      "pickups": [{"weapon": "brick", "x": 900, "y": 300}, {"weapon": "brick", "x": 1700, "y": 300}],
-      "prop_contents": {"3": {"cash": 14}}
-    },
-    "int_bait": {
-      "npcs": [{"id": "gus", "x": 400, "y": 246, "mode": "behind_counter", "shop": "bait", "facing": 1}]
-    },
-    "fr_dockgate": {
-      "waves": [
-        {"id": "d1", "at": 300, "requires": "!boss_sabine", "enemies": [["grays_heavy", 1], ["grays_flanker", 1], ["grays_thrower", 1]]}
-      ],
-      "boss": {"id": "sabine", "at": 880, "requires": "stage==dockgate", "bosses": ["sabine"], "intro": "sabine_intro", "music": "boss"},
-      "pickups": [{"weapon": "baton", "x": 700, "y": 300}]
-    },
-    "rw_dock": {
-      "waves": [
-        {"id": "k1", "at": 380, "respawn": true, "enemies": [["grays_brawler", 1], ["grays_weapon", 1], ["grays_flanker", 1]]},
-        {"id": "k2", "at": 1080, "requires": "!found_eli", "lock": true, "enemies": [["grays_heavy", 1], ["grays_blocker", 1], ["grays_thrower", 1], ["grays_weapon", 1]]}
-      ],
-      "events": [{"id": "mara_arrives", "at": 120, "requires": "!mara_arrived"}],
-      "pickups": [{"weapon": "pipe", "x": 760, "y": 300}]
-    },
-    "rw_storage": {
-      "waves": [
-        {"id": "st1", "at": 380, "respawn": true, "enemies": [["grays_brawler", 2], ["grays_thrower", 1], ["grays_flanker", 1]]},
-        {"id": "st2", "at": 1000, "requires": "!found_eli", "lock": true, "from": "both", "enemies": [["grays_heavy", 1], ["grays_blocker", 1], ["grays_weapon", 2], ["grays_thrower", 1]]},
-        {"id": "st3", "at": 1600, "respawn": true, "enemies": [["grays_flanker", 2], ["grays_heavy", 1], ["grays_brawler", 1]]}
-      ],
-      "pickups": [{"weapon": "chain", "x": 640, "y": 300}, {"weapon": "road_sign", "x": 1300, "y": 300}],
-      "prop_contents": {"1": {"heal": 40}}
-    },
-    "rw_office": {
-      "npcs": [{"id": "eli", "x": 640, "y": 250, "mode": "cower", "requires": "!found_eli", "talk": false}],
-      "waves": [
-        {"id": "o1", "at": 200, "requires": "!found_eli", "lock": true, "on_clear": true, "lock_text": "Eli's right there! Deal with the guards!", "enemies": [["grays_heavy", 1], ["grays_blocker", 1], ["grays_weapon", 1], ["grays_brawler", 1]]}
-      ],
-      "pickups": [{"weapon": "baton", "x": 300, "y": 300}],
-      "prop_contents": {"3": {"heal": 40}}
-    },
-    "rw_floor": {
-      "boss": {"id": "rook", "at": 420, "requires": "stage==rook", "bosses": ["rook"], "intro": "rook_intro", "music": "rook"}
+    {
+     "id": "duke",
+     "x": 900,
+     "y": 230,
+     "mode": "idle",
+     "requires": "boss_rook",
+     "facing": -1
     }
+   ],
+   "waves": [
+    {
+     "id": "k1",
+     "at": 820,
+     "requires": "intro_done & stage>=chain_dogs",
+     "respawn": true,
+     "enemies": [
+      [
+       "dogs_brawler",
+       2
+      ],
+      [
+       "dogs_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "k2",
+     "at": 1250,
+     "requires": "stage>=chain_dogs",
+     "respawn": true,
+     "enemies": [
+      [
+       "dogs_brawler",
+       1
+      ],
+      [
+       "dogs_weapon",
+       1
+      ],
+      [
+       "dogs_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "k0",
+     "at": 980,
+     "requires": "intro_done & stage==find_mara",
+     "say": "More Chain Dogs! Grab something to swing.",
+     "enemies": [
+      [
+       "dogs_brawler",
+       1
+      ],
+      [
+       "dogs_flanker",
+       1
+      ]
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "intro",
+     "at": 0,
+     "requires": "!intro_done"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "newspaper",
+     "x": 640,
+     "y": 300,
+     "requires": "intro_done"
+    }
+   ],
+   "prop_contents": {
+    "8": {
+     "cash": 5
+    }
+   }
+  },
+  "int_diner": {
+   "npcs": [
+    {
+     "id": "dot",
+     "x": 380,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "diner",
+     "facing": 1
+    },
+    {
+     "id": "eli",
+     "x": 150,
+     "y": 262,
+     "mode": "idle",
+     "requires": "boss_rook",
+     "facing": 1
+    },
+    {
+     "id": "mara",
+     "x": 200,
+     "y": 270,
+     "mode": "idle",
+     "requires": "boss_rook",
+     "facing": -1
+    },
+    {
+     "id": "jett",
+     "x": 540,
+     "y": 300,
+     "mode": "idle",
+     "requires": "boss_rook",
+     "facing": -1
+    }
+   ]
+  },
+  "oq_brickrow": {
+   "npcs": [
+    {
+     "id": "alvarez",
+     "x": 900,
+     "y": 232,
+     "mode": "idle",
+     "requires": "stage>=chain_dogs"
+    },
+    {
+     "id": "biscuit",
+     "x": 930,
+     "y": 236,
+     "mode": "idle",
+     "requires": "quest:dog=done",
+     "talk": true
+    },
+    {
+     "id": "townb",
+     "x": 320,
+     "y": 300,
+     "mode": "wander"
+    },
+    {
+     "id": "townc",
+     "x": 1460,
+     "y": 236,
+     "mode": "idle",
+     "requires": "!stage==return_home"
+    }
+   ],
+   "waves": [
+    {
+     "id": "b1",
+     "at": 520,
+     "requires": "met_mara & !stage==return_home",
+     "respawn": true,
+     "enemies": [
+      [
+       "dogs_brawler",
+       2
+      ],
+      [
+       "dogs_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "b2",
+     "at": 1200,
+     "requires": "met_mara & !stage==return_home",
+     "respawn": true,
+     "enemies": [
+      [
+       "dogs_flanker",
+       2
+      ],
+      [
+       "dogs_weapon",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "b0",
+     "at": 1150,
+     "requires": "met_mara & !boss_duke",
+     "lock": true,
+     "lock_text": "The Chain Dogs won't let you reach their lot!",
+     "from": "both",
+     "enemies": [
+      [
+       "dogs_brawler",
+       2
+      ],
+      [
+       "dogs_weapon",
+       1
+      ],
+      [
+       "dogs_flanker",
+       1
+      ]
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "setback_arrive",
+     "at": 100,
+     "requires": "stage==return_home & !setback_fought"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "wrench",
+     "x": 560,
+     "y": 300,
+     "requires": "met_mara"
+    }
+   ],
+   "prop_contents": {
+    "5": {
+     "cash": 6
+    }
+   }
+  },
+  "int_garage": {
+   "npcs": [
+    {
+     "id": "mara",
+     "x": 400,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "garage",
+     "facing": 1,
+     "requires": "met_mara & !stage==warehouse & !stage==rook"
+    },
+    {
+     "id": "eli",
+     "x": 250,
+     "y": 270,
+     "mode": "idle",
+     "requires": "boss_rook",
+     "facing": 1
+    }
+   ],
+   "events": [
+    {
+     "id": "mara_meet",
+     "at": 0,
+     "requires": "!met_mara"
+    },
+    {
+     "id": "setback_garage",
+     "at": 0,
+     "requires": "setback_fought & !act3_started"
+    }
+   ]
+  },
+  "int_rec": {
+   "npcs": [
+    {
+     "id": "benny",
+     "x": 400,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "rec",
+     "facing": 1
+    },
+    {
+     "id": "towna",
+     "x": 240,
+     "y": 280,
+     "mode": "idle",
+     "facing": -1
+    }
+   ]
+  },
+  "oq_chainlot": {
+   "waves": [
+    {
+     "id": "c1",
+     "at": 260,
+     "requires": "met_mara",
+     "respawn": true,
+     "enemies": [
+      [
+       "dogs_brawler",
+       1
+      ],
+      [
+       "dogs_flanker",
+       1
+      ],
+      [
+       "dogs_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "c2",
+     "at": 620,
+     "requires": "met_mara & !boss_duke",
+     "lock": true,
+     "lock_text": "Chain Dogs block the way!",
+     "enemies": [
+      [
+       "dogs_brawler",
+       2
+      ],
+      [
+       "dogs_weapon",
+       1
+      ],
+      [
+       "dogs_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "c3",
+     "at": 800,
+     "requires": "met_mara & !boss_duke",
+     "lock": true,
+     "lock_text": "Duke's lieutenants step up!",
+     "enemies": [
+      [
+       "dogs_thrower",
+       1
+      ],
+      [
+       "dogs_blocker",
+       1
+      ],
+      [
+       "dogs_brawler",
+       1
+      ]
+     ]
+    }
+   ],
+   "boss": {
+    "id": "duke",
+    "at": 940,
+    "requires": "stage==chain_dogs",
+    "bosses": [
+     "duke"
+    ],
+    "intro": "duke_intro",
+    "music": "boss"
+   },
+   "pickups": [
+    {
+     "weapon": "bat",
+     "x": 820,
+     "y": 300
+    }
+   ],
+   "prop_contents": {
+    "3": {
+     "cash": 8
+    }
+   }
+  },
+  "cm_gate": {
+   "npcs": [
+    {
+     "id": "teddy",
+     "x": 380,
+     "y": 238,
+     "mode": "idle"
+    },
+    {
+     "id": "towna",
+     "x": 1000,
+     "y": 300,
+     "mode": "wander"
+    },
+    {
+     "id": "townd",
+     "x": 1480,
+     "y": 300,
+     "mode": "idle"
+    }
+   ],
+   "waves": [
+    {
+     "id": "g1",
+     "at": 700,
+     "requires": "stage>=market & !quest:escort=active",
+     "respawn": true,
+     "enemies": [
+      [
+       "rats_brawler",
+       2
+      ],
+      [
+       "rats_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "g2",
+     "at": 1250,
+     "requires": "stage>=market & !quest:escort=active",
+     "respawn": true,
+     "enemies": [
+      [
+       "rats_weapon",
+       1
+      ],
+      [
+       "rats_flanker",
+       1
+      ],
+      [
+       "rats_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "g3",
+     "at": 1420,
+     "requires": "stage>=market & !boss_pikes",
+     "lock": true,
+     "lock_text": "Wharf Rats are charging a 'toll' to leave the market!",
+     "from": "both",
+     "enemies": [
+      [
+       "rats_brawler",
+       2
+      ],
+      [
+       "rats_weapon",
+       1
+      ],
+      [
+       "rats_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "prop_contents": {
+    "4": {
+     "cash": 7
+    }
+   }
+  },
+  "int_noodle": {
+   "npcs": [
+    {
+     "id": "fong",
+     "x": 380,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "noodle",
+     "facing": 1
+    }
+   ]
+  },
+  "int_books": {
+   "npcs": [
+    {
+     "id": "hollis",
+     "x": 400,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "books",
+     "facing": 1,
+     "hide_if": "quest:escort=active"
+    }
+   ]
+  },
+  "cm_canalwalk": {
+   "waves": [
+    {
+     "id": "w1",
+     "at": 420,
+     "respawn": true,
+     "enemies": [
+      [
+       "rats_brawler",
+       1
+      ],
+      [
+       "rats_weapon",
+       1
+      ],
+      [
+       "rats_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "w2",
+     "at": 820,
+     "lock": true,
+     "lock_text": "Wharf Rats close both ends of the footbridge!",
+     "from": "both",
+     "requires": "!boss_pikes",
+     "enemies": [
+      [
+       "rats_brawler",
+       2
+      ],
+      [
+       "rats_flanker",
+       1
+      ],
+      [
+       "rats_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "vic",
+     "at": 1300,
+     "requires": "quest:tools=active & !has:toolbox",
+     "respawn": true,
+     "say": "A Wharf Rat with a red toolbox: Sticky Vic!",
+     "enemies": [
+      {
+       "id": "rats_weapon",
+       "name": "Sticky Vic",
+       "weapon": "wrench",
+       "hp_mult": 1.6,
+       "drops": [
+        {
+         "key": "toolbox"
+        }
+       ]
+      },
+      [
+       "rats_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "w3",
+     "at": 1600,
+     "respawn": true,
+     "enemies": [
+      [
+       "rats_flanker",
+       1
+      ],
+      [
+       "rats_brawler",
+       1
+      ],
+      [
+       "rats_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "esc",
+     "at": 900,
+     "requires": "quest:escort=active",
+     "respawn": true,
+     "from": "both",
+     "say": "Wharf Rats! Keep them away from Mr. Hollis!",
+     "enemies": [
+      [
+       "rats_brawler",
+       2
+      ],
+      [
+       "rats_flanker",
+       1
+      ]
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "jett_duel",
+     "at": 1240,
+     "requires": "stage==market"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "broom",
+     "x": 420,
+     "y": 300
+    },
+    {
+     "weapon": "bottle",
+     "x": 1500,
+     "y": 290
+    }
+   ],
+   "prop_contents": {
+    "6": {
+     "key": "parcel",
+     "requires": "quest:parcels=active"
+    }
+   }
+  },
+  "cm_pier": {
+   "npcs": [
+    {
+     "id": "rhea",
+     "x": 300,
+     "y": 240,
+     "mode": "idle",
+     "requires": "boss_rook"
+    },
+    {
+     "id": "lou",
+     "x": 340,
+     "y": 244,
+     "mode": "idle",
+     "requires": "boss_rook",
+     "facing": -1
+    }
+   ],
+   "waves": [
+    {
+     "id": "p1",
+     "at": 260,
+     "requires": "!boss_pikes",
+     "enemies": [
+      [
+       "rats_brawler",
+       1
+      ],
+      [
+       "rats_weapon",
+       1
+      ],
+      [
+       "rats_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "p2",
+     "at": 400,
+     "requires": "boss_pikes",
+     "respawn": true,
+     "enemies": [
+      [
+       "rats_flanker",
+       1
+      ],
+      [
+       "rats_brawler",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "p3",
+     "at": 480,
+     "requires": "!boss_pikes",
+     "lock": true,
+     "lock_text": "The Pike sisters' crew blocks the square!",
+     "enemies": [
+      [
+       "rats_flanker",
+       2
+      ],
+      [
+       "rats_blocker",
+       1
+      ],
+      [
+       "rats_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "boss": {
+    "id": "pikes",
+    "at": 640,
+    "requires": "stage==pikes",
+    "bosses": [
+     "rhea",
+     "lou"
+    ],
+    "intro": "pikes_intro",
+    "music": "boss"
+   },
+   "events": [
+    {
+     "id": "escort_arrive",
+     "at": 200,
+     "requires": "quest:escort=active"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "fish",
+     "x": 900,
+     "y": 300
+    }
+   ]
+  },
+  "iy_gate": {
+   "npcs": [
+    {
+     "id": "townb",
+     "x": 240,
+     "y": 238,
+     "mode": "idle"
+    }
+   ],
+   "waves": [
+    {
+     "id": "y1",
+     "at": 480,
+     "respawn": true,
+     "enemies": [
+      [
+       "yard_brawler",
+       1
+      ],
+      [
+       "yard_heavy",
+       1
+      ],
+      [
+       "yard_weapon",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "y2",
+     "at": 1150,
+     "respawn": true,
+     "enemies": [
+      [
+       "yard_flanker",
+       2
+      ],
+      [
+       "yard_thrower",
+       1
+      ],
+      [
+       "yard_brawler",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "y3",
+     "at": 1440,
+     "requires": "!boss_otto",
+     "lock": true,
+     "lock_text": "A Yard Boys shift blocks the rail spur!",
+     "enemies": [
+      [
+       "yard_heavy",
+       1
+      ],
+      [
+       "yard_weapon",
+       2
+      ],
+      [
+       "yard_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "act2_card",
+     "at": 0,
+     "requires": "!act2_card_seen"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "wrench",
+     "x": 700,
+     "y": 290
+    },
+    {
+     "weapon": "pipe",
+     "x": 1220,
+     "y": 300
+    }
+   ],
+   "prop_contents": {
+    "5": {
+     "key": "parcel",
+     "requires": "quest:parcels=active"
+    }
+   }
+  },
+  "iy_spur": {
+   "npcs": [
+    {
+     "id": "biscuit",
+     "x": 1560,
+     "y": 238,
+     "mode": "idle",
+     "requires": "quest:dog=active & !dog_found",
+     "talk": true,
+     "label": "Call Biscuit"
+    }
+   ],
+   "waves": [
+    {
+     "id": "s1",
+     "at": 700,
+     "respawn": true,
+     "enemies": [
+      [
+       "yard_brawler",
+       2
+      ],
+      [
+       "yard_heavy",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "s2",
+     "at": 1380,
+     "respawn": true,
+     "enemies": [
+      [
+       "yard_weapon",
+       1
+      ],
+      [
+       "yard_flanker",
+       1
+      ],
+      [
+       "yard_thrower",
+       1
+      ],
+      [
+       "yard_brawler",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "s3",
+     "at": 1650,
+     "requires": "rescued_gus & !boss_otto",
+     "lock": true,
+     "lock_text": "Otto sent a crew to drag Gus back!",
+     "from": "both",
+     "enemies": [
+      [
+       "yard_brawler",
+       2
+      ],
+      [
+       "yard_heavy",
+       1
+      ],
+      [
+       "yard_flanker",
+       1
+      ]
+     ]
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "tire",
+     "x": 900,
+     "y": 300
+    }
+   ],
+   "prop_contents": {
+    "5": {
+     "cash": 10
+    }
+   }
+  },
+  "int_canteen": {
+   "npcs": [
+    {
+     "id": "hank",
+     "x": 400,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "canteen",
+     "facing": 1
+    }
+   ]
+  },
+  "int_switch": {
+   "npcs": [
+    {
+     "id": "gus",
+     "x": 600,
+     "y": 256,
+     "mode": "cower",
+     "requires": "!rescued_gus",
+     "talk": false
+    }
+   ],
+   "events": [
+    {
+     "id": "switch_fight",
+     "at": 0,
+     "requires": "!rescued_gus & stage>=ironworks"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "spatula",
+     "x": 300,
+     "y": 300
+    }
+   ]
+  },
+  "iy_foundry": {
+   "npcs": [
+    {
+     "id": "otto",
+     "x": 700,
+     "y": 240,
+     "mode": "idle",
+     "requires": "boss_rook"
+    }
+   ],
+   "waves": [
+    {
+     "id": "f1",
+     "at": 300,
+     "requires": "!boss_otto",
+     "lock": true,
+     "lock_text": "The Yard Boys won't let you near the office!",
+     "enemies": [
+      [
+       "yard_heavy",
+       1
+      ],
+      [
+       "yard_weapon",
+       1
+      ],
+      [
+       "yard_brawler",
+       1
+      ],
+      [
+       "yard_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "at": 400,
+     "requires": "boss_otto",
+     "respawn": true,
+     "enemies": [
+      [
+       "yard_brawler",
+       1
+      ],
+      [
+       "yard_heavy",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "at": 620,
+     "requires": "!boss_otto",
+     "lock": true,
+     "lock_text": "Otto's foremen guard the office!",
+     "enemies": [
+      [
+       "yard_blocker",
+       2
+      ],
+      [
+       "yard_weapon",
+       1
+      ],
+      [
+       "yard_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "boss": {
+    "id": "otto",
+    "at": 860,
+    "requires": "stage==foundry",
+    "bosses": [
+     "otto"
+    ],
+    "intro": "otto_intro",
+    "music": "boss"
+   },
+   "pickups": [
+    {
+     "weapon": "pipe",
+     "x": 420,
+     "y": 290
+    },
+    {
+     "weapon": "chain",
+     "x": 1000,
+     "y": 310
+    }
+   ]
+  },
+  "nm_marquee": {
+   "npcs": [
+    {
+     "id": "townc",
+     "x": 520,
+     "y": 300,
+     "mode": "wander"
+    },
+    {
+     "id": "townb",
+     "x": 1400,
+     "y": 240,
+     "mode": "idle"
+    }
+   ],
+   "waves": [
+    {
+     "id": "n1",
+     "at": 480,
+     "respawn": true,
+     "enemies": [
+      [
+       "saints_brawler",
+       1
+      ],
+      [
+       "saints_flanker",
+       2
+      ]
+     ]
+    },
+    {
+     "id": "n2",
+     "at": 1180,
+     "respawn": true,
+     "enemies": [
+      [
+       "saints_blocker",
+       1
+      ],
+      [
+       "saints_flanker",
+       1
+      ],
+      [
+       "saints_thrower",
+       1
+      ],
+      [
+       "saints_weapon",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "n3",
+     "at": 1600,
+     "requires": "!boss_jett",
+     "lock": true,
+     "lock_text": "Neon Saints flip in from the marquee!",
+     "from": "both",
+     "enemies": [
+      [
+       "saints_flanker",
+       2
+      ],
+      [
+       "saints_blocker",
+       1
+      ],
+      [
+       "saints_weapon",
+       1
+      ]
+     ]
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "bottle",
+     "x": 900,
+     "y": 300
+    },
+    {
+     "weapon": "baton",
+     "x": 1500,
+     "y": 290
+    }
+   ],
+   "prop_contents": {
+    "6": {
+     "key": "parcel",
+     "requires": "quest:parcels=active"
+    }
+   }
+  },
+  "int_pharmacy": {
+   "npcs": [
+    {
+     "id": "rosa",
+     "x": 400,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "pharmacy",
+     "facing": 1
+    }
+   ]
+  },
+  "nm_arcade": {
+   "npcs": [
+    {
+     "id": "bigmo",
+     "x": 760,
+     "y": 232,
+     "mode": "idle"
+    },
+    {
+     "id": "townc",
+     "x": 1440,
+     "y": 300,
+     "mode": "wander"
+    }
+   ],
+   "waves": [
+    {
+     "id": "a1",
+     "at": 980,
+     "requires": "arcade_backroom & !boss_jett",
+     "lock": true,
+     "lock_text": "Neon Saints guard the fire escape!",
+     "enemies": [
+      [
+       "saints_flanker",
+       2
+      ],
+      [
+       "saints_blocker",
+       1
+      ],
+      [
+       "saints_weapon",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "a2",
+     "at": 1100,
+     "requires": "boss_jett",
+     "respawn": true,
+     "enemies": [
+      [
+       "saints_flanker",
+       1
+      ],
+      [
+       "saints_brawler",
+       1
+      ],
+      [
+       "saints_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "a0",
+     "at": 300,
+     "respawn": true,
+     "requires": "stage>=neon",
+     "enemies": [
+      [
+       "saints_brawler",
+       1
+      ],
+      [
+       "saints_flanker",
+       1
+      ],
+      [
+       "saints_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "belt",
+     "x": 1120,
+     "y": 300
+    },
+    {
+     "weapon": "road_sign",
+     "x": 1420,
+     "y": 296
+    }
+   ]
+  },
+  "int_arcade": {
+   "npcs": [
+    {
+     "id": "lacey",
+     "x": 240,
+     "y": 262,
+     "mode": "idle",
+     "facing": 1
+    },
+    {
+     "id": "pip",
+     "x": 300,
+     "y": 280,
+     "mode": "idle",
+     "facing": -1
+    },
+    {
+     "id": "marv",
+     "x": 500,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "snack",
+     "facing": 1
+    },
+    {
+     "id": "townc",
+     "x": 720,
+     "y": 262,
+     "mode": "idle",
+     "facing": -1
+    }
+   ],
+   "events": [
+    {
+     "id": "arcade_jett",
+     "at": 0,
+     "requires": "stage==neon"
+    }
+   ]
+  },
+  "nm_backalley": {
+   "npcs": [
+    {
+     "id": "bigmo",
+     "x": 320,
+     "y": 236,
+     "mode": "idle",
+     "requires": "!cup_running"
+    }
+   ],
+   "events": [
+    {
+     "id": "cup_start",
+     "at": 0,
+     "requires": "cup_entry"
+    }
+   ]
+  },
+  "nm_rooftops": {
+   "npcs": [
+    {
+     "id": "jett",
+     "x": 700,
+     "y": 240,
+     "mode": "idle",
+     "requires": "boss_rook"
+    }
+   ],
+   "waves": [
+    {
+     "id": "r1",
+     "at": 380,
+     "respawn": true,
+     "enemies": [
+      [
+       "saints_flanker",
+       2
+      ],
+      [
+       "saints_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "r2",
+     "at": 760,
+     "requires": "!boss_jett",
+     "lock": true,
+     "enemies": [
+      [
+       "saints_brawler",
+       1
+      ],
+      [
+       "saints_weapon",
+       1
+      ],
+      [
+       "saints_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "r3",
+     "at": 940,
+     "requires": "!boss_jett",
+     "lock": true,
+     "lock_text": "Jett's crew drops from the billboard!",
+     "from": "both",
+     "enemies": [
+      [
+       "saints_flanker",
+       2
+      ],
+      [
+       "saints_thrower",
+       1
+      ],
+      [
+       "saints_blocker",
+       1
+      ]
+     ]
+    }
+   ],
+   "boss": {
+    "id": "jett",
+    "at": 1080,
+    "requires": "stage==rooftops",
+    "bosses": [
+     "jett"
+    ],
+    "intro": "jett_intro2",
+    "music": "boss"
+   },
+   "pickups": [
+    {
+     "weapon": "brick",
+     "x": 560,
+     "y": 300
+    },
+    {
+     "weapon": "brick",
+     "x": 1250,
+     "y": 260
+    }
+   ]
+  },
+  "fr_bridge": {
+   "waves": [
+    {
+     "id": "fb1",
+     "at": 600,
+     "requires": "boss_sabine",
+     "respawn": true,
+     "enemies": [
+      [
+       "grays_brawler",
+       1
+      ],
+      [
+       "grays_blocker",
+       1
+      ],
+      [
+       "grays_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "alliance",
+     "at": 260,
+     "requires": "stage==floodgate & !alliance"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "pipe",
+     "x": 980,
+     "y": 300
+    }
+   ]
+  },
+  "fr_pumpstation": {
+   "npcs": [
+    {
+     "id": "price",
+     "x": 1220,
+     "y": 236,
+     "mode": "idle",
+     "requires": "alliance & !boss_sabine",
+     "facing": -1
+    }
+   ],
+   "waves": [
+    {
+     "id": "q1",
+     "at": 480,
+     "respawn": true,
+     "enemies": [
+      [
+       "grays_blocker",
+       1
+      ],
+      [
+       "grays_brawler",
+       1
+      ],
+      [
+       "grays_thrower",
+       1
+      ],
+      [
+       "grays_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "q2",
+     "at": 1450,
+     "requires": "!boss_sabine",
+     "lock": true,
+     "lock_text": "A Gray Jacket squad moves in formation!",
+     "enemies": [
+      [
+       "grays_blocker",
+       2
+      ],
+      [
+       "grays_weapon",
+       1
+      ],
+      [
+       "grays_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "q3",
+     "at": 900,
+     "requires": "!boss_sabine",
+     "say": "Gray Jackets haul crates of eviction notices. Bust them up!",
+     "enemies": [
+      [
+       "grays_brawler",
+       2
+      ],
+      [
+       "grays_heavy",
+       1
+      ],
+      [
+       "grays_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "price_meet",
+     "at": 1120,
+     "requires": "alliance & !met_price"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "brick",
+     "x": 900,
+     "y": 300
+    },
+    {
+     "weapon": "brick",
+     "x": 1700,
+     "y": 300
+    }
+   ],
+   "prop_contents": {
+    "3": {
+     "cash": 14
+    }
+   }
+  },
+  "int_bait": {
+   "npcs": [
+    {
+     "id": "gus",
+     "x": 400,
+     "y": 246,
+     "mode": "behind_counter",
+     "shop": "bait",
+     "facing": 1
+    }
+   ]
+  },
+  "fr_dockgate": {
+   "waves": [
+    {
+     "id": "d1",
+     "at": 300,
+     "requires": "!boss_sabine",
+     "enemies": [
+      [
+       "grays_heavy",
+       1
+      ],
+      [
+       "grays_flanker",
+       1
+      ],
+      [
+       "grays_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "d2",
+     "at": 600,
+     "requires": "!boss_sabine",
+     "lock": true,
+     "lock_text": "Holt's honor guard holds the line!",
+     "enemies": [
+      [
+       "grays_blocker",
+       2
+      ],
+      [
+       "grays_weapon",
+       1
+      ],
+      [
+       "grays_flanker",
+       1
+      ]
+     ]
+    }
+   ],
+   "boss": {
+    "id": "sabine",
+    "at": 880,
+    "requires": "stage==dockgate",
+    "bosses": [
+     "sabine"
+    ],
+    "intro": "sabine_intro",
+    "music": "boss"
+   },
+   "pickups": [
+    {
+     "weapon": "baton",
+     "x": 700,
+     "y": 300
+    }
+   ]
+  },
+  "rw_dock": {
+   "waves": [
+    {
+     "id": "k1",
+     "at": 380,
+     "respawn": true,
+     "enemies": [
+      [
+       "grays_brawler",
+       1
+      ],
+      [
+       "grays_weapon",
+       1
+      ],
+      [
+       "grays_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "k2",
+     "at": 1080,
+     "requires": "!found_eli",
+     "lock": true,
+     "enemies": [
+      [
+       "grays_heavy",
+       1
+      ],
+      [
+       "grays_blocker",
+       1
+      ],
+      [
+       "grays_thrower",
+       1
+      ],
+      [
+       "grays_weapon",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "k3",
+     "at": 1400,
+     "requires": "!found_eli",
+     "lock": true,
+     "lock_text": "The night shift arrives!",
+     "from": "both",
+     "enemies": [
+      [
+       "grays_flanker",
+       2
+      ],
+      [
+       "grays_weapon",
+       1
+      ],
+      [
+       "grays_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "mara_arrives",
+     "at": 120,
+     "requires": "!mara_arrived"
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "pipe",
+     "x": 760,
+     "y": 300
+    }
+   ]
+  },
+  "rw_storage": {
+   "waves": [
+    {
+     "id": "st1",
+     "at": 380,
+     "respawn": true,
+     "enemies": [
+      [
+       "grays_brawler",
+       2
+      ],
+      [
+       "grays_thrower",
+       1
+      ],
+      [
+       "grays_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "st2",
+     "at": 1000,
+     "requires": "!found_eli",
+     "lock": true,
+     "from": "both",
+     "enemies": [
+      [
+       "grays_heavy",
+       1
+      ],
+      [
+       "grays_blocker",
+       1
+      ],
+      [
+       "grays_weapon",
+       2
+      ],
+      [
+       "grays_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "st3",
+     "at": 1600,
+     "respawn": true,
+     "enemies": [
+      [
+       "grays_flanker",
+       2
+      ],
+      [
+       "grays_heavy",
+       1
+      ],
+      [
+       "grays_brawler",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "st4",
+     "at": 1780,
+     "requires": "!found_eli",
+     "lock": true,
+     "lock_text": "Rook's elite squad!",
+     "enemies": [
+      [
+       "grays_heavy",
+       2
+      ],
+      [
+       "grays_blocker",
+       1
+      ],
+      [
+       "grays_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "chain",
+     "x": 640,
+     "y": 300
+    },
+    {
+     "weapon": "road_sign",
+     "x": 1300,
+     "y": 300
+    }
+   ],
+   "prop_contents": {
+    "1": {
+     "heal": 40
+    }
+   }
+  },
+  "rw_office": {
+   "npcs": [
+    {
+     "id": "eli",
+     "x": 640,
+     "y": 250,
+     "mode": "cower",
+     "requires": "!found_eli",
+     "talk": false
+    }
+   ],
+   "waves": [
+    {
+     "id": "o0",
+     "at": 80,
+     "requires": "!found_eli",
+     "enemies": [
+      [
+       "grays_brawler",
+       1
+      ],
+      [
+       "grays_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "o1",
+     "at": 200,
+     "requires": "!found_eli",
+     "lock": true,
+     "on_clear": true,
+     "lock_text": "Eli's right there! Deal with the guards!",
+     "enemies": [
+      [
+       "grays_heavy",
+       1
+      ],
+      [
+       "grays_blocker",
+       1
+      ],
+      [
+       "grays_weapon",
+       1
+      ],
+      [
+       "grays_brawler",
+       1
+      ]
+     ]
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "baton",
+     "x": 300,
+     "y": 300
+    }
+   ],
+   "prop_contents": {
+    "3": {
+     "heal": 40
+    }
+   }
+  },
+  "rw_floor": {
+   "boss": {
+    "id": "rook",
+    "at": 420,
+    "requires": "stage==rook",
+    "bosses": [
+     "rook"
+    ],
+    "intro": "rook_intro",
+    "music": "rook"
+   }
   }
+ }
 }

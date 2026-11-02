@@ -9,10 +9,10 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().root.theme = UIKit.build_theme()
 	UIKit.apply(self)
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
 	bg.color = Color(0.07, 0.05, 0.09)
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 	scroll = UIKit.vbox(4)
 	scroll.position = Vector2(get_viewport_rect().size.x / 2.0 - 200, get_viewport_rect().size.y + 10)
@@ -38,8 +38,7 @@ func _ready() -> void:
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		scroll.add_child(l)
 	var hint := UIKit.label("Hold %s to speed up   -   %s to skip" % [InputPrompts.tag("punch"), InputPrompts.tag("pause")], UIKit.DIM)
-	hint.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	hint.position = Vector2(6, -14)
+	UIKit.place(hint, Control.PRESET_BOTTOM_LEFT, 6, -14, 400, 10)
 	add_child(hint)
 	Audio.play_music("ending", 1.0)
 

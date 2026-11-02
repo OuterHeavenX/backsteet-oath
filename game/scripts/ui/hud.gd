@@ -87,27 +87,22 @@ func _ready() -> void:
 	w_row.add_child(weapon_label)
 
 	obj_label = UIKit.label("", UIKit.CREAM)
-	obj_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	UIKit.place(obj_label, Control.PRESET_TOP_RIGHT, -264, 6, 258, 24)
 	obj_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	obj_label.position = Vector2(-264, 6)
-	obj_label.size = Vector2(258, 24)
 	obj_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	obj_label.add_theme_color_override("font_outline_color", UIKit.INK)
 	obj_label.add_theme_constant_override("outline_size", 4)
 	add_child(obj_label)
 
 	prompt_label = UIKit.label("", Color.WHITE, 0, HORIZONTAL_ALIGNMENT_CENTER)
-	prompt_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	prompt_label.position = Vector2(-150, -48)
-	prompt_label.size = Vector2(300, 12)
+	UIKit.place(prompt_label, Control.PRESET_CENTER_BOTTOM, -150, -48, 300, 12)
 	prompt_label.add_theme_color_override("font_outline_color", UIKit.INK)
 	prompt_label.add_theme_constant_override("outline_size", 4)
 	add_child(prompt_label)
 
 	hint_panel = PanelContainer.new()
 	hint_panel.add_theme_stylebox_override("panel", UIKit.panel_style(Color(0.1, 0.07, 0.12, 0.82), UIKit.MUSTARD, 1))
-	hint_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	hint_panel.position = Vector2(-200, 60)
+	UIKit.place(hint_panel, Control.PRESET_CENTER_TOP, -200, 60, 400, 0)
 	hint_panel.custom_minimum_size = Vector2(400, 0)
 	hint_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hint_panel.visible = false
@@ -118,8 +113,7 @@ func _ready() -> void:
 
 	boss_box = PanelContainer.new()
 	boss_box.add_theme_stylebox_override("panel", UIKit.panel_style(Color(0.1, 0.07, 0.12, 0.85), UIKit.DANGER, 1))
-	boss_box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	boss_box.position = Vector2(-150, -30)
+	UIKit.place(boss_box, Control.PRESET_CENTER_BOTTOM, -150, -32, 300, 0)
 	boss_box.custom_minimum_size = Vector2(300, 0)
 	boss_box.visible = false
 	boss_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -148,25 +142,20 @@ func _ready() -> void:
 	bb.add_child(boss_fill)
 
 	timer_label = UIKit.heading("", UIKit.MUSTARD)
-	timer_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	UIKit.place(timer_label, Control.PRESET_CENTER_TOP, -60, 8, 120, 16)
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	timer_label.position = Vector2(-60, 8)
-	timer_label.size = Vector2(120, 16)
 	timer_label.add_theme_color_override("font_outline_color", UIKit.INK)
 	timer_label.add_theme_constant_override("outline_size", 4)
 	add_child(timer_label)
 
 	toast_box = UIKit.vbox(2)
-	toast_box.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	toast_box.position = Vector2(-160, 34)
-	toast_box.size = Vector2(320, 0)
+	UIKit.place(toast_box, Control.PRESET_CENTER_TOP, -160, 34, 320, 0)
 	toast_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(toast_box)
 
 	levelup = PanelContainer.new()
 	levelup.add_theme_stylebox_override("panel", UIKit.panel_style(Color(0.08, 0.16, 0.18, 0.92), UIKit.XPC, 2))
-	levelup.set_anchors_preset(Control.PRESET_CENTER)
-	levelup.position = Vector2(-90, -70)
+	UIKit.place(levelup, Control.PRESET_CENTER, -90, -70, 180, 0)
 	levelup.custom_minimum_size = Vector2(180, 0)
 	levelup.visible = false
 	levelup.mouse_filter = Control.MOUSE_FILTER_IGNORE

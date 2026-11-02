@@ -100,6 +100,14 @@ static func build_theme() -> Theme:
 	ThemeDB.fallback_font_size = base_size()
 	return t
 
+## Anchors a control to a preset and sets offsets relative to the anchor point (robust at any size).
+static func place(c: Control, preset: int, x: float, y: float, w: float, h: float) -> void:
+	c.set_anchors_preset(preset)
+	c.offset_left = x
+	c.offset_top = y
+	c.offset_right = x + w
+	c.offset_bottom = y + h
+
 ## Theme inheritance stops at CanvasLayers, so every UI root gets the theme explicitly.
 static func apply(c: Control) -> void:
 	c.theme = theme()

@@ -43,6 +43,26 @@ func _ready() -> void:
 	Story.world = self
 	Quests.world = self
 	_load_room(GameState.room, GameState.spawn, true)
+	if OS.has_feature("web"):
+		var q = JavaScriptBridge.eval("window.location.search", true)
+		debug_fps = q != null and "bo_debug" in str(q)
+	else:
+		debug_fps = "--bo-debug" in OS.get_cmdline_user_args()
+
+var debug_fps := false
+var _fps_t := 0.0
+var _frame_max_ms := 0.0
+func _process(delta: float) -> void:
+	if not debug_fps:
+		return
+	_fps_t += delta
+	_frame_max_ms = maxf(_frame_max_ms, delta * 1000.0)
+	if _fps_t >= 5.0:
+		var fps := Engine.get_frames_per_second()
+		var en := room.enemies_alive() if room else 0
+		print("BO_PERF fps=%d worst_frame_ms=%.1f room=%s enemies=%d actors=%d" % [fps, _frame_max_ms, room.room_id if room else "-", en, room.actors.size() if room else 0])
+		_fps_t = 0.0
+		_frame_max_ms = 0.0
 
 func _on_leveled(level: int, gains: Dictionary) -> void:
 	hud.show_level_up(level, gains)

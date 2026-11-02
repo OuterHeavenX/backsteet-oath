@@ -34,9 +34,8 @@ func _init() -> void:
 func _ready() -> void:
 	UIKit.apply(self)
 	panel = PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	panel.custom_minimum_size = Vector2(600, 84)
-	panel.position = Vector2(-300, -92)
+	UIKit.place(panel, Control.PRESET_CENTER_BOTTOM, -300, -92, 600, 84)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.gui_input.connect(_on_panel_input)
 	add_child(panel)

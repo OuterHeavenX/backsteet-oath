@@ -39,6 +39,9 @@ func _ready() -> void:
 			"spawn":
 				var r = w.room
 				r.spawn_enemy(parts[1], r.player.position + Vector2(float(parts[2]), float(parts[3])))
+			"room":
+				w._load_room(parts[1], parts[2] if parts.size() > 2 else "west")
+				await get_tree().create_timer(0.8).timeout
 			"tp":
 				w.room.player.position = Vector2(float(parts[1]), float(parts[2]))
 			"menu":

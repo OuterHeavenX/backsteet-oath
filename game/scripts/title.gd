@@ -13,12 +13,12 @@ func _ready() -> void:
 	get_tree().paused = false
 	get_tree().root.theme = UIKit.build_theme()
 	UIKit.apply(self)
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg_tex := SpriteLib.tex("res://assets/bg/title_bg.png")
 	if bg_tex:
 		var bg := TextureRect.new()
 		bg.texture = bg_tex
-		bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+		bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -26,13 +26,11 @@ func _ready() -> void:
 	else:
 		var cr := ColorRect.new()
 		cr.color = Color(0.16, 0.1, 0.16)
-		cr.set_anchors_preset(Control.PRESET_FULL_RECT)
+		cr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		add_child(cr)
 	var logo_tex := SpriteLib.ui("logo")
 	var top := CenterContainer.new()
-	top.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	top.position = Vector2(-240, 18)
-	top.size = Vector2(480, 130)
+	UIKit.place(top, Control.PRESET_CENTER_TOP, -240, 14, 480, 130)
 	add_child(top)
 	if logo_tex:
 		var lr := TextureRect.new()
@@ -44,29 +42,22 @@ func _ready() -> void:
 		l.add_theme_font_size_override("font_size", 24)
 		top.add_child(l)
 	var sub := UIKit.label("Bellwether, 1988", UIKit.CREAM, 0, HORIZONTAL_ALIGNMENT_CENTER)
-	sub.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	sub.position = Vector2(-100, 150)
-	sub.size = Vector2(200, 10)
+	UIKit.place(sub, Control.PRESET_CENTER_TOP, -100, 146, 200, 10)
 	sub.add_theme_color_override("font_outline_color", UIKit.INK)
 	sub.add_theme_constant_override("outline_size", 4)
 	add_child(sub)
 	press_label = UIKit.label("PRESS ANY BUTTON", UIKit.MUSTARD, 0, HORIZONTAL_ALIGNMENT_CENTER)
-	press_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	press_label.position = Vector2(-120, -80)
-	press_label.size = Vector2(240, 12)
+	UIKit.place(press_label, Control.PRESET_CENTER_BOTTOM, -120, -80, 240, 12)
 	press_label.add_theme_color_override("font_outline_color", UIKit.INK)
 	press_label.add_theme_constant_override("outline_size", 4)
 	add_child(press_label)
 	var ver := UIKit.label("v%s  -  Godot 4.7.2  -  an original game" % SaveService.GAME_VERSION, UIKit.DIM)
-	ver.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	ver.position = Vector2(6, -14)
+	UIKit.place(ver, Control.PRESET_BOTTOM_LEFT, 6, -14, 300, 10)
 	ver.add_theme_color_override("font_outline_color", UIKit.INK)
 	ver.add_theme_constant_override("outline_size", 3)
 	add_child(ver)
 	main_box = UIKit.vbox(3)
-	main_box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	main_box.position = Vector2(-90, -150)
-	main_box.size = Vector2(180, 140)
+	UIKit.place(main_box, Control.PRESET_CENTER_BOTTOM, -90, -176, 180, 170)
 	main_box.visible = false
 	add_child(main_box)
 	menu_layer = CanvasLayer.new()
@@ -113,7 +104,6 @@ func _build_main() -> void:
 	if not OS.has_feature("web"):
 		btns.append(UIKit.button("Quit", func(): get_tree().quit(), 180))
 	for b in btns:
-		var pc := PanelContainer.new()
 		main_box.add_child(b)
 	await get_tree().process_frame
 	btns[0].grab_focus()
