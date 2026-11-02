@@ -3,7 +3,7 @@
 Backstreet Oath ships a **native Linux x86_64** build. It does not need Proton.
 
 ## Install (Desktop Mode)
-1. Copy `backstreet-oath-v1.0.0-rc3-linux-x86_64.zip` to the Deck and extract it (e.g. to `~/Games/BackstreetOath`).
+1. Copy `backstreet-oath-v1.1.0-rc1-linux-x86_64.zip` to the Deck and extract it (e.g. to `~/Games/BackstreetOath`).
 2. Make sure the launcher is executable: right-click `start.sh` → Properties → Permissions → *Is executable*
    (or in Konsole: `chmod +x start.sh BackstreetOath.x86_64`).
 3. Steam → *Games* → *Add a Non-Steam Game to My Library* → *Browse* → pick `start.sh` (or `BackstreetOath.x86_64`).
@@ -16,8 +16,9 @@ The Deck's built-in controller uses the standard layout: **A** jump, **X** punch
 without the touchscreen or a keyboard. Rebind in *Controls*; adjust stick deadzone in *Settings*.
 
 ## Display
-Renders at 640×360 scaled 2× to 1280×720 inside the Deck's 1280×800 screen. The thin bars at the top and
-bottom keep the pixels crisp. Settings → *Large text* gives a chunkier font if you prefer.
+The game's 640×360 layout fills the Deck's 1280×800 screen at exactly 2×. The 2× art is drawn 1:1 and the view
+extends slightly taller (no bars). Settings → *Large text* enlarges all text, and *Effects: Reduced* lowers the
+GPU load. Performance on Deck hardware has **not** been measured (no device was available).
 
 ## Saves
 `~/.local/share/godot/app_userdata/Backstreet Oath/` (3 slots + automatic backups). Not synced by Steam Cloud

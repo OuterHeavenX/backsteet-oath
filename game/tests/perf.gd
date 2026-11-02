@@ -16,6 +16,7 @@ var results: Array = []
 
 func _ready() -> void:
 	Audio.unlocked = true
+	await get_tree().process_frame   # the root is still adding children during _ready
 	var only := OS.get_environment("PERF_ONLY")
 	for sc in SCENARIOS:
 		if only != "" and not str(sc.name).contains(only):

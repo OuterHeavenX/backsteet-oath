@@ -1,6 +1,6 @@
 # HANDOFF — continuation notes
 
-**Version:** 1.0.0-rc3 · **Branch:** `claude/backstreet-oath-build` · **Release binaries:** branch `release-builds`
+**Version:** 1.1.0-rc1 (visual upgrade) · **Branch:** `claude/visual-upgrade` (rc4 audio hotfix of the old art: `claude/backstreet-oath-build`) · **Release binaries:** branch `release-builds`
 (orphan branch holding the four zips + itch assets, because build outputs are git-ignored on the main branch).
 **Engine:** Godot 4.7.2-stable. Fresh container: download `Godot_v4.7.2-stable_linux.x86_64.zip` and
 `Godot_v4.7.2-stable_export_templates.tpz` from github.com/godotengine/godot-builds releases; put templates in
@@ -28,11 +28,24 @@ godot --headless res://tests/unit_tests.tscn
 godot --headless --fixed-fps 60 res://tests/feature_tests.tscn
 godot --headless --fixed-fps 60 res://tests/quest_tests.tscn
 godot --headless --fixed-fps 60 res://tests/autoplay.tscn        # report: user://autoplay_report.json
-cd .. && python3 tools/package.py 1.0.0-rc3                      # exports + zips into release/
+cd .. && python3 tools/package.py 1.1.0-rc1                      # exports + zips into release/
 SHOT_ROOM=oq_kettle SHOT_STEPS="wait:2;shot:x" tools/shots.sh /tmp/shots   # screenshots via Xvfb
 node tools/webtest/game_test.js http://127.0.0.1:8765/web/index.html?bo_debug=1 /tmp/out
 ```
 Debug builds only: F1 overlay, F2 +XP, F3 next room, F4 spawn enemies, F5 heal, F6 delete slot 3 (`scripts/ui/debug_overlay.gd`).
+
+## Visual upgrade (1.1)
+- **Art direction:** `docs/ART_DIRECTION.md`.
+- **Engine/art interface:** `docs/visual/ASSET_CONTRACT_V2.md`. Any hand-made sheet or room that follows it drops in
+  without code changes.
+- **Generators:** `tools/art2/{chars,env,ui}`. After regenerating, run `tools/art2/optimize_textures.py`.
+- **Engine pieces:**
+  - `scripts/core/sprite_lib.gd` (v2 loaders, with fallback to the rc3 art);
+  - `actor.gd` (frame mapping, lighting shader, shadows and reflections);
+  - `room_visuals.gd` (layers, foreground fade, lightmap, glows, ambient);
+  - `combat_fx.gd`;
+  - `hud.gd` (plate, boss bar, letterbox, cards).
+- **Evidence:** `docs/visual/` (baseline, after, compare, footage) and `docs/visual/UPGRADE_REPORT.md`.
 
 ## Where things live
 - Content: `game/data/*.json`. Story beats: `game/scripts/autoload/story.gd`. Combat: `game/scripts/core/actor.gd`, `player.gd`, `enemy.gd`, `boss.gd`.

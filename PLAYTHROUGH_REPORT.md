@@ -1,6 +1,20 @@
 # Playthrough Report
 
-**Build:** 1.0.0-rc3 (branch `claude/backstreet-oath-build`), Godot 4.7.2-stable, Normal difficulty.
+**Build:** 1.1.0-rc1 (branch `claude/visual-upgrade`), Godot 4.7.2-stable, Normal difficulty. The detailed timings below come
+from the 1.0.0-rc3 run. The visual upgrade changed no gameplay code, and its bot re-run is summarised in the next section.
+
+## 1.1.0-rc1 re-run (full v2 art, same bot)
+| Metric | rc3 | 1.1.0-rc1 |
+|---|---|---|
+| Outcome | complete | complete |
+| In-game time | 47.4 min | 49.0 min |
+| Knockouts (all recovered) | 13 | 15 |
+| Enemies defeated | 270 | 271 |
+| Level at the end | 14 | 14 |
+| Script errors | 0 | 0 |
+
+The small differences come from randomness: enemy AI and guard rolls. Attack timing, hitboxes and collision are
+unchanged.
 **Tester method:** automated bot (`game/tests/autoplay.tscn`), run headless at a fixed 60 ticks/s, so all times below are
 **in-game seconds**. The bot drives the game only through InputMap actions, the same path as a keyboard or
 controller. It uses no debug shortcuts, teleports, stat edits or cheats. It follows the main story only (no side jobs,

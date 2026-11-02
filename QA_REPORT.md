@@ -1,3 +1,21 @@
+# QA Report (1.1.0-rc1)
+
+## 1.1.0-rc1 visual upgrade: verification summary
+Full details are in [docs/visual/UPGRADE_REPORT.md](docs/visual/UPGRADE_REPORT.md).
+- **Automated suites:**
+  - unit tests 7,775/7,775, which include the v2 asset-contract checks;
+  - features 65/65 and quests 23/23;
+  - the autoplay bot completed the campaign with the full v2 cast.
+- **Web export:** tested in Chromium (title, new game, intro, fight, status, reload, persistence). Audio output was
+  measured, not just checked for errors: RMS 0.05–0.11 after the first input.
+- **Linux export:** launched and driven with real X11 key events (continue, movement, pause menu).
+- **Layouts:** checked at 1920×1080, 1280×800, 1688×780 (touch) and 1280×960 (touch deck), with no overlaps.
+- **Visual review:** before/after stills from fixed camera positions and Movie Maker footage of a fight, a boss and
+  the shop, all in `docs/visual/`.
+- **Performance:** measured with software rendering only; see the upgrade report. Not representative of GPUs.
+
+---
+
 # QA Report (1.0.0-rc3)
 
 **Test environment (all results below):** Linux x86_64 VM, 4 vCPU, 15 GB RAM, no GPU; Godot 4.7.2-stable official

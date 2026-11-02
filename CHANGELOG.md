@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.1.0-rc1 (2026-11-02): visual upgrade
+The same game, redrawn. Story, quests, combat timing, controls and saves are unchanged; rc1–rc4 saves load.
+- **One art direction:** inked, cel-shaded 2D illustration at 2× density, rendered at window resolution
+  (`docs/ART_DIRECTION.md`). Before/after comparisons and footage: `docs/visual/`.
+- **Characters (all 60):** full animation sets built on a vector rig.
+  - Every attack has anticipation, contact, follow-through and recovery frames.
+  - Walk and run cycles advance with distance travelled, so feet don't slide.
+  - Spring-driven hair and cloth, and faces drawn per frame.
+  - Distinct high, low and from-behind hit reactions, and a five-phase knockdown.
+  - Per-archetype stances, plus signature boss idle and victory poses.
+  - 29 new 192 px portraits.
+- **Rooms (all 30):** each has its own district identity and a fixed collision layout.
+  - Parallax skies and skylines, and foreground framing that fades when a fighter is behind it.
+  - Authored light that tints fighters by where they stand, glows with neon, flame and fluorescent flicker, and a
+    rim light from nearby lights.
+  - Contact and cast shadows, wet-ground reflections, and ambient steam, sparks, embers and drips.
+  - The Pier Square drawbridge is shown lowered after it opens.
+- **Combat presentation:** impact effects for fists, kicks, metal, wood, glass, stone and soft objects, with
+  debris thrown in the hit's direction. Swing arcs, dust, and directional camera kicks.
+- **Story scenes:** letterbox bars and a slow push-in, location and boss name cards, and a phase-change beat.
+  The opening, rescue and revelation have new framing, the ending gets a new backdrop, and scenes change with a
+  patterned wipe. All scenes can still be skipped.
+- **UI:** new typefaces (Bungee and Barlow, SIL OFL) at larger sizes, and brass-framed panels. The HUD has a portrait
+  that reacts to HP and combat, and HP/boss bars that show damage as a trailing bar. Dialogue shows 96 px
+  portraits, and the title screen is parallax.
+- **New settings:** Effects (Full/Reduced) and Cinematic bars.
+- **Web:** canvas pixel ratio capped at 1.5 for phones; textures are palette-optimised, so the download is 56.7 MB.
+- Includes the 1.0.0-rc4 fix for silent audio in browsers.
+
+## 1.0.0-rc4 (2026-11-02): audio fix for the browser build (tester feedback)
+- **Music and sound effects now play in the web build.** Godot's web audio plays sounds as Web Audio samples routed
+  by bus. The Music/SFX buses were created after startup, so every sound was routed nowhere and browsers stayed
+  silent. They are now defined in `default_bus_layout.tres`.
+- **iPhone/iPad:** the first tap starts a silent audio element, so the ring/silent switch no longer mutes the game.
+
 ## 1.0.0-rc3 (2026-11-02): tablet dialogue fix (tester feedback)
 - Conversation boxes with choices (shopkeepers' Shop / Chat / Leave, quest questions) now grow upward from the
   bottom of the street, so every option stays visible above the touch control deck.

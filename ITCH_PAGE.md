@@ -17,11 +17,11 @@
 | Average session | About an hour |
 | Languages | English |
 | Cover image | `release/itch/cover_630x500.png` (630×500) |
-| Screenshots | `release/itch/screenshot_1.png` … `screenshot_7.png` (1280×720, real gameplay, 2× nearest upscale) |
+| Screenshots | `release/itch/screenshot_1_kettle_street.png` … `screenshot_8_diner_shop.png` (1280×720, real gameplay at native resolution); key art `key_art_1280x720.png` |
 | Content note | Cartoon fistfights and improvised-weapon violence (no blood, no guns). Mild peril, arson mentioned in the story. |
 
 ### Embed options (HTML upload)
-- Upload `backstreet-oath-v1.0.0-rc3-web.zip` and tick **"This file will be played in the browser"**.
+- Upload `backstreet-oath-v1.1.0-rc1-web.zip` and tick **"This file will be played in the browser"**.
 - Viewport: **1280 × 720**. Tick **Mobile friendly** (orientation: **Landscape**), **Fullscreen button**.
   Leave **"Automatically start on page load"** off; the game waits for a click or key press to start audio anyway.
 - **SharedArrayBuffer support: leave OFF.** The build is single-threaded and needs no special headers.
@@ -81,9 +81,9 @@ This build was produced in an environment whose network policy **blocks itch.io 
 2. Install butler (https://itch.io/docs/butler/) and log in once: `butler login`.
 3. Push the three channels from the `release/` folder:
    ```bash
-   butler push backstreet-oath-v1.0.0-rc3-web.zip            <your-account>/backstreet-oath:html5 --userversion 1.0.0-rc3
-   butler push backstreet-oath-v1.0.0-rc3-linux-x86_64.zip   <your-account>/backstreet-oath:linux --userversion 1.0.0-rc3
-   butler push backstreet-oath-v1.0.0-rc3-windows-x86_64.zip <your-account>/backstreet-oath:windows --userversion 1.0.0-rc3
+   butler push backstreet-oath-v1.1.0-rc1-web.zip            <your-account>/backstreet-oath:html5 --userversion 1.1.0-rc1
+   butler push backstreet-oath-v1.1.0-rc1-linux-x86_64.zip   <your-account>/backstreet-oath:linux --userversion 1.1.0-rc1
+   butler push backstreet-oath-v1.1.0-rc1-windows-x86_64.zip <your-account>/backstreet-oath:windows --userversion 1.1.0-rc1
    butler status <your-account>/backstreet-oath
    ```
 4. On the page's Edit screen: mark the `html5` upload "played in the browser", set the viewport to 1280×720, and
