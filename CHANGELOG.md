@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-rc4 (2026-11-02): audio fix for the browser build (tester feedback)
+- **Music and sound effects now play in the web build.** Godot's web audio plays sounds as Web Audio samples
+  routed by bus, and the Music/SFX buses were created after startup, so every sound was routed nowhere and the
+  browser output was silent (measured: RMS 0.0; after the fix 0.05-0.11 with title music and menu sounds).
+  The buses are now defined in `default_bus_layout.tres`. Desktop builds were not affected.
+- **iPhone/iPad:** the first tap now also starts a silent looping audio element, so the game's sound is not
+  muted by the ring/silent switch.
+- New check: `tools/webtest/audio_test.js` measures real Web Audio output in Chromium.
+
 ## 1.0.0-rc3 (2026-11-02): tablet dialogue fix (tester feedback)
 - Conversation boxes with choices (shopkeepers' Shop / Chat / Leave, quest questions) now grow upward from the
   bottom of the street, so every option stays visible above the touch control deck.

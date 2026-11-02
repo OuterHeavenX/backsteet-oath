@@ -1,4 +1,4 @@
-# Known Issues & Limitations (1.0.0-rc3)
+# Known Issues & Limitations (1.0.0-rc4)
 
 No known blocker or major bugs remain in the main campaign or on the tested platforms. The automated campaign
 run, feature tests, quest tests and unit tests all pass.
@@ -23,6 +23,7 @@ run, feature tests, quest tests and unit tests all pass.
 - Some icons are only moderately clear at 1× (leash, champion wraps, green tea).
 - Web performance was measured only under software rendering on a shared 4-core VM: 29–40 FPS, worst frame 60–140 ms
   while another process ran. GPU-accelerated browsers should do much better, but this is unmeasured.
-- Audio was synthesized and checked numerically (levels, seams, loudness) but not listened to by a human.
+- Audio was synthesized and checked numerically (levels, seams, loudness, and real browser output since rc4) but not
+  listened to by a human.
 - Steam Cloud does not sync saves (the game is added as a non-Steam shortcut).
 - Browser saves depend on the browser keeping site storage. Private windows do not persist. Use Export.
