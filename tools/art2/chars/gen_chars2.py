@@ -228,8 +228,8 @@ def build_character(cid, pool, preview=None):
                 anims[k] = {'frames': anims['talk']['frames'][:3], 'fps': 10, 'loop': False, 'contact': 1}
     # v1 compatibility alias
     anims['hurt'] = dict(anims['hurt_high'])
-    stand = solve(poses.G(), b)
-    height = int(round((-(stand.head_c[1]) + b['R'] * 1.05) * DEN))
+    # standing crown height incl. hair: top of the relaxed 'talk' frame (trim margin is 1 tx)
+    height = int(-metas[anim_frames['talk'][0]]['oy'] - 1)
     js = {
         'id': cid, 'version': 2, 'density': DEN, 'height': height,
         'frames': [[p[0], p[1], f.size[0], f.size[1], m['ox'], m['oy']] for f, p, m in zip(frames, pos, metas)],

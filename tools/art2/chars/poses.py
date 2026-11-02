@@ -98,7 +98,9 @@ def cycle(n, stride, beta, lift, lean, arms, expr, run=False, base=None, carry=F
                       hand_n='relax', hand_f='relax', twist=0.18 * s_f, ptwist=-0.2 * s_f, lean=lean,
                       eb_n='back', eb_f='back')
         else:
-            kw.update(hn=(3.6 + 4.6 * s_n, -21.8 - 1.4 * max(s_n, 0)), hf=(2.6 + 4.4 * s_f, -22.6 - 1.4 * max(s_f, 0)),
+            sw_n = 4.6 * s_n if s_n > 0 else 2.6 * s_n
+            sw_f = 4.4 * s_f if s_f > 0 else 2.4 * s_f
+            kw.update(hn=(3.6 + sw_n, -21.0 - 1.6 * max(s_n, 0)), hf=(3.0 + sw_f, -21.6 - 1.6 * max(s_f, 0)),
                       twist=0.24 * s_f, ptwist=-0.28 * s_f, lean=lean, eb_n='back', eb_f='back')
         kw.update(hip=(hx, hy), fn=feet['n'][:2], ff=feet['f'][:2], toe_n=feet['n'][2], toe_f=feet['f'][2],
                   lift_n=feet['n'][3], lift_f=feet['f'][3], expr=expr,
@@ -358,12 +360,12 @@ def fighter_anims():
 
     A['victory'] = dict(frames=[
         G(hip=(-0.3, -17.2), lean=4, hn=(3.0, -20.0), hf=(6.0, -25.0), expr='grin', wang=60),
-        G(hip=(0.0, -18.0), lean=-4, hn=(4.0, -51.0), hf=(5.0, -26.0), eb_n='back', expr='happy', tilt=-8, wang=-90,
-          near_arm_back=True),
-        G(hip=(0.0, -18.1), lean=-5, hn=(4.4, -52.0), hf=(5.0, -26.4), eb_n='back', expr='happy', tilt=-9, wang=-90,
-          near_arm_back=True),
-        G(hip=(-0.2, -17.6), lean=2, hn=(5.0, -44.0), hf=(4.0, -22.0), eb_n='back', hand_f='relax', expr='grin',
-          wang=-80, near_arm_back=True),
+        G(hip=(0.0, -18.0), lean=-3, hn=(12.6, -41.0), hf=(4.0, -24.0), eb_n='down', hand_f='relax', expr='happy',
+          tilt=-8, wang=-90),
+        G(hip=(0.0, -18.1), lean=-4, hn=(12.9, -42.6), hf=(4.0, -24.4), eb_n='down', hand_f='relax', expr='happy',
+          tilt=-9, wang=-90),
+        G(hip=(-0.2, -17.6), lean=2, hn=(11.0, -36.0), hf=(4.0, -22.0), eb_n='down', hand_f='relax', expr='grin',
+          wang=-80),
     ], fps=8, loop=False, vel=[(0, 1), (0, -3), (0, 0), (0, 1)])
     A['talk'] = dict(frames=talk_frames(), fps=6, loop=True, vel=[(0, 0)] * 4)
     A['cower'] = dict(frames=cower_frames(), fps=10, loop=True, vel=[(0.5, 0), (-0.5, 0), (0.3, 0)])
@@ -409,9 +411,9 @@ def civilian_anims():
     A['cower'] = dict(frames=cower_frames(), fps=10, loop=True, vel=[(0.5, 0), (-0.5, 0), (0.3, 0)])
     A['victory'] = dict(frames=[
         Rx(expr='smile'),
-        Rx(hn=(10.0, -43.0), hf=(-6.0, -42.0), hand_n='open', hand_f='open', eb_n='down', eb_f='down', expr='happy',
+        Rx(hn=(13.0, -36.5), hf=(-5.0, -44.0), hand_n='open', hand_f='open', eb_n='down', eb_f='down', expr='happy',
            hip=(0, -18.0), tilt=-6),
-        Rx(hn=(10.6, -44.0), hf=(-6.4, -43.0), hand_n='open', hand_f='open', eb_n='down', eb_f='down', expr='happy',
+        Rx(hn=(13.4, -37.5), hf=(-5.6, -45.0), hand_n='open', hand_f='open', eb_n='down', eb_f='down', expr='happy',
            hip=(0, -17.6), tilt=-6),
         Rx(expr='grin', hn=(6.0, -24.0), hand_n='open', eb_n='down'),
     ], fps=8, loop=False, vel=[(0, 0), (0, -2), (0, 1), (0, 0)])

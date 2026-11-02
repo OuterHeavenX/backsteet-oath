@@ -1016,14 +1016,15 @@ func _update_visual() -> void:
 			weapon_spr.z_index = 0 if hand_front() else -1
 	# flash / telegraph tint
 	if flash > 0.0:
-		flash = maxf(0.0, flash - 0.12)
+		flash = maxf(0.0, flash - 0.16)
 	var f := flash * Settings.flash
 	if telegraph_t > 0 and (telegraph_t / 4) % 2 == 0:
 		f = maxf(f, 0.45 * maxf(Settings.flash, 0.35))
 		mat.set_shader_parameter("flash_color", Color(1.0, 0.35, 0.25))
 	else:
 		mat.set_shader_parameter("flash_color", flash_color)
-	mat.set_shader_parameter("flash_amount", f)
+	# hi-res bodies read better with a partial flash (a full white silhouette looked blown out)
+	mat.set_shader_parameter("flash_amount", minf(f, 1.0) * 0.55)
 	if invuln > 0 and state in ["idle", "walk", "run", "guard"] and team == TEAM_PLAYER:
 		body.modulate.a = 0.55 if (invuln / 3) % 2 == 0 else 1.0
 	else:
