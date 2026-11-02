@@ -1,7 +1,26 @@
 # Playthrough Report
 
-**Build:** 1.1.0-rc1 (branch `claude/visual-upgrade`), Godot 4.7.2-stable, Normal difficulty. The detailed timings below come
+**Build:** 1.2.0-rc1 (branch `claude/visual-upgrade`), Godot 4.7.2-stable, Normal difficulty. The detailed timings below come
 from the 1.0.0-rc3 run. The visual upgrade changed no gameplay code, and its bot re-run is summarised in the next section.
+
+## 1.2.0-rc1 run (the Underline chapter added to the main path)
+| Metric | rc3 | 1.1.0-rc1 | 1.2.0-rc1 |
+|---|---|---|---|
+| Outcome | complete | complete | complete |
+| In-game time | 47.4 min | 49.0 min | **53.1 min** |
+| Underline stage (garage to Floodgate) | n/a | n/a | 9.0 min (rooms: station 1.4, tunnel 2.2, vault + Kowal 2.1) |
+| Knockouts (all recovered) | 13 | 15 | 15 |
+| Enemies defeated | 270 | 271 | 290 |
+| Level at the end | 14 | 14 | 14 |
+| Script errors | 0 | 0 | 0 |
+
+The bot plays only the main story. It skips the four new side jobs, Benny's nine-bout ladder and New Game+, so
+none of these appear in its time.
+- **Story path for a person:** this run measures about +4 minutes of bot time. For a person, the estimate is about
+  +8–12 minutes once you add reading the new scenes and learning the new boss.
+- **Optional content:** the four side jobs are an estimated 4–6 minutes each and the ladder 10–15 minutes. Neither
+  has been timed.
+- **New Game+:** a full second run on harder settings.
 
 ## 1.1.0-rc1 re-run (full v2 art, same bot)
 | Metric | rc3 | 1.1.0-rc1 |
