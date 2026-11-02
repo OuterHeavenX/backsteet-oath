@@ -211,6 +211,8 @@ class Frame:
         self.tails(behind=True)
         if not p['far_arm_front']:
             self.arm('f')
+        if p.get('near_arm_under'):
+            self.arm('n')
         self.leg('f')
         if L.dress is not None:
             self.skirt(back=True)
@@ -227,7 +229,7 @@ class Frame:
             self.arm('n')
         self.head()
         self.tails(behind=False)
-        if not p['near_arm_back']:
+        if not p['near_arm_back'] and not p.get('near_arm_under'):
             self.arm('n')
         self.held_extras()
 
@@ -722,11 +724,21 @@ class Frame:
         hand = s.pose['hand_n'] if side == 'n' else s.pose['hand_f']
         lw = b['limb']
         g = cv.group(occlude=0.0 if far else 0.32, occ_tx=2.0)
-        rs, re, rw = 2.05 * lw, 1.58 * lw, 1.18 * lw
+        # tapered, muscled limb: deltoid -> bicep -> elbow -> forearm belly -> wrist (one merged mask)
+        rs, rb, re, rf, rw = 2.25 * lw, 2.1 * lw, 1.62 * lw, 1.82 * lw, 1.22 * lw
+        bic = lerp(sh, el, 0.42)
+        fore = lerp(el, wr, 0.3)
         skin = self._far(L.skin, far)
-        arm_poly = [seg_quad(sh, el, rs, re), seg_quad(el, wr, re, rw)]
-        circ = [(sh[0], sh[1], rs), (el[0], el[1], re)]
-        g.fill(g.mask(polys=arm_poly, circles=circ), skin, shade=0.75, hi=0.3)
+        arm_poly = [seg_quad(sh, bic, rs, rb), seg_quad(bic, el, rb, re), seg_quad(el, fore, re, rf),
+                    seg_quad(fore, wr, rf, rw)]
+        circ = [(sh[0], sh[1], rs), (bic[0], bic[1], rb), (el[0], el[1], re), (fore[0], fore[1], rf)]
+        g.fill(g.mask(polys=arm_poly, circles=circ), skin, shade=0.8, hi=0.32)
+        if L.sleeves == 'none' and not (L.jacket and L.jacket.get('sleeves', 'long') != 'none'
+                                        and L.jacket['kind'] not in ('vest', 'safety')):
+            # bare arm: bicep / forearm muscle hints
+            a1 = norm(sub(el, sh))
+            g.line([add(lerp(sh, el, 0.3), mul(perp(a1), rb * 0.35)), add(lerp(sh, el, 0.62), mul(perp(a1), rb * 0.45))],
+                   0.7, skin.shadow, 0.6)
         # sleeves
         sleeves = L.sleeves
         smat = L.shirt
@@ -738,88 +750,122 @@ class Frame:
             smat = L.dress
         smat = self._far(smat, far)
         if sleeves != 'none':
-            ext = 0.42
+            ext = 0.45
             if sleeves == 'short':
-                end = lerp(sh, el, 0.55)
-                poly = [seg_quad(sh, end, rs + ext, re + ext + 0.15)]
+                end = lerp(sh, el, 0.58)
+                poly = [seg_quad(sh, end, rs + ext, rb + ext + 0.2)]
                 cc = [(sh[0], sh[1], rs + ext)]
             elif sleeves == 'rolled':
-                end = lerp(el, wr, 0.3)
-                poly = [seg_quad(sh, el, rs + ext, re + ext), seg_quad(el, end, re + ext, re + ext * 0.5)]
-                cc = [(sh[0], sh[1], rs + ext), (el[0], el[1], re + ext)]
+                end = lerp(el, wr, 0.32)
+                poly = [seg_quad(sh, bic, rs + ext, rb + ext), seg_quad(bic, el, rb + ext, re + ext),
+                        seg_quad(el, end, re + ext, rf + ext * 0.6)]
+                cc = [(sh[0], sh[1], rs + ext), (bic[0], bic[1], rb + ext), (el[0], el[1], re + ext)]
             else:
-                end = lerp(el, wr, 0.9)
-                poly = [seg_quad(sh, el, rs + ext, re + ext), seg_quad(el, end, re + ext, rw + ext + 0.2)]
-                cc = [(sh[0], sh[1], rs + ext), (el[0], el[1], re + ext)]
+                end = lerp(el, wr, 0.86)
+                poly = [seg_quad(sh, bic, rs + ext, rb + ext), seg_quad(bic, el, rb + ext, re + ext),
+                        seg_quad(el, fore, re + ext, rf + ext), seg_quad(fore, end, rf + ext, rw + ext + 0.35)]
+                cc = [(sh[0], sh[1], rs + ext), (bic[0], bic[1], rb + ext), (el[0], el[1], re + ext),
+                      (fore[0], fore[1], rf + ext)]
             sm_ = g.mask(polys=poly, circles=cc)
-            g.fill(sm_, smat, shade=0.9, hi=0.35)
-            # cuff / hem line
-            d = norm(sub(end, el if sleeves != 'short' else sh))
+            g.fill(sm_, smat, shade=0.95, hi=0.38)
+            seg_from = el if sleeves != 'short' else sh
+            d = norm(sub(end, seg_from))
             n = perp(d)
-            w_ = (re + ext + 0.2) if sleeves == 'short' else (rw + ext + 0.2)
-            g.line([add(end, mul(n, w_)), add(end, mul(n, -w_))], 1.0 if sleeves != 'rolled' else 1.8, smat.shadow, 1.0)
-            # elbow fold
+            w_ = (rb + ext + 0.25) if sleeves == 'short' else (rw + ext + 0.4)
+            if sleeves == 'long':
+                # cuff band
+                c0 = add(end, mul(d, -1.0))
+                cuff = g.mask(polys=[seg_quad(c0, end, rw + ext + 0.45, rw + ext + 0.45)]) * (sm_ > 0.5)
+                g.fill(cuff, smat.darker(0.12), shade=0.4, hi=0.2)
+                g.line([add(c0, mul(n, w_)), add(c0, mul(n, -w_))], 0.8, smat.shadow, 0.9)
+            elif sleeves == 'rolled':
+                r0 = add(end, mul(d, -1.3))
+                roll = g.mask(polys=[seg_quad(r0, end, rf + ext + 0.4, rf + ext * 0.6 + 0.4)])
+                g.fill(roll, smat, shade=0.5, hi=0.4)
+                g.line([add(r0, mul(n, w_)), add(r0, mul(n, -w_))], 0.9, smat.shadow, 1.0)
+            else:
+                h0 = add(end, mul(d, -0.8))
+                g.line([add(h0, mul(n, w_)), add(h0, mul(n, -w_))], 0.8, smat.shadow, 0.8)
+            g.line([add(end, mul(n, w_)), add(end, mul(n, -w_))], 1.0, smat.shadow, 1.0)
+            # folds: inner elbow crease + forearm / upper-arm wrinkles
+            a1, a2 = norm(sub(el, sh)), norm(sub(wr, el))
+            bend = a1[0] * a2[0] + a1[1] * a2[1]
             if sleeves in ('long', 'rolled'):
-                a1, a2 = norm(sub(el, sh)), norm(sub(wr, el))
-                if a1[0] * a2[0] + a1[1] * a2[1] < 0.9:
-                    inner = add(el, mul(perp(a1), -re * 0.4))
-                    g.line([add(inner, mul(a1, -1.2)), inner, add(inner, mul(a2, 1.0))], 0.8, smat.shadow, 0.9)
-            if jk and jk.get('stripe') and smat is not None and not far:
+                if bend < 0.92:
+                    inner = add(el, mul(perp(a1), -re * 0.45))
+                    g.line([add(inner, mul(a1, -1.4)), inner, add(inner, mul(a2, 1.2))], 0.8, smat.shadow, 0.95)
+                p0 = lerp(el, wr, 0.45)
+                g.line([add(p0, mul(perp(a2), rf * 0.6)), add(add(p0, mul(a2, 0.9)), mul(perp(a2), -rf * 0.1))], 0.7,
+                       smat.shadow, 0.75)
+            p1 = lerp(sh, el, 0.35)
+            g.line([add(p1, mul(perp(a1), -rb * 0.55)), add(add(p1, mul(a1, 1.0)), mul(perp(a1), rb * 0.05))], 0.7,
+                   smat.shadow, 0.7)
+            if jk and jk.get('stripe') and not far:
                 st = cloth(jk['stripe'])
-                p0, p1 = lerp(sh, el, 0.25), lerp(sh, el, 0.42)
-                band = g.mask(polys=[seg_quad(p0, p1, rs + ext + 0.1, rs + ext)]) * (sm_ > 0.5)
+                p0, p1 = lerp(sh, el, 0.22), lerp(sh, el, 0.40)
+                band = g.mask(polys=[seg_quad(p0, p1, rs + ext + 0.2, rb + ext + 0.2)]) * (sm_ > 0.5)
                 g.fill(band, st, shade=0.6, hi=0.2)
             if jk and jk['kind'] == 'track':
                 trim = cloth(jk.get('trim') or 'white')
                 nrm = perp(norm(sub(el, sh)))
-                g.line([add(sh, mul(nrm, -rs * 0.6)), add(el, mul(nrm, -re * 0.7)), add(end, mul(perp(norm(sub(end, el))), -rw * 0.8))],
-                       1.1, trim.base, 0.95)
-        # wristband / armband
+                g.line([add(sh, mul(nrm, -rs * 0.62)), add(el, mul(nrm, -re * 0.75)),
+                        add(end, mul(perp(norm(sub(end, el))), -rw * 0.9))], 1.1, trim.base, 0.95)
+        # wristband / armband / guards
         if L.wrist is not None:
-            a = lerp(el, wr, 0.72)
-            g.fill(g.mask(polys=[seg_quad(a, wr, re * 1.05 + 0.25, rw + 0.3)]), self._far(L.wrist, far), shade=0.5, hi=0.25)
+            a = lerp(el, wr, 0.74)
+            g.fill(g.mask(polys=[seg_quad(a, wr, rf * 0.95 + 0.3, rw + 0.35)]), self._far(L.wrist, far), shade=0.5, hi=0.25)
+            if L.spec.get('studs'):
+                m_ = lerp(a, wr, 0.5)
+                g.dot(m_[0], m_[1], 0.32, (220, 222, 232), clip_to_group=True)
         if L.armband is not None:
             a, c = lerp(sh, el, 0.35), lerp(sh, el, 0.6)
-            g.fill(g.mask(polys=[seg_quad(a, c, rs + 0.6, re + 0.6)]), self._far(L.armband, far), shade=0.5, hi=0.2)
+            g.fill(g.mask(polys=[seg_quad(a, c, rs + 0.7, rb + 0.7)]), self._far(L.armband, far), shade=0.5, hi=0.2)
         if L.guards is not None:
             a, c = lerp(el, wr, 0.15), lerp(el, wr, 0.85)
-            g.fill(g.mask(polys=[seg_quad(a, c, re + 0.5, rw + 0.5)]), self._far(L.guards, far), shade=0.6, hi=0.3)
-        # hand
+            g.fill(g.mask(polys=[seg_quad(a, c, rf + 0.55, rw + 0.55)]), self._far(L.guards, far), shade=0.6, hi=0.3)
+            g.line([lerp(a, c, 0.5), lerp(a, c, 0.52)], 0.8, self._far(L.guards, far).shadow, 0.9)
         hm = self._far(L.glove, far) if L.glove is not None else skin
         self.hand(g, wr, fist, hand, hm, lw, far)
         g.commit()
 
     def hand(self, g, wr, fist, kind, hm, lw, far):
         d = norm(sub(fist, wr))
-        ang = math.atan2(d[1], d[0])
-        fr = self.b['fist']
-        if kind in ('open', 'relax', 'point'):
-            # palm + mitten fingers + thumb
-            palm_c = add(wr, mul(d, fr * 0.8))
-            palm = ellipse_pts(palm_c[0], palm_c[1], fr * 0.95, fr * 0.78, ang, n=20)
-            tipc = add(wr, mul(d, fr * 2.0 if kind != 'relax' else fr * 1.7))
-            fing = seg_quad(palm_c, tipc, fr * 0.78, fr * 0.5)
-            thumb_dir = rot(d, -0.9 if not far else -0.9)
-            th0 = add(palm_c, mul(perp(d), -fr * 0.35))
-            th1 = add(th0, mul(thumb_dir, fr * 1.0))
-            m = g.mask(polys=[palm, fing, seg_quad(th0, th1, fr * 0.35, fr * 0.26)],
-                       circles=[(tipc[0], tipc[1], fr * 0.5)])
-            g.fill(m, hm, shade=0.45, hi=0.25)
-            g.line([add(palm_c, mul(d, fr * 0.6)), add(tipc, mul(d, -fr * 0.1))], 0.7, hm.shadow, 0.9)
-            return
-        # fist: rounded block oriented along the forearm
-        c = fist
-        body = ellipse_pts(c[0], c[1], fr * 1.06, fr * 0.96, ang, n=24)
-        m = g.mask(polys=[body, seg_quad(wr, c, fr * 0.7, fr * 0.9)])
-        g.fill(m, hm, shade=0.55, hi=0.3)
-        # knuckle line + thumb wrap
         n = perp(d)
-        k0 = add(c, add(mul(d, fr * 0.45), mul(n, -fr * 0.75)))
-        k1 = add(c, add(mul(d, fr * 0.45), mul(n, fr * 0.75)))
-        g.line([k0, add(c, mul(d, fr * 0.62)), k1], 0.75, hm.shadow, 0.9)
-        t0 = add(c, add(mul(d, -fr * 0.3), mul(n, -fr * 0.55)))
-        t1 = add(c, add(mul(d, fr * 0.35), mul(n, -fr * 0.1)))
-        g.line([t0, t1], 0.75, hm.shadow, 0.9)
+        fr = self.b['fist']
+
+        def F(u, v, c):
+            return (c[0] + d[0] * u * fr + n[0] * v * fr, c[1] + d[1] * u * fr + n[1] * v * fr)
+        if kind in ('open', 'relax', 'point'):
+            pc = add(wr, mul(d, fr * 0.55))
+            palm = [F(u, v, pc) for (u, v) in ((-0.45, -0.8), (0.55, -0.85), (0.7, 0.0), (0.55, 0.85), (-0.45, 0.8))]
+            ln = 1.75 if kind == 'open' else 1.25
+            if kind == 'point':
+                ln = 1.1
+            fingers = [F(0.45, -0.82, pc), F(ln, -0.62, pc), F(ln + 0.08, 0.0, pc), F(ln, 0.62, pc), F(0.45, 0.82, pc)]
+            polys = [catmull(palm, True, 3), catmull(fingers + [F(0.3, 0.0, pc)], True, 3)]
+            if kind == 'point':
+                polys.append(seg_quad(F(0.6, -0.5, pc), F(2.4, -0.55, pc), fr * 0.24, fr * 0.2))
+            th0, th1 = F(0.0, -0.75, pc), F(0.75, -1.35, pc)
+            polys.append(seg_quad(th0, th1, fr * 0.3, fr * 0.22))
+            m = g.mask(polys=polys, circles=[(th1[0], th1[1], fr * 0.22)])
+            g.fill(m, hm, shade=0.45, hi=0.25)
+            for v in (-0.3, 0.3):
+                g.line([F(0.75, v, pc), F(ln - 0.15, v, pc)], 0.6, hm.shadow, 0.85)
+            g.line([F(0.05, -0.55, pc), F(0.55, -0.85, pc)], 0.6, hm.shadow, 0.8)
+            return
+        # fist: squarish block with knuckle ridge, finger grooves and thumb wrap
+        c = fist
+        box = [F(-0.62, -0.92, c), F(0.62, -0.98, c), F(1.0, -0.62, c), F(1.04, 0.0, c), F(1.0, 0.62, c),
+               F(0.62, 0.95, c), F(-0.62, 0.9, c)]
+        m = g.mask(polys=[catmull(box, True, 3), seg_quad(wr, F(-0.4, 0.0, c), fr * 0.72, fr * 0.86)])
+        g.fill(m, hm, shade=0.55, hi=0.32)
+        g.line([F(0.5, -0.86, c), F(0.62, 0.0, c), F(0.5, 0.86, c)], 0.75, hm.shadow, 0.95)
+        for v in (-0.3, 0.3):
+            g.line([F(0.62, v, c), F(1.0, v, c)], 0.6, hm.shadow, 0.8)
+        th = [F(-0.35, -0.9, c), F(0.38, -0.25, c)]
+        tm = g.mask(polys=[seg_quad(th[0], th[1], fr * 0.32, fr * 0.27)], circles=[(th[1][0], th[1][1], fr * 0.27)])
+        g.fill(tm, Mat(light_of(hm.base, 0.4), hm.shadow, light_of(hm.base, 0.9)), shade=0.25, hi=0.12)
+        g.line(th, 0.55, hm.shadow, 0.9)
 
     # ================================================================== head
     def head_shape_pts(self):

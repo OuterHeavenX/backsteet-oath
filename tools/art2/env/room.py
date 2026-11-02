@@ -41,6 +41,8 @@ class Room:
         self.ambient_level = 0.86
         self.district_layers = []
         self.notes = []
+        self.drawn_doors = set()
+        self.drawbridge = None
 
     def rng(self, *p):
         return rng_of(self.id, *p)

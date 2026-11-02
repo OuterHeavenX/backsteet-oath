@@ -10,18 +10,19 @@ func build() -> void:
 	var c := make_frame("BUS STOP" if bus_mode else "BELLWETHER", Vector2(500, 0))
 	var map_tex := SpriteLib.ui("map")
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(480, 200) if map_tex == null else Vector2(minf(map_tex.get_width(), 480), minf(map_tex.get_height(), 200))
-	c.add_child(holder)
+	holder.clip_contents = true
 	var scale_f := 1.0
+	if map_tex:
+		scale_f = minf(480.0 / map_tex.get_width(), 200.0 / map_tex.get_height())
+	holder.custom_minimum_size = Vector2(480, 200) if map_tex == null else map_tex.get_size() * scale_f
+	holder.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	c.add_child(holder)
 	if map_tex:
 		var tr := TextureRect.new()
 		tr.texture = map_tex
-		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		scale_f = minf(480.0 / map_tex.get_width(), 200.0 / map_tex.get_height())
-		tr.custom_minimum_size = map_tex.get_size() * scale_f
-		tr.size = tr.custom_minimum_size
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tr.stretch_mode = TextureRect.STRETCH_SCALE
+		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		holder.add_child(tr)
 	else:
 		var bg := ColorRect.new()

@@ -31,6 +31,16 @@ from room import Room, H, FACADE_BOTTOM, CURB_Y                            # noq
 import oq                                                                  # noqa: E402
 import district                                                            # noqa: E402
 import props2                                                              # noqa: E402
+import common                                                              # noqa: E402
+import grounds2                                                            # noqa: E402
+import oq2, canal, interiors                                               # noqa: E402,F401
+for _mod in ('iron', 'neon', 'flood', 'ware', 'props3'):
+    try:
+        __import__(_mod)
+    except ImportError:
+        pass
+FACADES = dict(oq.FACADES)
+FACADES.update(common.FACADES)
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
 DATA = os.path.join(ROOT, 'game', 'data')
@@ -41,6 +51,7 @@ LEDGER = os.path.join(ROOT, 'docs', 'assets', 'ENVIRONMENTS_V2.md')
 D = 2
 
 GROUNDS = {
+    **grounds2.GROUNDS2,
     'street': roommod.g_street,
     'lot': roommod.g_lot,
     'checker_floor': lambda R, x, w: roommod.g_checker(R, x, w, c1='#ded3c2', c2='#bdb0b0'),
@@ -50,8 +61,46 @@ GROUNDS = {
 STATIC_SHADOW = {'lamp_post': (3, 78), 'bus_stop': (50, 60), 'mailbox': (14, 26), 'bench': (38, 14),
                  'hydrant': (10, 20), 'newsbox': (12, 24), 'car_wreck': (90, 30)}
 
-DISTRICT_LAYERS = {
-    'old_quarter': [('sky', 0.05, 0), ('far', 0.25, 0), ('mid', 0.5, 0)],
+DISTRICT_LAYERS = {d: [('sky', 0.05, 0), ('far', 0.25, 0), ('mid', 0.5, 0)]
+                   for d in ('old_quarter', 'canal_market', 'ironworks', 'neon_mile', 'floodgate', 'warehouse')}
+
+# Exterior look per district: dusk/afternoon/night grade ramps, lightmap ambient, rim light, cast shadow.
+DCONF = {
+    'old_quarter': dict(grade={}, ambient=('#fff0e0', 0.86), rim={"color": "#ffb070", "dir": [1.0, 0.25], "strength": 0.45},
+                        cast={"dir": [0.6, 0.22], "alpha": 0.22}),
+    'canal_market': dict(grade=dict(top=(1.06, 1.0, 0.88), mid=(1.0, 0.97, 0.9), base=(0.86, 0.88, 0.92),
+                                    ground_far=(1.0, 0.98, 0.94), ground_near=(0.92, 0.92, 0.95)),
+                         ambient=('#fff6e4', 0.94), rim={"color": "#ffe0a0", "dir": [1.0, 0.3], "strength": 0.4},
+                         cast={"dir": [0.5, 0.2], "alpha": 0.24}),
+    'ironworks': dict(grade=dict(top=(0.9, 0.95, 1.04), mid=(0.86, 0.9, 1.0), base=(0.7, 0.75, 0.88),
+                                 ground_far=(0.9, 0.9, 0.96), ground_near=(0.8, 0.82, 0.92)),
+                      ambient=('#d8e0f0', 0.84), rim={"color": "#ff9a50", "dir": [-1.0, 0.2], "strength": 0.5},
+                      cast={"dir": [-0.5, 0.2], "alpha": 0.12}),
+    'neon_mile': dict(grade=dict(top=(0.6, 0.58, 0.82), mid=(0.56, 0.54, 0.78), base=(0.5, 0.48, 0.72),
+                                 ground_far=(0.74, 0.7, 0.86), ground_near=(0.64, 0.6, 0.8)),
+                      ambient=('#b8a8e8', 0.76), rim={"color": "#ff5ab0", "dir": [0.6, 0.6], "strength": 0.55},
+                      cast={"dir": [0.0, 0.3], "alpha": 0.06}),
+    'floodgate': dict(grade=dict(top=(0.74, 0.84, 0.88), mid=(0.7, 0.8, 0.84), base=(0.6, 0.7, 0.76),
+                                 ground_far=(0.76, 0.84, 0.88), ground_near=(0.66, 0.74, 0.8)),
+                      ambient=('#c8e0e4', 0.8), rim={"color": "#a8e8f0", "dir": [0.3, 1.0], "strength": 0.4},
+                      cast={"dir": [0.0, 0.2], "alpha": 0.0}),
+    'warehouse': dict(grade=dict(top=(0.78, 0.88, 0.84), mid=(0.74, 0.84, 0.8), base=(0.64, 0.74, 0.7),
+                                 ground_far=(0.8, 0.88, 0.84), ground_near=(0.7, 0.78, 0.76)),
+                      ambient=('#d0f0e0', 0.84), rim={"color": "#c8ffe0", "dir": [0.2, 1.0], "strength": 0.4},
+                      cast={"dir": [0.0, 0.2], "alpha": 0.0}),
+}
+# Interior grade (top, bottom) + ambient per room.
+ICONF = {
+    'int_diner': ((1.02, 0.97, 0.92), (0.86, 0.82, 0.86), '#fff0e4', 0.9),
+    'int_garage': ((1.0, 0.98, 0.94), (0.84, 0.82, 0.84), '#fff4e8', 0.88),
+    'int_rec': ((1.02, 0.96, 0.9), (0.86, 0.82, 0.84), '#fff0e0', 0.9),
+    'int_noodle': ((1.04, 0.96, 0.86), (0.86, 0.8, 0.8), '#ffe8d0', 0.9),
+    'int_books': ((1.0, 0.96, 0.88), (0.82, 0.78, 0.78), '#fff0d8', 0.86),
+    'int_canteen': ((0.96, 1.0, 0.98), (0.8, 0.84, 0.84), '#e8fff4', 0.9),
+    'int_switch': ((0.92, 0.98, 1.04), (0.76, 0.8, 0.88), '#e0f0ff', 0.86),
+    'int_arcade': ((0.9, 0.86, 1.0), (0.66, 0.6, 0.8), '#d0b8ff', 0.74),
+    'int_pharmacy': ((1.0, 1.02, 1.02), (0.86, 0.9, 0.92), '#f0ffff', 0.94),
+    'int_bait': ((0.9, 0.96, 0.96), (0.72, 0.78, 0.8), '#d8eef0', 0.82),
 }
 
 
@@ -125,6 +174,16 @@ def extras_int_diner(R):
     for lx in (300, 380, 460):
         R.cv.radial(lx, 214, 9, 22, C('#fff0c0'), a=0.10, mode='add', falloff=1.5)
     R.reflect.append({"rect": [0, 200, 640, 160], "alpha": 0.12})
+
+
+SELF_DOORS = {'diner'}
+
+
+def exterior_south(R, x0, x1):
+    """South exit on an exterior (e.g. the back alley): a gap in the near curb with light spilling in."""
+    cv = R.cv
+    cv.rect(x0, CURB_Y, x1 - x0, H - CURB_Y, C('#2a2430'))
+    cv.radial((x0 + x1) / 2, H, (x1 - x0) * 0.7, 20, C('#ff8ad0'), a=0.25, mode='add')
 
 
 EXTRAS = {'oq_kettle': extras_oq_kettle, 'oq_chainlot': extras_oq_chainlot, 'int_diner': extras_int_diner}
@@ -374,10 +433,15 @@ def build_room(rid, rooms, enc, props_meta):
     data = rooms[rid]
     R = Room(rid, data, enc.get(rid, {}), D)
     if R.interior:
+        ic = ICONF.get(rid, ((1.0, 0.97, 0.92), (0.86, 0.82, 0.86), '#fff0e4', 0.9))
         R.rim = {"color": "#ffd8a8", "dir": [0.3, 1.0], "strength": 0.3}
-        R.cast_shadow = {"dir": [0.0, 0.0], "alpha": 0.0}
-        R.ambient_color = '#fff0e4'
-        R.ambient_level = 0.9
+        R.ambient_color = ic[2]
+        R.ambient_level = ic[3]
+    else:
+        dc = DCONF.get(R.district, DCONF['old_quarter'])
+        R.ambient_color, R.ambient_level = dc['ambient']
+        R.rim = dict(dc['rim'])
+        R.cast_shadow = dict(dc['cast'])
     t0 = time.time()
     for g in data.get('ground', []):
         fn = GROUNDS.get(g['style'])
@@ -388,18 +452,29 @@ def build_room(rid, rooms, enc, props_meta):
         for p in data.get('props', []):
             prop_shadow(R, p, props_meta.get(p['type'], {}))
     for f in data.get('facades', []):
-        fn = oq.FACADES.get(f['kind'])
+        fn = FACADES.get(f['kind'])
         if fn is None:
             raise SystemExit(f'[{rid}] facade kind {f["kind"]} not implemented in v2 yet')
         R.cv.clipx = (int(f['x'] * D), int((f['x'] + f['w']) * D))
         fn(R, f['x'], f['w'], f)
         R.cv.clipx = None
+    for d in data.get('doors', []):
+        if d['id'] not in R.drawn_doors and not any(f['x'] <= d['x'] < f['x'] + f['w'] and f['kind'] in SELF_DOORS
+                                                    for f in data.get('facades', [])):
+            common.generic_entrance(R, d)
     if rid in EXTRAS:
         EXTRAS[rid](R)
+    elif R.interior and data.get('exits', {}).get('south'):
+        s = data['exits']['south']
+        oq.doormat(R, s['x0'], s['x1'])
+    elif data.get('exits', {}).get('south'):
+        s = data['exits']['south']
+        exterior_south(R, s['x0'], s['x1'])
     if R.interior:
-        roommod.grade_interior(R)
+        ic = ICONF.get(rid, ((1.0, 0.97, 0.92), (0.86, 0.82, 0.86)))
+        roommod.grade_interior(R, ic[0], ic[1])
     else:
-        roommod.grade_exterior(R)
+        roommod.grade_exterior(R, **DCONF.get(R.district, DCONF['old_quarter'])['grade'])
         lamp_lights(R)
     img = R.cv.to_image(opaque=R.interior)
     print(f'  {rid}: drawn in {time.time() - t0:.1f}s')
