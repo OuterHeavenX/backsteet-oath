@@ -8,6 +8,8 @@ func _ready() -> void:
 		out = "user://shots"
 	DirAccess.make_dir_recursive_absolute(out)
 	Audio.unlocked = true
+	if OS.get_environment("SHOT_EFFECTS") != "":
+		Settings.effects = OS.get_environment("SHOT_EFFECTS")
 	if OS.get_environment("SHOT_TOUCH") != "":
 		Settings.touch_controls = "on"
 		InputPrompts.kind = "touch"
