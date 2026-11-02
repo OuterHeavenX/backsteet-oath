@@ -324,7 +324,7 @@ func _make_ambient(A: Dictionary, back: Node2D, front: Node2D) -> void:
 	var base_scale := 6.0 / tex.get_width()
 	match typ:
 		"steam", "smoke":
-			p.amount = int(10 * rate)
+			p.amount = maxi(1, int(10 * rate))
 			p.lifetime = 2.6
 			p.direction = Vector2(0.15, -1)
 			p.spread = 12
@@ -340,7 +340,7 @@ func _make_ambient(A: Dictionary, back: Node2D, front: Node2D) -> void:
 			p.color_ramp = _ramp(Color(0.92, 0.92, 0.95, 0.0), Color(0.9, 0.9, 0.95, 0.22) if typ == "steam" else Color(0.3, 0.3, 0.34, 0.25), Color(0.9, 0.9, 0.95, 0.0))
 			back.add_child(p)
 		"drip":
-			p.amount = int(3 * rate)
+			p.amount = maxi(1, int(3 * rate))
 			p.lifetime = 1.2
 			p.direction = Vector2(0, 1)
 			p.spread = 0
@@ -353,7 +353,7 @@ func _make_ambient(A: Dictionary, back: Node2D, front: Node2D) -> void:
 			p.material = add_material()
 			back.add_child(p)
 		"sparks", "embers":
-			p.amount = int((14 if typ == "sparks" else 8) * rate)
+			p.amount = maxi(1, int((14 if typ == "sparks" else 8)) * rate)
 			p.lifetime = 1.0 if typ == "sparks" else 3.0
 			p.direction = Vector2(0, -1)
 			p.spread = 50 if typ == "sparks" else 20
@@ -366,7 +366,7 @@ func _make_ambient(A: Dictionary, back: Node2D, front: Node2D) -> void:
 			p.material = add_material()
 			(front if typ == "sparks" else back).add_child(p)
 		"paper", "leaves":
-			p.amount = int(3 * rate)
+			p.amount = maxi(1, int(3 * rate))
 			p.lifetime = 6.0
 			p.direction = Vector2(1, -0.2)
 			p.spread = 30
@@ -380,7 +380,7 @@ func _make_ambient(A: Dictionary, back: Node2D, front: Node2D) -> void:
 			p.color = Color(0.85, 0.8, 0.7, 0.7) if typ == "paper" else Color(0.75, 0.5, 0.2, 0.7)
 			back.add_child(p)
 		"water_shimmer":
-			p.amount = int(10 * rate)
+			p.amount = maxi(1, int(10 * rate))
 			p.lifetime = 1.4
 			p.direction = Vector2(1, 0)
 			p.spread = 180
@@ -393,7 +393,7 @@ func _make_ambient(A: Dictionary, back: Node2D, front: Node2D) -> void:
 			p.material = add_material()
 			back.add_child(p)
 		_:
-			p.amount = int(10 * rate)
+			p.amount = maxi(1, int(10 * rate))
 			p.lifetime = 5.0
 			p.direction = Vector2(1, -0.3)
 			p.spread = 180

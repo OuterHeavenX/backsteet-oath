@@ -15,6 +15,7 @@ const TARGETS := {
 	"foundry": ["iy_foundry", 1000.0],
 	"neon": ["int_arcade", 0.0],
 	"rooftops": ["nm_rooftops", 1250.0],
+	"underline": ["ul_vault", 700.0],
 	"floodgate": ["fr_bridge", 700.0],
 	"dockgate": ["fr_dockgate", 1000.0],
 	"warehouse": ["rw_office", 520.0],

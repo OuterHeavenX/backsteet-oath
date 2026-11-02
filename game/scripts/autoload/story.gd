@@ -964,7 +964,7 @@ func _ladder(room: Node) -> void:
 		if n == 5 and not GameState.gear.has("ladder_belt"):
 			GameState.gear.append("ladder_belt")
 			p.refresh_stats()
-			world.toast("Benny hands you the Ladder Belt! (DEF +2, HP +10)", UIKit.MUSTARD, 3.5)
+			world.toast("Benny hands you the Ladder Belt! (DEF +2, HP +10)", UIKit.MUSTARD)
 	world.hud.set_timer("")
 	GameState.set_flag("ladder_running", false)
 	if _valid(room):
@@ -984,7 +984,7 @@ func _ladder(room: Node) -> void:
 				_note("ladder_champ")
 				GameState.add_cash(150)
 				GameState.add_xp(400)
-				world.toast("Iron Wraps (ATK +2, TEC +1), $150, 400 XP", UIKit.MUSTARD, 4.0)
+				world.toast("Iron Wraps (ATK +2, TEC +1), $150, 400 XP", UIKit.MUSTARD)
 			else:
 				GameState.add_cash(60)
 				world.toast("Champion again! +$60", UIKit.CASHC)

@@ -1301,9 +1301,11 @@ class Frame:
         hm = cloth(col)
         g = self.cv.group()
         if kind == 'bucket':
-            shapes = [(('e', (-0.05, -0.62, 1.02, 0.62, 0), {}), 'main', 'clipy:-0.3'),
-                      (('p', [(-1.35, -0.42), (1.3, -0.46), (1.42, -0.22), (-1.45, -0.18)], {}), 'brim', None),
-                      (('p', [(-1.02, -0.52), (0.98, -0.55), (0.98, -0.42), (-1.02, -0.4)], {}), 'dark', 'clipmain')]
+            # soft floppy fabric bucket hat: rounded crown + drooping brim (no hard-hat ridge, no lamp)
+            crown = catmull([(-0.98, -0.36), (-0.9, -0.9), (-0.3, -1.16), (0.4, -1.12), (0.92, -0.82), (1.0, -0.36)], True, 4)
+            brim = catmull([(-1.06, -0.46), (-1.38, -0.12), (-1.2, 0.06), (-0.2, -0.16), (0.8, -0.18), (1.38, 0.04),
+                            (1.5, -0.14), (1.06, -0.46)], True, 4)
+            shapes = [(('p', crown, {}), 'main', None), (('p', brim, {}), 'brimsoft', None)]
         else:
             shapes = V1.hat_shapes('hardhat' if kind == 'lamphat' else kind)
         for (sh, part, clip) in shapes:
@@ -1321,9 +1323,16 @@ class Frame:
                 mat = GOLD
             elif part == 'brim':
                 mat = hm.darker(0.15)
+            elif part == 'brimsoft':
+                mat = Mat(lerp_c(hm.base, hm.shadow, 0.25), hm.shadow, hm.base)
             if clip in ('clipmain', 'clipmain2', 'clipmain0', 'badge'):
                 m = m * (g.img_a > 0.5)
             g.fill(m, mat, shade=0.5, hi=0.25)
+        if kind == 'bucket':
+            st = lerp_c(hm.light, (255, 255, 255), 0.35)
+            g.line(self.HP(catmull([(-1.12, -0.24), (-0.3, -0.36), (0.6, -0.36), (1.3, -0.1)], False, 4)), 0.6, st, 0.9)
+            g.line(self.HP(catmull([(-0.86, -0.5), (0.0, -0.6), (0.9, -0.5)], False, 4)), 0.6, st, 0.8)
+            g.line(self.HP([(-0.2, -1.1), (-0.12, -0.62)]), 0.6, hm.shadow, 0.8)
         if kind == 'lamphat':
             lc = self.H((0.92, -0.66))
             g.fill(g.mask(polys=[self.H_ell(0.92, -0.66, 0.24, 0.2)]), Mat((90, 90, 100)), shade=0.2, hi=0.1)

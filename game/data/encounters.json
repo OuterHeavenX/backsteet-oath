@@ -389,7 +389,8 @@
        "dogs_flanker",
        1
       ]
-     ]
+     ],
+     "on_clear": true
     },
     {
      "id": "tag2",
@@ -414,7 +415,8 @@
        "dogs_thrower",
        1
       ]
-     ]
+     ],
+     "on_clear": true
     }
    ],
    "boss": {

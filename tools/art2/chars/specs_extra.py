@@ -45,7 +45,7 @@ STORY2 = [
     CH('otis', body='elder', skin='deep', hair='short', hcol='white', hat=('police', 'navy'), fhair='mustache',
        fhcol='white', face='kind', shirt='white', sleeves='long', jacket=J('brown', kind='cardigan'), pants='charcoal',
        shoes='black', sstyle='dress', civilian=True),
-    CH('kiki', body='slim', skin='tan', hair='bob', hcol='purple', hat=('bucket', 'mustard'), face='cheerful',
+    CH('kiki', body='slim', skin='tan', hair='bob', hcol='purple', hat=('bucket', 'pink'), face='cheerful',
        shirt='white', sleeves='short', overalls='denim', pants='denim', shoes='checker', lashes=True, civilian=True,
        extras=('paint', 'spraycan'), boss_scale=0.95),
     CH('sal', body='heavy', skin='light', hair='short', hcol='gray', hat=('flatcap', 'gray'), face='neutral',

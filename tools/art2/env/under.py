@@ -354,14 +354,9 @@ def f_subway_tunnel(R, x0, w, f):
     cv.rect(x0, 210, w, 6, C('#7a7c74'), ink=C('#141814'), iw=MAJOR)
     cv.rect(x0, 210, w, 1, C('#b8bcb0'), mode='atop')
     hazard(cv, x0, 213, w, 2.4, a=0.6)
-    # Mole camp: tarp lean-to, cots, oil-drum fire, graffiti mole
+    # Mole camp: draped tarp tent strung from the steam pipes, bedrolls, kettle, crates, oil-drum fire
     cx = x0 + 1180
-    cv.fill_poly([(cx - 70, 210), (cx - 60, 150), (cx + 60, 140), (cx + 74, 210)], C('#3a5a7a'), ink=C('#0e1a28'), iw=MAJOR)
-    cv.vgrad(cx - 70, 140, 144, 70, [C('#5a7a9a'), C('#2a4a6a')], mode='atop', a=0.7)
-    cv.fill_poly([(cx - 40, 210), (cx - 36, 176), (cx + 30, 172), (cx + 34, 210)], C('#141818'))
-    for k in range(2):
-        cv.rect(cx - 30 + k * 34, 196, 28, 6, C('#6a5a3a'), ink=C('#1a140e'), iw=DETAIL)
-        cv.rect(cx - 30 + k * 34, 194, 10, 3, C('#c8b890'), ink=C('#1a140e'), iw=0.4)
+    mole_camp(R, cx)
     fx = cx + 96
     dm = M(C('#4a3a34'))
     cv.rect(fx - 8, 190, 16, 22, dm.b, ink=dm.i, iw=MAJOR)
@@ -386,6 +381,92 @@ def f_subway_tunnel(R, x0, w, f):
         cv.rect(px, 50, 30, 12, C('#e8e0c8'), ink=C('#1a1a14'), iw=DETAIL)
         cv.text('T3-%02d' % (k + 1), 'cond', 4.4, px + 15, 56, C('#1e3e5a'), 'mm')
     R.ambient.append({"type": "dust_motes", "x": float(x0 + 900), "y": 80.0, "w": 400, "h": 120})
+
+
+def mole_camp(R, cx):
+    """A real draped tarp: sagging ridge rope tied to the pipes, folds, scalloped hem pegged down, open flap."""
+    cv = R.cv
+    tm = M(C('#3a6a8a'))
+    rl, rr = cx - 78, cx + 78                       # ridge rope ends (tied to the pipe brackets)
+    ry = 128
+
+    def ridge(t):
+        return ry + 22 + 10 * 4 * t * (1 - t)       # sagging ridge between the tie points
+
+    top = [(cx - 72 + 144 * t, ridge(t)) for t in np.linspace(0, 1, 25)]
+    # hem: scallops between peg points along the ground line
+    pegs = [cx - 82 + k * 164 / 6 for k in range(7)]
+    hem = []
+    for i in range(len(pegs) - 1, 0, -1):
+        xa, xb = pegs[i], pegs[i - 1]
+        for t in np.linspace(0, 1, 6)[:-1]:
+            hem.append((xa + (xb - xa) * t, 208 - 5 * math.sin(t * math.pi)))
+    hem.append((pegs[0], 208))
+    poly = [(pegs[0], 208)] + top + [(pegs[-1], 208)] + hem
+    lay = cv.layer(cx - 100, ry - 10, 200, 100)
+    lay.fill_poly(poly, tm.b)
+    # folds: alternating cel bands radiating from the ridge to the hem
+    n = 9
+    for k in range(n):
+        t0, t1 = k / n, (k + 0.45) / n
+        xa0, ya0 = cx - 72 + 144 * t0, ridge(t0)
+        xa1, ya1 = cx - 72 + 144 * t1, ridge(t1)
+        bx0 = pegs[0] + (pegs[-1] - pegs[0]) * t0
+        bx1 = pegs[0] + (pegs[-1] - pegs[0]) * t1
+        lay.fill_poly([(xa0, ya0), (xa1, ya1), (bx1, 210), (bx0, 210)], tm.l if k % 2 == 0 else tm.s, a=0.55,
+                      mode='atop')
+        lay.line([(xa1, ya1), (bx1, 210)], 0.5, tm.d, a=0.6, mode='atop')
+    # lit ridge (warm work-light rim) and darker hem
+    lay.line(top, 0.9, C('#ffc890'), a=0.55, mode='atop')
+    lay.vgrad(cx - 90, 190, 180, 20, [C('#0e1a28', 0), C('#0e1a28', 120)], mode='atop')
+    # weathering: patches + a taped repair
+    kit.weather(lay, cx - 80, ry, 160, 82, 4401, soot=0.3, blotch=0.2, streak=True)
+    lay.rect(cx + 30, 166, 12, 9, C('#6a7a5a'), ink=tm.d, iw=0.4, mode='atop')
+    lay.line([(cx + 28, 168), (cx + 44, 168)], 0.6, C('#d8d0b0'), mode='atop')
+    lay.line([(cx + 28, 173), (cx + 44, 173)], 0.6, C('#d8d0b0'), mode='atop')
+    # tent opening: dark interior with a lantern glow and a bedroll, flap pulled back and tied
+    op = [(cx - 26, 208), (cx - 14, 168), (cx - 6, ridge(0.46) + 4), (cx + 2, 168), (cx + 16, 208)]
+    lay.fill_poly(op, C('#120e14'))
+    lay.radial(cx - 5, 196, 18, 14, C('#ffb060'), a=0.35, mode='add')
+    lay.ellipse(cx - 6, 204, 14, 3.4, C('#7a5a3a'), mode='atop')
+    lay.fill_poly([(cx + 2, 168), (cx - 6, ridge(0.46) + 4), (cx + 22, 184), (cx + 16, 208)], tm.l,
+                  ink=tm.d, iw=0.5)
+    lay.line([(cx - 4, ridge(0.46) + 6), (cx + 12, 196)], 0.5, tm.s, a=0.8)
+    lay.line([(cx + 20, 184), (cx + 6, 186)], 0.6, C('#c8b890'))
+    cv.merge(lay, ink=tm.i, iw=MAJOR)
+    cv.ellipse(cx - 5, 196, 1.6, 2.0, C('#fff0b0'), em=1.0)
+    # ropes: ridge rope to pipe brackets, guy lines to pegs, knots
+    rope = C('#c8b890')
+    cv.line([(rl, ry - 4), (cx - 72, ridge(0))], 0.6, rope)
+    cv.line([(rr, ry - 4), (cx + 72, ridge(1))], 0.6, rope)
+    for px in (rl, rr):
+        cv.rect(px - 2, ry - 8, 4, 4, C('#5a5048'), ink=C('#141010'), iw=DETAIL)
+    for px in (pegs[0] - 8, pegs[-1] + 8):
+        cv.line([(px + (8 if px < cx else -8), 200), (px, 212)], 0.5, rope)
+        cv.rect(px - 0.8, 209, 1.6, 4, C('#5a4a3a'))
+    for px in pegs:
+        cv.ellipse(px, 208, 1.0, 0.8, rope, ink=C('#3a3020'), iw=0.3)
+    # clutter in front: bedrolls, crate table with kettle and mug, a stool
+    for k, (bx, c) in enumerate(((cx - 66, '#6a7a4a'), (cx - 50, '#8a4a3a'))):
+        cv.rect(bx, 201 - k * 4, 22, 7, C(c), ink=ink_of(C(c)), iw=MAJOR)
+        cv.ellipse(bx + 22, 204.5 - k * 4, 2.4, 3.5, light(C(c), 1.2), ink=ink_of(C(c)), iw=DETAIL)
+        for sx in (bx + 5, bx + 15):
+            cv.rect(sx, 201 - k * 4, 1.4, 7, C('#3a2a1a'))
+    crx = cx + 36
+    cm = M(C('#8a7454'))
+    cv.rect(crx, 196, 26, 16, cm.b, ink=cm.i, iw=MAJOR)
+    cv.rect(crx, 196, 26, 1, cm.h, mode='atop')
+    cv.text('GREYLINE', 'cond', 3.0, crx + 13, 204, C('#2a2a2e'), 'mm', a=0.7)
+    km = M(C('#9aa0a8'))
+    cv.ellipse(crx + 9, 191.5, 5, 4.4, km.b, ink=km.i, iw=DETAIL)
+    cv.rect(crx + 7.5, 186.4, 3, 1.4, km.d)
+    cv.line([(crx + 13, 191), (crx + 17, 188)], 0.8, km.b)
+    cv.line([(crx + 5, 189), (crx + 9, 185.5), (crx + 13, 189)], 0.5, C('#2a2a30'))
+    cv.rect(crx + 18, 192, 3.4, 4, C('#e8e4d8'), ink=C('#3a3a40'), iw=0.3)
+    R.ambient.append({"type": "steam", "x": float(crx + 17), "y": 187.0, "rate": 0.3})
+    cv.rect(cx - 90, 200, 10, 10, C('#5a4a3a'), ink=C('#1a120e'), iw=DETAIL)
+    cv.rect(cx - 91, 199, 12, 2, C('#7a6448'), ink=C('#1a120e'), iw=DETAIL)
+    R.glow(cx - 5, 196, 22, '#ffb060', 0.35, 'flame')
 
 
 def g_track_bed(R, x, w):
