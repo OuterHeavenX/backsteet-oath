@@ -39,7 +39,7 @@ def _m(t, shadow_mix=0.55):
 def cloth(name):
     if name is None:
         return None
-    if name == 'skin':
+    if name in ('skin', 'pins'):
         return None
     if name in V1.C:
         return _m(V1.C[name])
@@ -547,6 +547,14 @@ class Frame:
                 band = g.mask(polys=[self.halfplane(o, s.up)]) * g.mask(polys=[self.halfplane(add(o, mul(s.up, -0.9)),
                                                                                              mul(s.up, -1))]) * shirt
                 g.paint_flat(band * (g.img_a > 0.5), sc)
+        if L.shirt_pattern == 'hawaii':
+            import random as _r
+            rr = _r.Random(3)
+            for k in range(9):
+                u_ = rr.uniform(1.5, 11.0)
+                v_ = rr.uniform(-b['back'] + 0.5, b['chest'] - 0.5)
+                c_ = add(add(s.hip, mul(s.up, u_)), mul(s.fwd, v_))
+                g.dot(c_[0], c_[1], 0.7, [(240, 90, 60), (250, 200, 60), (70, 170, 120)][k % 3], clip_to_group=True)
         # collar / neckline
         nl = [add(add(s.neck_base, mul(s.fwd, 1.4)), mul(s.up, 0.1)), add(add(s.neck_base, mul(s.fwd, 0.2)), mul(s.up, -1.3)),
               add(add(s.neck_base, mul(s.fwd, -1.3)), mul(s.up, 0.0))]
@@ -628,7 +636,11 @@ class Frame:
             o = add(s.neck_base, mul(s.up, -5.2))
             band = g.mask(polys=[self.halfplane(o, s.up)]) * g.mask(polys=[self.halfplane(add(o, mul(s.up, -1.6)), mul(s.up, -1))])
             g.fill(band * (g.img_a > 0.5), sc, shade=1.2, hi=0.3)
-        if kind == 'track' or J.get('trim'):
+        if J.get('trim') == 'pins':
+            for k, pc in enumerate(((236, 80, 120), (250, 210, 70), (90, 190, 220))):
+                p0 = add(add(s.neck_base, mul(s.up, -2.4 - k * 1.7)), mul(s.fwd, b['chest'] - 2.6 + k * 0.3))
+                g.dot(p0[0], p0[1], 0.55, pc, clip_to_group=True)
+        elif kind == 'track' or J.get('trim'):
             trim = cloth(J.get('trim') or 'white')
             if kind in ('track',) and not J.get('open', True):
                 z0 = add(s.neck_base, mul(s.fwd, b['chest'] * 0.55))
@@ -1324,6 +1336,7 @@ class Frame:
     def extras_front(self):
         L, s, b = self.L, self.s, self.b
         ex = L.spec.get('extras', ())
+        self._wearables(ex)
         if 'chain' in ex:
             g = self.cv.group(inner_line=True)
             d = self.drag('chain', 1.0)
@@ -1347,9 +1360,99 @@ class Frame:
             g.line(catmull(pts, False, 4), 1.2, GOLD.base, 1.0, clip_to_group=False)
             g.commit()
 
+    def _wearables(self, ex):
+        L, s, b = self.L, self.s, self.b
+        N, up, fwd = s.neck_base, s.up, s.fwd
+
+        def at(u, v):
+            return add(add(N, mul(up, -u)), mul(fwd, v))
+        tm = None
+        for e in ex:
+            name, _, col = e.partition(':')
+            if name in ('bag', 'newsbag'):
+                bm = cloth(col) if col else Mat((196, 168, 120))
+                if name == 'newsbag':
+                    bm = Mat((214, 196, 160))
+                g = self.cv.group()
+                g.line([at(0.6, 1.2), at(6.5, -1.0), add(add(s.hip, mul(up, 1.0)), mul(s.pfwd, -b['hip'] * 0.9))],
+                       1.4, bm.shadow, 1.0, clip_to_group=False)
+                c = add(add(s.hip, mul(up, 0.6)), mul(s.pfwd, -b['hip'] * 1.05))
+                bag = [add(c, (-2.6, -2.0)), add(c, (2.0, -2.0)), add(c, (2.4, 2.6)), add(c, (-2.8, 2.6))]
+                g.fill(g.mask(polys=[catmull(bag, True, 2)]), bm, shade=0.7, hi=0.3)
+                g.line([add(c, (-2.6, -0.6)), add(c, (2.1, -0.6))], 0.8, bm.shadow, 0.9)
+                if name == 'newsbag':
+                    g.paint_flat(g.mask(polys=[[add(c, (-1.8, -3.4)), add(c, (1.4, -3.4)), add(c, (1.4, -1.6)), add(c, (-1.8, -1.6))]]),
+                                 (236, 232, 222))
+                g.commit()
+            elif name == 'suspenders':
+                g = self.cv.group(inner_line=False)
+                sm = cloth(col) if col else cloth('brown')
+                for v in (b['chest'] - 1.6, -1.2):
+                    g.line([at(0.4, v * 0.6), at(4.0, v), add(add(s.hip, mul(up, 2.6)), mul(fwd, v * 0.9))], 1.1, sm.base, 1.0,
+                           clip_to_group=False)
+                g.img_col *= (self.cv.a[..., None] > 0.5)
+                g.img_a *= (self.cv.a > 0.5)
+                g.commit()
+            elif name in ('tie', 'bowtie', 'badge', 'whistle', 'nametag', 'vest_over'):
+                g = self.cv.group()
+                tc = cloth(col) if col else None
+                if name == 'tie':
+                    pts = [at(0.6, b['chest'] - 1.4), at(0.9, b['chest'] - 0.4), at(8.5, b['chest'] - 0.2),
+                           at(9.4, b['chest'] - 1.0), at(8.5, b['chest'] - 1.8)]
+                    g.fill(g.mask(polys=[pts]), tc, shade=0.3, hi=0.2)
+                elif name == 'bowtie':
+                    c = at(0.6, b['chest'] - 0.6)
+                    g.fill(g.mask(polys=[[add(c, (-1.4, -0.9)), add(c, (1.4, 0.9)), add(c, (1.4, -0.9)), add(c, (-1.4, 0.9))]]), tc,
+                           shade=0.2, hi=0.2)
+                elif name == 'badge':
+                    c = at(4.0, b['chest'] - 2.0)
+                    g.fill(g.mask(polys=[ellipse_pts(c[0], c[1], 0.9, 1.1, 0, 12)]), GOLD, shade=0.2, hi=0.2)
+                elif name == 'whistle':
+                    g.line([at(0.2, -0.6), at(4.6, b['chest'] - 1.6), at(0.2, b['chest'] - 1.0)], 0.7, (220, 220, 230), 1.0,
+                           clip_to_group=False)
+                    c = at(4.8, b['chest'] - 1.4)
+                    g.fill(g.mask(polys=[ellipse_pts(c[0], c[1], 0.9, 0.6, 0, 12)]), METAL, shade=0.2, hi=0.2)
+                elif name == 'nametag':
+                    c = at(4.2, b['chest'] - 2.2)
+                    g.fill(g.mask(polys=[[add(c, (-1.2, -0.7)), add(c, (1.2, -0.7)), add(c, (1.2, 0.7)), add(c, (-1.2, 0.7))]]),
+                           Mat((244, 244, 238)), shade=0.2, hi=0.0)
+                    g.line([add(c, (-0.7, 0.0)), add(c, (0.7, 0.0))], 0.6, (60, 60, 120), 1.0)
+                elif name == 'vest_over':
+                    vm = cloth('orange')
+                    tp = self.torso_points(expand=0.3)
+                    m = g.mask(polys=[tp]) * g.mask(polys=[self.halfplane(add(s.hip, mul(up, 3.0)), up)]) * \
+                        g.mask(polys=[self.halfplane(add(N, mul(up, -1.8)), mul(up, -1))])
+                    g.fill(m, vm, shade=1.0, hi=0.3)
+                    o = add(s.hip, mul(up, 7.0))
+                    band = g.mask(polys=[self.halfplane(o, up)]) * g.mask(polys=[self.halfplane(add(o, mul(up, -0.9)), mul(up, -1))])
+                    g.paint_flat(band * (g.img_a > 0.5), (236, 236, 214))
+                g.commit()
+        if L.spec.get('shawl'):
+            g = self.cv.group()
+            sm = cloth(L.spec['shawl'])
+            pts = [at(-0.6, -b['back'] - 0.6), at(-0.4, b['chest'] * 0.4), at(1.6, b['chest'] + 0.6),
+                   at(6.0, b['chest'] - 0.4), at(5.0, -b['back'] * 0.2), at(6.6, -b['back'] - 0.8)]
+            g.fill(g.mask(polys=[catmull(pts, True, 3)]), sm, shade=0.9, hi=0.3)
+            g.line([at(1.8, b['chest'] - 1.0), at(5.4, b['chest'] - 1.6)], 0.8, sm.shadow, 0.9)
+            g.commit()
+
     def held_extras(self):
         L, s = self.L, self.s
         ex = L.spec.get('extras', ())
+        h = s.fist_f
+        if 'cane' in ex and abs(s.lean) < 45:
+            g = self.cv.group()
+            g.fill(g.mask(polys=[seg_quad((h[0] + 0.4, h[1] - 0.6), (h[0] + 1.6, -0.2), 0.42, 0.38)],
+                          circles=[(h[0] - 0.4, h[1] - 0.8, 0.9)]), Mat((110, 72, 44)), shade=0.3, hi=0.2)
+            g.commit()
+        if 'briefcase' in ex and h[1] > s.hip[1] - 6 and abs(s.lean) < 45:
+            g = self.cv.group()
+            case = [(h[0] - 3.2, h[1] + 0.8), (h[0] + 3.0, h[1] + 0.8), (h[0] + 3.0, h[1] + 5.4), (h[0] - 3.2, h[1] + 5.4)]
+            g.fill(g.mask(polys=[case]), Mat((96, 60, 40)), shade=0.6, hi=0.3)
+            g.line([(h[0] - 0.8, h[1] + 0.8), (h[0] - 0.8, h[1] - 0.2), (h[0] + 0.8, h[1] - 0.2), (h[0] + 0.8, h[1] + 0.8)], 0.8,
+                   (60, 40, 30), 1.0, clip_to_group=False)
+            g.paint_flat(g.mask(circles=[(h[0], h[1] + 2.0, 0.3)]), (230, 200, 90))
+            g.commit()
         if 'grocery' in ex and s.fist_f[1] > s.hip[1] - 6 and abs(s.lean) < 45:
             g = self.cv.group()
             h = s.fist_f
