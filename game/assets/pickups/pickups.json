@@ -1,0 +1,74 @@
+{
+  "bill": {
+    "file": "res://assets/pickups/bill.png",
+    "frame": [
+      12,
+      8
+    ],
+    "frames": 1
+  },
+  "cash_stack": {
+    "file": "res://assets/pickups/cash_stack.png",
+    "frame": [
+      14,
+      10
+    ],
+    "frames": 1
+  },
+  "coin": {
+    "file": "res://assets/pickups/coin.png",
+    "frame": [
+      8,
+      8
+    ],
+    "frames": 4
+  },
+  "heal_bun": {
+    "file": "res://assets/pickups/heal_bun.png",
+    "frame": [
+      12,
+      10
+    ],
+    "frames": 1
+  },
+  "key": {
+    "file": "res://assets/pickups/key.png",
+    "frame": [
+      10,
+      6
+    ],
+    "frames": 1
+  },
+  "ledger": {
+    "file": "res://assets/pickups/ledger.png",
+    "frame": [
+      12,
+      10
+    ],
+    "frames": 1
+  },
+  "parcel": {
+    "file": "res://assets/pickups/parcel.png",
+    "frame": [
+      12,
+      12
+    ],
+    "frames": 1
+  },
+  "satchel": {
+    "file": "res://assets/pickups/satchel.png",
+    "frame": [
+      14,
+      12
+    ],
+    "frames": 1
+  },
+  "toolbox": {
+    "file": "res://assets/pickups/toolbox.png",
+    "frame": [
+      16,
+      10
+    ],
+    "frames": 1
+  }
+}

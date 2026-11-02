@@ -1,0 +1,178 @@
+{
+  "block_spark": {
+    "file": "res://assets/fx/block_spark.png",
+    "frame": [
+      20,
+      20
+    ],
+    "frames": 3
+  },
+  "charge_glow": {
+    "file": "res://assets/fx/charge_glow.png",
+    "frame": [
+      24,
+      24
+    ],
+    "frames": 4
+  },
+  "coin_sparkle": {
+    "file": "res://assets/fx/coin_sparkle.png",
+    "frame": [
+      12,
+      12
+    ],
+    "frames": 4
+  },
+  "debris_glass": {
+    "file": "res://assets/fx/debris_glass.png",
+    "frame": [
+      4,
+      4
+    ],
+    "frames": 4
+  },
+  "debris_metal": {
+    "file": "res://assets/fx/debris_metal.png",
+    "frame": [
+      6,
+      6
+    ],
+    "frames": 4
+  },
+  "debris_wood": {
+    "file": "res://assets/fx/debris_wood.png",
+    "frame": [
+      6,
+      6
+    ],
+    "frames": 4
+  },
+  "dust": {
+    "file": "res://assets/fx/dust.png",
+    "frame": [
+      24,
+      12
+    ],
+    "frames": 4
+  },
+  "exclaim": {
+    "file": "res://assets/fx/exclaim.png",
+    "frame": [
+      12,
+      16
+    ],
+    "frames": 1
+  },
+  "hit_heavy": {
+    "file": "res://assets/fx/hit_heavy.png",
+    "frame": [
+      32,
+      32
+    ],
+    "frames": 4
+  },
+  "hit_spark": {
+    "file": "res://assets/fx/hit_spark.png",
+    "frame": [
+      24,
+      24
+    ],
+    "frames": 4
+  },
+  "land_dust": {
+    "file": "res://assets/fx/land_dust.png",
+    "frame": [
+      32,
+      10
+    ],
+    "frames": 3
+  },
+  "levelup_burst": {
+    "file": "res://assets/fx/levelup_burst.png",
+    "frame": [
+      48,
+      48
+    ],
+    "frames": 6
+  },
+  "perfect_flash": {
+    "file": "res://assets/fx/perfect_flash.png",
+    "frame": [
+      32,
+      32
+    ],
+    "frames": 4
+  },
+  "question": {
+    "file": "res://assets/fx/question.png",
+    "frame": [
+      12,
+      16
+    ],
+    "frames": 1
+  },
+  "rain_splash": {
+    "file": "res://assets/fx/rain_splash.png",
+    "frame": [
+      8,
+      4
+    ],
+    "frames": 3
+  },
+  "shadow": {
+    "file": "res://assets/fx/shadow.png",
+    "frame": [
+      24,
+      8
+    ],
+    "frames": 1
+  },
+  "shockwave": {
+    "file": "res://assets/fx/shockwave.png",
+    "frame": [
+      72,
+      20
+    ],
+    "frames": 4
+  },
+  "smoke": {
+    "file": "res://assets/fx/smoke.png",
+    "frame": [
+      16,
+      16
+    ],
+    "frames": 4
+  },
+  "splash": {
+    "file": "res://assets/fx/splash.png",
+    "frame": [
+      24,
+      16
+    ],
+    "frames": 4
+  },
+  "stars": {
+    "file": "res://assets/fx/stars.png",
+    "frame": [
+      24,
+      12
+    ],
+    "frames": 4
+  },
+  "sweat": {
+    "file": "res://assets/fx/sweat.png",
+    "frame": [
+      8,
+      8
+    ],
+    "frames": 1
+  },
+  "target_shadow": {
+    "file": "res://assets/fx/target_shadow.png",
+    "frame": [
+      32,
+      10
+    ],
+    "frames": 1
+  }
+}

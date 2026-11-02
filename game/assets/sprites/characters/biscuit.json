@@ -1,0 +1,7 @@
+{
+  "id": "biscuit",
+  "cell": [32, 32],
+  "anchor": [16, 30],
+  "columns": 4,
+  "anims": {"idle": [0, 2], "walk": [2, 4], "sit": [6, 1], "bark": [7, 1]}
+}

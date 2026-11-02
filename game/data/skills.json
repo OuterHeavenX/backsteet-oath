@@ -1,0 +1,14 @@
+{
+  "skills": {
+    "shoulder": {"name": "Shoulder Charge", "price": 40, "icon": "manual_shoulder", "input": ["run", "+", "punch"], "how": "While running, press PUNCH.", "desc": "Armored charge that plows through a crowd."},
+    "rising":   {"name": "Rising Kick", "price": 45, "icon": "manual_rising", "input": ["guard", "+", "kick"], "how": "Hold GUARD and press KICK.", "desc": "Invincible anti-air kick. Knocks foes skyward."},
+    "heel":     {"name": "Heel Drop", "price": 50, "icon": "manual_heel", "input": ["jump", ">", "punch"], "how": "While in the air, press PUNCH.", "desc": "Crashing heel that hits wide and floors anyone."},
+    "rapid":    {"name": "Rapid Fists", "price": 55, "icon": "manual_rapid", "input": ["punch", "punch", "punch"], "how": "Keep pressing PUNCH after your second punch.", "desc": "A six-hit flurry before your finisher."},
+    "sweep":    {"name": "Spin Sweep", "price": 65, "icon": "manual_sweep", "input": ["guard", "+", "punch"], "how": "Hold GUARD and press PUNCH.", "desc": "Low spin that trips everyone around you. Beats blockers."},
+    "counter":  {"name": "Guard Counter", "price": 70, "icon": "manual_counter", "input": ["guard", ">", "punch"], "how": "After a PERFECT guard, press PUNCH.", "desc": "Invincible punish right after a perfect guard."},
+    "giant":    {"name": "Giant Swing", "price": 80, "icon": "manual_giant", "input": ["interact", ">", "punch"], "how": "While carrying an enemy, press PUNCH.", "desc": "Spin a carried enemy into everyone nearby, then fling."},
+    "retrieve": {"name": "Quick Hands", "price": 60, "icon": "manual_retrieve", "input": ["interact"], "how": "Automatic. Grab items instantly; GUARD catches thrown objects.", "desc": "Instant pickups. Guard snatches bottles and bricks out of the air."},
+    "slam":     {"name": "Thunder Slam", "price": 90, "icon": "manual_slam", "input": ["jump", ">", "guard"], "how": "While in the air, press GUARD.", "desc": "Plunge down and send a shockwave across the ground."},
+    "oath":     {"name": "Oath Breaker", "price": 150, "icon": "manual_oath", "input": ["kick", "hold"], "how": "Hold KICK for a second, then release.", "desc": "Benny's secret. An invincible charging kick."}
+  }
+}

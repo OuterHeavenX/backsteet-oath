@@ -1,0 +1,17 @@
+{
+  "shops": {
+    "diner":    {"name": "Lucky Spoon Diner", "keeper": "dot", "kind": "food", "stock": ["coffee", "pancakes", "milkshake", "cherry_pie", "club_sandwich", "meatloaf"], "greet": "Sit anywhere, hon. What'll it be?"},
+    "noodle":   {"name": "Fong's Noodles", "keeper": "fong", "kind": "food", "stock": ["green_tea", "pork_bun", "dumplings", "ramen", "spicy_udon"], "greet": "Welcome! Hungry fighter, hungry fighter!"},
+    "canteen":  {"name": "Yard Canteen", "keeper": "hank", "kind": "food", "stock": ["hard_eggs", "grilled_cheese", "bean_chili", "iron_stew"], "greet": "Trays are on the left. Fists stay in your pockets."},
+    "snack":    {"name": "Starlight Snack Bar", "keeper": "marv", "kind": "food", "stock": ["soda", "popcorn", "hot_dog", "nachos"], "greet": "Tokens are over there. Calories are over here."},
+    "pharmacy": {"name": "Rosa's Pharmacy", "keeper": "rosa", "kind": "food", "stock": ["bandage", "energy_drink", "smelling_salts", "tonic", "vitamin_pack"], "greet": "Let me guess. You walked into a door. Several times."},
+    "bait":     {"name": "Bait & Tackle", "keeper": "gus", "kind": "food", "stock": ["jerky", "fish_taco", "thermos_soup", "clam_chowder", "bandage"], "greet": "My brother's shop. Eat something, you look like a wet cat."},
+    "rec":      {"name": "Benny's Rec Center", "keeper": "benny", "kind": "skills", "stock": [["shoulder", ""], ["rising", ""], ["sweep", "act1_done"], ["counter", "act2_started"], ["oath", "act3_started"]], "greet": "Hands up, chin down. What do you want to learn?"},
+    "books":    {"name": "Hollis Books", "keeper": "hollis", "kind": "skills", "stock": [["heel", ""], ["rapid", ""], ["retrieve", "act1_done"], ["giant", "act2_started"], ["slam", "boss_otto"]], "greet": "Fighting manuals, second shelf. Mind the first editions."},
+    "garage":   {"name": "Quinn Garage Workbench", "keeper": "mara", "kind": "upgrades", "stock": ["grip", "links", "arm", "harness"], "greet": "Bring it here. I can make anything hit harder."}
+  },
+  "services": {
+    "respec": {"price": 25, "requires": "act1_done"},
+    "bus": {"stops": {"oq_kettle": "Kettle Street", "cm_gate": "Market Gate", "iy_gate": "Yard Gate", "nm_marquee": "Marquee Strip", "fr_bridge": "Floodgate Bridge"}, "price": 2, "requires": "boss_duke"}
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "bat": {
+    "file": "res://assets/weapons/bat.png",
+    "grip": [
+      6,
+      2
+    ],
+    "tip": [
+      28,
+      2
+    ]
+  },
+  "baton": {
+    "file": "res://assets/weapons/baton.png",
+    "grip": [
+      4,
+      2
+    ],
+    "tip": [
+      16,
+      2
+    ]
+  },
+  "belt": {
+    "file": "res://assets/weapons/belt.png",
+    "grip": [
+      3,
+      2
+    ],
+    "tip": [
+      26,
+      2
+    ]
+  },
+  "bottle": {
+    "file": "res://assets/weapons/bottle.png",
+    "grip": [
+      5,
+      2
+    ],
+    "tip": [
+      10,
+      2
+    ]
+  },
+  "brick": {
+    "file": "res://assets/weapons/brick.png",
+    "grip": [
+      4,
+      3
+    ],
+    "tip": [
+      8,
+      3
+    ]
+  },
+  "broom": {
+    "file": "res://assets/weapons/broom.png",
+    "grip": [
+      4,
+      3
+    ],
+    "tip": [
+      38,
+      3
+    ]
+  },
+  "chain": {
+    "file": "res://assets/weapons/chain.png",
+    "grip": [
+      3,
+      2
+    ],
+    "tip": [
+      37,
+      2
+    ]
+  },
+  "fish": {
+    "file": "res://assets/weapons/fish.png",
+    "grip": [
+      8,
+      4
+    ],
+    "tip": [
+      14,
+      4
+    ]
+  },
+  "newspaper": {
+    "file": "res://assets/weapons/newspaper.png",
+    "grip": [
+      3,
+      2
+    ],
+    "tip": [
+      16,
+      2
+    ]
+  },
+  "pipe": {
+    "file": "res://assets/weapons/pipe.png",
+    "grip": [
+      4,
+      2
+    ],
+    "tip": [
+      30,
+      2
+    ]
+  },
+  "road_sign": {
+    "file": "res://assets/weapons/road_sign.png",
+    "grip": [
+      4,
+      6
+    ],
+    "tip": [
+      42,
+      7
+    ]
+  },
+  "spatula": {
+    "file": "res://assets/weapons/spatula.png",
+    "grip": [
+      4,
+      3
+    ],
+    "tip": [
+      16,
+      3
+    ]
+  },
+  "tire": {
+    "file": "res://assets/weapons/tire.png",
+    "grip": [
+      9,
+      9
+    ],
+    "tip": [
+      16,
+      9
+    ]
+  },
+  "wrench": {
+    "file": "res://assets/weapons/wrench.png",
+    "grip": [
+      4,
+      3
+    ],
+    "tip": [
+      14,
+      3
+    ]
+  }
+}
