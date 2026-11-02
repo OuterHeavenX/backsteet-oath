@@ -140,9 +140,9 @@ STYLE_BASE = {
                     ff=(-6.0, 0.0), toe_f=26.0, tilt=-6.0),
     'blocker': dict(GUARD, hip=(-0.4, -16.4), lean=9.0, twist=0.0, hn=(8.6, -34.6), hf=(10.8, -36.8), fn=(5.0, 0.0),
                     ff=(-5.4, 0.0), toe_f=4.0, tilt=-9.0),
-    'weapon': dict(GUARD, hip=(-0.6, -16.6), lean=6.0, twist=0.45, hn=(4.4, -34.6), hf=(12.0, -29.6), hand_f='open',
-                   fn=(6.0, 0.0), ff=(-5.6, 0.0), toe_f=6.0, tilt=-3.0, wang=-125.0),
-    'thrower': dict(GUARD, hip=(-0.6, -16.8), lean=5.0, twist=0.35, hn=(3.2, -31.2), hand_n='open', hf=(11.6, -28.6),
+    'weapon': dict(GUARD, hip=(-0.6, -16.6), lean=6.0, twist=0.45, hn=(7.0, -27.6), hf=(12.0, -29.6), hand_f='open',
+                   fn=(6.0, 0.0), ff=(-5.6, 0.0), toe_f=6.0, tilt=-3.0, wang=-118.0),
+    'thrower': dict(GUARD, hip=(-0.6, -16.8), lean=5.0, twist=0.35, hn=(6.4, -27.2), hand_n='open', hf=(11.6, -28.6),
                     hand_f='open', fn=(5.6, 0.0), ff=(-5.4, 0.0), toe_f=10.0, tilt=-2.0, wang=-60.0),
 }
 # locomotion per style: walk (stride, beta, lift, lean, toe_bias, sway, roll, twist), run (stride, lean, lift)
@@ -269,18 +269,18 @@ def signature(sig, base, G):
                          wang=92, eb_n='down', hf=(-1.2, -22.6), eb_f='back', fn=(4.8, 0), ff=(-4.6, 0), toe_f=0,
                          expr='normal', blink=(i == 4)) for i, t in enumerate(T)]
         out['victory'] = [out['idle'][0],
-                          G(hip=(0.0, -17.4), lean=-1, tilt=-8, hn=(3.0, -37.0), wang=-150, eb_n='down', hf=(-1.0, -23.0),
+                          G(hip=(0.0, -17.4), lean=-1, tilt=-8, hn=(3.8, -33.0), wang=-150, eb_n='down', hf=(-1.0, -23.0),
                             eb_f='back', fn=(4.8, 0), ff=(-4.6, 0), toe_f=0, expr='grin'),
-                          G(hip=(0.0, -17.5), lean=-2, tilt=-9, hn=(3.0, -37.2), wang=-150, eb_n='down', hf=(-1.0, -23.0),
+                          G(hip=(0.0, -17.5), lean=-2, tilt=-9, hn=(3.8, -33.2), wang=-150, eb_n='down', hf=(-1.0, -23.0),
                             eb_f='back', fn=(4.8, 0), ff=(-4.6, 0), toe_f=0, expr='grin'),
-                          G(hip=(0.0, -17.4), lean=0, tilt=-6, hn=(3.0, -37.0), wang=-150, eb_n='down', hf=(-1.0, -23.0),
+                          G(hip=(0.0, -17.4), lean=0, tilt=-6, hn=(3.8, -33.0), wang=-150, eb_n='down', hf=(-1.0, -23.0),
                             eb_f='back', fn=(4.8, 0), ff=(-4.6, 0), toe_f=0, expr='normal')]
     elif sig == 'lou':
         out['idle'] = []
         for i, t in enumerate(T):
             b = abs(math.sin(t))
             toss = max(0.0, math.sin(t))
-            out['idle'].append(G(hip=(-0.4, -16.6 - 0.7 * b + 0.2), lean=5, toe_f=14 + 8 * b, hn=(4.6, -31.0 - 3.2 * toss),
+            out['idle'].append(G(hip=(-0.4, -16.6 - 0.7 * b + 0.2), lean=5, toe_f=14 + 8 * b, hn=(6.2, -27.2 - 3.0 * toss),
                                  hand_n='open', hf=(-1.0, -22.4), eb_f='back', tilt=-3 - 2 * toss, expr='normal',
                                  blink=(i == 4)))
         hips = dict(hn=(3.2, -21.6), hf=(-1.4, -22.0), eb_n='back', eb_f='back')

@@ -142,8 +142,11 @@ func test_assets_v2() -> void:
 			var anims: Dictionary = meta.get("anims", {})
 			var v1 = JSON.parse_string(FileAccess.get_file_as_string("res://assets/sprites/characters/%s.json" % id)) if FileAccess.file_exists("res://assets/sprites/characters/%s.json" % id) else {}
 			var fighter: bool = typeof(v1) == TYPE_DICTIONARY and v1.get("anims", {}).has("punch_a") and anims.has("punch_a")
-			for a in (FIGHTER_ANIMS if fighter else ["idle", "walk", "talk"]):
+			for a in (FIGHTER_ANIMS if fighter else ["idle", "walk"]):
 				check(anims.has(a), "v2 %s has anim %s" % [id, a])
+			if typeof(v1) == TYPE_DICTIONARY:
+				for a in v1.get("anims", {}):
+					check(anims.has(a), "v2 %s keeps v1 anim %s" % [id, a])
 			for a in anims:
 				var fr: Array = anims[a].get("frames", [])
 				var ok := not fr.is_empty()
@@ -407,6 +410,7 @@ func test_combat_geometry() -> void:
 	p.facing = 1
 	var e: Enemy = room.spawn_enemy("dogs_brawler", Vector2(420, 300), {})
 	e.facing = -1
+	e.guard_chance = 0.0   # the AI may otherwise guard at random when it notices the attack (made this check flaky)
 	p.start_attack("punch_a")
 	p.atk_t = int(p.atk.startup) + 1
 	check(p.overlaps_target(e, p.atk), "jab hits enemy in same lane")
