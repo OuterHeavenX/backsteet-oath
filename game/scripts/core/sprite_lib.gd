@@ -294,6 +294,9 @@ static func fx2(id: String) -> Dictionary:
 		"fps": float(e.get("fps", 24)), "additive": bool(e.get("additive", false)), "scale": 1.0 / float(e.get("density", 2)),
 		"loop": bool(e.get("loop", false))}
 
+static func has_pickup2(id: String) -> bool:
+	return ResourceLoader.exists("res://assets/pickups2/%s.png" % id)
+
 static func pickup(id: String) -> Dictionary:
 	var m2 = _read_json("res://assets/pickups2/pickups.json")
 	var t2 := tex("res://assets/pickups2/%s.png" % id)

@@ -19,7 +19,7 @@ func build() -> void:
 			quests_done += 1
 	var run := [
 		["Play time", UIKit.fmt_time(float(st.get("playtime", 0.0)))],
-		["Difficulty", Settings.difficulty.capitalize()],
+		["Difficulty", Settings.difficulty.capitalize() + ("  NG+%d" % GameState.ng_cycle if GameState.ng_cycle > 0 else "")],
 		["Level", str(GameState.level)],
 		["Enemies defeated", str(int(st.get("defeated", 0)))],
 		["Knockouts", str(int(st.get("deaths", 0)))],

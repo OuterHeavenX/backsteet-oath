@@ -88,3 +88,13 @@ These have the same keys as v1. `frame` is ×2, and `coin` has 4 spin frames.
   illustrator's work.
 - The title hero is a stylised backlit silhouette. That was a deliberate choice, because a procedural front-facing
   face would read worse than a silhouette.
+
+## Content 1.2 additions (CONTENT_EXPANSION.md §6)
+- `weapons2/shovel.png`: 84×24, a long-handled round-point shovel. Grip (12, 12), tip (80, 12). The icon is
+  `icons2/w_shovel`.
+- `pickups2/` + icons: `radio` (an 80s two-way ambulance radio, 20×30), `conductor_punch` (a brass ticket punch,
+  26×20), `scale_weight` (a rigged 1 LB lead weight with a filed plug in its base, 24×24).
+- Gear icons: `ladder_belt` (Benny's Rec championship belt) and `iron_wraps` (steel-grey hand wraps).
+- `ui2/map.png` now shows the **Underline**, a dashed maroon subway line that runs under the river (drawn faint
+  across the water) from Neon Mile to Floodgate. A roundel and an "UNDERLINE" label sit on the south bank.
+  `map.json` has `"underline": [658, 406]` (the roundel centre, in texels like the district entries).

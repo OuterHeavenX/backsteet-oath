@@ -40,6 +40,12 @@ func most_recent_slot() -> int:
 	return best
 
 ## Lightweight summary for the slot picker. Empty dict if no readable save.
+func any_completed_save() -> bool:
+	for slot in range(1, SLOTS + 1):
+		if bool(slot_info(slot).get("complete", false)):
+			return true
+	return false
+
 func slot_info(slot: int) -> Dictionary:
 	var d := _read_valid(slot)
 	if d.is_empty():
@@ -51,7 +57,9 @@ func slot_info(slot: int) -> Dictionary:
 		"timestamp": float(d.get("timestamp", 0)), "level": int(p.get("level", 1)), "cash": int(p.get("cash", 0)),
 		"room": str(w.get("room", "")), "stage": str(s.get("stage", "")),
 		"playtime": float(d.get("data", {}).get("stats", {}).get("playtime", 0.0)),
-		"recovered": bool(d.get("_recovered", false))
+		"recovered": bool(d.get("_recovered", false)),
+		"complete": bool(s.get("flags", {}).get("game_complete", false)),
+		"ng_cycle": int(d.get("data", {}).get("ng_cycle", 0))
 	}
 
 func build_payload() -> Dictionary:

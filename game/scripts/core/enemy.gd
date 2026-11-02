@@ -48,7 +48,7 @@ var leash := false
 
 func setup_enemy(id: String, district_tier: int, opts: Dictionary = {}) -> void:
 	enemy_id = id
-	tier = district_tier
+	tier = mini(6, district_tier + (1 if GameState.ng_cycle > 0 else 0))
 	var E: Dictionary = Content.enemies
 	if E.get("bosses", {}).has(id):
 		_setup_boss(id, E.bosses[id])
@@ -97,6 +97,13 @@ func setup_enemy(id: String, district_tier: int, opts: Dictionary = {}) -> void:
 	named = opts.get("name", "")
 	if named != "":
 		display_name = named
+	if GameState.ng_cycle > 0:
+		var bossy := is_boss
+		max_hp = int(round(max_hp * GameState.ng_mult("boss_hp" if bossy else "hp")))
+		power_mult *= GameState.ng_mult("boss_power" if bossy else "power")
+		xp_reward = int(round(xp_reward * GameState.ng_mult("reward")))
+		cash_range = [int(round(cash_range[0] * GameState.ng_mult("reward"))), int(round(cash_range[1] * GameState.ng_mult("reward")))]
+		hp = max_hp
 	drops = opts.get("drops", [])
 	wave_id = opts.get("wave", "")
 	ally = opts.get("ally", false)

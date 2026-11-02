@@ -1,54 +1,502 @@
 {
-  "_doc": "kind: food (eat now or take out), medicine, key, gear. heal = HP restored. bonus = permanent stat gain (food caps apply). takeout = can be carried in the 6-slot bag.",
-  "food_caps": {"hp": 30, "atk": 8, "def": 8, "agi": 8, "tec": 8},
-  "bag_size": 6,
-  "items": {
-    "coffee":        {"name": "Diner Coffee", "kind": "food", "price": 3, "heal": 15, "bonus": {}, "takeout": true, "icon": "coffee", "desc": "Bottomless, bitter, beloved."},
-    "pancakes":      {"name": "Pancake Stack", "kind": "food", "price": 6, "heal": 35, "bonus": {"hp": 2}, "icon": "pancakes", "desc": "Three high with real butter."},
-    "meatloaf":      {"name": "Meatloaf Plate", "kind": "food", "price": 9, "heal": 55, "bonus": {"def": 1}, "icon": "meatloaf", "desc": "Dot's recipe. Don't ask what's in it."},
-    "cherry_pie":    {"name": "Cherry Pie", "kind": "food", "price": 7, "heal": 40, "bonus": {"tec": 1}, "icon": "cherry_pie", "desc": "Lattice crust, still warm."},
-    "club_sandwich": {"name": "Club Sandwich", "kind": "food", "price": 8, "heal": 50, "bonus": {"atk": 1}, "takeout": true, "icon": "club_sandwich", "desc": "Toothpicks hold it together. Barely."},
-    "milkshake":     {"name": "Malt Milkshake", "kind": "food", "price": 5, "heal": 30, "bonus": {"agi": 1}, "icon": "milkshake", "desc": "Thick enough to stand a straw in."},
-    "pork_bun":      {"name": "Pork Bun", "kind": "food", "price": 4, "heal": 30, "bonus": {}, "takeout": true, "icon": "pork_bun", "desc": "Fluffy, sweet, portable."},
-    "ramen":         {"name": "Shoyu Ramen", "kind": "food", "price": 8, "heal": 60, "bonus": {"hp": 2}, "icon": "ramen", "desc": "Fong's broth simmers all day."},
-    "dumplings":     {"name": "Pan Dumplings", "kind": "food", "price": 6, "heal": 40, "bonus": {"atk": 1}, "icon": "dumplings", "desc": "Crispy bottoms, juicy tops."},
-    "green_tea":     {"name": "Green Tea", "kind": "food", "price": 3, "heal": 15, "bonus": {"tec": 1}, "icon": "green_tea", "desc": "Clears the head."},
-    "spicy_udon":    {"name": "Spicy Udon", "kind": "food", "price": 11, "heal": 80, "bonus": {"agi": 1}, "icon": "spicy_udon", "desc": "Makes you move. Fast. Toward water."},
-    "bean_chili":    {"name": "Bean Chili", "kind": "food", "price": 7, "heal": 55, "bonus": {"def": 1}, "icon": "bean_chili", "desc": "Sticks to your ribs and your spoon."},
-    "grilled_cheese":{"name": "Grilled Cheese", "kind": "food", "price": 5, "heal": 35, "bonus": {}, "takeout": true, "icon": "grilled_cheese", "desc": "Golden. Simple. Perfect."},
-    "iron_stew":     {"name": "Ironworker Stew", "kind": "food", "price": 14, "heal": 100, "bonus": {"def": 1, "hp": 2}, "icon": "iron_stew", "desc": "Built for a double shift."},
-    "hard_eggs":     {"name": "Hard-Boiled Eggs", "kind": "food", "price": 4, "heal": 25, "bonus": {"atk": 1}, "icon": "hard_eggs", "desc": "Two eggs and a pinch of salt."},
-    "hot_dog":       {"name": "Hot Dog", "kind": "food", "price": 4, "heal": 30, "bonus": {}, "takeout": true, "icon": "hot_dog", "desc": "Arcade classic, mustard only."},
-    "nachos":        {"name": "Nachos", "kind": "food", "price": 6, "heal": 40, "bonus": {"agi": 1}, "icon": "nachos", "desc": "Neon-orange cheese. Don't think about it."},
-    "soda":          {"name": "Fizz Soda", "kind": "food", "price": 2, "heal": 12, "bonus": {}, "takeout": true, "icon": "soda", "desc": "Drink Fizz! It's... fizzy."},
-    "popcorn":       {"name": "Popcorn", "kind": "food", "price": 3, "heal": 20, "bonus": {"tec": 1}, "icon": "popcorn", "desc": "Extra butter for high-score focus."},
-    "fish_taco":     {"name": "Fish Taco", "kind": "food", "price": 8, "heal": 55, "bonus": {"atk": 1}, "icon": "fish_taco", "desc": "Caught this morning. Probably."},
-    "thermos_soup":  {"name": "Thermos Soup", "kind": "food", "price": 12, "heal": 80, "bonus": {}, "takeout": true, "icon": "thermos_soup", "desc": "Stays hot through any storm."},
-    "jerky":         {"name": "Beef Jerky", "kind": "food", "price": 5, "heal": 30, "bonus": {}, "takeout": true, "icon": "jerky", "desc": "Chewy fuel for long nights."},
-    "clam_chowder":  {"name": "Clam Chowder", "kind": "food", "price": 15, "heal": 110, "bonus": {"def": 1, "hp": 1}, "icon": "clam_chowder", "desc": "Gus's family recipe."},
-    "empanada":      {"name": "Alvarez Empanada", "kind": "food", "price": 0, "heal": 70, "bonus": {}, "takeout": true, "icon": "empanada", "desc": "Made with love and a lot of cumin."},
-    "bandage":       {"name": "Bandage Roll", "kind": "medicine", "price": 10, "heal": 60, "bonus": {}, "takeout": true, "icon": "bandage", "desc": "Wrap it and walk it off."},
-    "tonic":         {"name": "Rosa's Tonic", "kind": "medicine", "price": 25, "heal": 999, "bonus": {}, "takeout": true, "icon": "tonic", "desc": "Restores all HP."},
-    "vitamin_pack":  {"name": "Vitamin Pack", "kind": "medicine", "price": 30, "heal": 0, "bonus": {"hp": 3}, "icon": "vitamin_pack", "desc": "Permanently raises Max HP (food cap applies)."},
-    "energy_drink":  {"name": "Volt Energy", "kind": "medicine", "price": 8, "heal": 25, "bonus": {"agi": 1}, "icon": "energy_drink", "desc": "Tastes like a battery."},
-    "smelling_salts":{"name": "Smelling Salts", "kind": "medicine", "price": 15, "heal": 0, "bonus": {}, "takeout": true, "revive": true, "icon": "smelling_salts", "desc": "Carried: if knocked out, revive once with half HP."},
-    "postcard":      {"name": "Eli's Postcard", "kind": "key", "icon": "postcard", "desc": "\"Come home. Need someone I trust. -E\""},
-    "satchel":       {"name": "Eli's Satchel", "kind": "key", "icon": "satchel", "desc": "Courier bag. Torn strap, missing ledger."},
-    "manifest":      {"name": "Delivery Manifest", "kind": "key", "icon": "manifest", "desc": "Eli's route sheets. Envelopes to Switch House 4, signed V.R."},
-    "photo":         {"name": "Polaroid", "kind": "key", "icon": "photo", "desc": "Eli and Gus Pereira at the rail yard, both looking worried."},
-    "toolbox":       {"name": "Mara's Toolbox", "kind": "key", "icon": "toolbox", "desc": "Red, dented, labeled QUINN. Return it to Mara."},
-    "parcel":        {"name": "Courier Parcel", "kind": "key", "icon": "parcel", "desc": "A stolen Bellwether Courier parcel. Teddy wants these back."},
-    "leash":         {"name": "Biscuit's Leash", "kind": "key", "icon": "leash", "desc": "Mrs. Alvarez's spare leash. Biscuit loves walks."},
-    "payroll_pages": {"name": "Payroll Pages", "kind": "key", "icon": "payroll_pages", "desc": "Greyline Development cash payments to the Yard Boys."},
-    "count_book":    {"name": "Count Book", "kind": "key", "icon": "count_book", "desc": "The Starlight back room's cash ledger. Payments to every gang."},
-    "arcade_log":    {"name": "Service Log", "kind": "key", "icon": "arcade_log", "desc": "Cabinet 3 joystick 'sticks on up-left' since Tuesday."},
-    "cassette":      {"name": "Eli's Cassette", "kind": "key", "icon": "cassette", "desc": "Eli's voice: 'If they take me, it's the Floodgate warehouse.'"},
-    "gate_key":      {"name": "Greyline Gate Key", "kind": "key", "icon": "gate_key", "desc": "Opens the Dockside Gate."},
-    "ledger":        {"name": "Rook's Ledger", "kind": "key", "icon": "ledger", "desc": "The original. Every payment, every name."},
-    "eviction_notice": {"name": "Eviction Notice", "kind": "key", "icon": "eviction_notice", "desc": "Torn from a Kettle Street door. Signed: Greyline Development."},
-    "courier_sneakers": {"name": "Courier Sneakers", "kind": "gear", "icon": "courier_sneakers", "bonus": {"agi": 2}, "run": 0.1, "desc": "AGI +2 and faster running."},
-    "champion_wraps":   {"name": "Champion Wraps", "kind": "gear", "icon": "champion_wraps", "bonus": {"atk": 2}, "desc": "ATK +2. Big Mo's Alley Cat Cup prize."},
-    "token_jacket":     {"name": "Token Jacket", "kind": "gear", "icon": "token_jacket", "bonus": {"tec": 2}, "desc": "TEC +2. Covered in arcade pins."},
-    "lucky_bandana":    {"name": "Jett's Bandana", "kind": "gear", "icon": "lucky_bandana", "bonus": {"def": 2}, "desc": "DEF +2. A peace offering from a rival."}
+ "_doc": "kind: food (eat now or take out), medicine, key, gear. heal = HP restored. bonus = permanent stat gain (food caps apply). takeout = can be carried in the 6-slot bag.",
+ "food_caps": {
+  "hp": 30,
+  "atk": 8,
+  "def": 8,
+  "agi": 8,
+  "tec": 8
+ },
+ "bag_size": 6,
+ "items": {
+  "coffee": {
+   "name": "Diner Coffee",
+   "kind": "food",
+   "price": 3,
+   "heal": 15,
+   "bonus": {},
+   "takeout": true,
+   "icon": "coffee",
+   "desc": "Bottomless, bitter, beloved."
+  },
+  "pancakes": {
+   "name": "Pancake Stack",
+   "kind": "food",
+   "price": 6,
+   "heal": 35,
+   "bonus": {
+    "hp": 2
+   },
+   "icon": "pancakes",
+   "desc": "Three high with real butter."
+  },
+  "meatloaf": {
+   "name": "Meatloaf Plate",
+   "kind": "food",
+   "price": 9,
+   "heal": 55,
+   "bonus": {
+    "def": 1
+   },
+   "icon": "meatloaf",
+   "desc": "Dot's recipe. Don't ask what's in it."
+  },
+  "cherry_pie": {
+   "name": "Cherry Pie",
+   "kind": "food",
+   "price": 7,
+   "heal": 40,
+   "bonus": {
+    "tec": 1
+   },
+   "icon": "cherry_pie",
+   "desc": "Lattice crust, still warm."
+  },
+  "club_sandwich": {
+   "name": "Club Sandwich",
+   "kind": "food",
+   "price": 8,
+   "heal": 50,
+   "bonus": {
+    "atk": 1
+   },
+   "takeout": true,
+   "icon": "club_sandwich",
+   "desc": "Toothpicks hold it together. Barely."
+  },
+  "milkshake": {
+   "name": "Malt Milkshake",
+   "kind": "food",
+   "price": 5,
+   "heal": 30,
+   "bonus": {
+    "agi": 1
+   },
+   "icon": "milkshake",
+   "desc": "Thick enough to stand a straw in."
+  },
+  "pork_bun": {
+   "name": "Pork Bun",
+   "kind": "food",
+   "price": 4,
+   "heal": 30,
+   "bonus": {},
+   "takeout": true,
+   "icon": "pork_bun",
+   "desc": "Fluffy, sweet, portable."
+  },
+  "ramen": {
+   "name": "Shoyu Ramen",
+   "kind": "food",
+   "price": 8,
+   "heal": 60,
+   "bonus": {
+    "hp": 2
+   },
+   "icon": "ramen",
+   "desc": "Fong's broth simmers all day."
+  },
+  "dumplings": {
+   "name": "Pan Dumplings",
+   "kind": "food",
+   "price": 6,
+   "heal": 40,
+   "bonus": {
+    "atk": 1
+   },
+   "icon": "dumplings",
+   "desc": "Crispy bottoms, juicy tops."
+  },
+  "green_tea": {
+   "name": "Green Tea",
+   "kind": "food",
+   "price": 3,
+   "heal": 15,
+   "bonus": {
+    "tec": 1
+   },
+   "icon": "green_tea",
+   "desc": "Clears the head."
+  },
+  "spicy_udon": {
+   "name": "Spicy Udon",
+   "kind": "food",
+   "price": 11,
+   "heal": 80,
+   "bonus": {
+    "agi": 1
+   },
+   "icon": "spicy_udon",
+   "desc": "Makes you move. Fast. Toward water."
+  },
+  "bean_chili": {
+   "name": "Bean Chili",
+   "kind": "food",
+   "price": 7,
+   "heal": 55,
+   "bonus": {
+    "def": 1
+   },
+   "icon": "bean_chili",
+   "desc": "Sticks to your ribs and your spoon."
+  },
+  "grilled_cheese": {
+   "name": "Grilled Cheese",
+   "kind": "food",
+   "price": 5,
+   "heal": 35,
+   "bonus": {},
+   "takeout": true,
+   "icon": "grilled_cheese",
+   "desc": "Golden. Simple. Perfect."
+  },
+  "iron_stew": {
+   "name": "Ironworker Stew",
+   "kind": "food",
+   "price": 14,
+   "heal": 100,
+   "bonus": {
+    "def": 1,
+    "hp": 2
+   },
+   "icon": "iron_stew",
+   "desc": "Built for a double shift."
+  },
+  "hard_eggs": {
+   "name": "Hard-Boiled Eggs",
+   "kind": "food",
+   "price": 4,
+   "heal": 25,
+   "bonus": {
+    "atk": 1
+   },
+   "icon": "hard_eggs",
+   "desc": "Two eggs and a pinch of salt."
+  },
+  "hot_dog": {
+   "name": "Hot Dog",
+   "kind": "food",
+   "price": 4,
+   "heal": 30,
+   "bonus": {},
+   "takeout": true,
+   "icon": "hot_dog",
+   "desc": "Arcade classic, mustard only."
+  },
+  "nachos": {
+   "name": "Nachos",
+   "kind": "food",
+   "price": 6,
+   "heal": 40,
+   "bonus": {
+    "agi": 1
+   },
+   "icon": "nachos",
+   "desc": "Neon-orange cheese. Don't think about it."
+  },
+  "soda": {
+   "name": "Fizz Soda",
+   "kind": "food",
+   "price": 2,
+   "heal": 12,
+   "bonus": {},
+   "takeout": true,
+   "icon": "soda",
+   "desc": "Drink Fizz! It's... fizzy."
+  },
+  "popcorn": {
+   "name": "Popcorn",
+   "kind": "food",
+   "price": 3,
+   "heal": 20,
+   "bonus": {
+    "tec": 1
+   },
+   "icon": "popcorn",
+   "desc": "Extra butter for high-score focus."
+  },
+  "fish_taco": {
+   "name": "Fish Taco",
+   "kind": "food",
+   "price": 8,
+   "heal": 55,
+   "bonus": {
+    "atk": 1
+   },
+   "icon": "fish_taco",
+   "desc": "Caught this morning. Probably."
+  },
+  "thermos_soup": {
+   "name": "Thermos Soup",
+   "kind": "food",
+   "price": 12,
+   "heal": 80,
+   "bonus": {},
+   "takeout": true,
+   "icon": "thermos_soup",
+   "desc": "Stays hot through any storm."
+  },
+  "jerky": {
+   "name": "Beef Jerky",
+   "kind": "food",
+   "price": 5,
+   "heal": 30,
+   "bonus": {},
+   "takeout": true,
+   "icon": "jerky",
+   "desc": "Chewy fuel for long nights."
+  },
+  "clam_chowder": {
+   "name": "Clam Chowder",
+   "kind": "food",
+   "price": 15,
+   "heal": 110,
+   "bonus": {
+    "def": 1,
+    "hp": 1
+   },
+   "icon": "clam_chowder",
+   "desc": "Gus's family recipe."
+  },
+  "empanada": {
+   "name": "Alvarez Empanada",
+   "kind": "food",
+   "price": 0,
+   "heal": 70,
+   "bonus": {},
+   "takeout": true,
+   "icon": "empanada",
+   "desc": "Made with love and a lot of cumin."
+  },
+  "bandage": {
+   "name": "Bandage Roll",
+   "kind": "medicine",
+   "price": 10,
+   "heal": 60,
+   "bonus": {},
+   "takeout": true,
+   "icon": "bandage",
+   "desc": "Wrap it and walk it off."
+  },
+  "tonic": {
+   "name": "Rosa's Tonic",
+   "kind": "medicine",
+   "price": 25,
+   "heal": 999,
+   "bonus": {},
+   "takeout": true,
+   "icon": "tonic",
+   "desc": "Restores all HP."
+  },
+  "vitamin_pack": {
+   "name": "Vitamin Pack",
+   "kind": "medicine",
+   "price": 30,
+   "heal": 0,
+   "bonus": {
+    "hp": 3
+   },
+   "icon": "vitamin_pack",
+   "desc": "Permanently raises Max HP (food cap applies)."
+  },
+  "energy_drink": {
+   "name": "Volt Energy",
+   "kind": "medicine",
+   "price": 8,
+   "heal": 25,
+   "bonus": {
+    "agi": 1
+   },
+   "icon": "energy_drink",
+   "desc": "Tastes like a battery."
+  },
+  "smelling_salts": {
+   "name": "Smelling Salts",
+   "kind": "medicine",
+   "price": 15,
+   "heal": 0,
+   "bonus": {},
+   "takeout": true,
+   "revive": true,
+   "icon": "smelling_salts",
+   "desc": "Carried: if knocked out, revive once with half HP."
+  },
+  "postcard": {
+   "name": "Eli's Postcard",
+   "kind": "key",
+   "icon": "postcard",
+   "desc": "\"Come home. Need someone I trust. -E\""
+  },
+  "satchel": {
+   "name": "Eli's Satchel",
+   "kind": "key",
+   "icon": "satchel",
+   "desc": "Courier bag. Torn strap, missing ledger."
+  },
+  "manifest": {
+   "name": "Delivery Manifest",
+   "kind": "key",
+   "icon": "manifest",
+   "desc": "Eli's route sheets. Envelopes to Switch House 4, signed V.R."
+  },
+  "photo": {
+   "name": "Polaroid",
+   "kind": "key",
+   "icon": "photo",
+   "desc": "Eli and Gus Pereira at the rail yard, both looking worried."
+  },
+  "toolbox": {
+   "name": "Mara's Toolbox",
+   "kind": "key",
+   "icon": "toolbox",
+   "desc": "Red, dented, labeled QUINN. Return it to Mara."
+  },
+  "parcel": {
+   "name": "Courier Parcel",
+   "kind": "key",
+   "icon": "parcel",
+   "desc": "A stolen Bellwether Courier parcel. Teddy wants these back."
+  },
+  "leash": {
+   "name": "Biscuit's Leash",
+   "kind": "key",
+   "icon": "leash",
+   "desc": "Mrs. Alvarez's spare leash. Biscuit loves walks."
+  },
+  "payroll_pages": {
+   "name": "Payroll Pages",
+   "kind": "key",
+   "icon": "payroll_pages",
+   "desc": "Greyline Development cash payments to the Yard Boys."
+  },
+  "count_book": {
+   "name": "Count Book",
+   "kind": "key",
+   "icon": "count_book",
+   "desc": "The Starlight back room's cash ledger. Payments to every gang."
+  },
+  "arcade_log": {
+   "name": "Service Log",
+   "kind": "key",
+   "icon": "arcade_log",
+   "desc": "Cabinet 3 joystick 'sticks on up-left' since Tuesday."
+  },
+  "cassette": {
+   "name": "Eli's Cassette",
+   "kind": "key",
+   "icon": "cassette",
+   "desc": "Eli's voice: 'If they take me, it's the Floodgate warehouse.'"
+  },
+  "gate_key": {
+   "name": "Greyline Gate Key",
+   "kind": "key",
+   "icon": "gate_key",
+   "desc": "Opens the Dockside Gate."
+  },
+  "ledger": {
+   "name": "Rook's Ledger",
+   "kind": "key",
+   "icon": "ledger",
+   "desc": "The original. Every payment, every name."
+  },
+  "eviction_notice": {
+   "name": "Eviction Notice",
+   "kind": "key",
+   "icon": "eviction_notice",
+   "desc": "Torn from a Kettle Street door. Signed: Greyline Development."
+  },
+  "courier_sneakers": {
+   "name": "Courier Sneakers",
+   "kind": "gear",
+   "icon": "courier_sneakers",
+   "bonus": {
+    "agi": 2
+   },
+   "run": 0.1,
+   "desc": "AGI +2 and faster running."
+  },
+  "champion_wraps": {
+   "name": "Champion Wraps",
+   "kind": "gear",
+   "icon": "champion_wraps",
+   "bonus": {
+    "atk": 2
+   },
+   "desc": "ATK +2. Big Mo's Alley Cat Cup prize."
+  },
+  "token_jacket": {
+   "name": "Token Jacket",
+   "kind": "gear",
+   "icon": "token_jacket",
+   "bonus": {
+    "tec": 2
+   },
+   "desc": "TEC +2. Covered in arcade pins."
+  },
+  "lucky_bandana": {
+   "name": "Jett's Bandana",
+   "kind": "gear",
+   "icon": "lucky_bandana",
+   "bonus": {
+    "def": 2
+   },
+   "desc": "DEF +2. A peace offering from a rival."
+  },
+  "radio": {
+   "name": "Ambulance Radio",
+   "kind": "key",
+   "icon": "radio",
+   "desc": "Ines's two-way radio. Still smells like Flicker's hair gel."
+  },
+  "conductor_punch": {
+   "name": "Conductor's Punch",
+   "kind": "key",
+   "icon": "conductor_punch",
+   "desc": "Otis Bell's brass ticket punch. Clicks like new."
+  },
+  "scale_weight": {
+   "name": "Rigged Weights",
+   "kind": "key",
+   "icon": "scale_weight",
+   "desc": "Market weights with lead poured into the bottom."
+  },
+  "ladder_belt": {
+   "name": "Ladder Belt",
+   "kind": "gear",
+   "icon": "ladder_belt",
+   "bonus": {
+    "def": 2,
+    "hp": 10
+   },
+   "desc": "DEF +2, HP +10. Bout five of Benny's ladder."
+  },
+  "iron_wraps": {
+   "name": "Iron Wraps",
+   "kind": "gear",
+   "icon": "iron_wraps",
+   "bonus": {
+    "atk": 2,
+    "tec": 1
+   },
+   "desc": "ATK +2, TEC +1. Mae Okafor's champion wraps."
+  },
+  "weight_pier": {
+   "name": "Rigged Weights (Pier Square)",
+   "kind": "key",
+   "icon": "scale_weight",
+   "desc": "Market weights with lead in the bottom, taken from the inspector at Pier Square."
+  },
+  "weight_iron": {
+   "name": "Rigged Weights (Ironworks Gate)",
+   "kind": "key",
+   "icon": "scale_weight",
+   "desc": "Market weights with lead in the bottom, taken from the inspector at the Ironworks Gate."
+  },
+  "weight_neon": {
+   "name": "Rigged Weights (Marquee Strip)",
+   "kind": "key",
+   "icon": "scale_weight",
+   "desc": "Market weights with lead in the bottom, taken from the inspector at the Marquee Strip."
   }
+ }
 }

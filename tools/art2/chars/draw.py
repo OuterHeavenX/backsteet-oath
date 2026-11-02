@@ -70,10 +70,14 @@ class Look:
         self.skin = skin_mat(spec)
         self.hair = hair_mat(spec) if spec.get('hcol') else self.skin
         self.hair2 = hair_mat(spec, 2) if spec.get('hcol2') else None
-        self.shirt = cloth(spec['shirt']) if spec.get('shirt') and not str(spec['shirt']).startswith('stripe') \
-            and spec['shirt'] != 'hawaii' else cloth('white')
-        self.shirt_pattern = spec.get('shirt') if str(spec.get('shirt')).startswith('stripe') or \
-            spec.get('shirt') == 'hawaii' else None
+        sh_ = str(spec.get('shirt'))
+        patterned = sh_.startswith('stripe') or sh_ in ('hawaii', 'hivis', 'benny')
+        self.shirt = cloth(spec['shirt']) if spec.get('shirt') and not patterned else cloth('white')
+        if sh_ == 'hivis':
+            self.shirt = cloth('#e8742a')
+        elif sh_ == 'benny':
+            self.shirt = cloth('red')
+        self.shirt_pattern = sh_ if patterned else None
         self.pants = cloth(spec.get('pants') or 'denim')
         self.shoe = cloth(spec.get('shoes') or 'black')
         self.sole = cloth(spec.get('sole')) if spec.get('sole') else None
@@ -547,6 +551,19 @@ class Frame:
                 band = g.mask(polys=[self.halfplane(o, s.up)]) * g.mask(polys=[self.halfplane(add(o, mul(s.up, -0.9)),
                                                                                              mul(s.up, -1))]) * shirt
                 g.paint_flat(band * (g.img_a > 0.5), sc)
+        if L.shirt_pattern == 'hivis':
+            for k in (4.6, 8.4):
+                o = add(s.hip, mul(s.up, k))
+                band = g.mask(polys=[self.halfplane(o, s.up)]) * g.mask(polys=[self.halfplane(add(o, mul(s.up, -1.0)), mul(s.up, -1))])
+                g.paint_flat(band * shirt * (g.img_a > 0.5), (236, 238, 220))
+        if L.shirt_pattern == 'benny':
+            c_ = add(add(s.neck_base, mul(s.up, -5.0)), mul(s.fwd, b['chest'] * 0.25))
+            panel = [add(c_, add(mul(s.fwd, -2.8), mul(s.up, 1.2))), add(c_, add(mul(s.fwd, 2.8), mul(s.up, 1.2))),
+                     add(c_, add(mul(s.fwd, 2.8), mul(s.up, -1.2))), add(c_, add(mul(s.fwd, -2.8), mul(s.up, -1.2)))]
+            g.paint_flat(g.mask(polys=[panel]) * (g.img_a > 0.5), (244, 240, 232))
+            for k in range(6):
+                x0 = add(c_, mul(s.fwd, -2.3 + k * 0.92))
+                g.line([add(x0, mul(s.up, 0.6)), add(x0, mul(s.up, -0.6))], 0.7, (150, 30, 40), 1.0)
         if L.shirt_pattern == 'hawaii':
             import random as _r
             rr = _r.Random(3)
@@ -1283,7 +1300,13 @@ class Frame:
         kind, col = L.spec['hat']
         hm = cloth(col)
         g = self.cv.group()
-        for (sh, part, clip) in V1.hat_shapes(kind):
+        if kind == 'bucket':
+            shapes = [(('e', (-0.05, -0.62, 1.02, 0.62, 0), {}), 'main', 'clipy:-0.3'),
+                      (('p', [(-1.35, -0.42), (1.3, -0.46), (1.42, -0.22), (-1.45, -0.18)], {}), 'brim', None),
+                      (('p', [(-1.02, -0.52), (0.98, -0.55), (0.98, -0.42), (-1.02, -0.4)], {}), 'dark', 'clipmain')]
+        else:
+            shapes = V1.hat_shapes('hardhat' if kind == 'lamphat' else kind)
+        for (sh, part, clip) in shapes:
             pts = self._shape_pts(sh)
             m = g.mask(polys=[self.HP(pts)])
             if clip and clip.startswith('clipy:'):
@@ -1301,6 +1324,15 @@ class Frame:
             if clip in ('clipmain', 'clipmain2', 'clipmain0', 'badge'):
                 m = m * (g.img_a > 0.5)
             g.fill(m, mat, shade=0.5, hi=0.25)
+        if kind == 'lamphat':
+            lc = self.H((0.92, -0.66))
+            g.fill(g.mask(polys=[self.H_ell(0.92, -0.66, 0.24, 0.2)]), Mat((90, 90, 100)), shade=0.2, hi=0.1)
+            g.paint_flat(g.mask(polys=[self.H_ell(0.97, -0.66, 0.15, 0.13)]), (255, 246, 196))
+        if 'goggles' in L.spec.get('extras', ()):
+            g.line(self.HP([(-1.0, -0.5), (0.0, -0.62), (0.7, -0.58)]), 0.9, (60, 50, 50), 1.0, clip_to_group=False)
+            for cx in (0.38, 0.72):
+                g.fill(g.mask(polys=[self.H_ell(cx, -0.62, 0.17, 0.14)]), Mat((120, 170, 190), (70, 100, 120), (220, 240, 255)),
+                       shade=0.1, hi=0.1)
         g.commit()
 
     def glasses(self):
@@ -1393,9 +1425,37 @@ class Frame:
                 g.img_col *= (self.cv.a[..., None] > 0.5)
                 g.img_a *= (self.cv.a > 0.5)
                 g.commit()
+            elif name == 'dustmask':
+                g = self.cv.group()
+                c0 = lerp(s.neck_base, s.neck_top, 0.55)
+                m = g.mask(polys=[seg_quad(add(c0, mul(fwd, -1.6)), add(c0, mul(fwd, 2.0)), 1.3, 1.2)])
+                g.fill(m, Mat((226, 224, 214)), shade=0.4, hi=0.2)
+                g.line([add(c0, mul(fwd, -1.4)), add(c0, mul(fwd, 1.8))], 0.6, (160, 156, 150), 0.9)
+                g.commit()
+            elif name == 'lanyard':
+                g = self.cv.group()
+                g.line([at(0.3, -0.6), at(5.6, b['chest'] - 1.8), at(0.3, b['chest'] - 0.8)], 0.7, (60, 120, 200), 1.0,
+                       clip_to_group=False)
+                c = at(6.6, b['chest'] - 1.8)
+                g.fill(g.mask(polys=[[add(c, (-1.0, -1.1)), add(c, (1.0, -1.1)), add(c, (1.0, 1.1)), add(c, (-1.0, 1.1))]]),
+                       Mat((240, 240, 236)), shade=0.2, hi=0.0)
+                g.line([add(c, (-0.6, -0.3)), add(c, (0.6, -0.3))], 0.6, (60, 120, 200), 1.0)
+                g.commit()
+            elif name == 'paint':
+                g = self.cv.group(inner_line=False)
+                import random as _r
+                rr = _r.Random(11)
+                for k in range(16):
+                    u_ = rr.uniform(-15.0, 6.0)
+                    v_ = rr.uniform(-b['back'], b['chest'])
+                    c_ = add(add(s.hip, mul(up, u_)), mul(fwd, v_))
+                    g.dot(c_[0], c_[1], rr.uniform(0.35, 0.75), [(230, 70, 120), (80, 200, 230), (250, 210, 60),
+                                                                  (120, 220, 90)][k % 4], 0.95)
+                g.img_a *= (self.cv.a > 0.5)
+                g.commit()
             elif name in ('tie', 'bowtie', 'badge', 'whistle', 'nametag', 'vest_over'):
                 g = self.cv.group()
-                tc = cloth(col) if col else None
+                tc = cloth(col) if (col and name != 'vest_over') else None
                 if name == 'tie':
                     pts = [at(0.6, b['chest'] - 1.4), at(0.9, b['chest'] - 0.4), at(8.5, b['chest'] - 0.2),
                            at(9.4, b['chest'] - 1.0), at(8.5, b['chest'] - 1.8)]
@@ -1418,7 +1478,7 @@ class Frame:
                            Mat((244, 244, 238)), shade=0.2, hi=0.0)
                     g.line([add(c, (-0.7, 0.0)), add(c, (0.7, 0.0))], 0.6, (60, 60, 120), 1.0)
                 elif name == 'vest_over':
-                    vm = cloth('orange')
+                    vm = cloth(col) if col else cloth('orange')
                     tp = self.torso_points(expand=0.3)
                     m = g.mask(polys=[tp]) * g.mask(polys=[self.halfplane(add(s.hip, mul(up, 3.0)), up)]) * \
                         g.mask(polys=[self.halfplane(add(N, mul(up, -1.8)), mul(up, -1))])
@@ -1444,6 +1504,13 @@ class Frame:
             g = self.cv.group()
             g.fill(g.mask(polys=[seg_quad((h[0] + 0.4, h[1] - 0.6), (h[0] + 1.6, -0.2), 0.42, 0.38)],
                           circles=[(h[0] - 0.4, h[1] - 0.8, 0.9)]), Mat((110, 72, 44)), shade=0.3, hi=0.2)
+            g.commit()
+        if 'spraycan' in ex and abs(s.lean) < 45:
+            g = self.cv.group()
+            can = [(h[0] - 0.9, h[1] - 2.6), (h[0] + 0.9, h[1] - 2.6), (h[0] + 0.9, h[1] + 1.6), (h[0] - 0.9, h[1] + 1.6)]
+            g.fill(g.mask(polys=[can]), Mat((80, 200, 230)), shade=0.5, hi=0.35)
+            g.fill(g.mask(polys=[[(h[0] - 0.4, h[1] - 3.4), (h[0] + 0.4, h[1] - 3.4), (h[0] + 0.4, h[1] - 2.6), (h[0] - 0.4, h[1] - 2.6)]]),
+                   METAL, shade=0.2, hi=0.1)
             g.commit()
         if 'briefcase' in ex and h[1] > s.hip[1] - 6 and abs(s.lean) < 45:
             g = self.cv.group()

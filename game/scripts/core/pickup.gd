@@ -39,7 +39,9 @@ func setup(r: Node, k: String, pos: Vector2, pop: float = 0.0) -> void:
 		"heal":
 			_set_pickup_art("heal_bun")
 		"key":
-			var art := key_id if Content.pickup_meta.has(key_id) else "parcel"
+			var art := key_id if (Content.pickup_meta.has(key_id) or SpriteLib.has_pickup2(key_id)) else "parcel"
+			if key_id.begins_with("weight_"):
+				art = "scale_weight"
 			_set_pickup_art(art)
 		"weapon":
 			var wi := SpriteLib.weapon_info(weapon_id)

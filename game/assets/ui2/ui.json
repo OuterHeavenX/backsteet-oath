@@ -352,7 +352,7 @@
    960,
    520
   ],
-  "note": "District map (2x of v1 480x260). District dot coordinates are in ui2/map.json (texels of this image)."
+  "note": "District map (2x of v1 480x260) + the Underline subway line. District dot and Underline marker coordinates are in ui2/map.json (texels of this image)."
  },
  "name_tag": {
   "file": "name_tag.png",

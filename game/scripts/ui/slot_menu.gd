@@ -7,7 +7,8 @@ var mode := "load"
 var info: Label
 
 func build() -> void:
-	var titles := {"new": "NEW GAME - CHOOSE A SLOT", "load": "LOAD GAME", "save": "SAVE GAME", "manage": "MANAGE SAVES"}
+	var titles := {"new": "NEW GAME - CHOOSE A SLOT", "load": "LOAD GAME", "save": "SAVE GAME", "manage": "MANAGE SAVES",
+		"ngplus": "NEW GAME+ - CHOOSE A FINISHED SAVE"}
 	var c := make_frame(titles.get(mode, "SAVES"), Vector2(440, 0))
 	var first: Control = null
 	for slot in range(1, SaveService.SLOTS + 1):
@@ -18,6 +19,10 @@ func build() -> void:
 		var b := UIKit.button(text, func(): _pick(slot), 420)
 		if mode == "load" and si.is_empty():
 			b.disabled = true
+		if mode == "ngplus":
+			b.disabled = si.is_empty() or not bool(si.get("complete", false))
+			if not si.is_empty() and int(si.get("ng_cycle", 0)) > 0:
+				b.text += "   NG+%d" % int(si.ng_cycle)
 		c.add_child(b)
 		if first == null and not b.disabled:
 			first = b
@@ -34,7 +39,7 @@ func build() -> void:
 		c.add_child(imp)
 		var note := "Browser saves live in this browser's storage (cleared by private mode or clearing site data). Export a backup file to be safe." if OS.has_feature("web") else "Saves are stored in: " + ProjectSettings.globalize_path("user://")
 		c.add_child(UIKit.wrap_label(note, 420, UIKit.DIM))
-	info = UIKit.wrap_label("", 420, UIKit.MUSTARD)
+	info = UIKit.wrap_label("Saves that reached the ending can start New Game+." if mode == "ngplus" else "", 420, UIKit.MUSTARD)
 	c.add_child(info)
 	var back := UIKit.button("Back", close, 120)
 	c.add_child(back)
@@ -73,6 +78,16 @@ func _pick(slot: int) -> void:
 				info.text = "Save failed: " + SaveService.last_error
 		"manage":
 			info.text = "Choose Export or Delete below a slot."
+		"ngplus":
+			if not has:
+				return
+			var ok: bool = await ConfirmMenu.ask(host, "Start New Game+ in slot %d? You keep your level, stats, techniques, gear, bag and cash. The story restarts with tougher crews, and this slot's finished save is replaced (the previous save stays as the slot's backup)." % slot)
+			if not ok:
+				return
+			if SaveService.load_game(slot):
+				host.start_new_game_plus(slot)
+			else:
+				info.text = SaveService.last_error
 
 func _export(slot: int) -> void:
 	var r := SaveService.export_slot(slot)

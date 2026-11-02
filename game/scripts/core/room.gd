@@ -826,6 +826,11 @@ func _start_wave(wv: Dictionary) -> void:
 				list.append({"id": e[0]})
 		else:
 			list.append(e)
+	if GameState.ng_cycle > 0:
+		# New Game+: one extra fighter per wave (never a duplicate of a named quest enemy)
+		var plain := list.filter(func(x): return not x.has("name"))
+		if not plain.is_empty():
+			list.append({"id": plain[randi() % plain.size()].id})
 	for i in list.size():
 		var f := from
 		if from == "auto":

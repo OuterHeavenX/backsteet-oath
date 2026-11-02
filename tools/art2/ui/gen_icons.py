@@ -967,7 +967,7 @@ def weapon_icon(wid):
 
 
 for _w in ('wrench', 'baton', 'bat', 'pipe', 'broom', 'chain', 'belt', 'newspaper', 'spatula', 'bottle', 'brick',
-           'fish', 'tire', 'road_sign'):
+           'fish', 'tire', 'road_sign', 'shovel'):
     REG['w_' + _w] = weapon_icon(_w)
 
 
@@ -1331,9 +1331,72 @@ def _():
     return fin(it)
 
 
+# ============================================================ content 1.2 (CONTENT_EXPANSION.md section 6)
+@icon('radio')
+def _():
+    return from_pickup('radio')
+
+
+@icon('conductor_punch')
+def _():
+    return from_pickup('conductor_punch')
+
+
+@icon('scale_weight')
+def _():
+    return from_pickup('scale_weight')
+
+
+@icon('ladder_belt')
+def _():
+    """Benny's Rec ladder championship belt."""
+    it = new()
+    L = it.L
+    strap = L.poly(bez((1, 12), (16, 9), (31, 12)) + [(31, 21)] + bez((31, 21), (16, 18), (1, 21)))
+    it.part(strap, hx('#2a2230'))
+    for x in (4, 27):
+        L.fill(L.rect(x - 1.2, 13.5, x + 1.2, 18), hx('#e0b448'))
+    for x in (8.5, 23.5):
+        side = L.rect(x - 2.8, 11.5, x + 2.8, 19.5, r=1)
+        it.part(side, hx('#d8a838'), li=hx('#ffe48a'))
+        L.fill(L.circle(x, 15.5, 1.1), hx('#d8302e'))
+    plate = L.poly(bez((10, 9), (16, 4.5), (22, 9)) + [(23, 21)] + bez((23, 21), (16, 26.5), (9, 21)))
+    it.part(plate, hx('#e8b83a'), li=hx('#fff0a8'), sh_off=1.8)
+    inner = L.ero(plate, 2.0)
+    L.fill(np.clip(inner - L.ero(inner, 0.7), 0, 1), hx('#8a5a14'))
+    st = L.poly(star_pts(16, 14.8, 4.6, 2.0, 5))
+    L.fill(L.dil(st, 0.6), INK)
+    L.fill(st, hx('#d8302e'))
+    L.fill(L.rect(12, 20, 20, 21.4, r=0.5), hx('#8a5a14'))
+    return fin(it)
+
+
+@icon('iron_wraps')
+def _():
+    """Steel-grey boxing hand wraps (gear)."""
+    it = new()
+    L = it.L
+    steel = hx('#8a94a6')
+    tail = L.poly([(6, 20), (14, 21), (27, 27.5), (25.5, 30), (12, 25), (4, 23)])
+    it.part(tail, steel)
+    roll = np.clip(L.rect(6, 7, 21, 21) + L.ellipse(6, 14, 3.4, 7), 0, 1)
+    it.part(roll, steel, li=hx('#e0e8f4'))
+    for x in (10, 14, 18):
+        L.fill(L.stroke([(x, 7.5), (x - 1, 20.5)], 0.6) * roll, hx('#4a5262'))
+    L.fill(L.rect(6, 11.5, 21, 13) * roll, hx('#d8302e'), 0.85)
+    end = L.ellipse(21, 14, 3.6, 7)
+    it.part(end, hx('#b8c2d2'))
+    L.fill(L.ellipse(21, 14, 1.4, 3), hx('#3a4252'))
+    it.spec(13, 8.6, 4, 0.6, 0.8)
+    return fin(it)
+
+
+EXTRA_IDS = ['w_shovel', 'radio', 'conductor_punch', 'scale_weight', 'ladder_belt', 'iron_wraps']
+
+
 def main(ids=None):
     os.makedirs(OUT, exist_ok=True)
-    want = [os.path.basename(p)[:-4] for p in sorted(glob.glob(os.path.join(ASSETS, 'icons', '*.png')))]
+    want = [os.path.basename(p)[:-4] for p in sorted(glob.glob(os.path.join(ASSETS, 'icons', '*.png')))] + EXTRA_IDS
     missing = [i for i in want if i not in REG]
     if missing:
         print('MISSING icon drawers:', missing)

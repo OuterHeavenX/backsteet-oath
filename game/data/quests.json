@@ -1,41 +1,172 @@
 {
-  "quests": {
-    "dog": {
-      "name": "Biscuit Went Walkabout", "giver": "alvarez", "requires": "stage>=chain_dogs",
-      "desc": "Mrs. Alvarez's terrier slipped his leash and ran off chasing trains.",
-      "steps": ["Find Biscuit. Mrs. Alvarez thinks he chases trains, so try the Ironworks Rail Spur.", "Walk Biscuit home to Mrs. Alvarez on Brickrow Lane."],
-      "reward": {"cash": 40, "xp": 80, "bag": ["empanada", "empanada"]}, "reward_text": "$40, 2 Alvarez Empanadas, 80 XP"
-    },
-    "tools": {
-      "name": "Tools of the Trade", "giver": "mara", "requires": "boss_duke",
-      "desc": "A Wharf Rat called Sticky Vic swiped Mara's red toolbox.",
-      "steps": ["Find Sticky Vic on the Canal Walk and take back Mara's toolbox.", "Return the toolbox to Mara at Quinn Garage."],
-      "reward": {"cash": 30, "xp": 80, "upgrade": "grip"}, "reward_text": "$30, free Grip Tape upgrade, 80 XP"
-    },
-    "escort": {
-      "name": "The Long Way Round", "giver": "hollis", "requires": "stage>=market",
-      "desc": "Mr. Hollis is too frightened of the Wharf Rats to visit his sister at Pier Square.",
-      "steps": ["Walk Mr. Hollis safely along the Canal Walk to Pier Square. Keep him out of trouble!"],
-      "reward": {"cash": 30, "xp": 100, "skill": "heel"}, "reward_text": "Heel Drop manual, $30, 100 XP"
-    },
-    "score": {
-      "name": "Settle the Score", "giver": "lacey", "requires": "stage>=neon",
-      "desc": "Lacey swears Pip cheated his way to the Starlight high score.",
-      "steps": ["Ask around the arcade: talk to Pip, Marv at the snack bar, and the kid by the back machines.", "Tell Lacey what really happened."],
-      "reward": {"cash": 50, "xp": 100, "gear": "token_jacket"}, "reward_text": "Token Jacket (TEC +2), $50, 100 XP for the right answer"
-    },
-    "cup": {
-      "name": "Alley Cat Cup", "giver": "bigmo", "requires": "stage>=neon",
-      "desc": "Big Mo runs a no-weapons street tournament in the alley behind the arcade. Entry is $10.",
-      "steps": ["Win the Alley Cat Cup: clear 3 rounds in Big Mo's Alley within 90 seconds."],
-      "reward": {"cash": 80, "xp": 120, "gear": "champion_wraps"}, "reward_text": "Champion Wraps (ATK +2), $80, 120 XP. Rematches pay $25.",
-      "repeatable": true
-    },
-    "parcels": {
-      "name": "Return to Sender", "giver": "teddy", "requires": "stage>=market",
-      "desc": "Three Bellwether Courier parcels were stolen and stashed around town.",
-      "steps": ["Find the 3 stolen parcels hidden in crates, barrels or trash: Canal Walk, Yard Gate, Marquee Strip.", "Bring the parcels back to Teddy at the Market Gate."],
-      "reward": {"cash": 45, "xp": 90, "gear": "courier_sneakers"}, "reward_text": "Courier Sneakers (AGI +2, faster running), $45, 90 XP"
-    }
+ "quests": {
+  "dog": {
+   "name": "Biscuit Went Walkabout",
+   "giver": "alvarez",
+   "requires": "stage>=chain_dogs",
+   "desc": "Mrs. Alvarez's terrier slipped his leash and ran off chasing trains.",
+   "steps": [
+    "Find Biscuit. Mrs. Alvarez thinks he chases trains, so try the Ironworks Rail Spur.",
+    "Walk Biscuit home to Mrs. Alvarez on Brickrow Lane."
+   ],
+   "reward": {
+    "cash": 40,
+    "xp": 80,
+    "bag": [
+     "empanada",
+     "empanada"
+    ]
+   },
+   "reward_text": "$40, 2 Alvarez Empanadas, 80 XP"
+  },
+  "tools": {
+   "name": "Tools of the Trade",
+   "giver": "mara",
+   "requires": "boss_duke",
+   "desc": "A Wharf Rat called Sticky Vic swiped Mara's red toolbox.",
+   "steps": [
+    "Find Sticky Vic on the Canal Walk and take back Mara's toolbox.",
+    "Return the toolbox to Mara at Quinn Garage."
+   ],
+   "reward": {
+    "cash": 30,
+    "xp": 80,
+    "upgrade": "grip"
+   },
+   "reward_text": "$30, free Grip Tape upgrade, 80 XP"
+  },
+  "escort": {
+   "name": "The Long Way Round",
+   "giver": "hollis",
+   "requires": "stage>=market",
+   "desc": "Mr. Hollis is too frightened of the Wharf Rats to visit his sister at Pier Square.",
+   "steps": [
+    "Walk Mr. Hollis safely along the Canal Walk to Pier Square. Keep him out of trouble!"
+   ],
+   "reward": {
+    "cash": 30,
+    "xp": 100,
+    "skill": "heel"
+   },
+   "reward_text": "Heel Drop manual, $30, 100 XP"
+  },
+  "score": {
+   "name": "Settle the Score",
+   "giver": "lacey",
+   "requires": "stage>=neon",
+   "desc": "Lacey swears Pip cheated his way to the Starlight high score.",
+   "steps": [
+    "Ask around the arcade: talk to Pip, Marv at the snack bar, and the kid by the back machines.",
+    "Tell Lacey what really happened."
+   ],
+   "reward": {
+    "cash": 50,
+    "xp": 100,
+    "gear": "token_jacket"
+   },
+   "reward_text": "Token Jacket (TEC +2), $50, 100 XP for the right answer"
+  },
+  "cup": {
+   "name": "Alley Cat Cup",
+   "giver": "bigmo",
+   "requires": "stage>=neon",
+   "desc": "Big Mo runs a no-weapons street tournament in the alley behind the arcade. Entry is $10.",
+   "steps": [
+    "Win the Alley Cat Cup: clear 3 rounds in Big Mo's Alley within 90 seconds."
+   ],
+   "reward": {
+    "cash": 80,
+    "xp": 120,
+    "gear": "champion_wraps"
+   },
+   "reward_text": "Champion Wraps (ATK +2), $80, 120 XP. Rematches pay $25.",
+   "repeatable": true
+  },
+  "parcels": {
+   "name": "Return to Sender",
+   "giver": "teddy",
+   "requires": "stage>=market",
+   "desc": "Three Bellwether Courier parcels were stolen and stashed around town.",
+   "steps": [
+    "Find the 3 stolen parcels hidden in crates, barrels or trash: Canal Walk, Yard Gate, Marquee Strip.",
+    "Bring the parcels back to Teddy at the Market Gate."
+   ],
+   "reward": {
+    "cash": 45,
+    "xp": 90,
+    "gear": "courier_sneakers"
+   },
+   "reward_text": "Courier Sneakers (AGI +2, faster running), $45, 90 XP"
+  },
+  "radio": {
+   "name": "Static on the Line",
+   "giver": "ines",
+   "requires": "stage>=neon",
+   "desc": "The Neon Saints stole the pharmacy's ambulance radio.",
+   "steps": [
+    "Take the radio back from the Saint called Flicker in Big Mo's Alley.",
+    "Return the radio to Ines at the Neon Mile pharmacy."
+   ],
+   "reward": {
+    "cash": 60,
+    "xp": 150,
+    "bag": [
+     "bandage",
+     "tonic"
+    ]
+   },
+   "reward_text": "$60, Bandage Roll + Tonic, 150 XP"
+  },
+  "punch": {
+   "name": "Last Train Home",
+   "giver": "otis",
+   "requires": "stage>=floodgate",
+   "desc": "Otis Bell left his brass conductor's punch in a crew locker in the Underline.",
+   "steps": [
+    "Search the crates in Service Tunnel 3 for Otis's brass punch.",
+    "Return the punch to Otis at Kessler St. Station."
+   ],
+   "reward": {
+    "cash": 80,
+    "xp": 220
+   },
+   "reward_text": "$80, 220 XP"
+  },
+  "mural": {
+   "name": "Wet Paint",
+   "giver": "kiki",
+   "requires": "boss_duke",
+   "desc": "Chain Dog taggers keep painting over Kiki's canal mural.",
+   "steps": [
+    "Run off the Chain Dog taggers in the Chain Lot (two crews).",
+    "Tell Kiki at the Canal Market gate that the wall is safe."
+   ],
+   "reward": {
+    "cash": 50,
+    "xp": 120,
+    "bag": [
+     "energy_drink"
+    ]
+   },
+   "reward_text": "$50, Energy Drink, 120 XP"
+  },
+  "weights": {
+   "name": "Heavy Thumb",
+   "giver": "sal",
+   "requires": "stage>=floodgate",
+   "desc": "Greyline 'inspectors' rigged Sal's market scale.",
+   "steps": [
+    "Take the rigged weights from Greyline inspectors at Pier Square, the Ironworks Gate and the Marquee Strip.",
+    "Return the weights to Sal on the Canal Walk."
+   ],
+   "reward": {
+    "cash": 120,
+    "xp": 300,
+    "bag": [
+     "vitamin_pack"
+    ]
+   },
+   "reward_text": "$120, Vitamin Pack, 300 XP"
   }
+ }
 }

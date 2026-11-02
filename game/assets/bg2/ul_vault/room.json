@@ -1,0 +1,261 @@
+{
+ "room": "ul_vault",
+ "width": 1120,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_lamps.png",
+   "x": 560,
+   "y": 110,
+   "parallax": 1.12,
+   "fade": false
+  },
+  {
+   "file": "fg_pillar.png",
+   "x": 260,
+   "y": 384,
+   "parallax": 1.28,
+   "fade": true
+  },
+  {
+   "file": "fg_pillar.png",
+   "x": 860,
+   "y": 384,
+   "parallax": 1.28,
+   "fade": true
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 300,
+   "y": 56,
+   "parallax": 1.1,
+   "fade": false
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 900,
+   "y": 56,
+   "parallax": 1.1,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#c8e0d4",
+ "rim": {
+  "color": "#ffc070",
+  "dir": [
+   0.3,
+   0.9
+  ],
+  "strength": 0.45
+ },
+ "glows": [
+  {
+   "x": 538,
+   "y": 76,
+   "r": 26,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 560,
+   "y": 86,
+   "r": 26,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 582,
+   "y": 74,
+   "r": 26,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 550,
+   "y": 98,
+   "r": 26,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 572,
+   "y": 96,
+   "r": 26,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 560,
+   "y": 86,
+   "r": 90,
+   "color": "#ffb860",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 160,
+   "y": 33,
+   "r": 39.6,
+   "color": "#d8ffec",
+   "energy": 0.32,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 900,
+   "y": 33,
+   "r": 39.6,
+   "color": "#d8ffec",
+   "energy": 0.22,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 1050,
+   "y": 148,
+   "r": 44,
+   "color": "#e8f4ff",
+   "energy": 0.6,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 1050,
+   "y": 178,
+   "r": 59.4,
+   "color": "#e8f4ff",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "drip",
+   "x": 151.88578223543226,
+   "y": 20.0,
+   "rate": 0.34
+  },
+  {
+   "type": "drip",
+   "x": 395.25161018241187,
+   "y": 20.0,
+   "rate": 0.4
+  },
+  {
+   "type": "drip",
+   "x": 630.4736770567531,
+   "y": 20.0,
+   "rate": 0.67
+  },
+  {
+   "type": "drip",
+   "x": 885.6783674045613,
+   "y": 20.0,
+   "rate": 0.56
+  },
+  {
+   "type": "drip",
+   "x": 1143.392478150565,
+   "y": 20.0,
+   "rate": 0.53
+  },
+  {
+   "type": "dust_motes",
+   "x": 440.0,
+   "y": 80.0,
+   "w": 240,
+   "h": 140
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    989.9,
+    304.7,
+    47.9,
+    6.7
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    754.1,
+    299.5,
+    40.8,
+    8.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    770.1,
+    290.6,
+    30.1,
+    6.7
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    704.5,
+    238.7,
+    46.1,
+    6.8
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    771.4,
+    321.3,
+    46.0,
+    6.2
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    560.0,
+    259.9,
+    44.7,
+    6.0
+   ],
+   "alpha": 0.22
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.2
+  ],
+  "alpha": 0.0
+ }
+}

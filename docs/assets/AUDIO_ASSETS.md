@@ -12,7 +12,7 @@ Rebuild everything with `python3 tools/audio/gen_audio.py` (Python 3 + numpy + f
 - Seamless loops: the arrangement is rendered past the loop end and the tail is wrapped onto the start; echo, room reverb, EQ and limiting are applied circularly, so the last sample flows into the first.
 - Levels: music is normalised to about -16 LUFS integrated (BS.1770 K-weighting; `safe_hub` -17, `setback`/`defeat` -18 for their quieter mood) with a soft limiter, peaks below -1 dBFS after encoding. One-shot SFX are normalised by momentary loudness per category (impacts loudest, UI and footsteps soft); ambient loops sit at -25..-28 LUFS so they can play under music.
 
-Total size of all OGG files: **14.67 MB** (77 files).
+Total size of all OGG files: **16.06 MB** (78 files).
 
 ## Music
 
@@ -25,6 +25,7 @@ Total size of all OGG files: **14.67 MB** (77 files).
 | `neon_mile` | `music/neon_mile.ogg` | 61.81 s | yes | 32 | 124.25 | A minor | Night-time synth-pop; 16th arpeggios, gated snare, PWM lead with echo | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `floodgate` | `music/floodgate.ogg` | 65.31 s | yes | 36 | 132.30 | D harmonic minor | Tense storm chase; galloping bass, tremolo pulses, timpani and thunder | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `warehouse` | `music/warehouse.ogg` | 69.66 s | yes | 32 | 110.25 | C harmonic minor | Dark pulsing infiltration; heartbeat kick, eerie vibrato lead, metallic hits | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
+| `underline` | `music/underline.ogg` | 79.82 s | yes | 32 | 96.22 | D minor | Subterranean tunnel groove; dripping bell echoes, sub bass, pipe and chain percussion | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `safe_hub` | `music/safe_hub.ogg` | 62.69 s | yes | 24 | 91.88 | F major | Relaxed swung diner/shop jazz; vibes lead, e-piano comping, walking bass, brushes | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `boss` | `music/boss.ogg` | 57.60 s | yes | 36 | 150.00 | F harmonic minor | Intense gang-boss fight; chromatic unison riff, 16th bass, brass alarm stabs | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `rook` | `music/rook.ogg` | 75.43 s | yes | 44 | 140.00 | B harmonic minor | Dramatic final boss; bell toll intro, choir, timpani, Neapolitan riff break, layered climax | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
@@ -116,6 +117,7 @@ Peak = sample peak dBFS, RMS = whole-file RMS dBFS, LUFS = integrated loudness f
 | `neon_mile` | music | -2.69 | -18.20 | -16.0 | 0.13 | 1233 |
 | `floodgate` | music | -2.75 | -18.12 | -16.0 | 0.47 | 1196 |
 | `warehouse` | music | -2.37 | -18.06 | -16.0 | 0.13 | 1330 |
+| `underline` | music | -1.71 | -18.07 | -16.0 | 0.04 | 1425 |
 | `safe_hub` | music | -3.30 | -18.73 | -16.9 | 0.15 | 1091 |
 | `boss` | music | -3.85 | -17.75 | -16.0 | 0.64 | 1062 |
 | `rook` | music | -2.19 | -17.88 | -16.0 | 0.51 | 1377 |

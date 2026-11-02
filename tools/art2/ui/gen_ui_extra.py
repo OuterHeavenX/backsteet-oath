@@ -262,6 +262,7 @@ def glyphs():
 # ------------------------------------------------------------------ map
 DIST = {'old_quarter': (70, 112), 'canal_market': (148, 150), 'ironworks': (226, 98), 'neon_mile': (300, 132),
         'floodgate': (366, 168), 'warehouse': (430, 204)}
+UL_MARK = (658, 406)   # Underline roundel, texels of ui2/map.png (content 1.2)
 DCOL = {'old_quarter': '#f08a6a', 'canal_market': '#5ac8b8', 'ironworks': '#f0a050', 'neon_mile': '#b87ad8',
         'floodgate': '#7a9ad8', 'warehouse': '#a89a8a'}
 
@@ -339,6 +340,27 @@ def map_art():
     L.fill(rm, hx('#e8b868'))
     for i in range(0, len(route) - 1, 6):
         L.fill(L.stroke(route[i:i + 3], 2), hx('#8a5a2a'), 0.6)
+    # the Underline (content 1.2): dashed subway line UNDER the river, Neon Mile -> Floodgate,
+    # drawn faint where it passes beneath the water; roundel marker + label on the south bank.
+    ul = bez((600, 264), (596, 430), (716, 452), (732, 336), n=90)
+    ULC = hx('#9a2a52')
+    for i in range(0, 90, 3):
+        seg = L.stroke(ul[i:i + 2], 4.2)
+        inside = water[int(ul[i][1] * L.ss) % L.H, int(ul[i][0] * L.ss) % L.W] > 0.5
+        a = 0.45 if inside else 1.0
+        L.fill(np.clip(L.dil(seg, 1.4) - seg, 0, 1), INK, 0.8 * a)
+        L.fill(seg, ULC, a)
+    ux, uy = UL_MARK
+    disc = L.circle(ux, uy, 11)
+    L.fill(L.dil(disc, 2), INK)
+    L.fill(disc, ULC)
+    L.fill(L.circle(ux, uy, 6.2), hx('#f6ecd6'))
+    bar = L.rect(ux - 15, uy - 3, ux + 15, uy + 3)
+    L.fill(L.dil(bar, 1.6), INK)
+    L.fill(bar, hx('#2a3a6a'))
+    lab = L.text('UNDERLINE', F_COND_B, 13, ux, uy + 24, anchor='mm', spacing=1.2)
+    L.fill(L.dil(lab, 2.0), hx('#f3e7cb'))
+    L.fill(lab, ULC)
     # bridges over the river
     for bx in (220, 520, 680):
         yb = 374 + 16 * math.sin(bx / 140.0) - (bx / 960.0) * 20
@@ -421,11 +443,12 @@ def map_art():
     L.fill(np.clip(L.rect(10, 10, W - 10, H - 10) - L.rect(14, 14, W - 14, H - 14), 0, 1), hx('#c8a878'))
     for (x, y) in ((12, 12), (W - 12, 12), (12, H - 12), (W - 12, H - 12)):
         rivet(L, x, y, 4.5)
-    gen_ui.reg('map', L.image(), note='District map (2x of v1 480x260). District dot coordinates are in ui2/map.json '
-               '(texels of this image).')
+    gen_ui.reg('map', L.image(), note='District map (2x of v1 480x260) + the Underline subway line. District dot and Underline marker '
+               'coordinates are in ui2/map.json (texels of this image).')
     meta = {'_meta': {'density': 2, 'doc': 'District dot positions in texels of ui2/map.png (v1 coordinates x2).'}}
     for d, (x, y) in DIST.items():
         meta[d] = [x * 2, y * 2]
+    meta['underline'] = list(UL_MARK)
     with open(os.path.join(gen_ui.OUT, 'map.json'), 'w') as fh:
         json.dump(meta, fh, indent=1)
     gen_ui.write_meta()

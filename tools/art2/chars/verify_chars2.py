@@ -48,7 +48,8 @@ for cid in ids:
             if xi < xj + wj + 6 and xj < xi + wi + 6 and yi < yj + hj + 6 and yj < yi + hi + 6:
                 errs.append('pad %d/%d' % (i, j))
     a = js['anims']
-    v1 = json.load(open(os.path.join(V1D, cid + '.json')))
+    v1p = os.path.join(V1D, cid + '.json')
+    v1 = json.load(open(v1p)) if os.path.exists(v1p) else {'anims': {}}
     for k in v1['anims']:
         if k not in a:
             errs.append('missing v1 key ' + k)

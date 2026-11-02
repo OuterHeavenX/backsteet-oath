@@ -332,6 +332,19 @@ func _on_pad_disconnected() -> void:
 func on_player_defeated() -> void:
 	if defeated:
 		return
+	if Story.ladder_active and room and room.player:
+		# A ladder knockout ends the night (no defeat screen, no penalty): Nico gets back up at half HP.
+		Story.ladder_knockout()
+		var p: Player = room.player
+		await get_tree().create_timer(1.0).timeout
+		if is_instance_valid(p):
+			p.dead = false
+			p.lying = false
+			p.hp = GameState.hp
+			p.set_state("getup")
+			p.invuln = 90
+			GameState.stats_changed.emit()
+		return
 	defeated = true
 	GameState.stats.deaths = int(GameState.stats.get("deaths", 0)) + 1
 	Audio.play_music("defeat", 0.3)

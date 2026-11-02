@@ -294,6 +294,14 @@
      "y": 280,
      "mode": "idle",
      "facing": -1
+    },
+    {
+     "id": "mae",
+     "x": 540,
+     "y": 300,
+     "mode": "idle",
+     "requires": "ladder_champion & !ladder_running",
+     "facing": -1
     }
    ]
   },
@@ -360,6 +368,53 @@
        1
       ]
      ]
+    },
+    {
+     "id": "tag1",
+     "at": 420,
+     "requires": "quest:mural=active & !mural_tag1",
+     "lock": true,
+     "lock_text": "Chain Dog taggers, cans in hand!",
+     "say": "Taggers at the wall!",
+     "enemies": [
+      [
+       "dogs_brawler",
+       1
+      ],
+      [
+       "dogs_thrower",
+       1
+      ],
+      [
+       "dogs_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "tag2",
+     "at": 980,
+     "requires": "quest:mural=active & mural_tag1 & !mural_tag2",
+     "lock": true,
+     "lock_text": "The second crew comes running!",
+     "enemies": [
+      [
+       "dogs_weapon",
+       1
+      ],
+      [
+       "dogs_brawler",
+       1
+      ],
+      [
+       "dogs_flanker",
+       1
+      ],
+      [
+       "dogs_thrower",
+       1
+      ]
+     ]
     }
    ],
    "boss": {
@@ -404,6 +459,13 @@
      "x": 1480,
      "y": 300,
      "mode": "idle"
+    },
+    {
+     "id": "kiki",
+     "x": 640,
+     "y": 236,
+     "mode": "idle",
+     "requires": "boss_duke"
     }
    ],
    "waves": [
@@ -626,7 +688,16 @@
      "key": "parcel",
      "requires": "quest:parcels=active"
     }
-   }
+   },
+   "npcs": [
+    {
+     "id": "sal",
+     "x": 560,
+     "y": 236,
+     "mode": "idle",
+     "requires": "stage>=floodgate"
+    }
+   ]
   },
   "cm_pier": {
    "npcs": [
@@ -699,6 +770,29 @@
       ],
       [
        "rats_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "insp_pier",
+     "at": 900,
+     "requires": "quest:weights=active & !has:weight_pier & !weights_returned",
+     "respawn": true,
+     "say": "A Greyline inspector with a clipboard!",
+     "enemies": [
+      {
+       "id": "grays_blocker",
+       "name": "Inspector",
+       "hp_mult": 1.5,
+       "drops": [
+        {
+         "key": "weight_pier"
+        }
+       ]
+      },
+      [
+       "grays_brawler",
        1
       ]
      ]
@@ -795,6 +889,29 @@
       ],
       [
        "yard_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "insp_iron",
+     "at": 800,
+     "requires": "quest:weights=active & !has:weight_iron & !weights_returned",
+     "respawn": true,
+     "say": "A Greyline inspector with a clipboard!",
+     "enemies": [
+      {
+       "id": "grays_blocker",
+       "name": "Inspector",
+       "hp_mult": 1.5,
+       "drops": [
+        {
+         "key": "weight_iron"
+        }
+       ]
+      },
+      [
+       "grays_brawler",
        1
       ]
      ]
@@ -1123,6 +1240,29 @@
        1
       ]
      ]
+    },
+    {
+     "id": "insp_neon",
+     "at": 900,
+     "requires": "quest:weights=active & !has:weight_neon & !weights_returned",
+     "respawn": true,
+     "say": "A Greyline inspector with a clipboard!",
+     "enemies": [
+      {
+       "id": "grays_blocker",
+       "name": "Inspector",
+       "hp_mult": 1.5,
+       "drops": [
+        {
+         "key": "weight_neon"
+        }
+       ]
+      },
+      [
+       "grays_brawler",
+       1
+      ]
+     ]
     }
    ],
    "pickups": [
@@ -1152,6 +1292,14 @@
      "y": 246,
      "mode": "behind_counter",
      "shop": "pharmacy",
+     "facing": 1
+    },
+    {
+     "id": "ines",
+     "x": 220,
+     "y": 292,
+     "mode": "idle",
+     "requires": "stage>=neon",
      "facing": 1
     }
    ]
@@ -1302,6 +1450,31 @@
      "id": "cup_start",
      "at": 0,
      "requires": "cup_entry"
+    }
+   ],
+   "waves": [
+    {
+     "id": "flicker",
+     "at": 330,
+     "requires": "quest:radio=active & !has:radio",
+     "respawn": true,
+     "say": "A Neon Saint with an ambulance radio: Flicker!",
+     "enemies": [
+      {
+       "id": "saints_flanker",
+       "name": "Flicker",
+       "hp_mult": 1.8,
+       "drops": [
+        {
+         "key": "radio"
+        }
+       ]
+      },
+      [
+       "saints_brawler",
+       1
+      ]
+     ]
     }
    ]
   },
@@ -1876,6 +2049,283 @@
     "intro": "rook_intro",
     "music": "rook"
    }
+  },
+  "ul_station": {
+   "npcs": [
+    {
+     "id": "otis",
+     "x": 430,
+     "y": 232,
+     "mode": "idle",
+     "requires": "stage>=floodgate"
+    }
+   ],
+   "events": [
+    {
+     "id": "ul_enter",
+     "at": 150,
+     "requires": "stage==underline & !ul_entered"
+    }
+   ],
+   "waves": [
+    {
+     "id": "us1",
+     "at": 420,
+     "requires": "stage==underline",
+     "lock": true,
+     "lock_text": "Moles drop off the platform edge!",
+     "enemies": [
+      [
+       "moles_brawler",
+       2
+      ],
+      [
+       "moles_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "us2",
+     "at": 900,
+     "requires": "stage==underline",
+     "lock": true,
+     "from": "both",
+     "lock_text": "Headlamps in the dark, both ways!",
+     "enemies": [
+      [
+       "moles_weapon",
+       1
+      ],
+      [
+       "moles_thrower",
+       1
+      ],
+      [
+       "moles_blocker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "us3",
+     "at": 1260,
+     "requires": "stage==underline",
+     "lock": true,
+     "enemies": [
+      [
+       "moles_heavy",
+       1
+      ],
+      [
+       "moles_brawler",
+       1
+      ],
+      [
+       "moles_flanker",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "usr",
+     "at": 760,
+     "requires": "stage>=floodgate",
+     "respawn": true,
+     "enemies": [
+      [
+       "moles_brawler",
+       1
+      ],
+      [
+       "moles_flanker",
+       1
+      ]
+     ]
+    }
+   ],
+   "pickups": [
+    {
+     "weapon": "pipe",
+     "x": 600,
+     "y": 300
+    },
+    {
+     "weapon": "brick",
+     "x": 1100,
+     "y": 262
+    }
+   ]
+  },
+  "ul_tunnel": {
+   "events": [
+    {
+     "id": "ul_mid",
+     "at": 820,
+     "requires": "stage==underline & !ul_mid_seen"
+    }
+   ],
+   "waves": [
+    {
+     "id": "ut1",
+     "at": 380,
+     "requires": "stage==underline",
+     "lock": true,
+     "lock_text": "A Mole crew blocks the walkway!",
+     "enemies": [
+      [
+       "moles_heavy",
+       1
+      ],
+      [
+       "moles_brawler",
+       1
+      ],
+      [
+       "moles_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "ut2",
+     "at": 1000,
+     "requires": "stage==underline",
+     "lock": true,
+     "from": "both",
+     "lock_text": "Greyline muscle backs up the Moles!",
+     "enemies": [
+      [
+       "moles_flanker",
+       2
+      ],
+      [
+       "moles_weapon",
+       1
+      ],
+      [
+       "grays_brawler",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "ut3",
+     "at": 1460,
+     "requires": "stage==underline",
+     "lock": true,
+     "lock_text": "The Moles shove a work cart across the tracks!",
+     "enemies": [
+      [
+       "moles_blocker",
+       1
+      ],
+      [
+       "moles_heavy",
+       1
+      ],
+      [
+       "moles_weapon",
+       1
+      ],
+      [
+       "moles_thrower",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "utr",
+     "at": 900,
+     "requires": "stage>=floodgate",
+     "respawn": true,
+     "enemies": [
+      [
+       "moles_brawler",
+       1
+      ],
+      [
+       "moles_thrower",
+       1
+      ]
+     ]
+    }
+   ],
+   "prop_contents": {
+    "4": {
+     "key": "conductor_punch",
+     "requires": "quest:punch=active & !has:conductor_punch"
+    },
+    "1": {
+     "heal": 30
+    }
+   },
+   "pickups": [
+    {
+     "weapon": "shovel",
+     "x": 700,
+     "y": 300
+    },
+    {
+     "weapon": "wrench",
+     "x": 1250,
+     "y": 270
+    }
+   ]
+  },
+  "ul_vault": {
+   "waves": [
+    {
+     "id": "uv1",
+     "at": 240,
+     "requires": "stage==underline & !boss_kowal",
+     "lock": true,
+     "lock_text": "Kowal's door crew!",
+     "enemies": [
+      [
+       "moles_brawler",
+       1
+      ],
+      [
+       "moles_weapon",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "uvr",
+     "at": 500,
+     "requires": "boss_kowal",
+     "respawn": true,
+     "enemies": [
+      [
+       "moles_flanker",
+       1
+      ],
+      [
+       "moles_heavy",
+       1
+      ]
+     ]
+    }
+   ],
+   "boss": {
+    "id": "kowal",
+    "at": 560,
+    "requires": "stage==underline",
+    "bosses": [
+     "kowal"
+    ],
+    "intro": "kowal_intro",
+    "music": "boss"
+   },
+   "pickups": [
+    {
+     "weapon": "pipe",
+     "x": 380,
+     "y": 300
+    }
+   ]
   }
  }
 }

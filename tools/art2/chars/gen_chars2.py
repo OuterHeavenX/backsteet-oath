@@ -61,8 +61,13 @@ SPRINGS = {           # k, damping, gain, clamp (u)
 }
 
 
+import specs_extra                       # noqa: E402
+GANGS = set(V1.GANG_NAMES) | set(specs_extra.EXTRA_GANGS)
+GANG_PORTRAIT = dict(V1.GANG_PORTRAIT, **specs_extra.EXTRA_GANG_PORTRAIT)
+
+
 def spec_for(cid):
-    s = dict(V1.CHAR_BY_ID[cid])
+    s = dict(V1.CHAR_BY_ID[cid] if cid in V1.CHAR_BY_ID else specs_extra.EXTRA_BY_ID[cid])
     s.update(EXT.get(cid, {}))
     return s
 
@@ -71,13 +76,13 @@ GANG_STYLE = {'brawler': 'brawler', 'flanker': 'flanker', 'blocker': 'blocker', 
               'thrower': 'thrower'}
 STORY_STYLE = {'nico': 'hero', 'mara': 'hero', 'eli': 'hero', 'benny': 'brawler', 'price': 'blocker', 'duke': 'heavy',
                'otto': 'heavy', 'jett': 'flanker', 'rhea': 'weapon', 'sabine': 'weapon', 'lou': 'thrower',
-               'rook': 'hero', 'rook_p2': 'brawler'}
+               'rook': 'hero', 'rook_p2': 'brawler', 'kowal': 'weapon', 'mae': 'hero'}
 SIG = {'duke': 'duke', 'otto': 'otto', 'grays_heavy': 'sergeant', 'jett': 'jett', 'rhea': 'rhea', 'lou': 'lou',
-       'sabine': 'sabine', 'rook': 'rook', 'rook_p2': 'rook_p2'}
+       'sabine': 'sabine', 'rook': 'rook', 'rook_p2': 'rook_p2', 'kowal': 'kowal', 'mae': 'mae'}
 
 
 def style_for(cid):
-    if '_' in cid and cid.split('_', 1)[0] in V1.GANG_NAMES:
+    if '_' in cid and cid.split('_', 1)[0] in GANGS:
         return GANG_STYLE.get(cid.split('_', 1)[1], 'brawler')
     return STORY_STYLE.get(cid, 'hero')
 
@@ -404,7 +409,7 @@ def build_portraits(ids):
     os.makedirs(OUT_POR, exist_ok=True)
     import portrait
     for cid in ids:
-        src = V1.GANG_PORTRAIT.get(cid, cid)          # gang portraits (dogs, rats ...) use their v1 model
+        src = GANG_PORTRAIT.get(cid, cid)          # gang portraits (dogs, rats ...) use their v1 model
         strip = portrait.render(spec_for(src), PEXPR)
         strip.save(os.path.join(OUT_POR, cid + '.png'), optimize=True)
         print('portrait', cid, strip.size)
@@ -415,6 +420,7 @@ def main():
     ap.add_argument('--only', default='')
     ap.add_argument('--all', action='store_true')
     ap.add_argument('--benchmark', action='store_true')
+    ap.add_argument('--new', action='store_true', help='v2-only ids (specs_extra.py) + their portraits')
     ap.add_argument('--portraits', default=None)
     ap.add_argument('--no-portraits', action='store_true')
     ap.add_argument('--preview', default=None)
@@ -423,8 +429,11 @@ def main():
     v1dir = os.path.join(ROOT, 'game', 'assets', 'sprites', 'characters')
     v1por = os.path.join(ROOT, 'game', 'assets', 'portraits')
     if a.all:
-        ids = sorted(f[:-5] for f in os.listdir(v1dir) if f.endswith('.json'))
-        pids = sorted(f[:-4] for f in os.listdir(v1por) if f.endswith('.png'))
+        ids = sorted(f[:-5] for f in os.listdir(v1dir) if f.endswith('.json')) + [c['id'] for c in specs_extra.EXTRA]
+        pids = sorted(f[:-4] for f in os.listdir(v1por) if f.endswith('.png')) + list(specs_extra.EXTRA_PORTRAITS)
+    elif a.new:
+        ids = [c['id'] for c in specs_extra.EXTRA]
+        pids = list(specs_extra.EXTRA_PORTRAITS)
     elif a.benchmark:
         ids, pids = BENCHMARK, BENCH_PORTRAITS
     else:

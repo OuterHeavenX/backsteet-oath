@@ -3,8 +3,8 @@ extends Menu
 ## District map with current location. In bus mode, lists unlocked stops for fast travel.
 
 var bus_mode := false
-const DISTRICTS := ["old_quarter", "canal_market", "ironworks", "neon_mile", "floodgate", "warehouse"]
-const DEFAULT_POS := {"old_quarter": [60, 150], "canal_market": [135, 120], "ironworks": [215, 150], "neon_mile": [290, 110], "floodgate": [365, 150], "warehouse": [430, 125]}
+const DISTRICTS := ["old_quarter", "canal_market", "ironworks", "neon_mile", "underline", "floodgate", "warehouse"]
+const DEFAULT_POS := {"old_quarter": [60, 150], "canal_market": [135, 120], "ironworks": [215, 150], "neon_mile": [290, 110], "floodgate": [365, 150], "warehouse": [430, 125], "underline": [329, 203]}
 
 func build() -> void:
 	var c := make_frame("BUS STOP" if bus_mode else "BELLWETHER", Vector2(500, 0))
@@ -47,6 +47,7 @@ func build() -> void:
 		var l := UIKit.label(Content.district_name(d) if known else "???", UIKit.INK if map_tex == null else Color.WHITE, 0, HORIZONTAL_ALIGNMENT_CENTER)
 		l.add_theme_color_override("font_outline_color", UIKit.INK)
 		l.add_theme_constant_override("outline_size", 3 if map_tex else 0)
+		l.visible = d != "underline" or map_tex == null   # the v2 map art has the Underline label baked in
 		l.position = pos + Vector2(-50, 4)
 		l.size = Vector2(100, 10)
 		holder.add_child(l)

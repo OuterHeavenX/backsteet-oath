@@ -1,0 +1,356 @@
+{
+ "room": "ul_tunnel",
+ "width": 1920,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_pillar.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.28,
+   "fade": true
+  },
+  {
+   "file": "fg_rail.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_pillar.png",
+   "x": 1540.0,
+   "y": 384.0,
+   "parallax": 1.28,
+   "fade": true
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 560.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 1320.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#c8e0d4",
+ "rim": {
+  "color": "#ffc070",
+  "dir": [
+   0.3,
+   0.9
+  ],
+  "strength": 0.45
+ },
+ "glows": [
+  {
+   "x": 70,
+   "y": 99,
+   "r": 30,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 310,
+   "y": 99,
+   "r": 30,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 790,
+   "y": 99,
+   "r": 30,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1030,
+   "y": 99,
+   "r": 30,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1270,
+   "y": 99,
+   "r": 30,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1750,
+   "y": 99,
+   "r": 30,
+   "color": "#ffb050",
+   "energy": 0.55,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1276,
+   "y": 184,
+   "r": 40,
+   "color": "#ff9040",
+   "energy": 0.65,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 1276,
+   "y": 190,
+   "r": 80,
+   "color": "#ff7a30",
+   "energy": 0.15,
+   "flicker": "flame",
+   "front": true
+  },
+  {
+   "x": 1340,
+   "y": 142,
+   "r": 44,
+   "color": "#e8f4ff",
+   "energy": 0.6,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 1340,
+   "y": 172,
+   "r": 59.4,
+   "color": "#e8f4ff",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "steam",
+   "x": 203.0,
+   "y": 110.0,
+   "rate": 0.7
+  },
+  {
+   "type": "steam",
+   "x": 563.0,
+   "y": 110.0,
+   "rate": 0.7
+  },
+  {
+   "type": "steam",
+   "x": 923.0,
+   "y": 110.0,
+   "rate": 0.7
+  },
+  {
+   "type": "steam",
+   "x": 1283.0,
+   "y": 110.0,
+   "rate": 0.7
+  },
+  {
+   "type": "steam",
+   "x": 1643.0,
+   "y": 110.0,
+   "rate": 0.7
+  },
+  {
+   "type": "drip",
+   "x": 158.8017069257655,
+   "y": 30.0,
+   "rate": 0.39
+  },
+  {
+   "type": "drip",
+   "x": 393.3526781276938,
+   "y": 30.0,
+   "rate": 0.56
+  },
+  {
+   "type": "drip",
+   "x": 605.4342165697246,
+   "y": 30.0,
+   "rate": 0.4
+  },
+  {
+   "type": "drip",
+   "x": 866.3758511023749,
+   "y": 30.0,
+   "rate": 0.32
+  },
+  {
+   "type": "drip",
+   "x": 1187.8678082178853,
+   "y": 30.0,
+   "rate": 0.45
+  },
+  {
+   "type": "drip",
+   "x": 1409.1181948837132,
+   "y": 30.0,
+   "rate": 0.39
+  },
+  {
+   "type": "drip",
+   "x": 1654.2404117888964,
+   "y": 30.0,
+   "rate": 0.32
+  },
+  {
+   "type": "drip",
+   "x": 1972.7603204975492,
+   "y": 30.0,
+   "rate": 0.57
+  },
+  {
+   "type": "embers",
+   "x": 1276.0,
+   "y": 182.0
+  },
+  {
+   "type": "smoke",
+   "x": 1276.0,
+   "y": 176.0,
+   "rate": 0.5
+  },
+  {
+   "type": "dust_motes",
+   "x": 900.0,
+   "y": 80.0,
+   "w": 400,
+   "h": 120
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    68.7,
+    244.0,
+    32.3,
+    4.9
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    990.3,
+    288.7,
+    51.3,
+    7.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1852.6,
+    250.1,
+    24.4,
+    7.1
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    89.0,
+    299.6,
+    36.4,
+    6.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1203.5,
+    302.4,
+    32.6,
+    5.9
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    800.1,
+    280.2,
+    43.7,
+    6.7
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    237.3,
+    308.3,
+    45.2,
+    5.3
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1541.6,
+    263.0,
+    39.0,
+    5.3
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1761.9,
+    273.8,
+    48.2,
+    6.1
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1000.5,
+    282.1,
+    35.4,
+    5.2
+   ],
+   "alpha": 0.22
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.2
+  ],
+  "alpha": 0.0
+ }
+}

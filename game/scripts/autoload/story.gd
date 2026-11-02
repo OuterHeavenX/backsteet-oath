@@ -10,6 +10,8 @@ var cup_timer := 0.0
 var cup_round := 0
 var cup_room: Node = null
 var held_weapon_for_cup := ""
+var ladder_active := false
+var ladder_lost := false
 
 const TOKENS := ["punch", "kick", "jump", "guard", "interact", "run", "status", "pause"]
 
@@ -88,6 +90,8 @@ func on_event(room: Node, id: String) -> void:
 		"mara_arrives": await _mara_arrives(room)
 		"escort_arrive": _escort_arrive(room)
 		"cup_start": await _cup_start(room)
+		"ul_enter": await _ul_enter(room)
+		"ul_mid": await _ul_mid(room)
 
 # ---------------------------------------------------------------- helpers for scripted fights
 func _spawn_from_side(room: Node, id: String, side: int, opts: Dictionary = {}) -> Enemy:
@@ -169,6 +173,11 @@ func _intro(room: Node) -> void:
 	var t2: Enemy = room.spawn_enemy("dogs_brawler", Vector2(540, 268), {"hp_mult": 0.7})
 	for t in [t1, t2]:
 		t.facing = -1
+	if GameState.ng_cycle > 0 and not GameState.has_flag("ngplus_card_seen"):
+		GameState.set_flag("ngplus_card_seen")
+		await _say("ngplus_card")
+		if not _valid(room):
+			return
 	if not GameState.has_flag("intro_seen"):
 		p.position = Vector2(30, 280)
 		world.hud.show_card("Kettle Street", "Old Quarter  -  Bellwether, 1988", UIKit.MUSTARD)
@@ -345,6 +354,13 @@ func boss_defeated(room: Node, cfg: Dictionary, _ids: Array) -> void:
 			GameState.defeat_boss("sabine")
 			GameState.give_key("gate_key")
 			_set_stage("warehouse")
+		"kowal":
+			room.vis.set_darkness(1.0, 1.2)
+			await _say("kowal_defeat")
+			GameState.defeat_boss("kowal")
+			_note("deeds")
+			_set_stage("floodgate")
+			world.hint("The service ladder at the east end of the vault climbs to Floodgate Bridge.", 7.0)
 		"rook":
 			await _rook_ending(room)
 			return
@@ -595,10 +611,14 @@ func _setback_garage(room: Node) -> void:
 	if _valid(room) and is_instance_valid(rook):
 		room.remove_npc(rook)
 	GameState.give_key("cassette")
+	await _say("underline_plan")
+	if not _valid(room):
+		return
 	GameState.set_flag("act3_started")
 	_note("setback")
 	_note("cassette")
-	_set_stage("floodgate")
+	_note("underline")
+	_set_stage("underline")
 	await _say("act3_card")
 	if not _valid(room):
 		return
@@ -689,6 +709,13 @@ func _mara_arrives(room: Node) -> void:
 func on_wave_clear(room: Node, wid: String) -> void:
 	if room.room_id == "rw_office" and wid == "o1":
 		await _eli_found(room)
+	elif room.room_id == "oq_chainlot" and wid == "tag1":
+		GameState.set_flag("mural_tag1")
+		world.toast("One crew down. Another is coming for the wall!", UIKit.MUSTARD)
+	elif room.room_id == "oq_chainlot" and wid == "tag2":
+		GameState.set_flag("mural_tag2")
+		if Quests.is_active("mural"):
+			Quests.set_step("mural", 1)
 
 func _eli_found(room: Node) -> void:
 	busy = true
@@ -785,6 +812,195 @@ func _ending_backdrop() -> Control:
 		i += 1
 	return root
 
+# ---------------------------------------------------------------- the Underline (Act III opener)
+func _ul_enter(room: Node) -> void:
+	busy = true
+	GameState.set_flag("ul_entered")
+	room.set_cutscene(true)
+	world.hud.show_card("The Underline", "Kessler St. Station  -  closed 1971", Color(0.55, 0.85, 0.75))
+	await _wait(room, 0.8)
+	if not _valid(room):
+		return
+	await _say("ul_enter")
+	room.set_cutscene(false)
+	busy = false
+
+func _ul_mid(room: Node) -> void:
+	GameState.set_flag("ul_mid_seen")
+	room.impulse(Vector2(0, 1), 0.6)
+	Audio.sfx("alarm", -12.0)
+	await _say("ul_mid")
+
+# ---------------------------------------------------------------- side jobs (simple fetch/defeat pattern)
+## Offer -> wait -> return. key == "" means the quest advances some other way (waves, counters).
+func _side_job(npc: NPC, qid: String, key: String, offer: String, wait_line: String, ret: String) -> void:
+	if Quests.is_active(qid) and Quests.step(qid) >= 1 and (key == "" or GameState.has_key(key)):
+		await _say(ret)
+		if key != "":
+			GameState.take_key(key)
+		Quests.complete(qid)
+		return
+	if Quests.is_active(qid):
+		await _say(wait_line)
+		return
+	if Quests.available(qid):
+		await _say(offer)
+		Quests.start(qid)
+		return
+	await _chat(npc)
+
+func _sal(npc: NPC) -> void:
+	var keys := ["weight_pier", "weight_iron", "weight_neon"]
+	if Quests.is_active("weights") and Quests.step("weights") >= 1:
+		await _say("weights_return")
+		for k in keys:
+			if GameState.has_key(k):
+				GameState.take_key(k)
+		GameState.set_flag("weights_returned")
+		Quests.complete("weights")
+		return
+	await _side_job(npc, "weights", "", "weights_offer", "weights_wait", "weights_return")
+
+# ---------------------------------------------------------------- Benny's ladder (Rec Center)
+func _benny(room: Node, npc: NPC) -> void:
+	if not GameState.has_flag("boss_duke"):
+		await _shopkeeper(room, npc)
+		return
+	var shop: Dictionary = Content.shops.get(npc.shop, {})
+	var best := int(GameState.stats.get("ladder_best", 0))
+	var label := "Ladder" if best == 0 else ("Ladder (best: bout %d)" % best if best < 9 else "Ladder (champion)")
+	var line := [npc.npc_id, "happy", shop.get("greet", "What can I do for you?")]
+	var choice: int = await world.ask(line, ["Shop", label, "Chat", "Leave"])
+	match choice:
+		0: await world.open_shop(npc.shop)
+		1:
+			if not GameState.has_flag("ladder_offered"):
+				GameState.set_flag("ladder_offered")
+				await _say("ladder_offer")
+			busy = false
+			await _ladder(room)
+		2: await _chat(npc)
+
+## Opponents per bout (bout 9 is Mae). Tiers follow the player's level so the ladder stays a challenge.
+const LADDER := [
+	["dogs_brawler", "dogs_flanker"],
+	["rats_brawler", "rats_thrower", "rats_flanker"],
+	["yard_heavy", "yard_brawler"],
+	["saints_flanker", "saints_flanker", "saints_blocker"],
+	["moles_weapon", "moles_brawler", "moles_thrower"],
+	["grays_heavy", "grays_blocker"],
+	["dogs_weapon", "rats_weapon", "yard_weapon", "saints_weapon"],
+	["grays_brawler", "grays_flanker", "moles_heavy", "saints_brawler"],
+	["mae"],
+]
+
+func _ladder_tier() -> int:
+	return clampi(1 + int(GameState.level / 3), 1, 6)
+
+func _ladder(room: Node) -> void:
+	busy = true
+	ladder_active = true
+	ladder_lost = false
+	GameState.set_flag("ladder_running")
+	var p: Player = room.player
+	if p.held != "":
+		held_weapon_for_cup = p.held
+		p.held = ""
+		p.weapon_spr.visible = false
+	room.lock_exits(true, "Benny's ladder is on! Win or lose the bout first.")
+	world.hud.show_card("Benny's Ladder", "Nine bouts. Nothing off the floor.", UIKit.MUSTARD)
+	Audio.play_music("boss", 0.6)
+	var cleared := 0
+	for bout in LADDER.size():
+		if not _valid(room) or ladder_lost:
+			break
+		var n := bout + 1
+		for t in ["BOUT %d" % n, "FIGHT!"]:
+			world.hud.set_timer(t)
+			Audio.sfx("countdown_tick")
+			if not await _wait(room, 0.7):
+				break
+		world.hud.set_timer("")
+		var list: Array = []
+		var k := 0
+		for id in LADDER[bout]:
+			if id == "mae":
+				if not GameState.has_flag("ladder_champion"):
+					room.set_cutscene(true)
+					await _say("mae_intro")
+					room.set_cutscene(false)
+				else:
+					await _say("mae_rematch")
+				var mae: Enemy = _spawn_from_side(room, "mae", 1, {})
+				mae.max_hp = int(mae.max_hp * (1.0 + 0.12 * maxf(0.0, GameState.level - 10)))
+				mae.hp = mae.max_hp
+				world.boss_bar([mae])
+				list.append(mae)
+			else:
+				list.append(_spawn_from_side(room, id, 1 if k % 2 == 0 else -1, {"tier": _ladder_tier()}))
+			k += 1
+		while _valid(room) and not ladder_lost:
+			var alive := false
+			for e in list:
+				if is_instance_valid(e) and not e.dead:
+					alive = true
+			if not alive:
+				break
+			await get_tree().physics_frame
+		world.boss_bar(null)
+		if not _valid(room) or ladder_lost:
+			for e in list:
+				if is_instance_valid(e) and not e.dead and room and is_instance_valid(room):
+					room.remove_actor(e)
+			break
+		cleared = n
+		GameState.add_cash(10 * n)
+		GameState.add_xp(15 * n)
+		if n < LADDER.size():
+			GameState.hp = mini(GameState.max_hp(), GameState.hp + int(GameState.max_hp() * 0.3))
+			p.refresh_stats()
+			world.toast("Bout %d won!  +$%d  HP +30%%" % [n, 10 * n], UIKit.CASHC)
+			Audio.sfx("crowd_cheer", -6.0)
+		if n == 5 and not GameState.gear.has("ladder_belt"):
+			GameState.gear.append("ladder_belt")
+			p.refresh_stats()
+			world.toast("Benny hands you the Ladder Belt! (DEF +2, HP +10)", UIKit.MUSTARD, 3.5)
+	world.hud.set_timer("")
+	GameState.set_flag("ladder_running", false)
+	if _valid(room):
+		room.lock_exits(false)
+	_cup_return_weapon(p)
+	ladder_active = false
+	if cleared > int(GameState.stats.get("ladder_best", 0)):
+		GameState.stats["ladder_best"] = cleared
+	if _valid(room):
+		if cleared >= LADDER.size():
+			Audio.sfx("crowd_cheer")
+			if not GameState.has_flag("ladder_champion"):
+				await _say("mae_defeat")
+				GameState.set_flag("ladder_champion")
+				if not GameState.gear.has("iron_wraps"):
+					GameState.gear.append("iron_wraps")
+				_note("ladder_champ")
+				GameState.add_cash(150)
+				GameState.add_xp(400)
+				world.toast("Iron Wraps (ATK +2, TEC +1), $150, 400 XP", UIKit.MUSTARD, 4.0)
+			else:
+				GameState.add_cash(60)
+				world.toast("Champion again! +$60", UIKit.CASHC)
+		elif ladder_lost:
+			await _say("ladder_lose")
+	if room and is_instance_valid(room) and room.player:
+		room.player.refresh_stats()
+	Audio.play_music("safe_hub", 1.0)
+	busy = false
+	world.autosave()
+
+## Called by World when the player is knocked out during the ladder: no defeat screen, the night just ends.
+func ladder_knockout() -> void:
+	ladder_lost = true
+	GameState.hp = maxi(1, int(GameState.max_hp() * 0.5))
+
 # ---------------------------------------------------------------- conversations
 func talk(room: Node, npc: NPC) -> void:
 	if busy or world.dialogue.active:
@@ -801,8 +1017,18 @@ func talk(room: Node, npc: NPC) -> void:
 				_score_clue("marv")
 			else:
 				await _hub_keeper(room, npc)
-		"benny", "rosa":
+		"benny":
+			await _benny(room, npc)
+		"rosa":
 			await _shopkeeper(room, npc)
+		"ines":
+			await _side_job(npc, "radio", "radio", "radio_offer", "radio_wait", "radio_return")
+		"otis":
+			await _side_job(npc, "punch", "conductor_punch", "punch_offer", "punch_wait", "punch_return")
+		"kiki":
+			await _side_job(npc, "mural", "", "mural_offer", "mural_wait", "mural_return")
+		"sal":
+			await _sal(npc)
 		"hollis":
 			await _hollis(room, npc)
 		"mara":

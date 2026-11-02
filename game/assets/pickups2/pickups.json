@@ -79,5 +79,32 @@
   ],
   "frames": 1,
   "density": 2
+ },
+ "radio": {
+  "file": "res://assets/pickups2/radio.png",
+  "frame": [
+   20,
+   30
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "conductor_punch": {
+  "file": "res://assets/pickups2/conductor_punch.png",
+  "frame": [
+   26,
+   20
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "scale_weight": {
+  "file": "res://assets/pickups2/scale_weight.png",
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 1,
+  "density": 2
  }
 }

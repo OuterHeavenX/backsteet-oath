@@ -1,37 +1,441 @@
 {
-  "_doc": "Enemy stats scale with tier (district). hp/def/power/xp/cash multiply by tier tables. AI params: speed (px/s), react (ticks before reacting), guard (chance to guard a frontal attack when idle), aggression (0-1), keep (preferred distance while waiting), attacks (weighted list).",
-  "tiers": {
-    "hp":    [1.0, 1.0, 1.35, 1.75, 2.15, 2.6, 3.0],
-    "power": [1.0, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25],
-    "def":   [0, 2, 4, 6, 8, 10, 12],
-    "xp":    [1.0, 1.0, 1.6, 2.3, 3.0, 3.8, 4.6],
-    "cash":  [1.0, 1.0, 1.5, 2.0, 2.6, 3.2, 3.8]
+ "_doc": "Enemy stats scale with tier (district). hp/def/power/xp/cash multiply by tier tables. AI params: speed (px/s), react (ticks before reacting), guard (chance to guard a frontal attack when idle), aggression (0-1), keep (preferred distance while waiting), attacks (weighted list).",
+ "tiers": {
+  "hp": [
+   1.0,
+   1.0,
+   1.35,
+   1.75,
+   2.15,
+   2.6,
+   3.0
+  ],
+  "power": [
+   1.0,
+   1.0,
+   1.25,
+   1.5,
+   1.75,
+   2.0,
+   2.25
+  ],
+  "def": [
+   0,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12
+  ],
+  "xp": [
+   1.0,
+   1.0,
+   1.6,
+   2.3,
+   3.0,
+   3.8,
+   4.6
+  ],
+  "cash": [
+   1.0,
+   1.0,
+   1.5,
+   2.0,
+   2.6,
+   3.2,
+   3.8
+  ]
+ },
+ "district_tier": {
+  "old_quarter": 1,
+  "canal_market": 2,
+  "ironworks": 3,
+  "neon_mile": 4,
+  "floodgate": 5,
+  "warehouse": 6,
+  "underline": 5
+ },
+ "archetypes": {
+  "brawler": {
+   "hp": 40,
+   "speed": 72,
+   "react": 14,
+   "guard": 0.08,
+   "aggression": 0.55,
+   "keep": 80,
+   "xp": 9,
+   "cash": [
+    2,
+    5
+   ],
+   "attacks": [
+    [
+     "e_jab",
+     3
+    ],
+    [
+     "e_cross",
+     2
+    ],
+    [
+     "e_kick",
+     2
+    ],
+    [
+     "e_hook",
+     1
+    ]
+   ],
+   "liftable": true
   },
-  "district_tier": {"old_quarter": 1, "canal_market": 2, "ironworks": 3, "neon_mile": 4, "floodgate": 5, "warehouse": 6},
-  "archetypes": {
-    "brawler": {"hp": 40, "speed": 72, "react": 14, "guard": 0.08, "aggression": 0.55, "keep": 80, "xp": 9, "cash": [2, 5], "attacks": [["e_jab", 3], ["e_cross", 2], ["e_kick", 2], ["e_hook", 1]], "liftable": true},
-    "flanker": {"hp": 32, "speed": 108, "react": 10, "guard": 0.05, "aggression": 0.7, "keep": 100, "xp": 9, "cash": [2, 5], "flank": true, "attacks": [["e_jab", 3], ["e_kick", 2], ["e_jump_kick", 2]], "liftable": true},
-    "blocker": {"hp": 52, "speed": 60, "react": 12, "guard": 0.7, "aggression": 0.45, "keep": 70, "xp": 12, "cash": [3, 6], "counter": true, "attacks": [["e_shove", 2], ["e_cross", 2], ["e_hook", 1]], "liftable": true},
-    "heavy":   {"hp": 95, "speed": 46, "react": 18, "guard": 0.0, "aggression": 0.5, "keep": 60, "xp": 18, "cash": [5, 9], "armor": 1, "attacks": [["e_heavy_punch", 3], ["e_grab", 2], ["e_charge", 1]], "liftable": false, "height": 52},
-    "weapon":  {"hp": 46, "speed": 66, "react": 14, "guard": 0.1, "aggression": 0.55, "keep": 90, "xp": 12, "cash": [3, 7], "weapon": true, "attacks": [["e_swing", 3], ["e_kick", 1]], "liftable": true},
-    "thrower": {"hp": 30, "speed": 84, "react": 12, "guard": 0.05, "aggression": 0.6, "keep": 160, "xp": 10, "cash": [2, 6], "ranged": true, "attacks": [["e_throw", 4], ["e_jab", 1]], "liftable": true}
+  "flanker": {
+   "hp": 32,
+   "speed": 108,
+   "react": 10,
+   "guard": 0.05,
+   "aggression": 0.7,
+   "keep": 100,
+   "xp": 9,
+   "cash": [
+    2,
+    5
+   ],
+   "flank": true,
+   "attacks": [
+    [
+     "e_jab",
+     3
+    ],
+    [
+     "e_kick",
+     2
+    ],
+    [
+     "e_jump_kick",
+     2
+    ]
+   ],
+   "liftable": true
   },
-  "gangs": {
-    "dogs":   {"name": "Chain Dogs", "weapons": ["chain", "belt", "bat"], "throw": "bottle"},
-    "rats":   {"name": "Wharf Rats", "weapons": ["broom", "pipe", "wrench"], "throw": "fish"},
-    "yard":   {"name": "Yard Boys", "weapons": ["wrench", "pipe", "chain"], "throw": "brick"},
-    "saints": {"name": "Neon Saints", "weapons": ["bat", "belt", "baton"], "throw": "bottle", "acrobat": true},
-    "grays":  {"name": "Gray Jackets", "weapons": ["baton", "pipe", "baton"], "throw": "brick", "drilled": true}
+  "blocker": {
+   "hp": 52,
+   "speed": 60,
+   "react": 12,
+   "guard": 0.7,
+   "aggression": 0.45,
+   "keep": 70,
+   "xp": 12,
+   "cash": [
+    3,
+    6
+   ],
+   "counter": true,
+   "attacks": [
+    [
+     "e_shove",
+     2
+    ],
+    [
+     "e_cross",
+     2
+    ],
+    [
+     "e_hook",
+     1
+    ]
+   ],
+   "liftable": true
   },
-  "bosses": {
-    "duke":   {"name": "Duke Brannigan", "title": "Chain Dogs Leader", "sprite": "duke", "hp": 210, "def": 2, "power": 1.0, "speed": 74, "xp": 120, "cash": 40, "weapon": "chain", "tier": 1, "script": "duke"},
-    "rhea":   {"name": "Rhea Pike", "title": "Pike Sisters", "sprite": "rhea", "hp": 190, "def": 4, "power": 1.25, "speed": 80, "xp": 110, "cash": 35, "weapon": "broom", "tier": 2, "script": "rhea"},
-    "lou":    {"name": "Lou Pike", "title": "Pike Sisters", "sprite": "lou", "hp": 160, "def": 4, "power": 1.25, "speed": 92, "xp": 110, "cash": 35, "tier": 2, "script": "lou"},
-    "otto":   {"name": "Otto Kragg", "title": "Ironworks Foreman", "sprite": "otto", "hp": 520, "def": 7, "power": 1.5, "speed": 50, "xp": 300, "cash": 70, "tier": 3, "script": "otto", "height": 56},
-    "jett":   {"name": "Jett Vance", "title": "Neon Mile Ace", "sprite": "jett", "hp": 470, "def": 8, "power": 1.6, "speed": 128, "xp": 380, "cash": 80, "tier": 4, "script": "jett"},
-    "jett_cm":{"name": "Jett Vance", "title": "Hotshot", "sprite": "jett", "hp": 150, "def": 3, "power": 1.0, "speed": 120, "xp": 60, "cash": 0, "tier": 2, "script": "jett", "retreat_at": 0.5},
-    "sabine": {"name": "Sabine Holt", "title": "Gray Jacket Captain", "sprite": "sabine", "hp": 600, "def": 10, "power": 1.8, "speed": 84, "xp": 480, "cash": 100, "weapon": "baton", "tier": 5, "script": "sabine"},
-    "sergeant": {"name": "Sgt. Mott", "title": "Gray Jacket Sergeant", "sprite": "grays_heavy", "hp": 260, "def": 6, "power": 1.4, "speed": 56, "xp": 160, "cash": 40, "tier": 3, "script": "heavy"},
-    "rook":   {"name": "Victor Rook", "title": "The Man in the Gray Coat", "sprite": "rook", "hp": 900, "def": 12, "power": 2.0, "speed": 96, "xp": 900, "cash": 0, "tier": 6, "script": "rook", "height": 50}
+  "heavy": {
+   "hp": 95,
+   "speed": 46,
+   "react": 18,
+   "guard": 0.0,
+   "aggression": 0.5,
+   "keep": 60,
+   "xp": 18,
+   "cash": [
+    5,
+    9
+   ],
+   "armor": 1,
+   "attacks": [
+    [
+     "e_heavy_punch",
+     3
+    ],
+    [
+     "e_grab",
+     2
+    ],
+    [
+     "e_charge",
+     1
+    ]
+   ],
+   "liftable": false,
+   "height": 52
+  },
+  "weapon": {
+   "hp": 46,
+   "speed": 66,
+   "react": 14,
+   "guard": 0.1,
+   "aggression": 0.55,
+   "keep": 90,
+   "xp": 12,
+   "cash": [
+    3,
+    7
+   ],
+   "weapon": true,
+   "attacks": [
+    [
+     "e_swing",
+     3
+    ],
+    [
+     "e_kick",
+     1
+    ]
+   ],
+   "liftable": true
+  },
+  "thrower": {
+   "hp": 30,
+   "speed": 84,
+   "react": 12,
+   "guard": 0.05,
+   "aggression": 0.6,
+   "keep": 160,
+   "xp": 10,
+   "cash": [
+    2,
+    6
+   ],
+   "ranged": true,
+   "attacks": [
+    [
+     "e_throw",
+     4
+    ],
+    [
+     "e_jab",
+     1
+    ]
+   ],
+   "liftable": true
   }
+ },
+ "gangs": {
+  "dogs": {
+   "name": "Chain Dogs",
+   "weapons": [
+    "chain",
+    "belt",
+    "bat"
+   ],
+   "throw": "bottle"
+  },
+  "rats": {
+   "name": "Wharf Rats",
+   "weapons": [
+    "broom",
+    "pipe",
+    "wrench"
+   ],
+   "throw": "fish"
+  },
+  "yard": {
+   "name": "Yard Boys",
+   "weapons": [
+    "wrench",
+    "pipe",
+    "chain"
+   ],
+   "throw": "brick"
+  },
+  "saints": {
+   "name": "Neon Saints",
+   "weapons": [
+    "bat",
+    "belt",
+    "baton"
+   ],
+   "throw": "bottle",
+   "acrobat": true
+  },
+  "grays": {
+   "name": "Gray Jackets",
+   "weapons": [
+    "baton",
+    "pipe",
+    "baton"
+   ],
+   "throw": "brick",
+   "drilled": true
+  },
+  "moles": {
+   "name": "The Moles",
+   "weapons": [
+    "shovel",
+    "pipe",
+    "wrench"
+   ],
+   "throw": "brick"
+  }
+ },
+ "bosses": {
+  "duke": {
+   "name": "Duke Brannigan",
+   "title": "Chain Dogs Leader",
+   "sprite": "duke",
+   "hp": 210,
+   "def": 2,
+   "power": 1.0,
+   "speed": 74,
+   "xp": 120,
+   "cash": 40,
+   "weapon": "chain",
+   "tier": 1,
+   "script": "duke"
+  },
+  "rhea": {
+   "name": "Rhea Pike",
+   "title": "Pike Sisters",
+   "sprite": "rhea",
+   "hp": 190,
+   "def": 4,
+   "power": 1.25,
+   "speed": 80,
+   "xp": 110,
+   "cash": 35,
+   "weapon": "broom",
+   "tier": 2,
+   "script": "rhea"
+  },
+  "lou": {
+   "name": "Lou Pike",
+   "title": "Pike Sisters",
+   "sprite": "lou",
+   "hp": 160,
+   "def": 4,
+   "power": 1.25,
+   "speed": 92,
+   "xp": 110,
+   "cash": 35,
+   "tier": 2,
+   "script": "lou"
+  },
+  "otto": {
+   "name": "Otto Kragg",
+   "title": "Ironworks Foreman",
+   "sprite": "otto",
+   "hp": 520,
+   "def": 7,
+   "power": 1.5,
+   "speed": 50,
+   "xp": 300,
+   "cash": 70,
+   "tier": 3,
+   "script": "otto",
+   "height": 56
+  },
+  "jett": {
+   "name": "Jett Vance",
+   "title": "Neon Mile Ace",
+   "sprite": "jett",
+   "hp": 470,
+   "def": 8,
+   "power": 1.6,
+   "speed": 128,
+   "xp": 380,
+   "cash": 80,
+   "tier": 4,
+   "script": "jett"
+  },
+  "jett_cm": {
+   "name": "Jett Vance",
+   "title": "Hotshot",
+   "sprite": "jett",
+   "hp": 150,
+   "def": 3,
+   "power": 1.0,
+   "speed": 120,
+   "xp": 60,
+   "cash": 0,
+   "tier": 2,
+   "script": "jett",
+   "retreat_at": 0.5
+  },
+  "sabine": {
+   "name": "Sabine Holt",
+   "title": "Gray Jacket Captain",
+   "sprite": "sabine",
+   "hp": 600,
+   "def": 10,
+   "power": 1.8,
+   "speed": 84,
+   "xp": 480,
+   "cash": 100,
+   "weapon": "baton",
+   "tier": 5,
+   "script": "sabine"
+  },
+  "sergeant": {
+   "name": "Sgt. Mott",
+   "title": "Gray Jacket Sergeant",
+   "sprite": "grays_heavy",
+   "hp": 260,
+   "def": 6,
+   "power": 1.4,
+   "speed": 56,
+   "xp": 160,
+   "cash": 40,
+   "tier": 3,
+   "script": "heavy"
+  },
+  "rook": {
+   "name": "Victor Rook",
+   "title": "The Man in the Gray Coat",
+   "sprite": "rook",
+   "hp": 900,
+   "def": 12,
+   "power": 2.0,
+   "speed": 96,
+   "xp": 900,
+   "cash": 0,
+   "tier": 6,
+   "script": "rook",
+   "height": 50
+  },
+  "kowal": {
+   "name": "Ruth Kowal",
+   "title": "Foreman of the Moles",
+   "sprite": "kowal",
+   "hp": 420,
+   "def": 6,
+   "power": 1.55,
+   "speed": 70,
+   "xp": 520,
+   "cash": 120,
+   "weapon": "shovel",
+   "tier": 5,
+   "script": "kowal"
+  },
+  "mae": {
+   "name": "Mae \"Iron\" Okafor",
+   "title": "Rec Center Champion",
+   "sprite": "mae",
+   "hp": 360,
+   "def": 5,
+   "power": 1.3,
+   "speed": 82,
+   "xp": 300,
+   "cash": 60,
+   "tier": 4,
+   "script": "mae"
+  }
+ }
 }

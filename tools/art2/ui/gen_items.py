@@ -15,8 +15,9 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from vec import Layer, hx, mix, tones, strip, save, bez, ell_pts, F_COND_B, INK, ASSETS  # noqa: E402
+from vec import Layer, hx, mix, tones, strip, save, bez, ell_pts, star_pts, F_COND_B, INK, ASSETS  # noqa: E402
 
+WHITE = (255, 255, 255)
 W_OUT = os.path.join(ASSETS, 'weapons2')
 P_OUT = os.path.join(ASSETS, 'pickups2')
 
@@ -316,10 +317,33 @@ def w_wrench():
     return it.done(hx('#161a24')), (9, 7), (30, 7)
 
 
+def w_shovel():
+    """Long-handled round-point steel shovel (content 1.2, the Moles' tool)."""
+    it = Item(84, 24)
+    L = it.L
+    handle = L.rect(3, 10.4, 60, 13.6, r=1.5)
+    it.part(handle, hx('#c08a52'))
+    for x0 in (12, 30, 46):
+        it.line([(x0, 11.4), (x0 + 10, 11.1)], 0.45, hx('#7a4a2a'), handle, 0.6)
+    cap = L.rect(2, 9.8, 7, 14.2, r=1.2)
+    it.part(cap, hx('#3a3442'))
+    ferrule = L.poly([(58, 9.6), (66, 8.4), (66, 15.6), (58, 14.4)])
+    it.part(ferrule, hx('#7a8292'))
+    for x in (60.5, 63):
+        L.fill(L.rect(x, 9.4, x + 0.6, 14.6) * ferrule, hx('#3a4050'), 0.8)
+    blade = L.poly(bez((64, 3), (74, 1.4), (78, 5)) + bez((78, 5), (83.4, 12), (78, 19)) + bez((78, 19), (74, 22.6), (64, 21))
+                   + [(66.5, 14.5), (66.5, 9.5)])
+    it.part(blade, hx('#a8b2c2'), li=hx('#e8f0f8'))
+    L.fill(L.stroke(bez((68, 6), (75.5, 12), (68, 18)), 0.7) * blade, hx('#5a6474'), 0.8)
+    L.fill(L.poly([(78, 9), (82.6, 12), (78, 15)]) * blade, hx('#8a5a3a'), 0.45)
+    it.spec(72, 5.4, 3.2, 0.7, 0.8, rot=-15)
+    return it.done(hx('#161a24')), (12, 12), (80, 12)
+
+
 WEAPONS = {
     'bat': w_bat, 'baton': w_baton, 'belt': w_belt, 'bottle': w_bottle, 'brick': w_brick, 'broom': w_broom,
     'chain': w_chain, 'fish': w_fish, 'newspaper': w_newspaper, 'pipe': w_pipe, 'road_sign': w_road_sign,
-    'spatula': w_spatula, 'tire': w_tire, 'wrench': w_wrench,
+    'spatula': w_spatula, 'tire': w_tire, 'wrench': w_wrench, 'shovel': w_shovel,
 }
 
 
@@ -476,9 +500,76 @@ def p_toolbox():
     return it.done(), 1
 
 
+def p_radio():
+    """Chunky 1980s two-way radio from the ambulance (content 1.2)."""
+    it = Item(20, 30)
+    L = it.L
+    ant = L.rect(13.5, 0.8, 16, 10, r=1.1)
+    it.part(ant, hx('#2a2830'))
+    knob = L.rect(5, 3.8, 9, 7.5, r=1)
+    it.part(knob, hx('#4a4652'))
+    body = L.rect(2.5, 6.5, 17.5, 28.5, r=2.2)
+    it.part(body, hx('#34323e'), li=hx('#6a6878'))
+    stripe = L.rect(2.5, 9.5, 17.5, 12.5) * body
+    L.fill(stripe, hx('#e8402e'))
+    L.fill(L.rect(8.6, 9.8, 11.4, 12.2), WHITE)
+    L.fill(L.rect(9.3, 9.2, 10.7, 12.8), WHITE)
+    grille = L.rect(5, 14.5, 15, 21.5, r=1.2)
+    L.fill(grille, hx('#1c1a22'))
+    for y in np.arange(15.5, 21, 1.5):
+        L.fill(L.rect(5.8, y, 14.2, y + 0.6) * grille, hx('#5a5866'))
+    L.fill(L.rect(5, 23.5, 15, 26.5, r=0.8), hx('#8ad05a'), 0.85)
+    L.fill(L.rect(5.6, 24.1, 9, 25.9), hx('#e8ffd0'), 0.8)
+    it.spec(4.4, 9, 0.5, 2.0, 0.6)
+    return it.done(), 1
+
+
+def p_conductor_punch():
+    """Brass conductor's ticket punch (content 1.2)."""
+    it = Item(26, 20)
+    L = it.L
+    brass = hx('#d8a838')
+    h1 = L.poly(bez((2, 13), (8, 15.5), (14, 11)) + [(14, 9)] + bez((14, 9), (8, 13), (2.5, 10.5)))
+    h2 = L.poly(bez((3, 18), (9, 19), (15, 13.5)) + [(14.5, 11.5)] + bez((14.5, 11.5), (9, 16.5), (3, 15.5)))
+    it.part(h2, mix(brass, hx('#5a3a1a'), 0.3))
+    it.part(h1, brass, li=hx('#ffe48a'))
+    head = L.poly([(13, 7.5), (21, 4), (24.5, 7), (24.5, 12.5), (21, 15.5), (13.5, 13.5)])
+    it.part(head, brass, li=hx('#ffe48a'))
+    jaw = L.rect(19, 9, 24.5, 11.4) * head
+    L.fill(jaw, hx('#3a2a14'))
+    die = L.poly(star_pts(21.5, 6.6, 1.8, 0.8, 5))
+    L.fill(die, hx('#5a3a14'))
+    pivot = L.circle(14.5, 11.2, 1.4)
+    it.part(pivot, hx('#a8b0c0'))
+    for k in range(3):
+        L.fill(L.circle(23 + (k % 2) * 1.6 - 4, 17.5 + k * 0.6, 0.7), hx('#f2e6c8'))
+    return it.done(hx('#3a2408')), 1
+
+
+def p_scale_weight():
+    """Rigged lead market weight: '1 LB' stamped, but a filed-down plug in the base gives it away (content 1.2)."""
+    it = Item(24, 24)
+    L = it.L
+    lead = hx('#7a7e8a')
+    ring = np.clip(L.ellipse(12, 5, 4.6, 3.6) - L.ellipse(12, 5, 2.6, 1.8), 0, 1)
+    it.part(ring, hx('#5a5e6a'))
+    body = L.poly([(7.5, 7.5), (16.5, 7.5), (20.5, 20), (3.5, 20)])
+    body = np.clip(body + L.ellipse(12, 20, 8.5, 2.6), 0, 1)
+    it.part(body, lead, li=hx('#c8ccd8'), sh_off=1.8)
+    top = L.ellipse(12, 7.6, 4.6, 1.4)
+    it.part(top, mix(lead, WHITE, 0.25))
+    L.fill(L.text('1LB', F_COND_B, 6.2, 12, 14.4, anchor='mm'), hx('#3a3e4a'))
+    plug = L.ellipse(12, 20.4, 3.2, 1.2)
+    L.fill(plug, hx('#c89a48'))
+    L.fill(L.stroke([(10, 20.3), (14, 20.5)], 0.45), hx('#6a4a14'))
+    L.fill(L.stroke([(4.5, 17), (7, 16.4)], 0.5), hx('#c8ccd8'), 0.7)
+    return it.done(hx('#16181e')), 1
+
+
 PICKUPS = {
     'bill': p_bill, 'cash_stack': p_cash_stack, 'coin': p_coin, 'heal_bun': p_heal_bun, 'key': p_key,
     'ledger': p_ledger, 'parcel': p_parcel, 'satchel': p_satchel, 'toolbox': p_toolbox,
+    'radio': p_radio, 'conductor_punch': p_conductor_punch, 'scale_weight': p_scale_weight,
 }
 
 

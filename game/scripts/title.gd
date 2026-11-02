@@ -110,6 +110,8 @@ func _build_main() -> void:
 	if SaveService.any_save():
 		btns.append(UIKit.button("Continue", _continue, 180))
 	btns.append(UIKit.button("New Game", func(): _slots("new"), 180))
+	if SaveService.any_completed_save():
+		btns.append(UIKit.button("New Game+", func(): _slots("ngplus"), 180))
 	if SaveService.any_save():
 		btns.append(UIKit.button("Load Game", func(): _slots("load"), 180))
 	btns.append(UIKit.button("Manage Saves", func(): _slots("manage"), 180))
@@ -135,6 +137,15 @@ func _slots(mode: String) -> void:
 
 func start_new_game(slot: int) -> void:
 	GameState.reset_new_game()
+	Story.new_game()
+	SaveService.current_slot = slot
+	SaveService.save_game(slot)
+	_close_menus()
+	SceneFlow.goto("res://scenes/world.tscn")
+
+## New Game+ from a completed save in `slot`: keep the character, restart the story, save to the same slot.
+func start_new_game_plus(slot: int) -> void:
+	GameState.start_new_game_plus()
 	Story.new_game()
 	SaveService.current_slot = slot
 	SaveService.save_game(slot)

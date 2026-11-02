@@ -1527,6 +1527,55 @@ def m_warehouse():
     return s
 
 
+# ---- UNDERLINE: D minor subway tunnels, 96 BPM -------------------------------
+UL_A = ('D5:6 F5:2 A5:8 | G5:4 F5:4 E5:8 | D5:6 C5:2 A4:8 | r:8 E5:4 F5:4 | '
+        'D5:6 F5:2 A5:6 C6:2 | Bb5:4 A5:4 G5:8 | F5:4 E5:4 D5:4 C5:4 | D5:16')
+UL_B = ('F5:4 A5:4 C6:8 | Bb5:6 A5:2 G5:8 | A5:4 C6:4 E6:8 | D6:12 r:4 | '
+        'Bb5:4 D6:4 F6:8 | E6:6 D6:2 C6:8 | Bb5:4 A5:4 G5:4 E5:4 | A5:16')
+UL_BELL = 'D6:8 A5:8 | F5:16 | D6:8 A5:8 | E5:16 | D6:8 A5:8 | G5:16 | F5:8 E5:8 | D5:16'
+
+
+def m_underline():
+    s = Song('underline', 96, 32, key=('D', MINOR), echo=(3, 0.48), room=(2.2, 0.03), air=-3.5)
+    std_mix(s, lead_echo=0.38, bass_lp=1200)
+    s.bus('metal', pan=0.0, gain=0.85, verb=0.55, echo=0.25)
+    ca = 'Dm Dm Bb Bb Gm Gm A A'
+    s.chords(0, ca)
+    s.chords(8, ca)
+    s.chords(16, 'Bb C Dm Dm Gm A Dm A')
+    s.chords(24, ca)
+    drip = dict(vib=(24, 4.2, 0.22))
+    s.mel('keys', 'bell', 0, UL_BELL, vel=0.65)
+    s.mel('lead', 'flute', 8, UL_A, vel=0.85, **drip)
+    s.mel('keys', 'bell', 8, UL_BELL, transpose=12, vel=0.35)
+    s.mel('lead', 'lead12', 16, UL_B, vel=0.95, **drip)
+    s.mel('harm', 'flute', 16, UL_B, transpose=-12, vel=0.4)
+    s.mel('lead', 'leadsaw', 24, UL_A, vel=0.9)
+    s.mel('lead2', 'lead12', 24, UL_A, transpose=-12, vel=0.45, **drip)
+    wide_pad(s, 'choir', 0, 8, 50, vel=0.8)
+    wide_pad(s, 'strings', 8, 16, 50, vel=0.75)
+    wide_pad(s, 'choir', 24, 8, 50, vel=0.85)
+    s.arp('arp', 'arp', 16, 16, '0.2.1.2.', rate=1, center=62, vel=0.5)
+    s.bassline('bass', 'bassp', 0, 32, ['R...R.r.R...R.r.', 'R...R.r.R.r.R.rA'], octave=2)
+    s.bassline('bass', 'basssaw', 16, 8, ['R-------R-------'], octave=1, vel=0.45, sub=0.2)
+    rumble = {'kick_soft': 'X.......X..x....', 'hat': '..o...o...o...o.'}
+    groove = {'kick': 'X.....x...X.....', 'snare_big': '....X.......X...', 'hat': 'o.x.o.x.o.x.o.xo',
+              'rim': '..........o.....'}
+    s.beat(0, 8, rumble)
+    s.beat(8, 7, dict(rumble, snare_big='....x.......x...'))
+    s.beat(15, 1, {'kick_soft': 'X...............', 'tom_lo': '........X..X.XX.'})
+    s.beat(16, 8, groove)
+    s.beat(24, 7, dict(groove, ohat='......o.......o.'))
+    s.beat(31, 1, {'kick': 'X..x............', 'tom_mid': '....X..X..X..X..', 'tom_lo': '..X..X..X..X..X.'})
+    for b in range(0, 32, 2):
+        s.beat(b, 1, {'pipe': '..........x.....'})
+    for b in range(1, 32, 4):
+        s.beat(b, 1, {'clank': '......o.........', 'chain': '..............o.'})
+    for b in (8, 16, 24):
+        s.beat(b, 1, {'crash': 'x...............'})
+    return s
+
+
 # ---- SAFE HUB: F major jazzy diner, 92 BPM, swung ----------------------------
 SH_A = ('A5:4 C6:2 E6:6 D6:2 C6:2 | A5:6 F5:2 D5:8 | Bb5:2 A5:2 G5:2 F5:2 D5:4 F5:4 | E5:8 r:2 G5:2 Bb5:2 C6:2 | '
         'A5:4 C6:2 E6:4 G6:2 F6:4 | E6:4 D6:2 C6:2 A5:8 | Bb5:4 D6:2 F6:2 E6:4 D6:4 | C6:8 r:8')
@@ -1809,6 +1858,7 @@ MUSIC = [
     ('neon_mile', m_neon_mile, 'Night-time synth-pop; 16th arpeggios, gated snare, PWM lead with echo'),
     ('floodgate', m_floodgate, 'Tense storm chase; galloping bass, tremolo pulses, timpani and thunder'),
     ('warehouse', m_warehouse, 'Dark pulsing infiltration; heartbeat kick, eerie vibrato lead, metallic hits'),
+    ('underline', m_underline, 'Subterranean tunnel groove; dripping bell echoes, sub bass, pipe and chain percussion'),
     ('safe_hub', m_safe_hub, 'Relaxed swung diner/shop jazz; vibes lead, e-piano comping, walking bass, brushes'),
     ('boss', m_boss, 'Intense gang-boss fight; chromatic unison riff, 16th bass, brass alarm stabs'),
     ('rook', m_rook, 'Dramatic final boss; bell toll intro, choir, timpani, Neapolitan riff break, layered climax'),

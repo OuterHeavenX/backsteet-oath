@@ -35,7 +35,7 @@ import common                                                              # noq
 import grounds2                                                            # noqa: E402
 import oq2, canal, interiors                                               # noqa: E402,F401
 import fg2                                                                 # noqa: E402
-for _mod in ('iron', 'neon', 'flood', 'ware', 'props3'):
+for _mod in ('iron', 'neon', 'flood', 'ware', 'props3', 'under'):
     try:
         __import__(_mod)
     except ImportError:
@@ -86,6 +86,10 @@ DCONF = {
     'floodgate': dict(grade=dict(top=(0.74, 0.84, 0.88), mid=(0.7, 0.8, 0.84), base=(0.6, 0.7, 0.76),
                                  ground_far=(0.76, 0.84, 0.88), ground_near=(0.66, 0.74, 0.8)),
                       ambient=('#c8e0e4', 0.8), rim={"color": "#a8e8f0", "dir": [0.3, 1.0], "strength": 0.4},
+                      cast={"dir": [0.0, 0.2], "alpha": 0.0}),
+    'underline': dict(grade=dict(top=(0.74, 0.84, 0.8), mid=(0.72, 0.82, 0.78), base=(0.66, 0.76, 0.72),
+                                 ground_far=(0.8, 0.88, 0.84), ground_near=(0.7, 0.78, 0.76)),
+                      ambient=('#c8e0d4', 0.82), rim={"color": "#ffc070", "dir": [0.3, 0.9], "strength": 0.45},
                       cast={"dir": [0.0, 0.2], "alpha": 0.0}),
     'warehouse': dict(grade=dict(top=(0.78, 0.88, 0.84), mid=(0.74, 0.84, 0.8), base=(0.64, 0.74, 0.7),
                                  ground_far=(0.8, 0.88, 0.84), ground_near=(0.7, 0.78, 0.76)),
@@ -414,6 +418,9 @@ FG = {
     'oq_chainlot': [('fg_rubble', fg_rubble, [(560, 382)], 1.25, True),
                     ('fg_fence_end', fg_fence_end, [(40, 384), (1180, 384)], 1.3, True),
                     ('fg_wires', fg_wires, [(720, 58)], 1.1, False)],
+    'ul_vault': [('fg_lamps', lambda: __import__('under').fg_lamp_cluster(), [(560, 110)], 1.12, False),
+                 ('fg_pillar', lambda: __import__('under').fg_pillar_stub(), [(260, 384), (860, 384)], 1.28, True),
+                 ('fg_cables', fg2.fg_cables, [(300, 56), (900, 56)], 1.1, False)],
     'int_diner': [('fg_pendant', fg_pendant, [(150, 52), (520, 52)], 1.15, False),
                   ('fg_plant', fg_plant, [(612, 384)], 1.2, True)],
 }
@@ -497,7 +504,8 @@ def mid_chainlot():
 
 ROOM_MID = {'oq_chainlot': [('mid', mid_chainlot, 0.6, 80)]}
 ROOM_DISTRICT_LAYERS = {'oq_chainlot': ['sky', 'far'], 'cm_pier': ['sky', 'far'], 'iy_foundry': [],
-                        'rw_storage': [], 'rw_office': [], 'rw_floor': [], 'nm_backalley': []}
+                        'rw_storage': [], 'rw_office': [], 'rw_floor': [], 'nm_backalley': [],
+                        'ul_station': [], 'ul_tunnel': [], 'ul_vault': []}
 
 
 # ----------------------------------------------------------------------------- build
@@ -621,7 +629,7 @@ def write_room(R, img, out_root):
         js["cast_shadow"] = R.cast_shadow
 
     with open(os.path.join(d, 'room.json'), 'w') as f:
-        json.dump(js, f, indent=1)
+        json.dump(js, f, indent=1, default=lambda o: o.item() if hasattr(o, 'item') else str(o))
     return js
 
 
@@ -823,7 +831,8 @@ def main():
     rooms, enc = load()
     v1meta = json.load(open(V1_PROPS))
     ids = list(rooms.keys()) if a.all else [r for r in a.rooms.split(',') if r]
-    dists = sorted({rooms[r]['district'] for r in ids if rooms[r].get('kind') != 'interior'})
+    dists = sorted({rooms[r]['district'] for r in ids if rooms[r].get('kind') != 'interior'
+                    and rooms[r]['district'] in district.DIST and ROOM_DISTRICT_LAYERS.get(r) != []})
     if not a.no_district:
         for dd in dists:
             write_district(dd, OUT_BG)

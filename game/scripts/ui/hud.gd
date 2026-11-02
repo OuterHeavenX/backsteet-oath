@@ -391,6 +391,10 @@ func _draw_plate() -> void:
 	c.draw_string(fn, Vector2(84, 9.5), "LV %d" % GameState.level, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, UIKit.INK)
 	if GameState.points > 0:
 		c.draw_string(fn, Vector2(110, 9.5), "+%d" % GameState.points, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, UIKit.XPC)
+	if GameState.ng_cycle > 0:
+		var ng := "NG+" if GameState.ng_cycle == 1 else "NG+%d" % GameState.ng_cycle
+		c.draw_string_outline(fn, Vector2(40, 52), ng, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, 3, Color(0.05, 0.03, 0.07))
+		c.draw_string(fn, Vector2(40, 52), ng, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, UIKit.DANGER.lightened(0.2))
 	var cash_col := UIKit.CASHC.lightened(0.5) if cash_flash > 0.0 and int(cash_flash * 10) % 2 == 0 else UIKit.CASHC
 	c.draw_string_outline(fn, Vector2(124, 10), "$%d" % GameState.cash, HORIZONTAL_ALIGNMENT_RIGHT, 52, 11, 3, Color(0.05, 0.03, 0.07))
 	c.draw_string(fn, Vector2(124, 10), "$%d" % GameState.cash, HORIZONTAL_ALIGNMENT_RIGHT, 52, 11, cash_col)

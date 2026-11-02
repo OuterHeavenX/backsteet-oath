@@ -47,3 +47,6 @@ into the images; see THIRD_PARTY_NOTICES.md.
 - `rw_floor`: 2240x720 tx base in 2 tile(s), 3 fg, 3 glows, 0 ambient
 - `rw_office`: 1920x720 tx base in 1 tile(s), 1 fg, 3 glows, 0 ambient
 - `rw_storage`: 3840x720 tx base in 2 tile(s), 5 fg, 11 glows, 0 ambient
+- `ul_station`: 3200x720 tx base in 2 tile(s), 4 fg, 10 glows, 9 ambient
+- `ul_tunnel`: 3840x720 tx base in 2 tile(s), 5 fg, 10 glows, 16 ambient
+- `ul_vault`: 2240x720 tx base in 2 tile(s), 5 fg, 10 glows, 6 ambient

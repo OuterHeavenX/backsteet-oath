@@ -55,6 +55,7 @@ var bus_stops: Dictionary = {}
 var stats: Dictionary = {"defeated": 0, "deaths": 0, "cash_earned": 0, "playtime": 0.0, "food_eaten": 0}
 var auto_index := 0
 var new_game_plus := false
+var ng_cycle := 0                 # New Game+ cycle (0 = first run)
 
 func _process(delta: float) -> void:
 	if not get_tree().paused:
@@ -69,6 +70,8 @@ func reset_new_game() -> void:
 	room = "oq_kettle"; spawn = "west"; hub_room = "int_diner"
 	visited = {}; visit_count = 0; room_visit = {}; waves = {}; collected = {}; bus_stops = {}
 	stats = {"defeated": 0, "deaths": 0, "cash_earned": 0, "playtime": 0.0, "food_eaten": 0}
+	ng_cycle = 0
+	new_game_plus = false
 	hp = max_hp()
 	stats_changed.emit(); cash_changed.emit(cash, 0); xp_changed.emit(); inventory_changed.emit()
 
@@ -398,6 +401,39 @@ func wave_available(room_id: String, wave_id: String, respawns: bool) -> bool:
 func is_collected(key: String) -> bool:
 	return bool(collected.get(key, false))
 
+## New Game+: keep the character (level, stats, techniques, gear, bag, cash, weapon upgrades) and restart the
+## story with tougher streets. Called on a loaded, completed save.
+func start_new_game_plus() -> void:
+	var keep := {"level": level, "xp": xp, "cash": cash, "points": points, "auto_alloc": auto_alloc,
+		"auto_index": auto_index, "alloc": alloc.duplicate(), "food": food.duplicate(), "bag": bag.duplicate(),
+		"gear": gear.duplicate(), "skills": skills.duplicate(), "mastery": mastery.duplicate(),
+		"upgrades": upgrades.duplicate(), "cycle": ng_cycle + 1,
+		"total_time": float(stats.get("total_playtime", 0.0)) + float(stats.get("playtime", 0.0)),
+		"ladder_best": int(stats.get("ladder_best", 0))}
+	reset_new_game()
+	level = keep.level; xp = keep.xp; cash = keep.cash; points = keep.points; auto_alloc = keep.auto_alloc
+	auto_index = keep.auto_index; alloc = keep.alloc; food = keep.food; bag = keep.bag; gear = keep.gear
+	skills = keep.skills; mastery = keep.mastery; upgrades = keep.upgrades
+	ng_cycle = keep.cycle
+	new_game_plus = true
+	stats["total_playtime"] = keep.total_time
+	stats["ladder_best"] = keep.ladder_best
+	if not notes.has("new_game_plus"):
+		notes.append("new_game_plus")
+	hp = max_hp()
+	stats_changed.emit(); cash_changed.emit(cash, 0); xp_changed.emit(); inventory_changed.emit()
+
+## Multipliers for New Game+ (1.0 on a first run).
+func ng_mult(kind: String) -> float:
+	var n := float(ng_cycle)
+	match kind:
+		"hp": return 1.0 + 0.35 * n
+		"power": return 1.0 + 0.25 * n
+		"boss_hp": return 1.0 + 0.4 * n
+		"boss_power": return 1.0 + 0.15 * n
+		"reward": return 1.0 + 0.25 * n
+	return 1.0
+
 func mark_collected(key: String) -> void:
 	collected[key] = true
 
@@ -415,10 +451,13 @@ func to_dict() -> Dictionary:
 			"room_visit": room_visit, "waves": waves, "collected": collected, "bus_stops": bus_stops
 		},
 		"stats": stats,
+		"ng_cycle": ng_cycle,
 	}
 
 func from_dict(d: Dictionary) -> void:
 	reset_new_game()
+	ng_cycle = clampi(int(d.get("ng_cycle", 0)), 0, 9)
+	new_game_plus = ng_cycle > 0
 	var p: Dictionary = d.get("player", {})
 	level = clampi(int(p.get("level", 1)), 1, MAX_LEVEL)
 	xp = maxi(0, int(p.get("xp", 0)))

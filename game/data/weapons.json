@@ -1,34 +1,348 @@
 {
-  "families": {
-    "short": {"name": "Short Blunt Tool", "desc": "Quick swings, short reach, solid stagger. Spins when thrown.", "upgrade": "grip"},
-    "long": {"name": "Long Blunt Weapon", "desc": "Slower swings with long reach that knock foes down.", "upgrade": "grip"},
-    "chain": {"name": "Chain / Flexible", "desc": "Very long whip reach that hits several foes, but slow to recover.", "upgrade": "links"},
-    "light": {"name": "Fast Light Tool", "desc": "Rapid, low-damage jabs. Great for keeping enemies flinching.", "upgrade": "grip"},
-    "throwable": {"name": "Throwable Object", "desc": "Punch or Grab to hurl it. Bottles shatter; bricks hit hard.", "upgrade": "arm"},
-    "heavy": {"name": "Heavy Improvised Object", "desc": "Slows you down. Huge throws; signs swing for massive knockdowns.", "upgrade": "harness"}
+ "families": {
+  "short": {
+   "name": "Short Blunt Tool",
+   "desc": "Quick swings, short reach, solid stagger. Spins when thrown.",
+   "upgrade": "grip"
   },
-  "weapons": {
-    "wrench":    {"name": "Wrench", "family": "short", "attack": "swing_short", "power": 8, "durability": 30, "throw_power": 10, "throw": "spin", "icon": "w_wrench", "sprite": "wrench", "break_fx": "debris_metal"},
-    "baton":     {"name": "Baton", "family": "short", "attack": "swing_short", "power": 7, "durability": 34, "throw_power": 9, "throw": "spin", "speed": 1, "icon": "w_baton", "sprite": "baton", "break_fx": "debris_wood"},
-    "bat":       {"name": "Baseball Bat", "family": "long", "attack": "swing_long", "power": 12, "durability": 20, "throw_power": 12, "throw": "spin", "icon": "w_bat", "sprite": "bat", "break_fx": "debris_wood"},
-    "pipe":      {"name": "Lead Pipe", "family": "long", "attack": "swing_long", "power": 14, "durability": 32, "throw_power": 13, "throw": "spin", "slow": 2, "icon": "w_pipe", "sprite": "pipe", "break_fx": "debris_metal"},
-    "broom":     {"name": "Push Broom", "family": "long", "attack": "swing_broom", "power": 6, "durability": 14, "throw_power": 7, "throw": "spin", "icon": "w_broom", "sprite": "broom", "break_fx": "debris_wood"},
-    "chain":     {"name": "Chain", "family": "chain", "attack": "swing_chain", "power": 11, "durability": 28, "throw_power": 9, "throw": "spin", "icon": "w_chain", "sprite": "chain", "break_fx": "debris_metal"},
-    "belt":      {"name": "Studded Belt", "family": "chain", "attack": "swing_belt", "power": 6, "durability": 26, "throw_power": 6, "throw": "spin", "icon": "w_belt", "sprite": "belt", "break_fx": "debris_metal"},
-    "newspaper": {"name": "Rolled Newspaper", "family": "light", "attack": "swing_light", "power": 4, "durability": 10, "throw_power": 4, "throw": "spin", "icon": "w_newspaper", "sprite": "newspaper", "break_fx": "debris_glass"},
-    "spatula":   {"name": "Spatula", "family": "light", "attack": "swing_light", "power": 5, "durability": 18, "throw_power": 6, "throw": "spin", "icon": "w_spatula", "sprite": "spatula", "break_fx": "debris_metal"},
-    "bottle":    {"name": "Bottle", "family": "throwable", "attack": "", "power": 0, "durability": 1, "throw_power": 12, "throw": "break", "icon": "w_bottle", "sprite": "bottle", "break_fx": "debris_glass", "break_sfx": "bottle_break"},
-    "brick":     {"name": "Brick", "family": "throwable", "attack": "", "power": 0, "durability": 1, "throw_power": 14, "throw": "drop", "knockdown": true, "icon": "w_brick", "sprite": "brick", "break_fx": "debris_wood"},
-    "fish":      {"name": "Mackerel", "family": "throwable", "attack": "", "power": 0, "durability": 1, "throw_power": 8, "throw": "drop", "icon": "w_fish", "sprite": "fish", "break_fx": "splash"},
-    "crate":     {"name": "Crate", "family": "heavy", "attack": "", "power": 0, "durability": 1, "throw_power": 16, "throw": "break", "knockdown": true, "carry": true, "icon": "w_crate", "sprite": "prop:crate", "break_fx": "debris_wood", "break_sfx": "crate_break"},
-    "trash_can": {"name": "Trash Can", "family": "heavy", "attack": "", "power": 0, "durability": 1, "throw_power": 14, "throw": "bounce", "knockdown": true, "carry": true, "icon": "w_trash_can", "sprite": "prop:trash_can", "break_fx": "debris_metal", "break_sfx": "metal_clang"},
-    "tire":      {"name": "Tire", "family": "heavy", "attack": "", "power": 0, "durability": 1, "throw_power": 10, "throw": "roll", "knockdown": true, "carry": true, "icon": "w_tire", "sprite": "tire", "break_fx": "dust", "break_sfx": "tire_bounce"},
-    "road_sign": {"name": "Road Sign", "family": "heavy", "attack": "swing_heavy", "power": 18, "durability": 10, "throw_power": 16, "throw": "spin", "slow": 3, "icon": "w_road_sign", "sprite": "road_sign", "break_fx": "debris_metal"}
+  "long": {
+   "name": "Long Blunt Weapon",
+   "desc": "Slower swings with long reach that knock foes down.",
+   "upgrade": "grip"
   },
-  "upgrades": {
-    "grip":    {"name": "Grip Tape", "desc": "Short, long and light weapons hit harder and last longer.", "tiers": [{"price": 40, "power": 2, "dur": 0.5}, {"price": 85, "power": 4, "dur": 1.0, "requires": "act2_started"}, {"price": 140, "power": 7, "dur": 1.5, "requires": "act3_started"}]},
-    "links":   {"name": "Reinforced Links", "desc": "Chains and belts hit harder and last longer.", "tiers": [{"price": 40, "power": 2, "dur": 0.5}, {"price": 85, "power": 4, "dur": 1.0, "requires": "act2_started"}, {"price": 140, "power": 7, "dur": 1.5, "requires": "act3_started"}]},
-    "arm":     {"name": "Pitching Arm", "desc": "Thrown bottles, bricks and fish deal more damage.", "tiers": [{"price": 35, "power": 3, "dur": 0}, {"price": 75, "power": 6, "dur": 0, "requires": "act2_started"}, {"price": 120, "power": 10, "dur": 0, "requires": "act3_started"}]},
-    "harness": {"name": "Lifting Harness", "desc": "Carry heavy objects faster and throw them harder.", "tiers": [{"price": 45, "power": 3, "dur": 0.5}, {"price": 90, "power": 6, "dur": 1.0, "requires": "act2_started"}, {"price": 150, "power": 10, "dur": 1.5, "requires": "act3_started"}]}
+  "chain": {
+   "name": "Chain / Flexible",
+   "desc": "Very long whip reach that hits several foes, but slow to recover.",
+   "upgrade": "links"
+  },
+  "light": {
+   "name": "Fast Light Tool",
+   "desc": "Rapid, low-damage jabs. Great for keeping enemies flinching.",
+   "upgrade": "grip"
+  },
+  "throwable": {
+   "name": "Throwable Object",
+   "desc": "Punch or Grab to hurl it. Bottles shatter; bricks hit hard.",
+   "upgrade": "arm"
+  },
+  "heavy": {
+   "name": "Heavy Improvised Object",
+   "desc": "Slows you down. Huge throws; signs swing for massive knockdowns.",
+   "upgrade": "harness"
   }
+ },
+ "weapons": {
+  "wrench": {
+   "name": "Wrench",
+   "family": "short",
+   "attack": "swing_short",
+   "power": 8,
+   "durability": 30,
+   "throw_power": 10,
+   "throw": "spin",
+   "icon": "w_wrench",
+   "sprite": "wrench",
+   "break_fx": "debris_metal"
+  },
+  "baton": {
+   "name": "Baton",
+   "family": "short",
+   "attack": "swing_short",
+   "power": 7,
+   "durability": 34,
+   "throw_power": 9,
+   "throw": "spin",
+   "speed": 1,
+   "icon": "w_baton",
+   "sprite": "baton",
+   "break_fx": "debris_wood"
+  },
+  "bat": {
+   "name": "Baseball Bat",
+   "family": "long",
+   "attack": "swing_long",
+   "power": 12,
+   "durability": 20,
+   "throw_power": 12,
+   "throw": "spin",
+   "icon": "w_bat",
+   "sprite": "bat",
+   "break_fx": "debris_wood"
+  },
+  "pipe": {
+   "name": "Lead Pipe",
+   "family": "long",
+   "attack": "swing_long",
+   "power": 14,
+   "durability": 32,
+   "throw_power": 13,
+   "throw": "spin",
+   "slow": 2,
+   "icon": "w_pipe",
+   "sprite": "pipe",
+   "break_fx": "debris_metal"
+  },
+  "broom": {
+   "name": "Push Broom",
+   "family": "long",
+   "attack": "swing_broom",
+   "power": 6,
+   "durability": 14,
+   "throw_power": 7,
+   "throw": "spin",
+   "icon": "w_broom",
+   "sprite": "broom",
+   "break_fx": "debris_wood"
+  },
+  "chain": {
+   "name": "Chain",
+   "family": "chain",
+   "attack": "swing_chain",
+   "power": 11,
+   "durability": 28,
+   "throw_power": 9,
+   "throw": "spin",
+   "icon": "w_chain",
+   "sprite": "chain",
+   "break_fx": "debris_metal"
+  },
+  "belt": {
+   "name": "Studded Belt",
+   "family": "chain",
+   "attack": "swing_belt",
+   "power": 6,
+   "durability": 26,
+   "throw_power": 6,
+   "throw": "spin",
+   "icon": "w_belt",
+   "sprite": "belt",
+   "break_fx": "debris_metal"
+  },
+  "newspaper": {
+   "name": "Rolled Newspaper",
+   "family": "light",
+   "attack": "swing_light",
+   "power": 4,
+   "durability": 10,
+   "throw_power": 4,
+   "throw": "spin",
+   "icon": "w_newspaper",
+   "sprite": "newspaper",
+   "break_fx": "debris_glass"
+  },
+  "spatula": {
+   "name": "Spatula",
+   "family": "light",
+   "attack": "swing_light",
+   "power": 5,
+   "durability": 18,
+   "throw_power": 6,
+   "throw": "spin",
+   "icon": "w_spatula",
+   "sprite": "spatula",
+   "break_fx": "debris_metal"
+  },
+  "bottle": {
+   "name": "Bottle",
+   "family": "throwable",
+   "attack": "",
+   "power": 0,
+   "durability": 1,
+   "throw_power": 12,
+   "throw": "break",
+   "icon": "w_bottle",
+   "sprite": "bottle",
+   "break_fx": "debris_glass",
+   "break_sfx": "bottle_break"
+  },
+  "brick": {
+   "name": "Brick",
+   "family": "throwable",
+   "attack": "",
+   "power": 0,
+   "durability": 1,
+   "throw_power": 14,
+   "throw": "drop",
+   "knockdown": true,
+   "icon": "w_brick",
+   "sprite": "brick",
+   "break_fx": "debris_wood"
+  },
+  "fish": {
+   "name": "Mackerel",
+   "family": "throwable",
+   "attack": "",
+   "power": 0,
+   "durability": 1,
+   "throw_power": 8,
+   "throw": "drop",
+   "icon": "w_fish",
+   "sprite": "fish",
+   "break_fx": "splash"
+  },
+  "crate": {
+   "name": "Crate",
+   "family": "heavy",
+   "attack": "",
+   "power": 0,
+   "durability": 1,
+   "throw_power": 16,
+   "throw": "break",
+   "knockdown": true,
+   "carry": true,
+   "icon": "w_crate",
+   "sprite": "prop:crate",
+   "break_fx": "debris_wood",
+   "break_sfx": "crate_break"
+  },
+  "trash_can": {
+   "name": "Trash Can",
+   "family": "heavy",
+   "attack": "",
+   "power": 0,
+   "durability": 1,
+   "throw_power": 14,
+   "throw": "bounce",
+   "knockdown": true,
+   "carry": true,
+   "icon": "w_trash_can",
+   "sprite": "prop:trash_can",
+   "break_fx": "debris_metal",
+   "break_sfx": "metal_clang"
+  },
+  "tire": {
+   "name": "Tire",
+   "family": "heavy",
+   "attack": "",
+   "power": 0,
+   "durability": 1,
+   "throw_power": 10,
+   "throw": "roll",
+   "knockdown": true,
+   "carry": true,
+   "icon": "w_tire",
+   "sprite": "tire",
+   "break_fx": "dust",
+   "break_sfx": "tire_bounce"
+  },
+  "road_sign": {
+   "name": "Road Sign",
+   "family": "heavy",
+   "attack": "swing_heavy",
+   "power": 18,
+   "durability": 10,
+   "throw_power": 16,
+   "throw": "spin",
+   "slow": 3,
+   "icon": "w_road_sign",
+   "sprite": "road_sign",
+   "break_fx": "debris_metal"
+  },
+  "shovel": {
+   "name": "Shovel",
+   "family": "long",
+   "attack": "swing_broom",
+   "power": 8,
+   "durability": 16,
+   "throw_power": 8,
+   "throw": "spin",
+   "icon": "w_shovel",
+   "sprite": "shovel",
+   "break_fx": "debris_metal"
+  }
+ },
+ "upgrades": {
+  "grip": {
+   "name": "Grip Tape",
+   "desc": "Short, long and light weapons hit harder and last longer.",
+   "tiers": [
+    {
+     "price": 40,
+     "power": 2,
+     "dur": 0.5
+    },
+    {
+     "price": 85,
+     "power": 4,
+     "dur": 1.0,
+     "requires": "act2_started"
+    },
+    {
+     "price": 140,
+     "power": 7,
+     "dur": 1.5,
+     "requires": "act3_started"
+    }
+   ]
+  },
+  "links": {
+   "name": "Reinforced Links",
+   "desc": "Chains and belts hit harder and last longer.",
+   "tiers": [
+    {
+     "price": 40,
+     "power": 2,
+     "dur": 0.5
+    },
+    {
+     "price": 85,
+     "power": 4,
+     "dur": 1.0,
+     "requires": "act2_started"
+    },
+    {
+     "price": 140,
+     "power": 7,
+     "dur": 1.5,
+     "requires": "act3_started"
+    }
+   ]
+  },
+  "arm": {
+   "name": "Pitching Arm",
+   "desc": "Thrown bottles, bricks and fish deal more damage.",
+   "tiers": [
+    {
+     "price": 35,
+     "power": 3,
+     "dur": 0
+    },
+    {
+     "price": 75,
+     "power": 6,
+     "dur": 0,
+     "requires": "act2_started"
+    },
+    {
+     "price": 120,
+     "power": 10,
+     "dur": 0,
+     "requires": "act3_started"
+    }
+   ]
+  },
+  "harness": {
+   "name": "Lifting Harness",
+   "desc": "Carry heavy objects faster and throw them harder.",
+   "tiers": [
+    {
+     "price": 45,
+     "power": 3,
+     "dur": 0.5
+    },
+    {
+     "price": 90,
+     "power": 6,
+     "dur": 1.0,
+     "requires": "act2_started"
+    },
+    {
+     "price": 150,
+     "power": 10,
+     "dur": 1.5,
+     "requires": "act3_started"
+    }
+   ]
+  }
+ }
 }

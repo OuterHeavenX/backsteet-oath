@@ -37,6 +37,14 @@ func setup_boss(id: String) -> void:
 		"sabine":
 			guard_chance = 0.5
 			counter_attacks = true
+		"kowal":
+			guard_chance = 0.2
+			keep = 80.0
+			combo_limit = 6
+		"mae":
+			guard_chance = 0.35
+			counter_attacks = true
+			combo_limit = 5
 		"rook":
 			guard_chance = 0.4
 			counter_attacks = true
@@ -84,6 +92,19 @@ func boss_update() -> void:
 				if hazard_t <= 0 and room:
 					hazard_t = randi_range(220, 300)
 					room.drop_hazard_crate(target.position if target else position)
+		"kowal":
+			# lights out at half health: the vault goes dark except her lantern, and two Moles join in
+			if frac <= 0.5 and phase == 1:
+				phase = 2
+				ai_speed *= 1.1
+				walk_speed = ai_speed
+				if room:
+					if room.world and room.world.has_method("phase_beat"):
+						room.world.phase_beat()
+					if room.vis:
+						room.vis.set_darkness(0.45, 0.6)
+						room.vis.add_follow_light(self, 90.0, Color(1.0, 0.78, 0.45), 0.55, Vector2(10, -40))
+					_summon(["moles_brawler", "moles_flanker"], "kowal_dark")
 		"otto":
 			if frac <= 0.5 and phase == 1:
 				phase = 2
@@ -171,6 +192,8 @@ const MOVESETS := {
 	"otto": [["otto_haymaker", 3.0, 0, 50], ["otto_slam", 2.0, 0, 110], ["otto_charge", 1.5, 100, 400], ["e_grab", 1.2, 0, 40]],
 	"jett": [["jett_flip", 2.5, 40, 120], ["jett_dash", 2.0, 90, 400], ["jett_combo", 2.5, 0, 50]],
 	"sabine": [["sabine_baton", 3.0, 0, 50], ["sabine_bash", 2.0, 60, 250], ["e_hook", 1.2, 0, 40], ["e_kick", 1.0, 0, 45]],
+	"kowal": [["pike_pole", 3.0, 40, 95], ["pike_sweep", 2.2, 0, 70], ["duke_spin", 1.6, 0, 60], ["e_charge", 1.3, 100, 400], ["e_cross", 1.0, 0, 45]],
+	"mae": [["rook_jab", 3.0, 0, 40], ["rook_combo", 2.4, 0, 45], ["rook_uppercut", 1.6, 0, 40], ["jett_dash", 1.2, 90, 400], ["e_kick", 1.0, 0, 45]],
 	"heavy": [["e_heavy_punch", 3.0, 0, 45], ["e_grab", 1.5, 0, 40], ["e_charge", 1.5, 90, 400]],
 	"rook1": [["rook_jab", 3.0, 0, 40], ["rook_combo", 2.0, 0, 45], ["rook_uppercut", 1.5, 0, 40], ["rook_dash", 1.5, 100, 400]],
 	"rook2": [["rook_pipe", 3.0, 0, 60], ["rook_pound", 1.5, 0, 120], ["rook_dash", 1.5, 100, 400], ["rook_uppercut", 1.2, 0, 40], ["rook_combo", 1.0, 0, 45]],

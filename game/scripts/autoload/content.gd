@@ -128,7 +128,8 @@ func tier_mult(table: String, tier: int) -> float:
 func district_name(d: String) -> String:
 	return {
 		"old_quarter": "Old Quarter", "canal_market": "Canal Market", "ironworks": "Ironworks Yard",
-		"neon_mile": "Neon Mile", "floodgate": "Floodgate Road", "warehouse": "Rook's Warehouse"
+		"neon_mile": "Neon Mile", "floodgate": "Floodgate Road", "warehouse": "Rook's Warehouse",
+		"underline": "The Underline"
 	}.get(d, d.capitalize())
 
 # ---------------------------------------------------------------- validation

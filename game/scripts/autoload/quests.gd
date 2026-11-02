@@ -110,6 +110,22 @@ func on_key_item(id: String) -> void:
 		"toolbox":
 			if is_active("tools") and step("tools") == 0:
 				set_step("tools", 1)
+		"radio":
+			if is_active("radio") and step("radio") == 0:
+				set_step("radio", 1)
+		"conductor_punch":
+			if is_active("punch") and step("punch") == 0:
+				set_step("punch", 1)
+		"weight_pier", "weight_iron", "weight_neon":
+			if is_active("weights"):
+				var n := 0
+				for k in ["weight_pier", "weight_iron", "weight_neon"]:
+					if GameState.has_key(k):
+						n += 1
+				if n >= 3 and step("weights") == 0:
+					set_step("weights", 1)
+				else:
+					_toast("Rigged weights recovered (%d/3)" % n, UIKit.CREAM)
 
 func _toast(msg: String, col: Color) -> void:
 	if world and world.has_method("toast"):

@@ -53,7 +53,7 @@ func test_content() -> void:
 	for e in errs:
 		print("  content: ", e)
 	check(errs.is_empty(), "content cross-references valid (%d issues)" % errs.size())
-	check(Content.rooms.size() == 30, "30 rooms defined")
+	check(Content.rooms.size() == 33, "33 rooms defined (30 + the Underline)")
 	var ext := 0
 	for r in Content.rooms.values():
 		if r.kind == "exterior":
@@ -66,7 +66,7 @@ func test_content() -> void:
 			foods += 1
 	check(foods >= 18, "18+ foods (%d)" % foods)
 	check(Content.weapons.size() >= 12, "12+ weapons")
-	check(Content.quests.size() == 6, "6 side quests")
+	check(Content.quests.size() == 10, "10 side quests")
 	check(Content.enemies.bosses.size() >= 6, "6+ bosses")
 	for stage in Content.story.order:
 		check(Content.story.objectives.has(stage), "objective text for " + stage)
@@ -84,17 +84,17 @@ func test_assets() -> void:
 	for s in ["nico", "rook_p2", "mara", "eli", "rook", "dot", "jett", "gus", "hollis", "price", "biscuit"]:
 		sprites[s] = true
 	for s in sprites:
-		check(ResourceLoader.exists("res://assets/sprites/characters/%s.png" % s), "sprite exists: " + s)
+		check(ResourceLoader.exists("res://assets/sprites/characters/%s.png" % s) or ResourceLoader.exists("res://assets/sprites/chars/%s.png" % s), "sprite exists: " + s)
 	for c in Content.characters.values():
 		if c.portrait != "":
-			check(ResourceLoader.exists("res://assets/portraits/%s.png" % c.portrait), "portrait exists: " + c.portrait)
+			check(ResourceLoader.exists("res://assets/portraits/%s.png" % c.portrait) or ResourceLoader.exists("res://assets/portraits2/%s.png" % c.portrait), "portrait exists: " + c.portrait)
 	for rid in Content.rooms:
-		check(ResourceLoader.exists("res://assets/bg/%s.png" % rid), "background exists: " + rid)
+		check(ResourceLoader.exists("res://assets/bg/%s.png" % rid) or FileAccess.file_exists("res://assets/bg2/%s/room.json" % rid), "background exists: " + rid)
 		check(ResourceLoader.exists("res://assets/audio/music/%s.ogg" % Content.rooms[rid].music), "music exists for " + rid)
 		for p in Content.rooms[rid].get("props", []):
 			check(ResourceLoader.exists("res://assets/props/%s.png" % p.type), "prop art: " + p.type)
 	for id in Content.items:
-		check(ResourceLoader.exists("res://assets/icons/%s.png" % Content.items[id].icon), "icon: " + id)
+		check(ResourceLoader.exists("res://assets/icons/%s.png" % Content.items[id].icon) or ResourceLoader.exists("res://assets/icons2/%s.png" % Content.items[id].icon), "icon: " + id)
 	for id in Content.skills:
 		check(ResourceLoader.exists("res://assets/icons/%s.png" % Content.skills[id].icon), "skill icon: " + id)
 	for id in Content.weapons:
@@ -102,7 +102,7 @@ func test_assets() -> void:
 		if spr.begins_with("prop:"):
 			check(ResourceLoader.exists("res://assets/props/%s.png" % spr.substr(5)), "weapon prop art: " + id)
 		else:
-			check(ResourceLoader.exists("res://assets/weapons/%s.png" % spr), "weapon art: " + id)
+			check(ResourceLoader.exists("res://assets/weapons/%s.png" % spr) or ResourceLoader.exists("res://assets/weapons2/%s.png" % spr), "weapon art: " + id)
 	for m in ["title", "boss", "rook", "ending", "victory", "defeat", "setback"]:
 		check(ResourceLoader.exists("res://assets/audio/music/%s.ogg" % m), "music: " + m)
 	var used_sfx := {}

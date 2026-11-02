@@ -305,6 +305,32 @@ def signature(sig, base, G):
                             hand_f='relax', eb_f='back', fn=(4.0, 0), ff=(-4.4, 0), toe_f=0, expr='smile'),
                           G(hip=(0.0, -17.6), lean=0, tilt=-5, hn=(5.5, -32.6), hand_n='open', hf=(-1.0, -20.0),
                             hand_f='relax', eb_f='back', fn=(4.0, 0), ff=(-4.4, 0), toe_f=0, expr='smile')]
+    elif sig == 'kowal':
+        out['idle'] = [G(hip=(-0.4, -17.0 + 0.3 * math.sin(t)), lean=10 + 0.8 * math.sin(t - 0.5), twist=0.1, tilt=-4,
+                         hn=(10.4, -31.4 + 0.3 * math.sin(t)), hf=(10.0, -33.4 + 0.3 * math.sin(t)), wang=100,
+                         eb_n='down', eb_f='down', fn=(3.6, 0), ff=(-4.6, 0), toe_f=0, expr='normal', blink=(i == 4))
+                       for i, t in enumerate(T)]
+        out['victory'] = [out['idle'][0],
+                          G(hip=(0.0, -17.6), lean=-4, tilt=-10, hn=(5.6, -47.0), hf=(-1.6, -46.0), wang=-15,
+                            eb_n='back', eb_f='back', near_arm_back=True, fn=(4.6, 0), ff=(-4.6, 0), toe_f=0, expr='shout'),
+                          G(hip=(0.0, -17.8), lean=-5, tilt=-11, hn=(5.8, -47.6), hf=(-1.4, -46.6), wang=-18,
+                            eb_n='back', eb_f='back', near_arm_back=True, fn=(4.6, 0), ff=(-4.6, 0), toe_f=0, expr='shout'),
+                          G(hip=(0.0, -17.6), lean=-2, tilt=-8, hn=(5.4, -46.0), hf=(-1.6, -45.0), wang=-12,
+                            eb_n='back', eb_f='back', near_arm_back=True, fn=(4.6, 0), ff=(-4.6, 0), toe_f=0, expr='grin')]
+    elif sig == 'mae':
+        out['idle'] = []
+        for i, t in enumerate(T):
+            b = abs(math.sin(t))
+            out['idle'].append(G(hip=(-0.5, -16.2 - 1.0 * b + 0.3), lean=8, toe_f=18 + 12 * b, toe_n=8 * b,
+                                 hn=(8.0, -31.6 - 0.8 * b), hf=(12.6, -34.0 - 0.8 * b), tilt=-6, expr='fight',
+                                 blink=(i == 4)))
+        out['victory'] = [G(expr='grin'),
+                          G(hip=(0.0, -17.8), lean=-3, tilt=-8, hn=(11.6, -44.0), hf=(-5.6, -46.0), eb_n='down',
+                            eb_f='down', expr='happy'),
+                          G(hip=(0.0, -18.0), lean=-4, tilt=-9, hn=(11.8, -44.8), hf=(-5.8, -46.8), eb_n='down',
+                            eb_f='down', expr='happy'),
+                          G(hip=(0.0, -17.6), lean=-1, tilt=-6, hn=(10.6, -40.0), hf=(-4.8, -42.0), eb_n='down',
+                            eb_f='down', expr='grin')]
     elif sig == 'rook_p2':
         out['idle'] = [G(hip=(-0.8, -14.6 + 0.5 * math.sin(t)), lean=17 + 1.2 * math.sin(t - 0.5), tilt=-12,
                          hn=(11.6, -25.6 + 0.7 * math.sin(t)), hand_n='open', hf=(14.6, -28.6 + 0.6 * math.sin(t - 0.7)),

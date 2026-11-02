@@ -17,6 +17,27 @@ The renderer, bodies, poses and animation are new.
 - `game/assets/portraits2/<id>.png`: 5 × 192² busts (neutral, happy, angry, surprised, sad). The ids match
   `game/assets/portraits/`. Gang portraits (`dogs`, `rats`, `yard`, `saints`, `grays`) use their v1 model character.
 
+## Content expansion (v2-only ids, `tools/art2/chars/specs_extra.py`)
+- **The Moles:** `moles_brawler`, `moles_flanker`, `moles_blocker`, `moles_heavy`, `moles_weapon` and `moles_thrower`.
+  - Kit: lamp hard hats, orange hi-vis over navy coveralls or hoodies, dust masks, work gloves and boots, in the
+    palette orange `#e8742a`, navy `#2b3a55` and dust `#b8a27a`.
+  - Each takes its archetype's style.
+- **`kowal`:** boss with a tall body, long grey braid, lamp hard hat with goggles, olive oilskin long coat over hi-vis,
+  and boots.
+  - Signature idle: leaning on a two-handed shovel. Both hands sit at the top of the handle, with the grip angle at
+    100° so the blade rests on the ground.
+  - Victory: shovel raised overhead.
+- **`mae`:** athletic build with white boxing wraps, a red "BENNY'S" tank, navy track pants and a ponytail.
+  - Signature idle: bouncing high guard.
+  - Victory: both wraps raised.
+- **Civilians:**
+  - `ines`: scrubs, cardigan, lanyard and readers.
+  - `otis`: conductor cap, cardigan and white moustache.
+  - `kiki`: teen in paint-splattered overalls and a bucket hat, holding a spray can.
+  - `sal`: rubber apron, rolled sleeves and flat cap.
+- **Portraits:** kowal, mae, ines, otis, kiki, sal and the gang portrait `moles` (drawn from `moles_weapon`).
+- Build with `gen_chars2.py --new`; `--all` includes them. Then run `python3 tools/art2/optimize_textures.py`.
+
 ## Build
 ```bash
 python3 tools/art2/chars/gen_chars2.py --benchmark            # nico, Chain Dogs brawler/flanker, Duke, Dot, towna, townd + 4 portraits

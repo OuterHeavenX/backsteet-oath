@@ -732,7 +732,7 @@
    [
     "narrator",
     "neutral",
-    "ACT III: FLOODGATE. Coach Benny has a new manual for you, and Mara's workbench can go all the way now."
+    "ACT III: THE UNDERLINE. Coach Benny has a new manual for you, and Mara's workbench can go all the way now."
    ]
   ],
   "alliance": [
@@ -1876,6 +1876,381 @@
     "neutral",
     "And one evening, the Lucky Spoon was full again."
    ]
+  ],
+  "underline_plan": [
+   [
+    "mara",
+    "neutral",
+    "Okay. Look at these manifests. Greyline ships crates to Dockside every single night, but there's not one truck on Floodgate Road."
+   ],
+   [
+    "nico",
+    "surprised",
+    "So how do they get there?"
+   ],
+   [
+    "mara",
+    "neutral",
+    "Under it. The Underline. The old subway runs right under the river. Closed since '71."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Kessler Street Station. Jett's rooftops sit right on top of it."
+   ],
+   [
+    "mara",
+    "angry",
+    "Then go down the fire escape and follow the tracks east. Jett's crew can meet you where the line comes up, at Floodgate Bridge."
+   ],
+   [
+    "mara",
+    "sad",
+    "And Nico? Bring a flashlight. Bring three."
+   ]
+  ],
+  "ul_enter": [
+   [
+    "narrator",
+    "neutral",
+    "Kessler Street Station. Closed since 1971. Somebody has been keeping the lights on."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Fresh boot prints. Greyline crates. And... is that a mole with a headlamp painted on the wall?"
+   ]
+  ],
+  "ul_mid": [
+   [
+    "kowal",
+    "neutral",
+    "(a crackling speaker) Attention, topsider. You are in Service Tunnel 3. Nobody walks Tunnel 3 without paying the toll."
+   ],
+   [
+    "kowal",
+    "happy",
+    "My Moles will collect. Mind the third rail."
+   ]
+  ],
+  "kowal_intro": [
+   [
+    "kowal",
+    "neutral",
+    "So you're the courier. Rook said you'd come down the hole sooner or later."
+   ],
+   [
+    "nico",
+    "angry",
+    "What's in the crates, Kowal?"
+   ],
+   [
+    "kowal",
+    "neutral",
+    "Paper. Deeds, titles, signatures. Every family in the rail houses signed something on the way out. Greyline likes its endings orderly."
+   ],
+   [
+    "nico",
+    "angry",
+    "They signed because their houses were on fire."
+   ],
+   [
+    "kowal",
+    "angry",
+    "I dig where they pay me, kid. Down here the dark does half the work. Let me show you."
+   ]
+  ],
+  "kowal_dark": [
+   [
+    "kowal",
+    "angry",
+    "Lights out, topsider!"
+   ]
+  ],
+  "kowal_defeat": [
+   [
+    "kowal",
+    "sad",
+    "...Huh. Topsiders don't usually hit back that hard."
+   ],
+   [
+    "nico",
+    "angry",
+    "The deeds. All of them. They go back to the people they belong to."
+   ],
+   [
+    "kowal",
+    "neutral",
+    "Take them. Rook keeps copies of copies. But his trucks don't run without my tunnels, and my Moles don't work for a man who loses."
+   ],
+   [
+    "kowal",
+    "neutral",
+    "Service ladder's at the east end. Comes up under Floodgate Bridge. Your rooftop friends are up there. Heard them stomping around all night."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Why help me?"
+   ],
+   [
+    "kowal",
+    "happy",
+    "I'm not. I'm retiring. If you ever meet Otis Bell, tell him the Underline's his again."
+   ]
+  ],
+  "radio_offer": [
+   [
+    "ines",
+    "sad",
+    "You look like you can handle yourself. The Neon Saints grabbed my ambulance radio right off the counter. A punk they call Flicker."
+   ],
+   [
+    "ines",
+    "neutral",
+    "Without it I can't call the night crew when somebody collapses on the Mile. He hangs around Big Mo's Alley."
+   ],
+   [
+    "nico",
+    "neutral",
+    "I'll get it back."
+   ]
+  ],
+  "radio_wait": [
+   [
+    "ines",
+    "neutral",
+    "Flicker hangs around Big Mo's Alley, behind the arcade. Be careful out there."
+   ]
+  ],
+  "radio_return": [
+   [
+    "ines",
+    "happy",
+    "My radio! Oh, thank you. Here, take some of the good stuff."
+   ],
+   [
+    "ines",
+    "neutral",
+    "Doctor's orders: stop getting punched."
+   ]
+  ],
+  "punch_offer": [
+   [
+    "otis",
+    "neutral",
+    "Forty years I punched tickets on this line. Kessler Street to Floodgate, every morning, rain or shine."
+   ],
+   [
+    "otis",
+    "sad",
+    "When they shut her down I left my brass punch in the crew locker in Tunnel 3. Those Moles probably buried it under their junk."
+   ],
+   [
+    "nico",
+    "neutral",
+    "I'll go through the crates in Tunnel 3."
+   ]
+  ],
+  "punch_wait": [
+   [
+    "otis",
+    "neutral",
+    "Tunnel 3. Check the crates. She's brass, about so big."
+   ]
+  ],
+  "punch_return": [
+   [
+    "otis",
+    "happy",
+    "That's her! Still clicks like the day she was made. Tickets, please!"
+   ],
+   [
+    "otis",
+    "neutral",
+    "Ruth Kowal let you through? Then maybe this old line runs again someday. Here, for your trouble."
+   ]
+  ],
+  "mural_offer": [
+   [
+    "kiki",
+    "angry",
+    "See that wall? That WAS my mural. The canal, the bridge, Dot's diner, everybody. The Chain Dogs keep tagging right over it."
+   ],
+   [
+    "kiki",
+    "sad",
+    "They paint at night in the Chain Lot and sell the leftover cans. If somebody ran them off, I could finish it."
+   ],
+   [
+    "nico",
+    "happy",
+    "Consider them run off."
+   ]
+  ],
+  "mural_wait": [
+   [
+    "kiki",
+    "neutral",
+    "The taggers hang out in the Chain Lot, by the big wall. Two crews, usually."
+   ]
+  ],
+  "mural_return": [
+   [
+    "kiki",
+    "happy",
+    "You did it? Okay. Okay! I'm painting you in. Big. With a cape."
+   ],
+   [
+    "nico",
+    "surprised",
+    "A cape?"
+   ],
+   [
+    "kiki",
+    "happy",
+    "Artistic license."
+   ]
+  ],
+  "weights_offer": [
+   [
+    "sal",
+    "angry",
+    "Thirty years I sell fish on this canal with an honest scale. Then Greyline 'inspectors' come round and swap my weights for heavy ones."
+   ],
+   [
+    "sal",
+    "sad",
+    "Now my customers pay for fish they don't get, and they think it's me cheating them. Three inspectors: Pier Square, the Ironworks gate, the Marquee Strip."
+   ],
+   [
+    "nico",
+    "angry",
+    "I'll bring the weights back."
+   ]
+  ],
+  "weights_wait": [
+   [
+    "sal",
+    "neutral",
+    "Pier Square, the Ironworks gate, the Marquee Strip. Gray jackets with clipboards. You can't miss them."
+   ]
+  ],
+  "weights_return": [
+   [
+    "sal",
+    "happy",
+    "Ha! Look at that, lead in the bottom of every one. Now my scale tells the truth again."
+   ],
+   [
+    "sal",
+    "neutral",
+    "Here. And come by for fish anytime. Honest weight."
+   ]
+  ],
+  "ladder_offer": [
+   [
+    "benny",
+    "happy",
+    "You want real practice? I run a ladder on Thursdays. Nine bouts, nothing off the floor, no crying."
+   ],
+   [
+    "benny",
+    "neutral",
+    "Win and you climb. Lose and you're done for the night, no shame in it. Bout nine is Mae Okafor. Nobody's beaten Mae in six years."
+   ]
+  ],
+  "ladder_lose": [
+   [
+    "benny",
+    "neutral",
+    "That's the night. Ice, water, sleep. Come back when you're ready."
+   ]
+  ],
+  "mae_intro": [
+   [
+    "mae",
+    "happy",
+    "So you're Benny's courier kid. He talks about you like you hung the moon."
+   ],
+   [
+    "mae",
+    "neutral",
+    "Gloves up. I'm not going easy because you're nice to old men."
+   ]
+  ],
+  "mae_defeat": [
+   [
+    "mae",
+    "surprised",
+    "...Okay. Okay! Benny, did you SEE that?"
+   ],
+   [
+    "benny",
+    "happy",
+    "I saw it. Six years, Mae. Somebody had to."
+   ],
+   [
+    "mae",
+    "happy",
+    "Take my wraps, champ. You earned them. Rematch next Thursday."
+   ]
+  ],
+  "mae_rematch": [
+   [
+    "mae",
+    "happy",
+    "Back for more? Good. I've been practicing just for you."
+   ]
+  ],
+  "ngplus_card": [
+   [
+    "narrator",
+    "neutral",
+    "NEW GAME+. Same streets, same oath. The crews heard about you, and they brought friends."
+   ]
+  ],
+  "ines_chat": [
+   [
+    "ines",
+    "neutral",
+    "Night shift on the Mile. Sprains, cuts, and a lot of people who swear they 'just tripped'."
+   ]
+  ],
+  "otis_chat": [
+   [
+    "otis",
+    "happy",
+    "Next stop, Floodgate Bridge. Mind the gap."
+   ]
+  ],
+  "kiki_chat": [
+   [
+    "kiki",
+    "neutral",
+    "Murals are like neighborhoods. You have to keep showing up for them."
+   ]
+  ],
+  "kiki_chat2": [
+   [
+    "kiki",
+    "happy",
+    "Come back next week. The cape is coming along beautifully."
+   ]
+  ],
+  "sal_chat": [
+   [
+    "sal",
+    "neutral",
+    "Mackerel's fresh, eel's fresher. Don't ask about the eel."
+   ]
+  ],
+  "mae_chat": [
+   [
+    "mae",
+    "happy",
+    "Benny's ladder runs every night now, by popular demand. Mostly mine."
+   ]
   ]
  },
  "npc": {
@@ -2103,6 +2478,35 @@
   "lacey": [
    {
     "say": "score_ask"
+   }
+  ],
+  "ines": [
+   {
+    "say": "ines_chat"
+   }
+  ],
+  "otis": [
+   {
+    "say": "otis_chat"
+   }
+  ],
+  "kiki": [
+   {
+    "if": "quest:mural=done",
+    "say": "kiki_chat2"
+   },
+   {
+    "say": "kiki_chat"
+   }
+  ],
+  "sal": [
+   {
+    "say": "sal_chat"
+   }
+  ],
+  "mae": [
+   {
+    "say": "mae_chat"
    }
   ]
  }

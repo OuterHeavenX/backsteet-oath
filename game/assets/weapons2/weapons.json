@@ -166,5 +166,17 @@
    7
   ],
   "density": 2
+ },
+ "shovel": {
+  "file": "res://assets/weapons2/shovel.png",
+  "grip": [
+   12,
+   12
+  ],
+  "tip": [
+   80,
+   12
+  ],
+  "density": 2
  }
 }

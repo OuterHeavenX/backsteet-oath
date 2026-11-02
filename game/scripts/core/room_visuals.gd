@@ -21,6 +21,11 @@ var cast_shadow := {}
 var reflects: Array = []      # [{rect: Rect2, alpha: float}]
 var ambient_nodes: Array = []
 var t := 0.0
+var darkness := 1.0          # scene light multiplier (boss "lights out"); 1 = normal
+var _dark_target := 1.0
+var _dark_speed := 1.0
+var bg_root_ref: Node2D
+var fg_root_ref: Node2D
 static var _add_mat: CanvasItemMaterial
 
 static func has_v2(room_id: String) -> bool:
@@ -34,6 +39,8 @@ static func add_material() -> CanvasItemMaterial:
 
 func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg_root: Node2D) -> bool:
 	room = r
+	bg_root_ref = bg_root
+	fg_root_ref = fg_root
 	dir = "res://assets/bg2/%s/" % room.room_id
 	var meta = JSON.parse_string(FileAccess.get_file_as_string(dir + "room.json")) if has_v2(room.room_id) else null
 	if typeof(meta) != TYPE_DICTIONARY:
@@ -160,6 +167,25 @@ func update(cam_left: float, view_w: float, actors: Array, dt: float) -> void:
 	if not v2:
 		return
 	t += dt
+	if darkness != _dark_target:
+		darkness = move_toward(darkness, _dark_target, dt / maxf(_dark_speed, 0.01))
+		var m := Color(darkness, darkness, darkness * 1.05)
+		if bg_root_ref:
+			bg_root_ref.modulate = m
+		if fg_root_ref:
+			fg_root_ref.modulate = m
+		for pr in room.props:
+			if is_instance_valid(pr):
+				pr.modulate = light_at(pr.position)
+	for G in glows:
+		if G.has("follow"):
+			var f = G.follow
+			if is_instance_valid(f) and not f.dead:
+				G.x = f.position.x + float(G.off.x) * float(f.facing)
+				G.y = f.position.y + float(G.off.y) - f.z
+				(G.spr as Sprite2D).position = Vector2(G.x, G.y)
+			else:
+				(G.spr as Sprite2D).visible = false
 	var cam_c := cam_left + view_w * 0.5
 	for L in layers:
 		var par: float = L.parallax
@@ -210,10 +236,30 @@ func update(cam_left: float, view_w: float, actors: Array, dt: float) -> void:
 		var c: Color = G.color
 		(G.spr as Sprite2D).modulate = Color(c.r, c.g, c.b, float(G.energy) * k)
 
+## Dims the whole room (backgrounds, props and actors through light_at) over `secs` seconds.
+func set_darkness(level: float, secs: float = 0.6) -> void:
+	_dark_target = clampf(level, 0.2, 1.0)
+	_dark_speed = secs
+
+## A glow that follows an actor (e.g. Kowal's lantern). It also feeds rim light like any other glow.
+func add_follow_light(node: Node2D, radius: float, col: Color, energy: float, offset: Vector2) -> void:
+	var gtex := SpriteLib.tex("res://assets/fx2/glow_soft.png")
+	if gtex == null:
+		gtex = _fallback_glow()
+	var g := Sprite2D.new()
+	g.texture = gtex
+	g.material = add_material()
+	g.scale = Vector2.ONE * (2.0 * radius / gtex.get_width())
+	g.modulate = Color(col.r, col.g, col.b, energy)
+	var holder: Node = room.glow_front if room.get("glow_front") else room
+	holder.add_child(g)
+	glows.append({"spr": g, "x": node.position.x, "y": node.position.y, "r": radius, "color": col, "energy": energy,
+		"flicker": "flame", "phase": randf() * 10.0, "front": false, "off_t": 0.0, "follow": node, "off": offset})
+
 # ------------------------------------------------------------------ queries used by actors and props
 func light_at(p: Vector2) -> Color:
 	if light_img == null:
-		return Color(1, 1, 1)
+		return Color(darkness, darkness, darkness)
 	var w := light_img.get_width()
 	var h := light_img.get_height()
 	var fx := clampf(p.x / light_cell - 0.5, 0.0, w - 1.0)
@@ -226,7 +272,7 @@ func light_at(p: Vector2) -> Color:
 	var ty := fy - y0
 	var c := light_img.get_pixel(x0, y0).lerp(light_img.get_pixel(x1, y0), tx).lerp(
 		light_img.get_pixel(x0, y1).lerp(light_img.get_pixel(x1, y1), tx), ty)
-	var k := 255.0 / 204.0
+	var k := 255.0 / 204.0 * darkness
 	return Color(c.r * k, c.g * k, c.b * k)
 
 func rim_at(p: Vector2) -> Dictionary:
