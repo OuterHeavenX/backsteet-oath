@@ -1,0 +1,40 @@
+; Engine configuration file.
+; Pinned engine: Godot 4.7.2-stable (official), Compatibility renderer.
+
+config_version=5
+
+[application]
+
+config/name="Backstreet Oath"
+config/description="An original belt-scrolling action RPG set in Bellwether, 1988."
+config/version="0.1.0"
+run/main_scene="res://scenes/proof.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+boot_splash/bg_color=Color(0.101961, 0.0705882, 0.12549, 1)
+boot_splash/show_image=false
+
+[display]
+
+window/size/viewport_width=640
+window/size/viewport_height=360
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="viewport"
+window/stretch/aspect="keep_height"
+
+[input_devices]
+
+pointing/emulate_mouse_from_touch=true
+
+[physics]
+
+common/physics_ticks_per_second=60
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=0
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true
+environment/defaults/default_clear_color=Color(0.101961, 0.0705882, 0.12549, 1)

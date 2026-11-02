@@ -1,0 +1,560 @@
+{
+  "_doc": "Room layouts. Exterior: facades y0-214, ground 214-360, walk band [218,344]. Interior: wall 0-196, floor 196-360, walk [232,344]. Prop y = bottom anchor on the ground plane. Doors: x = center, bottom at ground top. Exits: west/east edges; interiors use a 'south' doormat exit spanning x0..x1.",
+  "rooms": {
+    "oq_kettle": {
+      "name": "Kettle Street", "district": "old_quarter", "kind": "exterior", "width": 1600,
+      "theme": "old_quarter", "music": "old_quarter", "walk": [218, 344], "bus_stop": true,
+      "facades": [
+        {"x": 0, "w": 300, "kind": "rowhouse"},
+        {"x": 300, "w": 320, "kind": "diner", "sign": "LUCKY SPOON"},
+        {"x": 620, "w": 220, "kind": "laundromat", "sign": "SUDS & DUDS"},
+        {"x": 840, "w": 60, "kind": "alley_gap"},
+        {"x": 900, "w": 260, "kind": "closed_shop", "sign": "ROSIE'S RECORDS"},
+        {"x": 1160, "w": 440, "kind": "brick_apartment"}
+      ],
+      "ground": [{"x": 0, "w": 1600, "style": "street"}],
+      "doors": [{"id": "diner", "x": 460, "to": "int_diner", "spawn": "south", "label": "Lucky Spoon Diner"}],
+      "exits": {"east": {"to": "oq_brickrow", "spawn": "west"}},
+      "props": [
+        {"type": "bus_stop", "x": 150, "y": 222},
+        {"type": "lamp_post", "x": 280, "y": 221},
+        {"type": "newsbox", "x": 600, "y": 223},
+        {"type": "hydrant", "x": 720, "y": 228},
+        {"type": "trash_can", "x": 866, "y": 226},
+        {"type": "lamp_post", "x": 960, "y": 221},
+        {"type": "mailbox", "x": 1110, "y": 223},
+        {"type": "bench", "x": 1270, "y": 225},
+        {"type": "crate", "x": 1460, "y": 306},
+        {"type": "lamp_post", "x": 1520, "y": 221},
+        {"type": "traffic_cone", "x": 1040, "y": 336}
+      ]
+    },
+    "oq_brickrow": {
+      "name": "Brickrow Lane", "district": "old_quarter", "kind": "exterior", "width": 1760,
+      "theme": "old_quarter", "music": "old_quarter", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 480, "kind": "rowhouse"},
+        {"x": 480, "w": 320, "kind": "garage", "sign": "QUINN GARAGE"},
+        {"x": 800, "w": 200, "kind": "rowhouse", "variant": 1},
+        {"x": 1000, "w": 240, "kind": "closed_shop", "sign": "BELL MART"},
+        {"x": 1240, "w": 320, "kind": "rec_center", "sign": "BENNY'S REC CENTER"},
+        {"x": 1560, "w": 200, "kind": "tunnel_arch", "sign": "RAIL TUNNEL"}
+      ],
+      "ground": [{"x": 0, "w": 1760, "style": "street"}],
+      "doors": [
+        {"id": "garage", "x": 640, "to": "int_garage", "spawn": "south", "label": "Quinn Garage"},
+        {"id": "rec", "x": 1400, "to": "int_rec", "spawn": "south", "label": "Benny's Rec Center"},
+        {"id": "tunnel", "x": 1660, "to": "iy_spur", "spawn": "door:tunnel", "label": "Rail Tunnel to Ironworks", "requires": "boss_otto", "locked_text": "The rail tunnel is chained shut from the Ironworks side."}
+      ],
+      "exits": {"west": {"to": "oq_kettle", "spawn": "east"}, "east": {"to": "oq_chainlot", "spawn": "west", "requires": "met_mara", "locked_text": "Better check in with Mara at Quinn Garage first."}},
+      "props": [
+        {"type": "trash_can", "x": 300, "y": 226},
+        {"type": "lamp_post", "x": 200, "y": 221},
+        {"type": "mailbox", "x": 860, "y": 223},
+        {"type": "planter", "x": 940, "y": 224},
+        {"type": "lamp_post", "x": 980, "y": 221},
+        {"type": "barrel", "x": 1060, "y": 228},
+        {"type": "crate", "x": 1130, "y": 304},
+        {"type": "lamp_post", "x": 1540, "y": 221},
+        {"type": "hydrant", "x": 400, "y": 228}
+      ]
+    },
+    "oq_chainlot": {
+      "name": "Chain Lot", "district": "old_quarter", "kind": "exterior", "width": 1440,
+      "theme": "old_quarter", "music": "old_quarter", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 380, "kind": "graffiti_wall"},
+        {"x": 380, "w": 620, "kind": "fence_lot"},
+        {"x": 1000, "w": 300, "kind": "clubhouse_shed", "sign": "DOG HOUSE"},
+        {"x": 1300, "w": 140, "kind": "underpass"}
+      ],
+      "ground": [{"x": 0, "w": 1440, "style": "lot"}],
+      "doors": [],
+      "exits": {"west": {"to": "oq_brickrow", "spawn": "east"}, "east": {"to": "cm_gate", "spawn": "west", "requires": "boss_duke", "locked_text": "The Chain Dogs have padlocked the underpass. Their leader holds the key."}},
+      "props": [
+        {"type": "dumpster", "x": 140, "y": 228},
+        {"type": "oil_drum", "x": 300, "y": 230},
+        {"type": "car_wreck", "x": 600, "y": 238},
+        {"type": "crate", "x": 770, "y": 312},
+        {"type": "tire_stack", "x": 900, "y": 228},
+        {"type": "trash_can", "x": 1110, "y": 226},
+        {"type": "pallet", "x": 1220, "y": 226}
+      ]
+    },
+    "cm_gate": {
+      "name": "Market Gate", "district": "canal_market", "kind": "exterior", "width": 1600,
+      "theme": "canal_market", "music": "canal_market", "walk": [218, 344], "bus_stop": true,
+      "facades": [
+        {"x": 0, "w": 220, "kind": "warehouse_small"},
+        {"x": 220, "w": 300, "kind": "market_arch", "sign": "CANAL MARKET"},
+        {"x": 520, "w": 280, "kind": "shopfront", "sign": "FONG'S NOODLES", "variant": 1},
+        {"x": 800, "w": 280, "kind": "stall_row"},
+        {"x": 1080, "w": 260, "kind": "shopfront", "sign": "HOLLIS BOOKS", "variant": 2},
+        {"x": 1340, "w": 260, "kind": "stall_row", "variant": 1}
+      ],
+      "ground": [{"x": 0, "w": 1600, "style": "cobble"}],
+      "doors": [
+        {"id": "noodle", "x": 660, "to": "int_noodle", "spawn": "south", "label": "Fong's Noodles"},
+        {"id": "books", "x": 1210, "to": "int_books", "spawn": "south", "label": "Hollis Books"}
+      ],
+      "exits": {"west": {"to": "oq_chainlot", "spawn": "east"}, "east": {"to": "cm_canalwalk", "spawn": "west"}},
+      "props": [
+        {"type": "bus_stop", "x": 120, "y": 222},
+        {"type": "lamp_post", "x": 500, "y": 221},
+        {"type": "barrel", "x": 560, "y": 228},
+        {"type": "market_stall_fruit", "x": 930, "y": 238},
+        {"type": "crate", "x": 1010, "y": 306},
+        {"type": "lamp_post", "x": 1320, "y": 221},
+        {"type": "market_stall_fish", "x": 1470, "y": 238}
+      ]
+    },
+    "cm_canalwalk": {
+      "name": "Canal Walk", "district": "canal_market", "kind": "exterior", "width": 1920,
+      "theme": "canal_market", "music": "canal_market", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 760, "kind": "canal_rail"},
+        {"x": 760, "w": 400, "kind": "footbridge"},
+        {"x": 1160, "w": 760, "kind": "canal_rail", "variant": 1}
+      ],
+      "ground": [
+        {"x": 0, "w": 760, "style": "boardwalk"},
+        {"x": 760, "w": 400, "style": "bridge_planks"},
+        {"x": 1160, "w": 760, "style": "boardwalk"}
+      ],
+      "blockers": [
+        {"x": 760, "y": 214, "w": 400, "h": 38, "kind": "water"},
+        {"x": 760, "y": 316, "w": 400, "h": 44, "kind": "water"}
+      ],
+      "doors": [],
+      "exits": {"west": {"to": "cm_gate", "spawn": "east"}, "east": {"to": "cm_pier", "spawn": "west"}},
+      "props": [
+        {"type": "lamp_post", "x": 150, "y": 221},
+        {"type": "mooring_post", "x": 300, "y": 223},
+        {"type": "crate_stack", "x": 560, "y": 244},
+        {"type": "lamp_post", "x": 1250, "y": 221},
+        {"type": "mooring_post", "x": 1320, "y": 223},
+        {"type": "fish_crate", "x": 1420, "y": 304},
+        {"type": "barrel", "x": 1610, "y": 228},
+        {"type": "mooring_post", "x": 1720, "y": 223},
+        {"type": "lamp_post", "x": 1820, "y": 221}
+      ]
+    },
+    "cm_pier": {
+      "name": "Pier Square", "district": "canal_market", "kind": "exterior", "width": 1440,
+      "theme": "canal_market", "music": "canal_market", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 500, "kind": "fish_hall", "sign": "BELLWETHER FISH HALL"},
+        {"x": 500, "w": 600, "kind": "pier"},
+        {"x": 1100, "w": 340, "kind": "warehouse_small", "variant": 1, "sign": "DRAWBRIDGE"}
+      ],
+      "ground": [{"x": 0, "w": 1440, "style": "cobble"}],
+      "doors": [],
+      "exits": {"west": {"to": "cm_canalwalk", "spawn": "east"}, "east": {"to": "iy_gate", "spawn": "west", "requires": "boss_pikes", "locked_text": "The drawbridge to the Ironworks is raised. The Pike sisters run the crank."}},
+      "props": [
+        {"type": "fish_crate", "x": 160, "y": 228},
+        {"type": "ice_chest", "x": 360, "y": 228},
+        {"type": "lamp_post", "x": 520, "y": 221},
+        {"type": "barrel", "x": 980, "y": 228},
+        {"type": "crate_stack", "x": 1260, "y": 244},
+        {"type": "fish_crate", "x": 700, "y": 312}
+      ]
+    },
+    "iy_gate": {
+      "name": "Yard Gate", "district": "ironworks", "kind": "exterior", "width": 1600,
+      "theme": "ironworks", "music": "ironworks", "walk": [218, 344], "bus_stop": true,
+      "facades": [
+        {"x": 0, "w": 300, "kind": "yard_gate", "sign": "BELLWETHER IRONWORKS"},
+        {"x": 300, "w": 400, "kind": "rail_shed"},
+        {"x": 700, "w": 400, "kind": "chainlink_yard"},
+        {"x": 1100, "w": 500, "kind": "brick_factory"}
+      ],
+      "ground": [{"x": 0, "w": 1600, "style": "gravel_rail"}],
+      "doors": [],
+      "exits": {"west": {"to": "cm_pier", "spawn": "east"}, "east": {"to": "iy_spur", "spawn": "west"}},
+      "props": [
+        {"type": "bus_stop", "x": 100, "y": 222},
+        {"type": "pipe_stack", "x": 500, "y": 240},
+        {"type": "floodlight", "x": 660, "y": 221},
+        {"type": "oil_drum", "x": 820, "y": 228},
+        {"type": "oil_drum", "x": 846, "y": 232},
+        {"type": "crate", "x": 1010, "y": 306},
+        {"type": "tire_stack", "x": 1300, "y": 228},
+        {"type": "floodlight", "x": 1460, "y": 221}
+      ]
+    },
+    "iy_spur": {
+      "name": "Rail Spur", "district": "ironworks", "kind": "exterior", "width": 1920,
+      "theme": "ironworks", "music": "ironworks", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 400, "kind": "rail_shed", "variant": 1},
+        {"x": 400, "w": 300, "kind": "canteen", "sign": "YARD CANTEEN"},
+        {"x": 700, "w": 300, "kind": "chainlink_yard", "variant": 1},
+        {"x": 1000, "w": 300, "kind": "switch_house", "sign": "SWITCH HOUSE 4"},
+        {"x": 1300, "w": 400, "kind": "brick_factory", "variant": 1},
+        {"x": 1700, "w": 220, "kind": "tunnel_arch", "sign": "RAIL TUNNEL"}
+      ],
+      "ground": [{"x": 0, "w": 1920, "style": "gravel_rail"}],
+      "doors": [
+        {"id": "canteen", "x": 550, "to": "int_canteen", "spawn": "south", "label": "Yard Canteen"},
+        {"id": "switch", "x": 1150, "to": "int_switch", "spawn": "south", "label": "Switch House 4"},
+        {"id": "tunnel", "x": 1810, "to": "oq_brickrow", "spawn": "door:tunnel", "label": "Rail Tunnel to Brickrow Lane", "requires": "boss_otto", "locked_text": "Otto's crew chained the tunnel. Somebody in charge has the key."}
+      ],
+      "exits": {"west": {"to": "iy_gate", "spawn": "east"}, "east": {"to": "iy_foundry", "spawn": "west", "requires": "rescued_gus", "locked_text": "The foundry doors are bolted. Maybe the witness in Switch House 4 knows a way in."}},
+      "props": [
+        {"type": "floodlight", "x": 300, "y": 221},
+        {"type": "rail_cart", "x": 820, "y": 244},
+        {"type": "oil_drum", "x": 960, "y": 228},
+        {"type": "pipe_stack", "x": 1420, "y": 240},
+        {"type": "crate", "x": 1530, "y": 230},
+        {"type": "crate", "x": 1600, "y": 306},
+        {"type": "floodlight", "x": 1680, "y": 221}
+      ]
+    },
+    "iy_foundry": {
+      "name": "Foundry Floor", "district": "ironworks", "kind": "exterior", "width": 1440,
+      "theme": "ironworks", "music": "ironworks", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 480, "kind": "foundry_wall"},
+        {"x": 480, "w": 480, "kind": "furnace"},
+        {"x": 960, "w": 480, "kind": "crane_bay"}
+      ],
+      "ground": [{"x": 0, "w": 1440, "style": "foundry_floor"}],
+      "doors": [],
+      "exits": {"west": {"to": "iy_spur", "spawn": "east"}, "east": {"to": "nm_marquee", "spawn": "west", "requires": "boss_otto", "locked_text": "The foundry's back gate only opens from Otto's control booth."}},
+      "props": [
+        {"type": "crate_stack", "x": 300, "y": 244},
+        {"type": "ingot_stack", "x": 560, "y": 230},
+        {"type": "crate", "x": 720, "y": 308},
+        {"type": "oil_drum", "x": 1180, "y": 228},
+        {"type": "ingot_stack", "x": 1330, "y": 230}
+      ]
+    },
+    "nm_marquee": {
+      "name": "Marquee Strip", "district": "neon_mile", "kind": "exterior", "width": 1760,
+      "theme": "neon_mile", "music": "neon_mile", "walk": [218, 344], "bus_stop": true,
+      "facades": [
+        {"x": 0, "w": 300, "kind": "brick_night"},
+        {"x": 300, "w": 400, "kind": "theater_marquee", "sign": "ORPHEUM"},
+        {"x": 700, "w": 280, "kind": "neon_shopfront", "sign": "PIZZA"},
+        {"x": 980, "w": 280, "kind": "pharmacy", "sign": "ROSA'S PHARMACY"},
+        {"x": 1260, "w": 260, "kind": "neon_shopfront", "sign": "LOUNGE", "variant": 1},
+        {"x": 1520, "w": 240, "kind": "brick_night", "variant": 1}
+      ],
+      "ground": [{"x": 0, "w": 1760, "style": "neon_asphalt"}],
+      "doors": [{"id": "pharmacy", "x": 1120, "to": "int_pharmacy", "spawn": "south", "label": "Rosa's Pharmacy"}],
+      "exits": {"west": {"to": "iy_foundry", "spawn": "east"}, "east": {"to": "nm_arcade", "spawn": "west"}},
+      "props": [
+        {"type": "bus_stop", "x": 120, "y": 222},
+        {"type": "lamp_post", "x": 290, "y": 221},
+        {"type": "phone_booth", "x": 860, "y": 226},
+        {"type": "newsbox", "x": 950, "y": 223},
+        {"type": "vending_machine", "x": 1290, "y": 226},
+        {"type": "lamp_post", "x": 1500, "y": 221},
+        {"type": "trash_can", "x": 1560, "y": 226},
+        {"type": "car_parked", "x": 620, "y": 342}
+      ]
+    },
+    "nm_arcade": {
+      "name": "Arcade Alley", "district": "neon_mile", "kind": "exterior", "width": 1600,
+      "theme": "neon_mile", "music": "neon_mile", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 300, "kind": "neon_shopfront", "sign": "RECORDS", "variant": 2},
+        {"x": 300, "w": 400, "kind": "arcade_front", "sign": "STARLIGHT ARCADE"},
+        {"x": 700, "w": 200, "kind": "alley_gap", "sign": "BIG MO'S ALLEY"},
+        {"x": 900, "w": 400, "kind": "fire_escape_wall"},
+        {"x": 1300, "w": 300, "kind": "neon_shopfront", "sign": "HOTEL", "variant": 3}
+      ],
+      "ground": [{"x": 0, "w": 1600, "style": "neon_asphalt"}],
+      "doors": [
+        {"id": "arcade", "x": 500, "to": "int_arcade", "spawn": "south", "label": "Starlight Arcade"},
+        {"id": "backalley", "x": 800, "to": "nm_backalley", "spawn": "south", "label": "Big Mo's Alley"}
+      ],
+      "exits": {"west": {"to": "nm_marquee", "spawn": "east"}, "east": {"to": "nm_rooftops", "spawn": "west", "requires": "arcade_backroom", "locked_text": "The fire escape is blocked by Neon Saints lookouts. Check the arcade first."}},
+      "props": [
+        {"type": "lamp_post", "x": 260, "y": 221},
+        {"type": "vending_machine", "x": 676, "y": 226},
+        {"type": "dumpster", "x": 1010, "y": 228},
+        {"type": "trash_can", "x": 1080, "y": 226},
+        {"type": "crate", "x": 1180, "y": 308},
+        {"type": "neon_post", "x": 1290, "y": 221},
+        {"type": "lamp_post", "x": 1520, "y": 221}
+      ]
+    },
+    "nm_backalley": {
+      "name": "Big Mo's Alley", "district": "neon_mile", "kind": "exterior", "width": 640,
+      "theme": "neon_mile", "music": "neon_mile", "walk": [218, 344],
+      "facades": [{"x": 0, "w": 640, "kind": "alley_walls", "sign": "ALLEY CAT CUP"}],
+      "ground": [{"x": 0, "w": 640, "style": "neon_asphalt"}],
+      "doors": [],
+      "exits": {"south": {"to": "nm_arcade", "spawn": "door:backalley", "x0": 280, "x1": 360}},
+      "props": [
+        {"type": "dumpster", "x": 90, "y": 228},
+        {"type": "crate_stack", "x": 560, "y": 244},
+        {"type": "trash_can", "x": 160, "y": 226}
+      ]
+    },
+    "nm_rooftops": {
+      "name": "Rooftops", "district": "neon_mile", "kind": "exterior", "width": 1600,
+      "theme": "neon_mile", "music": "neon_mile", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 600, "kind": "rooftop_edge"},
+        {"x": 600, "w": 500, "kind": "rooftop_edge", "variant": 1, "sign": "DRINK FIZZ"},
+        {"x": 1100, "w": 500, "kind": "rooftop_edge", "variant": 2}
+      ],
+      "ground": [{"x": 0, "w": 1600, "style": "rooftop"}],
+      "doors": [],
+      "exits": {"west": {"to": "nm_arcade", "spawn": "east"}, "east": {"to": "fr_bridge", "spawn": "west", "requires": "act3_started", "locked_text": "The fire escape down to Floodgate Road. Not yet. You still need a plan."}},
+      "props": [
+        {"type": "ac_unit", "x": 300, "y": 228},
+        {"type": "vent", "x": 700, "y": 226},
+        {"type": "chimney", "x": 1100, "y": 224},
+        {"type": "ac_unit", "x": 1340, "y": 312}
+      ]
+    },
+    "fr_bridge": {
+      "name": "Floodgate Bridge", "district": "floodgate", "kind": "exterior", "width": 1760,
+      "theme": "floodgate", "music": "floodgate", "walk": [218, 344], "bus_stop": true, "weather": "rain",
+      "facades": [{"x": 0, "w": 1760, "kind": "bridge_rail"}],
+      "ground": [{"x": 0, "w": 1760, "style": "wet_road"}],
+      "doors": [],
+      "exits": {"west": {"to": "nm_rooftops", "spawn": "east"}, "east": {"to": "fr_pumpstation", "spawn": "west"}},
+      "props": [
+        {"type": "bus_stop", "x": 120, "y": 222},
+        {"type": "lamp_sodium", "x": 400, "y": 221},
+        {"type": "barrier", "x": 700, "y": 336},
+        {"type": "lamp_sodium", "x": 900, "y": 221},
+        {"type": "sandbags", "x": 1120, "y": 234},
+        {"type": "lamp_sodium", "x": 1400, "y": 221},
+        {"type": "traffic_cone", "x": 1500, "y": 330}
+      ]
+    },
+    "fr_pumpstation": {
+      "name": "Pump Station Road", "district": "floodgate", "kind": "exterior", "width": 1920,
+      "theme": "floodgate", "music": "floodgate", "walk": [218, 344], "weather": "rain",
+      "facades": [
+        {"x": 0, "w": 500, "kind": "pump_station", "sign": "PUMP STATION 2"},
+        {"x": 500, "w": 280, "kind": "bait_shop", "sign": "BAIT & TACKLE"},
+        {"x": 780, "w": 520, "kind": "floodgate_wall"},
+        {"x": 1300, "w": 620, "kind": "container_stack"}
+      ],
+      "ground": [{"x": 0, "w": 1920, "style": "wet_road"}],
+      "doors": [{"id": "bait", "x": 640, "to": "int_bait", "spawn": "south", "label": "Bait & Tackle"}],
+      "exits": {"west": {"to": "fr_bridge", "spawn": "east"}, "east": {"to": "fr_dockgate", "spawn": "west"}},
+      "props": [
+        {"type": "lamp_sodium", "x": 460, "y": 221},
+        {"type": "sandbags", "x": 900, "y": 234},
+        {"type": "oil_drum", "x": 1040, "y": 228},
+        {"type": "crate", "x": 1160, "y": 308},
+        {"type": "lamp_sodium", "x": 1280, "y": 221},
+        {"type": "barrel", "x": 1500, "y": 228},
+        {"type": "dumpster", "x": 1700, "y": 228}
+      ]
+    },
+    "fr_dockgate": {
+      "name": "Dockside Gate", "district": "floodgate", "kind": "exterior", "width": 1440,
+      "theme": "floodgate", "music": "floodgate", "walk": [218, 344], "weather": "rain",
+      "facades": [
+        {"x": 0, "w": 600, "kind": "container_stack", "variant": 1},
+        {"x": 600, "w": 840, "kind": "warehouse_fence", "sign": "GREYLINE DEVELOPMENT - PRIVATE PROPERTY"}
+      ],
+      "ground": [{"x": 0, "w": 1440, "style": "wet_road"}],
+      "doors": [],
+      "exits": {"west": {"to": "fr_pumpstation", "spawn": "east"}, "east": {"to": "rw_dock", "spawn": "west", "requires": "boss_sabine", "locked_text": "The Greyline gate is locked tight. Captain Holt carries the key."}},
+      "props": [
+        {"type": "guard_booth", "x": 420, "y": 230},
+        {"type": "floodlight", "x": 640, "y": 221},
+        {"type": "sandbags", "x": 820, "y": 234},
+        {"type": "crate", "x": 300, "y": 310},
+        {"type": "floodlight", "x": 1240, "y": 221}
+      ]
+    },
+    "rw_dock": {
+      "name": "Loading Dock", "district": "warehouse", "kind": "exterior", "width": 1600,
+      "theme": "warehouse", "music": "warehouse", "walk": [218, 344],
+      "facades": [{"x": 0, "w": 1600, "kind": "loading_bay"}],
+      "ground": [{"x": 0, "w": 1600, "style": "warehouse_floor"}],
+      "doors": [],
+      "exits": {"west": {"to": "fr_dockgate", "spawn": "east"}, "east": {"to": "rw_storage", "spawn": "west"}},
+      "props": [
+        {"type": "pallet", "x": 260, "y": 226},
+        {"type": "forklift", "x": 620, "y": 244},
+        {"type": "crate_stack", "x": 980, "y": 244},
+        {"type": "crate", "x": 1120, "y": 308},
+        {"type": "oil_drum", "x": 1400, "y": 228}
+      ]
+    },
+    "rw_storage": {
+      "name": "Storage Floor", "district": "warehouse", "kind": "exterior", "width": 1920,
+      "theme": "warehouse", "music": "warehouse", "walk": [218, 344],
+      "facades": [
+        {"x": 0, "w": 800, "kind": "warehouse_wall"},
+        {"x": 800, "w": 400, "kind": "conveyor_wall"},
+        {"x": 1200, "w": 720, "kind": "warehouse_wall", "variant": 1}
+      ],
+      "ground": [{"x": 0, "w": 1920, "style": "warehouse_floor"}],
+      "doors": [],
+      "exits": {"west": {"to": "rw_dock", "spawn": "east"}, "east": {"to": "rw_office", "spawn": "west"}},
+      "props": [
+        {"type": "shelf", "x": 300, "y": 238},
+        {"type": "crate", "x": 520, "y": 306},
+        {"type": "crate_stack", "x": 1000, "y": 324},
+        {"type": "shelf", "x": 1500, "y": 238},
+        {"type": "forklift", "x": 1760, "y": 300}
+      ]
+    },
+    "rw_office": {
+      "name": "Holding Office", "district": "warehouse", "kind": "exterior", "width": 960,
+      "theme": "warehouse", "music": "warehouse", "walk": [218, 344],
+      "facades": [{"x": 0, "w": 960, "kind": "office_wall", "sign": "HOLDING"}],
+      "ground": [{"x": 0, "w": 960, "style": "office_floor"}],
+      "doors": [],
+      "exits": {"west": {"to": "rw_storage", "spawn": "east"}, "east": {"to": "rw_floor", "spawn": "west", "requires": "found_eli", "locked_text": "Find Eli first."}},
+      "props": [
+        {"type": "desk", "x": 380, "y": 244},
+        {"type": "filing_cabinet", "x": 690, "y": 226},
+        {"type": "filing_cabinet", "x": 720, "y": 226},
+        {"type": "crate", "x": 860, "y": 310}
+      ]
+    },
+    "rw_floor": {
+      "name": "Rook's Floor", "district": "warehouse", "kind": "exterior", "width": 1120,
+      "theme": "warehouse", "music": "warehouse", "walk": [218, 344],
+      "facades": [{"x": 0, "w": 1120, "kind": "crane_hall", "sign": "GREYLINE"}],
+      "ground": [{"x": 0, "w": 1120, "style": "warehouse_floor"}],
+      "doors": [],
+      "exits": {"west": {"to": "rw_office", "spawn": "east"}},
+      "props": [
+        {"type": "crate_stack", "x": 60, "y": 244},
+        {"type": "crate_stack", "x": 1060, "y": 244}
+      ]
+    },
+    "int_diner": {
+      "name": "Lucky Spoon Diner", "district": "old_quarter", "kind": "interior", "width": 640,
+      "theme": "diner_interior", "music": "safe_hub", "walk": [232, 344], "safe": true, "hub": true,
+      "facades": [{"x": 0, "w": 640, "kind": "diner_interior"}],
+      "ground": [{"x": 0, "w": 640, "style": "checker_floor"}],
+      "doors": [],
+      "exits": {"south": {"to": "oq_kettle", "spawn": "door:diner", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "counter_diner", "x": 380, "y": 262},
+        {"type": "jukebox", "x": 600, "y": 240},
+        {"type": "booth_seat", "x": 80, "y": 248},
+        {"type": "stool", "x": 330, "y": 276},
+        {"type": "stool", "x": 430, "y": 276}
+      ]
+    },
+    "int_garage": {
+      "name": "Quinn Garage", "district": "old_quarter", "kind": "interior", "width": 640,
+      "theme": "garage_interior", "music": "safe_hub", "walk": [232, 344], "safe": true,
+      "facades": [{"x": 0, "w": 640, "kind": "garage_interior"}],
+      "ground": [{"x": 0, "w": 640, "style": "garage_floor"}],
+      "doors": [],
+      "exits": {"south": {"to": "oq_brickrow", "spawn": "door:garage", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "workbench", "x": 400, "y": 262},
+        {"type": "tire_stack", "x": 590, "y": 244},
+        {"type": "oil_drum", "x": 200, "y": 244}
+      ]
+    },
+    "int_rec": {
+      "name": "Benny's Rec Center", "district": "old_quarter", "kind": "interior", "width": 640,
+      "theme": "gym_interior", "music": "safe_hub", "walk": [232, 344], "safe": true,
+      "facades": [{"x": 0, "w": 640, "kind": "gym_interior", "sign": "NOBODY FIGHTS ALONE"}],
+      "ground": [{"x": 0, "w": 640, "style": "gym_floor"}],
+      "doors": [],
+      "exits": {"south": {"to": "oq_brickrow", "spawn": "door:rec", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "counter_shop", "x": 400, "y": 262},
+        {"type": "punching_bag", "x": 200, "y": 270},
+        {"type": "training_dummy", "x": 560, "y": 300}
+      ]
+    },
+    "int_noodle": {
+      "name": "Fong's Noodles", "district": "canal_market", "kind": "interior", "width": 640,
+      "theme": "noodle_interior", "music": "safe_hub", "walk": [232, 344], "safe": true, "hub": true,
+      "facades": [{"x": 0, "w": 640, "kind": "noodle_interior"}],
+      "ground": [{"x": 0, "w": 640, "style": "wood_floor"}],
+      "doors": [],
+      "exits": {"south": {"to": "cm_gate", "spawn": "door:noodle", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "counter_noodle", "x": 380, "y": 262},
+        {"type": "stool", "x": 330, "y": 276},
+        {"type": "stool", "x": 430, "y": 276}
+      ]
+    },
+    "int_books": {
+      "name": "Hollis Books", "district": "canal_market", "kind": "interior", "width": 640,
+      "theme": "bookshop_interior", "music": "safe_hub", "walk": [232, 344], "safe": true,
+      "facades": [{"x": 0, "w": 640, "kind": "bookshop_interior"}],
+      "ground": [{"x": 0, "w": 640, "style": "carpet_floor"}],
+      "doors": [],
+      "exits": {"south": {"to": "cm_gate", "spawn": "door:books", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "counter_shop", "x": 400, "y": 262},
+        {"type": "book_pile", "x": 220, "y": 290}
+      ]
+    },
+    "int_canteen": {
+      "name": "Yard Canteen", "district": "ironworks", "kind": "interior", "width": 640,
+      "theme": "canteen_interior", "music": "safe_hub", "walk": [232, 344], "safe": true, "hub": true,
+      "facades": [{"x": 0, "w": 640, "kind": "canteen_interior"}],
+      "ground": [{"x": 0, "w": 640, "style": "tile_floor"}],
+      "doors": [],
+      "exits": {"south": {"to": "iy_spur", "spawn": "door:canteen", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "counter_canteen", "x": 400, "y": 262},
+        {"type": "stool", "x": 200, "y": 300}
+      ]
+    },
+    "int_switch": {
+      "name": "Switch House 4", "district": "ironworks", "kind": "interior", "width": 800,
+      "theme": "switch_interior", "music": "ironworks", "walk": [232, 344],
+      "facades": [{"x": 0, "w": 800, "kind": "switch_interior"}],
+      "ground": [{"x": 0, "w": 800, "style": "garage_floor"}],
+      "doors": [],
+      "exits": {"south": {"to": "iy_spur", "spawn": "door:switch", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "lever_panel", "x": 420, "y": 240},
+        {"type": "crate", "x": 660, "y": 300},
+        {"type": "oil_drum", "x": 740, "y": 244}
+      ]
+    },
+    "int_arcade": {
+      "name": "Starlight Arcade", "district": "neon_mile", "kind": "interior", "width": 800,
+      "theme": "arcade_interior", "music": "safe_hub", "walk": [232, 344], "safe": true, "hub": true,
+      "facades": [{"x": 0, "w": 800, "kind": "arcade_interior"}],
+      "ground": [{"x": 0, "w": 800, "style": "arcade_carpet"}],
+      "doors": [],
+      "exits": {"south": {"to": "nm_arcade", "spawn": "door:arcade", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "arcade_cabinet", "x": 220, "y": 240},
+        {"type": "arcade_cabinet", "x": 250, "y": 240},
+        {"type": "arcade_cabinet", "x": 280, "y": 240},
+        {"type": "counter_arcade", "x": 500, "y": 262},
+        {"type": "arcade_cabinet", "x": 700, "y": 240},
+        {"type": "arcade_cabinet", "x": 730, "y": 240}
+      ]
+    },
+    "int_pharmacy": {
+      "name": "Rosa's Pharmacy", "district": "neon_mile", "kind": "interior", "width": 640,
+      "theme": "pharmacy_interior", "music": "safe_hub", "walk": [232, 344], "safe": true,
+      "facades": [{"x": 0, "w": 640, "kind": "pharmacy_interior"}],
+      "ground": [{"x": 0, "w": 640, "style": "white_tile"}],
+      "doors": [],
+      "exits": {"south": {"to": "nm_marquee", "spawn": "door:pharmacy", "x0": 40, "x1": 130}},
+      "props": [{"type": "counter_pharmacy", "x": 400, "y": 262}]
+    },
+    "int_bait": {
+      "name": "Bait & Tackle", "district": "floodgate", "kind": "interior", "width": 640,
+      "theme": "bait_interior", "music": "safe_hub", "walk": [232, 344], "safe": true, "hub": true,
+      "facades": [{"x": 0, "w": 640, "kind": "bait_interior"}],
+      "ground": [{"x": 0, "w": 640, "style": "plank_floor"}],
+      "doors": [],
+      "exits": {"south": {"to": "fr_pumpstation", "spawn": "door:bait", "x0": 40, "x1": 130}},
+      "props": [
+        {"type": "counter_bait", "x": 400, "y": 262},
+        {"type": "barrel", "x": 220, "y": 250}
+      ]
+    }
+  }
+}
