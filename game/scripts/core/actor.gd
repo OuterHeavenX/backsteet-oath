@@ -229,7 +229,7 @@ static func _shadow_tex() -> Texture2D:
 		return _shadow_cache
 	var t := SpriteLib.tex("res://assets/fx2/shadow_soft.png")
 	if t:
-		_shadow_scale = 30.0 / (t.get_width() * 0.5)
+		_shadow_scale = 30.0 / float(t.get_width())
 		_shadow_cache = t
 		return t
 	t = SpriteLib.tex("res://assets/fx/shadow.png")
@@ -380,6 +380,8 @@ func _attack_state() -> void:
 				spawn_projectile()
 		else:
 			_check_hits()
+		if atk_t == s + 1:
+			CombatFX.arc(room, self)
 		if atk_t == s + 1 and atk_targets == 0 and not atk.get("projectile", false):
 			Audio.sfx(atk.get("whiff", "whiff"), -6.0, 0.1)
 	else:
@@ -432,7 +434,7 @@ func _knockdown_state() -> void:
 		Audio.sfx("fall", -2.0)
 		if room:
 			room.spawn_fx("dust", position + Vector2(0, 1), 0.0)
-			room.shake(1)
+			room.impulse(Vector2(0, 1), 0.8)
 		if held != "" and not is_boss:
 			drop_weapon(true)   # bosses keep their signature weapons
 	vel = vel.move_toward(Vector2.ZERO, 600 * DT)
@@ -735,12 +737,11 @@ func take_damage_and_react(attacker: Actor, d: Dictionary, raw: float, dir: int,
 	damaged.emit(self, dmg)
 	flash = 1.0
 	flash_color = Color.WHITE
-	var fx_name: String = d.get("fx", "hit_spark")
-	room.spawn_fx(fx_name, hit_point() + Vector2(-dir * 4, 0), 0.0)
+	CombatFX.impact(room, attacker, self, d, dir, dmg)
 	Audio.sfx(d.get("sfx", "punch_light"))
 	room.do_hitstop(int(d.get("hitstop", 3)))
 	if int(d.get("shake", 0)) > 0:
-		room.shake(int(d.shake))
+		room.impulse(Vector2(dir, 0.3), float(d.shake) * 0.8)
 	combo_hits += 1
 	combo_timer = 70
 	dizzy_meter += float(d.get("dizzy", 8)) * attacker.dizzy_mult()
@@ -973,10 +974,13 @@ func _update_visual() -> void:
 			anim_frame = clampi(int(float(pair[2]) * n), 0, n - 1)
 		"stride":
 			var stride := float(ad.get("stride", 0.0))
+			var half := int(cycle * 2.0)
 			if stride > 0.0 and moved > 0.05:
 				cycle += moved / stride
 			else:
 				cycle += float(ad.get("fps", 10.0)) / 60.0 / float(n)
+			if name == "run" and int(cycle * 2.0) != half and room and Settings.effects_full() and FX.has_v2("dust_step"):
+				room.spawn_fx("dust_step", position + Vector2(-facing * 4, 0), 0.0, null, -1, -facing)
 			anim_frame = int(fposmod(cycle, 1.0) * n) % n
 		_:
 			loop_t += float(ad.get("fps", 8.0)) / 60.0

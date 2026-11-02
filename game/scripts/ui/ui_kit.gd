@@ -3,42 +3,51 @@ extends RefCounted
 ## Shared theme + widget helpers. Pixel font at 8px (or the 12px heading font in Large Text mode).
 
 const INK := Color("1a1220")
-const CREAM := Color("e8d8b0")
-const MUSTARD := Color("f0c040")
-const DANGER := Color("e04a4a")
-const XPC := Color("4af0f0")
-const CASHC := Color("7af04a")
-const DIM := Color("9a8f86")
-const PANEL_BG := Color(0.102, 0.071, 0.125, 0.94)
+const CREAM := Color("f1e6c8")
+const MUSTARD := Color("f2b83a")
+const DANGER := Color("e5484d")
+const XPC := Color("5fd3e8")
+const CASHC := Color("8fe36b")
+const DIM := Color("a89c92")
+const PANEL_BG := Color(0.09, 0.065, 0.115, 0.93)
+const EDGE := Color(0.95, 0.88, 0.72, 0.28)
 
 static var _theme: Theme
-static var font_small: Font
-static var font_big: Font
+static var font_small: Font      # body (Barlow SemiBold)
+static var font_big: Font        # display (Bungee)
+static var font_bold: Font       # emphasis (Barlow Bold)
+static var font_num: Font        # numbers (Barlow Condensed Bold)
 
 static func load_fonts() -> void:
-	font_small = _load_font("res://assets/fonts/oath_pixel.ttf")
-	font_big = _load_font("res://assets/fonts/oath_big.ttf")
+	font_small = _load_font("res://assets/fonts/ofl/Barlow-SemiBold.ttf")
+	font_big = _load_font("res://assets/fonts/ofl/Bungee-Regular.ttf")
+	font_bold = _load_font("res://assets/fonts/ofl/Barlow-Bold.ttf")
+	font_num = _load_font("res://assets/fonts/ofl/BarlowCondensed-Bold.ttf")
+	if font_small == null:
+		font_small = _load_font("res://assets/fonts/oath_pixel.ttf")
 	if font_big == null:
 		font_big = font_small
+	if font_bold == null:
+		font_bold = font_small
+	if font_num == null:
+		font_num = font_bold
 
 static func _load_font(path: String) -> Font:
 	if not ResourceLoader.exists(path):
 		return null
 	var f = load(path)
 	if f is FontFile:
-		f.antialiasing = TextServer.FONT_ANTIALIASING_NONE
-		f.hinting = TextServer.HINTING_NONE
-		f.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
-		f.generate_mipmaps = false
-		f.allow_system_fallback = false
+		f.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
+		f.hinting = TextServer.HINTING_LIGHT
+		f.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
+		f.generate_mipmaps = true
+		f.allow_system_fallback = true
 	return f
 
 static func base_size() -> int:
-	return 12 if Settings.large_text else 8
+	return 13 if Settings.large_text else 10
 
 static func body_font() -> Font:
-	if Settings.large_text and font_big:
-		return font_big
 	return font_small
 
 static func build_theme() -> Theme:
@@ -49,35 +58,42 @@ static func build_theme() -> Theme:
 	if f:
 		t.default_font = f
 	t.default_font_size = base_size()
-	var panel := _panel_box(PANEL_BG, CREAM, 2)
+	var panel := _panel_box(PANEL_BG, EDGE, 1)
+	panel.shadow_color = Color(0, 0, 0, 0.35)
+	panel.shadow_size = 4
+	panel.shadow_offset = Vector2(0, 2)
 	t.set_stylebox("panel", "PanelContainer", panel)
 	t.set_stylebox("panel", "Panel", panel)
-	var bn := _panel_box(Color(0.2, 0.14, 0.22, 0.96), Color(0.55, 0.45, 0.4), 1)
-	var bf := _panel_box(Color(0.42, 0.3, 0.12, 1.0), MUSTARD, 2)
-	var bp := _panel_box(Color(0.6, 0.45, 0.15, 1.0), MUSTARD, 2)
-	var bd := _panel_box(Color(0.15, 0.12, 0.16, 0.9), Color(0.3, 0.27, 0.3), 1)
+	var bn := _panel_box(Color(0.17, 0.125, 0.2, 0.92), Color(0.55, 0.45, 0.42, 0.55), 1)
+	var bf := _panel_box(MUSTARD, Color(1.0, 0.9, 0.6), 1)
+	var bp := _panel_box(Color(0.85, 0.6, 0.15), Color(1.0, 0.9, 0.6), 1)
+	var bd := _panel_box(Color(0.12, 0.1, 0.13, 0.85), Color(0.3, 0.27, 0.3, 0.5), 1)
 	var touch_pad := 5 if InputPrompts.kind == "touch" else 2
-	for s in [bn, bf, bp, bd]:
-		s.content_margin_left = 6; s.content_margin_right = 6; s.content_margin_top = touch_pad; s.content_margin_bottom = touch_pad
+	for sb_ in [bn, bf, bp, bd]:
+		sb_.content_margin_left = 7; sb_.content_margin_right = 7; sb_.content_margin_top = touch_pad; sb_.content_margin_bottom = touch_pad + 1
+		sb_.set_corner_radius_all(3)
 	t.set_stylebox("normal", "Button", bn)
 	t.set_stylebox("hover", "Button", bf)
 	t.set_stylebox("focus", "Button", bf)
 	t.set_stylebox("pressed", "Button", bp)
 	t.set_stylebox("disabled", "Button", bd)
 	t.set_color("font_color", "Button", CREAM)
-	t.set_color("font_hover_color", "Button", Color.WHITE)
-	t.set_color("font_focus_color", "Button", Color.WHITE)
-	t.set_color("font_pressed_color", "Button", Color.WHITE)
+	t.set_color("font_hover_color", "Button", INK)
+	t.set_color("font_focus_color", "Button", INK)
+	t.set_color("font_pressed_color", "Button", INK)
+	t.set_color("font_hover_pressed_color", "Button", INK)
 	t.set_color("font_disabled_color", "Button", DIM)
 	t.set_color("font_color", "Label", CREAM)
 	t.set_color("default_color", "RichTextLabel", CREAM)
 	t.set_constant("separation", "VBoxContainer", 3)
 	t.set_constant("separation", "HBoxContainer", 4)
+	t.set_constant("line_spacing", "Label", -1)
 	var grab := StyleBoxFlat.new()
 	grab.bg_color = MUSTARD
-	grab.set_corner_radius_all(0)
+	grab.set_corner_radius_all(2)
 	var slider_bg := StyleBoxFlat.new()
 	slider_bg.bg_color = Color(0.25, 0.2, 0.25)
+	slider_bg.set_corner_radius_all(2)
 	slider_bg.content_margin_top = 2; slider_bg.content_margin_bottom = 2
 	t.set_stylebox("slider", "HSlider", slider_bg)
 	t.set_stylebox("grabber_area", "HSlider", grab)
@@ -85,10 +101,12 @@ static func build_theme() -> Theme:
 	t.set_icon("grabber", "HSlider", _square_icon(6, CREAM))
 	t.set_icon("grabber_highlight", "HSlider", _square_icon(6, MUSTARD))
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.3, 0.25, 0.3, 0.8)
+	sb.bg_color = Color(0.3, 0.25, 0.3, 0.6)
+	sb.set_corner_radius_all(2)
 	t.set_stylebox("scroll", "VScrollBar", sb)
 	var sg := StyleBoxFlat.new()
 	sg.bg_color = MUSTARD
+	sg.set_corner_radius_all(2)
 	t.set_stylebox("grabber", "VScrollBar", sg)
 	t.set_stylebox("grabber_highlight", "VScrollBar", sg)
 	t.set_stylebox("grabber_pressed", "VScrollBar", sg)
@@ -123,9 +141,9 @@ static func _panel_box(bg: Color, border: Color, bw: int) -> StyleBoxFlat:
 	s.bg_color = bg
 	s.border_color = border
 	s.set_border_width_all(bw)
-	s.set_corner_radius_all(0)
+	s.set_corner_radius_all(4)
 	s.content_margin_left = 8; s.content_margin_right = 8; s.content_margin_top = 6; s.content_margin_bottom = 6
-	s.anti_aliasing = false
+	s.anti_aliasing = true
 	return s
 
 static func _square_icon(n: int, c: Color) -> Texture2D:
@@ -152,7 +170,7 @@ static func heading(text: String, color: Color = MUSTARD) -> Label:
 	l.add_theme_color_override("font_color", color)
 	if font_big:
 		l.add_theme_font_override("font", font_big)
-		l.add_theme_font_size_override("font_size", 12 if not Settings.large_text else 24)
+		l.add_theme_font_size_override("font_size", 13 if not Settings.large_text else 17)
 	return l
 
 static func wrap_label(text: String, width: float, color: Color = CREAM) -> Label:
@@ -178,8 +196,8 @@ static func icon_rect(tex: Texture2D, size: int = 16) -> TextureRect:
 	var r := TextureRect.new()
 	r.texture = tex
 	r.custom_minimum_size = Vector2(size, size)
-	r.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
-	r.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	return r
 
 static func panel(min_size: Vector2 = Vector2.ZERO) -> PanelContainer:
@@ -201,6 +219,18 @@ static func spacer(h: float = 4.0) -> Control:
 	var c := Control.new()
 	c.custom_minimum_size = Vector2(0, h)
 	return c
+
+## Text with an outline (for text drawn over the world).
+static func outlined(l: Label, size: int = 4) -> Label:
+	l.add_theme_color_override("font_outline_color", Color(0.06, 0.04, 0.08, 0.95))
+	l.add_theme_constant_override("outline_size", size)
+	return l
+
+static func num_label(text: String, color: Color = CREAM, size: int = 11) -> Label:
+	var l := label(text, color, size)
+	if font_num:
+		l.add_theme_font_override("font", font_num)
+	return l
 
 static func bar(value: float, maxv: float, w: float, h: float, fill: Color, back: Color = Color(0.15, 0.1, 0.15)) -> Control:
 	var c := ColorRect.new()

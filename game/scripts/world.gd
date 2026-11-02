@@ -211,8 +211,38 @@ func bark(actor: Actor, line_id: String) -> void:
 	var l: Array = lines[0]
 	hud.toast("%s: %s" % [Content.character_name(l[0]), Story.format_text(l[2])], Color(1, 0.8, 0.6), 2.4)
 
+var _carded: Dictionary = {}
+
 func boss_bar(bosses) -> void:
 	hud.set_bosses(bosses if bosses else [])
+	if bosses and not bosses.is_empty():
+		var names: Array = []
+		var sub := ""
+		for b in bosses:
+			if not is_instance_valid(b):
+				continue
+			if names.find(b.display_name) < 0:
+				names.append(b.display_name)
+			var bid: String = str(b.get("boss_id")) if b.get("boss_id") != null else ""
+			var bd: Dictionary = Content.enemies.get("bosses", {}).get(bid, {})
+			if sub == "":
+				sub = str(bd.get("title", ""))
+		var key := " & ".join(names)
+		if not _carded.has(key) and key != "":
+			_carded[key] = true
+			hud.show_card(key, sub)
+			if room:
+				room.impulse(Vector2(0, 1), 1.2)
+
+## Boss phase change: flash, a short slow-motion beat and a camera kick. Gameplay state is not altered.
+func phase_beat() -> void:
+	hud.screen_flash(0.75)
+	if room:
+		room.impulse(Vector2(0, 1), 2.5)
+	if Settings.flash > 0.0:
+		Engine.time_scale = 0.4
+		await get_tree().create_timer(0.35, true, false, true).timeout
+		Engine.time_scale = 1.0
 
 # ---------------------------------------------------------------- menus
 func push_menu(m: Control) -> void:

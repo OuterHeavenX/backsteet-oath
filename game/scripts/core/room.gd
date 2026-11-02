@@ -37,6 +37,8 @@ var fg_root: Node2D
 var camera: Camera2D
 var cam_x := 320.0
 var shake_amt := 0.0
+var cam_kick := Vector2.ZERO
+var cam_kick_v := Vector2.ZERO
 var hitstop := 0
 var tokens: Array = []
 var cutscene := false
@@ -419,7 +421,7 @@ func drop_hazard_crate(at: Vector2) -> void:
 		props.append(prop))
 
 # ---------------------------------------------------------------- effects
-func spawn_fx(id: String, pos: Vector2, zz: float, attach: Node2D = null, life: int = -1) -> void:
+func spawn_fx(id: String, pos: Vector2, zz: float, attach: Node2D = null, life: int = -1, dir: int = 0) -> void:
 	var f := FX.make_strip(id)
 	if life >= 0:
 		f.life = life
@@ -430,13 +432,19 @@ func spawn_fx(id: String, pos: Vector2, zz: float, attach: Node2D = null, life: 
 	else:
 		fx_root.add_child(f)
 		f.position = pos - Vector2(0, zz)
-		if id in ["shockwave", "dust", "land_dust", "target_shadow", "splash"]:
+		if dir < 0:
+			f.scale.x = -1.0
+		if id in ["shockwave", "dust", "land_dust", "target_shadow", "splash", "dust_land", "dust_step", "dust_slide", "dust_fall", "dust_jump"]:
 			f.z_index = -15 if id in ["target_shadow"] else 0
 			if id == "target_shadow":
 				f.reparent(bg_root)
 				f.z_index = 5
 
 func spawn_debris(id: String, pos: Vector2) -> void:
+	var v2 := {"debris_wood": "chip_wood", "debris_glass": "shard_glass", "debris_metal": "bit_metal"}
+	if FX.has_v2(v2.get(id, id)):
+		spawn_directional_debris(v2.get(id, id), pos, 0, 6 if Settings.effects_full() else 3, false)
+		return
 	for i in 5:
 		var f := FX.make_strip(id)
 		f.frame_ticks = 99
@@ -447,6 +455,25 @@ func spawn_debris(id: String, pos: Vector2) -> void:
 		f.vel = Vector2(randf_range(-90, 90), randf_range(-160, -60))
 		f.grav = 520.0
 		f.position = pos
+		fx_root.add_child(f)
+
+## Debris thrown along the hit direction (dir 0 = radial). Each particle is one variant frame of a v2 strip.
+func spawn_directional_debris(id: String, pos: Vector2, dir: int, n: int, sparks: bool) -> void:
+	for i in n:
+		var f := FX.make_strip(id)
+		f.frame_ticks = 999
+		f.loop = true
+		if f.frames > 1:
+			f.spr.frame = randi() % f.frames
+		f.life = 22 if sparks else 38
+		f.fade = true
+		var sx := float(dir) if dir != 0 else (1.0 if randf() < 0.5 else -1.0)
+		f.vel = Vector2(sx * randf_range(50, 170), randf_range(-170, -40))
+		f.grav = 260.0 if sparks else 560.0
+		f.position = pos
+		f.rotation = randf() * TAU if not sparks else f.vel.angle()
+		if sparks:
+			f.spr.material = RoomVisuals.add_material()
 		fx_root.add_child(f)
 
 func float_text(pos: Vector2, text: String, col: Color = Color.WHITE) -> void:
@@ -470,7 +497,14 @@ func do_hitstop(n: int) -> void:
 	hitstop = maxi(hitstop, n)
 
 func shake(n: int) -> void:
-	shake_amt = maxf(shake_amt, float(n) * Settings.screen_shake)
+	impulse(Vector2(0, 1), float(n) * 0.9)
+
+## Directional camera kick: a short damped spring along dir (respects the screen-shake setting).
+func impulse(dir: Vector2, mag: float) -> void:
+	var m := mag * Settings.screen_shake
+	if m <= 0.01:
+		return
+	cam_kick_v += dir.normalized() * m * 60.0
 
 # ---------------------------------------------------------------- simulation
 func _physics_process(_delta: float) -> void:
@@ -568,14 +602,21 @@ func _update_camera(snap: bool) -> void:
 		cam_x = lerpf(cam_x, target, 0.12)
 		if absf(cam_x - target) < 0.3:
 			cam_x = target
-	var off := Vector2.ZERO
-	if shake_amt > 0.05:
-		off = Vector2(randf_range(-shake_amt, shake_amt), randf_range(-shake_amt, shake_amt) * 0.6)
-		shake_amt *= 0.82
-	else:
-		shake_amt = 0.0
+	# damped spring for directional camera impulses
+	cam_kick_v += -cam_kick * 900.0 * Actor.DT - cam_kick_v * 22.0 * Actor.DT
+	cam_kick += cam_kick_v * Actor.DT
+	if cam_kick.length() < 0.02 and cam_kick_v.length() < 0.5:
+		cam_kick = Vector2.ZERO
+		cam_kick_v = Vector2.ZERO
+	var off := cam_kick.limit_length(6.0)
 	var cy: float = world.camera_center_y() if world and world.has_method("camera_center_y") else VIEW_H * 0.5
-	camera.position = Vector2(cam_x + off.x, cy + off.y)
+	# a slow push-in during scripted scenes
+	var zt := 1.06 if cutscene and Settings.cinematic_bars else 1.0
+	var z := move_toward(camera.zoom.x, zt, 0.0025 if zt > camera.zoom.x else 0.006)
+	if snap:
+		z = zt
+	camera.zoom = Vector2(z, z)
+	camera.position = Vector2(cam_x + off.x, cy + off.y + (z - 1.0) * 70.0)
 
 # ---------------------------------------------------------------- collision
 func move_actor(a: Actor, d: Vector2) -> Vector2:

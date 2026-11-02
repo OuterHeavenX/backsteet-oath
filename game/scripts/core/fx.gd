@@ -12,12 +12,36 @@ var vel := Vector2.ZERO
 var grav := 0.0
 var fade := false
 var label: Label
+var loop := false
+
+const V2_NAME := {
+	"hit_spark": "hit_light", "block_spark": "block", "perfect_flash": "perfect_block", "dust": "dust_fall",
+	"land_dust": "dust_land", "stars": "stars_dizzy", "smoke": "smoke_puff", "debris_wood": "chip_wood",
+	"debris_glass": "shard_glass", "debris_metal": "bit_metal"
+}
+
+static func has_v2(id: String) -> bool:
+	return not SpriteLib.fx2(V2_NAME.get(id, id)).is_empty()
 
 static func make_strip(id: String) -> FX:
-	var info := SpriteLib.fx(id)
 	var f := FX.new()
 	f.spr = Sprite2D.new()
 	f.add_child(f.spr)
+	var v2 := SpriteLib.fx2(V2_NAME.get(id, id))
+	if not v2.is_empty():
+		f.spr.texture = v2.texture
+		f.frames = int(v2.count)
+		f.spr.hframes = maxi(1, f.frames)
+		f.spr.centered = false
+		f.spr.offset = -v2.anchor
+		f.spr.scale = Vector2(v2.scale, v2.scale)
+		f.frame_ticks = maxi(1, int(round(60.0 / maxf(float(v2.fps), 1.0))))
+		if v2.additive:
+			f.spr.material = RoomVisuals.add_material()
+		if id in ["stars", "stars_dizzy", "charge_glow"]:
+			f.loop = true
+		return f
+	var info := SpriteLib.fx(id)
 	if info.is_empty():
 		f.spr.texture = _fallback_tex(id)
 		f.frames = 1
@@ -52,7 +76,7 @@ func _physics_process(_d: float) -> void:
 	t += 1
 	if spr and frames > 1:
 		var f := int(t / frame_ticks)
-		if life < 0 and f >= frames:
+		if life < 0 and f >= frames and not loop:
 			queue_free()
 			return
 		spr.frame = f % frames

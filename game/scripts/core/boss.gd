@@ -104,6 +104,8 @@ func take_damage_and_react(attacker: Actor, d: Dictionary, raw: float, dir: int,
 		pass
 
 func become_phase_two() -> void:
+	if room and room.world and room.world.has_method("phase_beat"):
+		room.world.phase_beat()
 	setup_visual_swap("rook_p2")
 	guard_chance = 0.15
 	ai_speed *= 1.12
