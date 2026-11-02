@@ -780,7 +780,7 @@ DRUM_MIX = {
     'snare': ('snare', 0.04, 0.55, 0.22), 'snare_chip': ('snare', 0.04, 0.55, 0.2), 'snare_big': ('snare', 0.0, 0.6, 0.35),
     'snare_gate': ('snare', 0.0, 0.55, 0.12), 'clap': ('snare', -0.05, 0.5, 0.3), 'rim': ('perc', -0.2, 0.32, 0.25),
     'hat': ('hats', 0.28, 0.26, 0.05), 'hat_chip': ('hats', 0.28, 0.24, 0.05), 'ohat': ('hats', 0.28, 0.2, 0.1),
-    'ohat_chip': ('hats', 0.28, 0.15, 0.1), 'ride': ('cym', -0.3, 0.13, 0.12), 'crash': ('cym', -0.22, 0.24, 0.15),
+    'ohat_chip': ('hats', 0.28, 0.15, 0.1), 'ride': ('cym', -0.3, 0.2, 0.12), 'crash': ('cym', -0.22, 0.24, 0.15),
     'crash_rev': ('cym', 0.22, 0.2, 0.1),
     'brush': ('perc', 0.15, 0.13, 0.15), 'brush_tap': ('perc', 0.15, 0.13, 0.15), 'shaker': ('hats', 0.4, 0.18, 0.05),
     'cowbell': ('perc', -0.35, 0.12, 0.15), 'clave': ('perc', 0.38, 0.16, 0.15),
@@ -868,6 +868,8 @@ def _smooth_step(exact):
 
 
 class Song:
+    dry = False     # True: build the arrangement without rendering audio (metadata only)
+
     def __init__(self, name, bpm, bars, loop=True, swing8=0.5, swing16=0.5, tail=6.0,
                  echo=(3, 0.3), room=(1.1, 0.014), target=-16.0, key=('C', MAJOR), air=-2.0):
         self.name = name
@@ -907,9 +909,13 @@ class Song:
         return int(round((4 * b + u) * self.step))
 
     def add(self, bus, step, sig, gain=1.0):
+        if Song.dry:
+            return
         mix_into(self.buses[bus], self.pos(step), sig.astype(np.float32), gain)
 
     def note(self, bus, inst, step, dur, pitch, vel=1.0, gate=0.92, **over):
+        if Song.dry:
+            return
         a, b = self.pos(step), self.pos(step + dur)
         sig = render_note(inst, pitch, max(b - a, 32) * gate / SR, vel, **over)
         mix_into(self.buses[bus], a, sig.astype(np.float32))
@@ -945,9 +951,25 @@ class Song:
         ev, length = self.parse(text)
         for p, d, ps, v in ev:
             for m in ps:
-                mm = dia_shift(m, dia, *self.key) if dia else m
+                mm = self.harmonize(m, bar * 16 + p, d, dia) if dia else m
                 self.note(bus, inst, bar * 16 + p, d, mm + transpose, vel * v, gate, **over)
         return length
+
+    def harmonize(self, m, step, dur, k):
+        """Harmony voice k scale degrees away; for longer notes snap to the nearest
+        chord tone on that side so held harmony notes never clash with the chord."""
+        d = dia_shift(m, k, *self.key)
+        if dur < 3 or not self.timeline:
+            return d
+        ch = self.chord_at(step)
+        pcs = {(ch['root'] + i) % 12 for i in ch['ivs']}
+        if int(round(m)) % 12 not in pcs or d % 12 in pcs:
+            return d
+        lo, hi = (m - 9, m - 3) if k < 0 else (m + 3, m + 9)
+        cands = [x for x in range(int(lo), int(hi) + 1) if x % 12 in pcs]
+        if not cands:
+            return d
+        return min(cands, key=lambda x: abs(x - d))
 
     # -- chords
     def chords(self, bar, text):
@@ -1171,7 +1193,7 @@ def m_title():
     s.mel('lead', 'lead', 16, TITLE_A, vel=1.05)
     s.mel('harm', 'harm', 16, TITLE_A, dia=-2, vel=0.9)
     s.mel('lead2', 'leadsaw', 16, TITLE_A, transpose=-12, vel=0.55)
-    s.mel('harm', 'bell', 8, 'D6:16 | B5:16 | A5:16 | C#6:16 | B5:16 | D6:16 | E6:16 | C#6:16', vel=0.6)
+    s.mel('harm', 'bell', 8, 'D6:16 | B5:16 | A5:16 | C#6:16 | B5:16 | D6:16 | E6:16 | E6:8 C#6:8', vel=0.6)
     # harmony bed
     wide_pad(s, 'pad', 0, 24, 60)
     s.comp('comp', 'brass', 16, 8, 'X-----x-..x-x-..', center=64, vel=0.7)
@@ -1311,9 +1333,9 @@ def m_ironworks():
     s = Song('ironworks', 100, 28, key=('E', MINOR), echo=(4, 0.3), room=(1.5, 0.02), air=-2.5)
     std_mix(s, lead_echo=0.2, bass_lp=2200)
     s.bus('metal', pan=0.0, gain=1.0, verb=0.3, echo=0.12)
-    s.bus('kick', gain=0.55, verb=0.06)
+    s.bus('kick', gain=0.45, verb=0.06, hp=36)
     s.bus('lead', gain=1.7, echo=0.2, verb=0.2)
-    s.bus('bass', gain=1.7, verb=0.03, lp=2200)
+    s.bus('bass', gain=1.7, verb=0.03, lp=2200, hp=36)
     ca = 'Em Em C D Em Em C B'
     s.chords(0, ca)
     s.chords(8, 'Am Em F Em Am Em F B7')
@@ -1332,10 +1354,10 @@ def m_ironworks():
     # bass riff
     em1, em2 = 'R-R.R-.bR-.O-5.m', 'R-R.R-.bR-.Om.5R'
     oth, end = 'R-R.R-R.R-.O-5.R', 'R-R.R-R.R-.O5.AW'
-    s.bassline('bass', 'basssaw', 0, 8, [em1, em2, oth, oth, em1, em2, oth, end], octave=1)
-    s.bassline('bass', 'basssaw', 8, 8, ['R-R.R-R.R-.O-5.R'] * 7 + [end], octave=1)
-    s.bassline('bass', 'basssaw', 16, 4, ['R-..R-..R-..R-..', 'R-..R-..R-.bR-.b'], octave=1)
-    s.bassline('bass', 'basssaw', 20, 8, [em1, em2, oth, oth, em1, em2, oth, end], octave=1)
+    s.bassline('bass', 'basssaw', 0, 8, [em1, em2, oth, oth, em1, em2, oth, end], octave=1, sub=0.25)
+    s.bassline('bass', 'basssaw', 8, 8, ['R-R.R-R.R-.O-5.R'] * 7 + [end], octave=1, sub=0.25)
+    s.bassline('bass', 'basssaw', 16, 4, ['R-..R-..R-..R-..', 'R-..R-..R-.bR-.b'], octave=1, sub=0.25)
+    s.bassline('bass', 'basssaw', 20, 8, [em1, em2, oth, oth, em1, em2, oth, end], octave=1, sub=0.25)
     # drums: heavy half-time + metal shop
     half = {'kick_hard': 'X.....x.X.x.....', 'snare_big': '........X.......', 'hat_chip': 'x.x.x.x.x.x.x.x.',
             'anvil': '..x.......x..x..', 'clank': '......X.......x.'}
@@ -1485,8 +1507,8 @@ def m_warehouse():
     wide_pad(s, 'strings', 16, 8, 57, vel=0.9)
     wide_pad(s, 'choir', 24, 8, 55, vel=0.9)
     s.arp('arp', 'arp', 24, 8, '0.1.2.1.', rate=1, center=60, vel=0.6)
-    s.bassline('bass', 'bassp', 0, 32, ['R.r.R.r.R.r.R.r.', 'R.r.R.r.R.r.R.rA'], octave=1)
-    s.bassline('bass', 'basssaw', 16, 8, ['R-------R-------'], octave=1, vel=0.6)
+    s.bassline('bass', 'bassp', 0, 32, ['R.r.R.r.R.r.R.r.', 'R.r.R.r.R.r.R.rA'], octave=2)
+    s.bassline('bass', 'basssaw', 16, 8, ['R-------R-------'], octave=1, vel=0.5, sub=0.15)
     heart = {'kick_soft': 'X..x............', 'hat': 'o.o.o.o.o.o.o.o.'}
     full = {'kick': 'X..x......X.....', 'snare_big': '........X.......', 'hat': 'o.x.o.x.o.x.o.x.',
             'rim': '......o.......o.'}
@@ -1518,6 +1540,7 @@ def m_safe_hub():
              air=-3.0, target=-17.0)
     std_mix(s, lead_echo=0.12, bass_lp=1800)
     s.bus('keys', pan=-0.25, gain=1.0, echo=0.05, verb=0.22)
+    s.bus('bass', gain=0.75, verb=0.04, lp=1800)
     ca = 'Fmaj7 Dm7 Gm7 C7 Fmaj7 Dm7 Gm7 C7'
     s.chords(0, ca)
     s.chords(8, ca)
@@ -1649,9 +1672,9 @@ def m_rook():
     s.pad('keys', 'organ', 28, 8, 60, vel=0.6)
     s.arp('arp', 'arp', 12, 8, '0124', rate=1, center=70, vel=0.7)
     s.arp('arp', 'arp', 36, 8, '0124', rate=1, center=70, vel=0.8)
-    for b in range(0, 44, 2 if True else 1):
+    for b in range(0, 44, 2):
         ch = s.chord_at(b * 16)
-        s.note('timp', 'timp', b * 16, 8, 36 + ((ch['root'] - 0) % 12) + (0 if ch['root'] >= 4 else 12), 0.85)
+        s.note('timp', 'timp', b * 16, 8, 36 + ch['root'] + (0 if ch['root'] >= 4 else 12), 0.85)
     # bass
     drive = ['R.RoR.RoR.RoR.Ro', 'R.RoR.RoR.RoO.5A']
     s.bassline('bass', 'bassp', 4, 24, drive)
@@ -1659,8 +1682,8 @@ def m_rook():
     s.bassline('bass', 'bass', 0, 4, ['R---------------'], octave=1)
     # drums
     g = {'kick': 'X..x..X.X..x..X.', 'snare': '....X.......X...', 'hat': 'xxoxxxoxxxoxxxox'}
-    s.beat(0, 3, {'timpani' if False else 'tom_lo': 'x...............'})
-    s.beat(3, 1, {'tom_lo': 'x.x.x.x.xxxxXXXX', 'crash_rev' if False else 'tom_mid': '........x.x.x.x.'})
+    s.beat(0, 3, {'tom_lo': 'x...............'})
+    s.beat(3, 1, {'tom_lo': 'x.x.x.x.xxxxXXXX', 'tom_mid': '........x.x.x.x.'})
     for b0, nb in ((4, 8), (12, 8), (20, 8), (36, 8)):
         s.beat(b0, nb - 1, g)
         s.beat(b0 + nb - 1, 1, {'kick': 'X..x..X.X.......', 'snare': FILL_SN, 'tom_hi': '........X.......',
@@ -1681,15 +1704,16 @@ SB_M = ('D5:8 Bb4:4 G4:4 | G4:6 Bb4:2 Eb5:8 | D5:4 C5:4 Eb5:4 G4:4 | F#4:12 r:4 
 
 
 def m_setback():
-    s = Song('setback', 76, 12, key=('G', HMINOR), echo=(6, 0.3), room=(1.9, 0.02), air=-3.5, target=-18.0)
+    s = Song('setback', 76, 12, key=('G', HMINOR), echo=(6, 0.3), room=(1.9, 0.02), air=-2.0, target=-18.0)
     std_mix(s, lead_echo=0.25, bass_lp=900)
     s.chords(0, 'Gm Eb Cm D Gm Eb Am7b5 D Eb Cm Gm/D D7')
     s.mel('lead', 'flute', 0, SB_M)
     s.mel('harm', 'flute', 8, SB_M.split('|', 8)[-1], dia=-2, vel=0.5)
     s.arp('keys', 'epiano', 0, 12, '0121', rate=2, center=60, vel=0.75, gate=1.0)
+    s.mel('arp', 'bell', 4, 'D6:8 r:8 | G5:8 r:8 | Eb6:8 r:8 | D6:16 | G6:8 r:8 | Eb6:8 r:8 | D6:8 r:8 | A5:16', vel=0.35)
     wide_pad(s, 'strings', 0, 12, 52, vel=0.6)
-    s.bassline('bass', 'basswalk', 0, 12, ['R-------R-------', 'R-------5-------'], octave=1, vel=0.8, gate=0.98)
-    s.beat(0, 12, {'heart': 'X.......X.......', 'tick': 'x.o.x.o.x.o.x.o.'}, vel=0.8)
+    s.bassline('bass', 'basswalk', 0, 12, ['R-------R-------', 'R-------5-------'], octave=2, vel=0.8, gate=0.98)
+    s.beat(0, 12, {'heart': 'X.......X.......', 'tick': 'X.x.X.x.X.x.X.x.'}, vel=0.8)
     s.beat(3, 1, {'tom_lo': '............o...'})
     s.beat(7, 1, {'tom_lo': '........o...o...'})
     s.beat(11, 1, {'tom_lo': '........o.o.x.x.'})
@@ -1723,7 +1747,7 @@ def m_ending():
     # S4: title bridge, building back to the reprise
     s.mel('lead', 'lead', 24, TITLE_B)
     s.mel('harm', 'brass', 24, TITLE_B, transpose=-12, vel=0.55)
-    s.mel('keys', 'bell', 24, 'D6:16 | B5:16 | A5:16 | C#6:16 | B5:16 | D6:16 | E6:16 | C#6:16', vel=0.5)
+    s.mel('keys', 'bell', 24, 'D6:16 | B5:16 | A5:16 | C#6:16 | B5:16 | D6:16 | E6:16 | E6:8 C#6:8', vel=0.5)
     wide_pad(s, 'strings', 0, 32, 60, vel=0.8)
     s.comp('comp', 'brass', 0, 8, 'X-----x-..x-x-..', center=62, vel=0.55)
     s.comp('keys', 'epiano', 8, 16, ['x-----x---......', '..x-....x-----..'], center=62, vel=0.7)
@@ -1793,3 +1817,1054 @@ MUSIC = [
     ('victory', m_victory, 'Short brass/pulse fanfare after a boss win'),
     ('defeat', m_defeat, 'Short sad descending jingle'),
 ]
+
+
+# ===========================================================================
+# SOUND EFFECTS
+# ===========================================================================
+def S(d):
+    return int(round(d * SR))
+
+
+def buf(d):
+    return np.zeros(S(d))
+
+
+def place(b, t, sig, gain=1.0):
+    mix_into(b, S(t), sig, gain)
+    return b
+
+
+def place_wrap(b, pos, sig, gain=1.0):
+    """Circular placement for seamless loops."""
+    n = len(b)
+    pos %= n
+    k = 0
+    while k < len(sig):
+        seg = sig[k:k + (n - pos)]
+        b[pos:pos + len(seg)] += seg * gain
+        k += len(seg)
+        pos = 0
+
+
+def drop_curve(n, f0, f1, tau):
+    return f1 + (f0 - f1) * np.exp(-secs(n) / tau)
+
+
+def sweep_curve(n, f0, f1):
+    return f0 * (f1 / f0) ** (np.arange(n) / max(n - 1, 1))
+
+
+def thump(d, f0, f1, tau_p, tau_a, wave='sine'):
+    n = S(d)
+    f = drop_curve(n, f0, f1, tau_p)
+    y = osc_sine(f) if wave == 'sine' else osc_tri(f, 16) if wave == 'tri' else osc_pulse(f, 0.5)
+    return y * env_exp(n, tau_a, 0.0005)
+
+
+def crack(d, lo, hi, tau, key, attack=0.0005):
+    n = S(d)
+    return filt(_noise(n, key), r_bp(lo, hi, 2)) * env_exp(n, tau, attack)
+
+
+def grit(x, drive=2.0):
+    return np.tanh(x * drive) / math.tanh(drive)
+
+
+def crush(x, rate):
+    idx = (np.floor(np.arange(len(x)) * rate / SR) * SR / rate).astype(int)
+    return x[np.minimum(idx, len(x) - 1)]
+
+
+def bell_tone(f, d, parts=((1, 1, 0.5), (2.0, 0.35, 0.25), (3.0, 0.2, 0.12), (4.2, 0.1, 0.06)), attack=0.001):
+    n = S(d)
+    t = secs(n)
+    y = np.zeros(n)
+    for r, a, tau in parts:
+        if f * r < SR / 2.2:
+            y += a * np.sin(2 * np.pi * f * r * t) * np.exp(-t / tau)
+    na = max(1, S(attack))
+    y[:na] *= np.linspace(0, 1, na)
+    return y
+
+
+def blip(f0, f1, d, duty=0.25, tau=None, wave='pulse'):
+    n = S(d)
+    f = sweep_curve(n, f0, f1) if f1 != f0 else np.full(n, float(f0))
+    y = osc_pulse(f, duty) if wave == 'pulse' else osc_tri(f) if wave == 'tri' else osc_sine(f)
+    e = env_exp(n, tau, 0.001) if tau else np.ones(n)
+    return fade(y * e, 0.001, min(0.01, d / 3))
+
+
+def whoosh(d, f_path, q_oct=1.2, key='wh', amp_shape=None):
+    """Band-pass noise sweep; f_path(t_frac)->centre Hz."""
+    n = S(d)
+    nz = _noise(n, key)
+
+    def resp(t, f):
+        fc = f_path(min(t / d, 1.0))
+        lo, hi = fc * 2 ** (-q_oct / 2), fc * 2 ** (q_oct / 2)
+        return r_bp(lo, hi, 2)(f)
+    y = tv_filter(nz, resp)
+    tt = np.linspace(0, 1, n)
+    e = amp_shape(tt) if amp_shape else np.sin(np.pi * tt) ** 1.5
+    return y * e
+
+
+def shards(d, count, key, lo=2200, hi=7500, spread=0.25):
+    b = buf(d)
+    rng = rng_for(key)
+    for k in range(count):
+        t0 = abs(rng.normal(0, spread / 2.5))
+        f = rng.uniform(lo, hi)
+        dur = rng.uniform(0.05, 0.25)
+        s_ = bell_tone(f, dur, ((1, 1, dur / 4), (2.71, 0.4, dur / 8)))
+        place(b, min(t0, d - 0.05), s_, rng.uniform(0.2, 0.8))
+    return b
+
+
+def wood_knock(d, f, key):
+    n = S(d)
+    t = secs(n)
+    y = np.sin(2 * np.pi * f * t) * np.exp(-t / 0.035) + 0.5 * np.sin(2 * np.pi * f * 2.37 * t) * np.exp(-t / 0.02)
+    y += 0.6 * filt(_noise(n, key), r_bp(f * 0.8, f * 4)) * np.exp(-t / 0.012)
+    return y
+
+
+def impact(d, f0, f1, tau_p, tau_a, crack_lo, crack_hi, crack_tau, key, drive=2.0, crack_gain=0.6, sub=0.0):
+    b = thump(d, f0, f1, tau_p, tau_a)
+    b += crack_gain * fit(crack(min(d, crack_tau * 8), crack_lo, crack_hi, crack_tau, key), len(b))
+    if sub:
+        b += sub * thump(d, f1 * 1.4, f1 * 0.9, 0.05, tau_a * 1.8)
+    slap = filt(_noise(S(0.004), key + 's'), r_hp(2500)) * np.linspace(1, 0, S(0.004))
+    b[:len(slap)] += slap * 0.5
+    return grit(b, drive)
+
+
+# ---- combat -----------------------------------------------------------------
+def sfx_punch_light():
+    return impact(0.25, 190, 72, 0.018, 0.05, 1500, 6500, 0.014, 'pl', 1.6, 0.55)
+
+
+def sfx_punch_heavy():
+    b = impact(0.45, 140, 44, 0.035, 0.11, 800, 5200, 0.03, 'ph', 2.4, 0.7, sub=0.6)
+    b += 0.35 * fit(crush(crack(0.2, 300, 2500, 0.05, 'phc'), 9000), len(b))
+    return b
+
+
+def sfx_kick_light():
+    b = impact(0.28, 160, 62, 0.022, 0.06, 1000, 4500, 0.02, 'kl', 1.7, 0.5)
+    return b + 0.25 * fit(whoosh(0.08, lambda u: 1800 - 800 * u, key='klw'), len(b))
+
+
+def sfx_kick_heavy():
+    b = impact(0.5, 120, 40, 0.045, 0.14, 700, 4200, 0.035, 'kh', 2.4, 0.65, sub=0.7)
+    b += 0.3 * fit(crush(crack(0.25, 250, 2000, 0.06, 'khc'), 8000), len(b))
+    return b
+
+
+def sfx_whiff():
+    return whoosh(0.22, lambda u: 600 + 2200 * math.sin(math.pi * min(u * 1.1, 1.0)) ** 2, 1.0, 'whiff',
+                  lambda tt: np.sin(np.pi * tt ** 0.7) ** 2)
+
+
+def sfx_block():
+    b = buf(0.16)
+    place(b, 0, crack(0.06, 900, 3500, 0.008, 'blk'), 0.8)
+    place(b, 0, bell_tone(1240, 0.12, ((1, 1, 0.025), (2.37, 0.6, 0.015))), 0.45)
+    place(b, 0, thump(0.1, 160, 90, 0.01, 0.025), 0.7)
+    return grit(b, 1.4)
+
+
+def sfx_perfect_guard():
+    b = buf(0.9)
+    place(b, 0, crack(0.03, 3000, 10000, 0.004, 'pg'), 0.6)
+    for f, g in ((1760, 1.0), (2637, 0.6), (3520, 0.35), (5274, 0.15)):
+        place(b, 0.004, bell_tone(f, 0.85, ((1, 1, 0.3), (2.0, 0.2, 0.1))), g)
+    sp = blip(2000, 6000, 0.25, wave='sine', tau=0.08)
+    place(b, 0.01, sp, 0.15)
+    return b
+
+
+def sfx_hurt_player():
+    n = S(0.34)
+    t = secs(n)
+    f = sweep_curve(n, 640, 170) * (1 + 0.06 * np.sin(2 * np.pi * 28 * t))
+    y = osc_pulse(f, 0.25) * env_exp(n, 0.12, 0.002)
+    y = 0.7 * crush(y, 11000) + 0.35 * crack(0.34, 400, 3000, 0.04, 'hp')
+    return grit(y, 1.8)
+
+
+def sfx_hurt_enemy():
+    n = S(0.28)
+    t = secs(n)
+    f = sweep_curve(n, 430, 110) * (1 + 0.08 * np.sin(2 * np.pi * 35 * t))
+    y = osc_pulse(f, 0.5) * env_exp(n, 0.09, 0.002)
+    y = 0.7 * crush(y, 8000) + 0.4 * crack(0.28, 300, 2500, 0.035, 'he')
+    return grit(y, 2.4)
+
+
+def sfx_fall():
+    b = buf(0.6)
+    place(b, 0, thump(0.4, 95, 38, 0.04, 0.12), 1.0)
+    place(b, 0, filt(_noise(S(0.5), 'fall'), r_lp(700)) * env_exp(S(0.5), 0.12), 0.6)
+    place(b, 0.19, thump(0.25, 80, 40, 0.03, 0.06), 0.45)
+    place(b, 0.19, crack(0.1, 300, 1500, 0.02, 'fall2'), 0.2)
+    return grit(b, 1.6)
+
+
+def sfx_land():
+    b = thump(0.2, 130, 58, 0.02, 0.045)
+    b += 0.45 * crack(0.2, 300, 2200, 0.035, 'land')
+    return grit(b, 1.4)
+
+
+def _step(key, f):
+    b = thump(0.09, f * 1.4, f, 0.01, 0.02) * 0.6
+    b += crack(0.09, 250, 1900, 0.018, key, 0.002) * 0.8
+    return b
+
+
+def sfx_footstep_a():
+    return _step('fsa', 105)
+
+
+def sfx_footstep_b():
+    return _step('fsb', 92)
+
+
+def sfx_jump():
+    n = S(0.24)
+    y = osc_pulse(drop_curve(n, 720, 260, 0.06)[::-1], 0.25) * env_exp(n, 0.1, 0.002)
+    return 0.6 * y + 0.35 * whoosh(0.24, lambda u: 700 + 1500 * u, key='jmp')
+
+
+def sfx_grab():
+    b = whoosh(0.16, lambda u: 2200 - 1400 * u, 1.4, 'grab', lambda tt: np.exp(-tt * 5) * np.minimum(tt * 30, 1))
+    b = fit(b, S(0.25))
+    place(b, 0.02, thump(0.12, 150, 80, 0.015, 0.03), 0.6)
+    return b
+
+
+def sfx_slam():
+    b = buf(0.65)
+    place(b, 0, thump(0.6, 100, 34, 0.05, 0.18), 1.0)
+    place(b, 0, crack(0.3, 400, 4000, 0.04, 'slam'), 0.6)
+    place(b, 0, filt(_noise(S(0.6), 'slr'), r_lp(400)) * env_exp(S(0.6), 0.2), 0.8)
+    return grit(b, 2.6)
+
+
+def sfx_shockwave():
+    n = S(1.0)
+    b = thump(1.0, 90, 30, 0.12, 0.35)
+    b += 0.7 * whoosh(1.0, lambda u: 3000 * (1 - u) ** 2 + 200, 1.6, 'shock', lambda tt: np.exp(-tt * 3.5) * np.minimum(tt * 40, 1))
+    b += 0.5 * filt(_noise(n, 'shr'), r_lp(250)) * env_exp(n, 0.3)
+    return grit(b, 1.8)
+
+
+def sfx_ko():
+    b = buf(1.25)
+    place(b, 0, sfx_punch_heavy(), 1.0)
+    place(b, 0, thump(1.0, 70, 30, 0.1, 0.35), 0.7)
+    place(b, 0.06, bell_tone(1318, 1.1, ((1, 1, 0.45), (2.76, 0.3, 0.2))), 0.35)
+    ech = fit(sfx_punch_heavy(), S(0.5)) * 0.25
+    place(b, 0.28, filt(ech, r_lp(1500)), 1.0)
+    place(b, 0.56, filt(ech, r_lp(900)), 0.5)
+    return b
+
+
+def sfx_dizzy():
+    n = S(1.2)
+    t = secs(n)
+    y = np.zeros(n)
+    for k, (base, ph) in enumerate(((1700, 0.0), (2150, 2.1), (2600, 4.2))):
+        f = base + 380 * np.sin(2 * np.pi * 6.5 * t + ph)
+        am = 0.5 + 0.5 * np.sin(2 * np.pi * 3.2 * t + ph)
+        y += osc_tri(f) * am ** 2
+    e = np.minimum(t / 0.05, 1) * np.clip((1.2 - t) / 0.4, 0, 1)
+    return y * e * 0.4
+
+
+def sfx_guard_break():
+    b = buf(0.75)
+    place(b, 0, impact(0.4, 150, 50, 0.03, 0.1, 1200, 7000, 0.03, 'gb', 2.2, 0.7), 1.0)
+    place(b, 0.01, shards(0.6, 14, 'gbs', 1800, 6500, 0.2), 0.6)
+    n = S(0.5)
+    place(b, 0.05, osc_pulse(sweep_curve(n, 900, 140), 0.25) * env_exp(n, 0.2), 0.3)
+    return b
+
+
+def sfx_charge():
+    n = S(1.0)
+    t = secs(n)
+    f = sweep_curve(n, 140, 880)
+    rate = 6 + 26 * t
+    trem = 0.6 + 0.4 * np.sin(2 * np.pi * np.cumsum(rate) / SR)
+    y = (0.5 * osc_saw(f) + 0.5 * osc_pulse(f * 1.005, 0.3)) * trem
+    y = filt(y, r_lp(4000, 1))
+    y += 0.4 * whoosh(1.0, lambda u: 500 + 5000 * u ** 2, 1.0, 'chg', lambda tt: tt ** 2)
+    return y * np.minimum(t / 0.05, 1) * np.clip((1.0 - t) / 0.04, 0, 1) * (0.4 + 0.6 * t)
+
+
+# ---- weapons / objects ------------------------------------------------------
+def sfx_weapon_hit_blunt():
+    b = impact(0.4, 170, 70, 0.02, 0.07, 900, 4000, 0.02, 'wb', 1.8, 0.45)
+    b += 0.7 * fit(wood_knock(0.25, 620, 'wbk'), len(b))
+    return grit(b, 1.3)
+
+
+def sfx_weapon_hit_metal():
+    b = impact(0.6, 160, 60, 0.02, 0.06, 1500, 8000, 0.015, 'wm', 1.5, 0.6)
+    b += 0.6 * fit(_metal(S(0.6), 520, (1, 2.32, 4.25, 6.63, 8.9), (1, 0.7, 0.5, 0.35, 0.2), (0.35, 0.25, 0.15, 0.1, 0.06), 'wm'), len(b))
+    return grit(b, 1.4)
+
+
+def sfx_weapon_hit_chain():
+    b = impact(0.5, 160, 65, 0.02, 0.06, 1200, 6000, 0.02, 'wc', 1.6, 0.5)
+    b += 0.9 * fit(drum('chain'), len(b))
+    place(b, 0.09, drum('chain')[:S(0.2)], 0.5)
+    return b
+
+
+def sfx_weapon_swing():
+    b = whoosh(0.3, lambda u: 350 + 1100 * math.sin(math.pi * u), 1.3, 'wsw', lambda tt: np.sin(np.pi * tt ** 0.8) ** 2)
+    n = len(b)
+    b += 0.25 * osc_sine(sweep_curve(n, 120, 70)) * np.sin(np.pi * np.linspace(0, 1, n)) ** 2
+    return b
+
+
+def sfx_throw():
+    b = whoosh(0.25, lambda u: 500 + 2400 * u, 1.1, 'thr', lambda tt: np.sin(np.pi * tt) ** 2 * (1 - tt * 0.5))
+    place(b, 0.0, crack(0.02, 1500, 5000, 0.004, 'thrc'), 0.4)
+    return b
+
+
+def sfx_bottle_break():
+    b = buf(0.75)
+    place(b, 0, thump(0.08, 400, 200, 0.01, 0.015), 0.5)
+    place(b, 0, crack(0.4, 2000, 12000, 0.06, 'bb'), 0.7)
+    place(b, 0.005, shards(0.7, 28, 'bbs', 2500, 8000, 0.3), 0.8)
+    return b
+
+
+def sfx_crate_break():
+    b = buf(0.75)
+    place(b, 0, thump(0.3, 120, 50, 0.03, 0.08), 0.9)
+    rng = rng_for('crate')
+    for k in range(9):
+        t0 = abs(rng.normal(0, 0.08))
+        place(b, t0, wood_knock(0.15, rng.uniform(380, 900), 'ck%d' % k), rng.uniform(0.3, 0.8))
+    place(b, 0, crack(0.5, 800, 6000, 0.09, 'cks'), 0.45)
+    return grit(b, 1.6)
+
+
+def sfx_crate_fall():
+    b = buf(0.85)
+    place(b, 0, whoosh(0.25, lambda u: 400 + 800 * u, 1.2, 'cfw', lambda tt: tt ** 2), 0.3)
+    place(b, 0.24, thump(0.35, 110, 48, 0.03, 0.09), 1.0)
+    place(b, 0.24, wood_knock(0.2, 480, 'cf1'), 0.8)
+    place(b, 0.24, crack(0.25, 600, 4000, 0.04, 'cf2'), 0.4)
+    place(b, 0.46, wood_knock(0.15, 540, 'cf3'), 0.35)
+    place(b, 0.46, thump(0.2, 100, 60, 0.02, 0.04), 0.4)
+    return grit(b, 1.5)
+
+
+def sfx_metal_clang():
+    n = S(0.85)
+    b = _metal(n, 300, (1, 2.32, 4.25, 6.63, 9.1, 11.8), (1, 0.8, 0.6, 0.4, 0.25, 0.12),
+               (0.6, 0.45, 0.3, 0.2, 0.12, 0.08), 'mclang')
+    b += 0.6 * crack(0.85, 1500, 8000, 0.01, 'mcl')
+    b += 0.5 * thump(0.85, 140, 70, 0.02, 0.05)
+    return grit(b, 1.5)
+
+
+def sfx_tire_bounce():
+    n = S(0.42)
+    t = secs(n)
+    f = 95 + 110 * np.exp(-t / 0.05) * np.cos(2 * np.pi * 9 * t) ** 2 + 40 * np.exp(-t / 0.2)
+    b = osc_sine(f) * env_exp(n, 0.12, 0.002)
+    b += 0.3 * osc_tri(f * 2) * env_exp(n, 0.06)
+    b += 0.3 * crack(0.42, 200, 1200, 0.02, 'tire')
+    return grit(b, 1.5)
+
+
+def sfx_drop():
+    b = buf(0.32)
+    place(b, 0, thump(0.15, 220, 90, 0.015, 0.035), 0.8)
+    place(b, 0, crack(0.08, 800, 4000, 0.012, 'drp'), 0.5)
+    place(b, 0.11, thump(0.1, 200, 110, 0.01, 0.025), 0.35)
+    place(b, 0.11, crack(0.05, 900, 4000, 0.008, 'drp2'), 0.25)
+    return b
+
+
+def sfx_door():
+    b = buf(0.85)
+    place(b, 0, crack(0.04, 2000, 7000, 0.006, 'dk'), 0.5)
+    place(b, 0.012, bell_tone(1900, 0.05, ((1, 1, 0.01),)), 0.3)
+    n = S(0.42)
+    t = secs(n)
+    rng = rng_for('creak')
+    jit = np.repeat(rng.uniform(-1, 1, n // 400 + 2), 400)[:n]
+    f = 190 + 70 * np.sin(np.pi * t / 0.42) + 25 * filt(jit, r_lp(30))
+    cr = filt(osc_saw(f), r_bp(700, 3000, 2)) * np.sin(np.pi * np.linspace(0, 1, n)) ** 1.2
+    place(b, 0.06, cr, 0.45)
+    place(b, 0.52, thump(0.3, 110, 60, 0.02, 0.06), 0.9)
+    place(b, 0.52, wood_knock(0.15, 300, 'dthd'), 0.6)
+    return b
+
+
+def sfx_bus_horn():
+    n = S(0.9)
+    t = secs(n)
+    f = 1 - 0.015 * t
+    y = osc_saw(311.1 * f) + osc_saw(370.0 * f) + 0.5 * osc_saw(466.2 * f)
+    y = filt(y, r_bp(250, 2500, 2), r_peak(900, 6, 1.0))
+    e = np.minimum(t / 0.03, 1) * np.clip((0.8 - t) / 0.12, 0, 1)
+    return np.tanh(1.5 * y * e) * (1 + 0.04 * np.sin(2 * np.pi * 7 * t))
+
+
+def sfx_alarm():
+    n = S(2.4)
+    t = secs(n)
+    hi = (np.floor(t / 0.3) % 2) == 0
+    f = np.where(hi, 950.0, 720.0)
+    f = filt(f, r_lp(60, 1))
+    y = osc_pulse(f, 0.5) * 0.7 + osc_tri(f * 2) * 0.3
+    y = filt(y, r_bp(500, 4000, 1))
+    e = np.minimum(t / 0.02, 1) * np.clip((2.4 - t) / 0.1, 0, 1)
+    return y * e
+
+
+def sfx_whistle():
+    n = S(0.8)
+    t = secs(n)
+    trill = 1 + 0.035 * np.sign(np.sin(2 * np.pi * 26 * t)) * (t > 0.08)
+    f = filt(2800 * trill, r_lp(300, 1))
+    y = osc_sine(f) + 0.2 * osc_sine(2 * f)
+    y += 0.35 * filt(_noise(n, 'whis'), r_bp(2000, 6000))
+    e = np.minimum(t / 0.02, 1) * np.clip((0.75 - t) / 0.06, 0, 1)
+    return y * e
+
+
+def sfx_dog_bark():
+    b = buf(0.55)
+    for t0, f0, g, d in ((0.0, 330, 1.0, 0.18), (0.24, 300, 0.7, 0.14)):
+        n = S(d)
+        t = secs(n)
+        f = f0 * (1 + 0.25 * np.exp(-t / 0.02)) * (1 - 0.3 * t / d)
+        src = osc_pulse(f, 0.3) + 0.4 * _noise(n, 'dog%d' % int(f0))
+        y = filt(src, r_peak(700, 12, 0.8), r_peak(1600, 9, 0.7), r_bp(250, 4000, 1))
+        y *= np.minimum(t / 0.006, 1) * np.exp(-t / (d * 0.45))
+        place(b, t0, grit(y, 2.0), g)
+    return b
+
+
+def sfx_splash():
+    b = buf(0.85)
+    place(b, 0, thump(0.15, 260, 100, 0.02, 0.04), 0.6)
+    nz = _noise(S(0.8), 'spl')
+    y = tv_filter(nz, lambda t, f: r_lp(6000 * math.exp(-t / 0.25) + 600, 2)(f) * r_hp(250)(f))
+    place(b, 0.005, y * env_exp(S(0.8), 0.2, 0.004), 0.8)
+    rng = rng_for('bub')
+    for k in range(10):
+        n = S(rng.uniform(0.03, 0.07))
+        f0 = rng.uniform(500, 1400)
+        place(b, rng.uniform(0.08, 0.6), osc_sine(sweep_curve(n, f0, f0 * 1.8)) * env_exp(n, 0.02), rng.uniform(0.1, 0.3))
+    return b
+
+
+def sfx_crowd_cheer():
+    d = 2.8
+    n = S(d)
+    t = secs(n)
+    y = np.zeros(n)
+    for k, (f1, f2) in enumerate(((650, 1150), (720, 1250), (550, 1000), (800, 1350))):
+        nz = _noise(n, 'crowd%d' % k)
+        am = 0.6 + 0.4 * filt(_noise(n, 'cam%d' % k), r_lp(5, 1)) * 3
+        y += filt(nz, r_peak(f1, 14, 0.5), r_peak(f2, 10, 0.5), r_peak(2600, 6, 0.6), r_bp(250, 5000, 1)) * am
+    rng = rng_for('claps')
+    for k in range(70):
+        place(y, rng.uniform(0.15, d - 0.2), drum('clap')[:S(0.08)] * 0.15, rng.uniform(0.2, 1.0))
+    for k in range(2):
+        tt0 = rng.uniform(0.5, 1.8)
+        m = S(0.5)
+        place(y, tt0, osc_sine(sweep_curve(m, 1500, 2600) ** 1.0) * np.sin(np.pi * np.linspace(0, 1, m)) * 0.12)
+    e = np.minimum(t / 0.5, 1) ** 2 * np.clip((d - t) / 0.9, 0, 1)
+    return y * e
+
+
+# ---- pickups / economy / feedback --------------------------------------------
+def sfx_pickup():
+    b = buf(0.24)
+    place(b, 0, blip(1318.5, 1318.5, 0.06, 0.25, 0.04), 0.6)
+    place(b, 0.06, blip(1975.5, 1975.5, 0.17, 0.25, 0.07), 0.6)
+    return b
+
+
+def _coin(f1, f2, gap=0.07, d=0.4):
+    b = buf(d + gap)
+    parts = ((1, 1, 0.12), (2.0, 0.3, 0.06), (3.0, 0.12, 0.03))
+    place(b, 0, bell_tone(f1, 0.1, parts), 0.7)
+    place(b, gap, bell_tone(f2, d, ((1, 1, 0.22), (2.0, 0.3, 0.1), (3.0, 0.12, 0.05))), 0.8)
+    return b
+
+
+def sfx_cash():
+    return _coin(1975.5, 2637.0)
+
+
+def sfx_cash_big():
+    b = buf(1.0)
+    rng = rng_for('cashbig')
+    for k in range(7):
+        place(b, k * 0.06 + rng.uniform(0, 0.015), _coin(rng.choice([1760, 1975.5, 2217.5]), 2637.0, 0.05, 0.25), 0.45)
+    place(b, 0.45, _coin(2637.0, 3520.0, 0.08, 0.45), 0.8)
+    return b
+
+
+def sfx_purchase():
+    b = buf(0.6)
+    place(b, 0, crack(0.03, 2000, 8000, 0.005, 'reg'), 0.5)
+    place(b, 0.03, wood_knock(0.08, 900, 'reg2'), 0.3)
+    place(b, 0.08, _coin(1568.0, 2093.0, 0.08, 0.4), 0.9)
+    place(b, 0.1, thump(0.15, 140, 80, 0.02, 0.04), 0.35)
+    return b
+
+
+def sfx_deny():
+    b = buf(0.3)
+    place(b, 0, blip(220, 220, 0.11, 0.5, 0.2), 0.5)
+    place(b, 0.14, blip(185, 185, 0.15, 0.5, 0.2), 0.5)
+    return filt(b, r_lp(3500, 1))
+
+
+def sfx_eat():
+    b = buf(0.48)
+    for k, t0 in enumerate((0.0, 0.15, 0.3)):
+        n = S(0.1)
+        y = crack(0.1, 900, 5000, 0.025, 'eat%d' % k, 0.004) + 0.5 * thump(0.1, 220, 140, 0.01, 0.02)
+        place(b, t0, crush(y, 14000), 1.0 - 0.15 * k)
+    return b
+
+
+def sfx_drink():
+    b = buf(0.6)
+    for k, t0 in enumerate((0.0, 0.19, 0.38)):
+        n = S(0.13)
+        t = secs(n)
+        f = 260 + 300 * (t / 0.13) ** 0.7
+        y = osc_sine(f) * np.sin(np.pi * t / 0.13) ** 2
+        y += 0.2 * filt(_noise(n, 'drk%d' % k), r_bp(400, 1500)) * np.sin(np.pi * t / 0.13)
+        place(b, t0, y, 0.8)
+    return b
+
+
+def _arp(freqs, step, d, inst='bell', gain=0.6):
+    b = buf(d)
+    for k, f in enumerate(freqs):
+        if inst == 'bell':
+            sig = bell_tone(f, min(0.6, d - k * step))
+        else:
+            sig = blip(f, f, min(0.25, d - k * step), 0.25, 0.1)
+        place(b, k * step, sig, gain)
+    return b
+
+
+def sfx_heal():
+    b = _arp([1046.5, 1318.5, 1568.0, 2093.0], 0.07, 0.9)
+    nz = _noise(S(0.9), 'heal')
+    b += 0.12 * filt(nz, r_bp(4000, 12000)) * np.sin(np.pi * np.linspace(0, 1, S(0.9))) ** 2
+    return b
+
+
+def sfx_level_up():
+    notes = [523.3, 659.3, 784.0, 1046.5, 1318.5, 1568.0, 2093.0]
+    b = _arp(notes, 0.06, 1.2, inst='pulse', gain=0.5)
+    for f in (1046.5, 1318.5, 1568.0):
+        place(b, 0.42, bell_tone(f, 0.75, ((1, 1, 0.35), (2.0, 0.25, 0.15))), 0.3)
+    return b
+
+
+def sfx_quest_update():
+    b = buf(0.65)
+    place(b, 0, bell_tone(783.99, 0.4, ((1, 1, 0.25), (2.0, 0.3, 0.1), (3.0, 0.1, 0.05))), 0.6)
+    place(b, 0.12, bell_tone(1046.5, 0.5, ((1, 1, 0.3), (2.0, 0.3, 0.12), (3.0, 0.1, 0.05))), 0.7)
+    return b
+
+
+def sfx_quest_complete():
+    b = buf(1.3)
+    for k, f in enumerate((783.99, 987.77, 1174.66)):
+        place(b, k * 0.1, bell_tone(f, 0.5), 0.55)
+    for f in (1567.98, 1975.5, 2349.3):
+        place(b, 0.32, bell_tone(f, 0.95, ((1, 1, 0.45), (2.0, 0.25, 0.18), (3.0, 0.08, 0.06))), 0.4)
+    n = S(0.9)
+    pad = (osc_saw(np.full(n, 392.0)) + osc_saw(np.full(n, 493.9)) + osc_saw(np.full(n, 587.3))) / 3
+    pad = filt(pad, r_lp(2500, 1)) * np.sin(np.pi * np.linspace(0, 1, n) ** 0.6) ** 2
+    place(b, 0.3, pad, 0.25)
+    return b
+
+
+def sfx_save():
+    b = _arp([880.0, 1108.7, 1318.5, 1760.0], 0.09, 0.9, gain=0.5)
+    n = S(0.8)
+    pad = (osc_sine(np.full(n, 440.0)) + osc_sine(np.full(n, 659.3))) * np.sin(np.pi * np.linspace(0, 1, n)) ** 2
+    place(b, 0.05, pad, 0.18)
+    return b
+
+
+def sfx_boss_intro():
+    d = 2.7
+    b = buf(d)
+    hit = 1.05
+    rs = whoosh(hit, lambda u: 300 + 5000 * u ** 2, 1.4, 'riser', lambda tt: tt ** 2.5)
+    place(b, 0, rs, 0.55)
+    place(b, hit - 1.0, drum('crash_rev')[-S(1.0):], 0.35)
+    place(b, hit, thump(1.4, 80, 32, 0.08, 0.5), 1.0)
+    place(b, hit, crack(0.6, 300, 4000, 0.06, 'bi'), 0.5)
+    n = S(d - hit)
+    t = secs(n)
+    brass = np.zeros(n)
+    for f in (61.7, 123.5, 146.8, 185.0, 246.9):     # B minor cluster, low brass
+        brass += osc_saw(f * (1 + 0.003 * np.sin(2 * np.pi * 5 * t)))
+    brass = filt(brass, r_lp(1800, 2)) * np.minimum(t / 0.02, 1) * np.exp(-t / 0.7)
+    place(b, hit, np.tanh(brass * 0.5), 0.7)
+    gong = _metal(n, 110, (1, 1.48, 2.03, 2.71, 3.6), (1, 0.8, 0.6, 0.4, 0.25), (1.2, 0.9, 0.7, 0.5, 0.3), 'gong')
+    place(b, hit, gong, 0.35)
+    e = np.ones(len(b))
+    e[-S(0.3):] = np.linspace(1, 0, S(0.3))
+    return b * e
+
+
+# ---- UI -----------------------------------------------------------------------
+def sfx_ui_move():
+    b = blip(1760, 1760, 0.045, 0.25, 0.012)
+    return b + 0.5 * bell_tone(3520, 0.045, ((1, 1, 0.008),))
+
+
+def sfx_ui_confirm():
+    b = buf(0.11)
+    place(b, 0, blip(1046.5, 1046.5, 0.04, 0.25, 0.03), 0.6)
+    place(b, 0.04, blip(1568.0, 1568.0, 0.07, 0.25, 0.03), 0.6)
+    return b
+
+
+def sfx_ui_cancel():
+    b = buf(0.1)
+    place(b, 0, blip(784.0, 784.0, 0.04, 0.5, 0.03), 0.5)
+    place(b, 0.04, blip(523.3, 523.3, 0.06, 0.5, 0.025), 0.5)
+    return filt(b, r_lp(3000, 1))
+
+
+def sfx_ui_open():
+    return blip(520, 1250, 0.1, 0.25, 0.05)
+
+
+def sfx_ui_close():
+    return blip(1250, 520, 0.09, 0.25, 0.045)
+
+
+def sfx_dialogue_blip():
+    return blip(880, 830, 0.035, 0.5, 0.012)
+
+
+def sfx_countdown_tick():
+    b = buf(0.12)
+    place(b, 0, drum('tick'), 0.6)
+    place(b, 0, blip(1000, 1000, 0.08, 0.5, 0.03, wave='sine'), 0.5)
+    return b
+
+
+# ---- ambient loops (seamless: circular filtering, integer-cycle LFOs, wrapped events)
+def _loop_noise(n, key, *resps):
+    return filt(_noise(n, key), *resps, circular=True)
+
+
+def _lfo(n, cycles, phase=0.0):
+    return np.sin(2 * np.pi * cycles * np.arange(n) / n + phase)
+
+
+def sfx_rain_loop():
+    d = 10.0
+    n = S(d)
+    hiss = _loop_noise(n, 'rain', r_bp(500, 9000, 1), r_peak(3500, 3, 1.5))
+    body = _loop_noise(n, 'rain2', r_bp(150, 900, 1))
+    y = hiss * (0.85 + 0.15 * _lfo(n, 3) * _lfo(n, 7, 1.0)) + 0.45 * body * (0.8 + 0.2 * _lfo(n, 2, 0.5))
+    rng = rng_for('drops')
+    for k in range(260):
+        m = S(rng.uniform(0.006, 0.02))
+        f = rng.uniform(1800, 6000)
+        drop_ = np.sin(2 * np.pi * f * secs(m)) * np.exp(-secs(m) / (m / SR / 4))
+        place_wrap(y, int(rng.uniform(0, n)), drop_, rng.uniform(0.05, 0.35))
+    for k in range(40):     # gutter drips
+        m = S(0.05)
+        f0 = rng.uniform(700, 1300)
+        place_wrap(y, int(rng.uniform(0, n)), osc_sine(sweep_curve(m, f0, f0 * 1.6)) * env_exp(m, 0.015), rng.uniform(0.05, 0.15))
+    return y
+
+
+def sfx_street_loop():
+    d = 10.0
+    n = S(d)
+    traffic = _loop_noise(n, 'traffic', r_bp(50, 600, 1)) * (0.7 + 0.3 * _lfo(n, 1) * _lfo(n, 3, 0.7))
+    murmur = np.zeros(n)
+    for k, (f1, f2) in enumerate(((550, 1100), (700, 1300), (480, 950))):
+        nz = _loop_noise(n, 'mur%d' % k, r_peak(f1, 10, 0.6), r_peak(f2, 8, 0.6), r_bp(250, 3000, 1))
+        syl = 0.5 + 0.5 * _lfo(n, 41 + 7 * k, k) * _lfo(n, 13 + 3 * k, 2 * k)
+        murmur += nz * syl
+    y = 1.0 * traffic + 0.18 * murmur
+    rng = rng_for('cars')
+    for k in range(3):     # passing cars (doppler-ish swell)
+        m = S(3.0)
+        t = secs(m)
+        sw = np.exp(-((t - 1.5) / 0.7) ** 2)
+        car = filt(_noise(m, 'car%d' % k), r_bp(80, 1500, 1)) * sw
+        car += 0.3 * osc_saw(95 * (1.08 - 0.16 * (t / 3.0))) * sw
+        place_wrap(y, int(rng.uniform(0, n)), filt(car, r_lp(1800)), rng.uniform(0.4, 0.7))
+    m = S(0.5)
+    horn = filt(osc_saw(np.full(m, 350.0)) + osc_saw(np.full(m, 440.0)), r_bp(300, 1500)) * np.sin(np.pi * np.linspace(0, 1, m)) ** 0.5
+    place_wrap(y, S(6.3), horn, 0.06)
+    return filt(y, r_lp(5000, 1), circular=True)
+
+
+def sfx_industrial_loop():
+    d = 10.0
+    n = S(d)
+    t = secs(n)
+    hum = sum(a * np.sin(2 * np.pi * 60 * h * t) for h, a in ((1, 1.0), (2, 0.5), (3, 0.35), (5, 0.15)))
+    y = 0.25 * hum * (0.9 + 0.1 * _lfo(n, 2))
+    y += 0.4 * _loop_noise(n, 'ind', r_bp(80, 2500, 1)) * (0.8 + 0.2 * _lfo(n, 5, 0.3))
+    for k in range(8):          # press thump every 1.25 s
+        p = S(k * 1.25)
+        place_wrap(y, p, thump(0.5, 90, 40, 0.04, 0.12) + 0.4 * crack(0.5, 300, 3000, 0.03, 'pr%d' % (k % 2)), 0.9)
+        place_wrap(y, p + S(0.62), drum('pipe') * 0.5, 0.25)
+    for k in range(2):          # steam vents
+        place_wrap(y, S(2.6 + 5.0 * k), drum('hiss'), 0.5)
+    rng = rng_for('clinks')
+    for k in range(10):
+        place_wrap(y, int(rng.uniform(0, n)), drum('anvil') * 0.5, rng.uniform(0.04, 0.12))
+    return y
+
+
+def sfx_neon_buzz_loop():
+    d = 6.0
+    n = S(d)
+    t = secs(n)
+    buzz = osc_saw(np.full(n, 120.0))
+    buzz = filt(buzz, r_bp(150, 3000, 1), r_peak(1200, 5, 1.0), circular=True)
+    y = 0.6 * buzz * (0.85 + 0.15 * _lfo(n, 3) * _lfo(n, 11, 0.4))
+    y += 0.08 * _loop_noise(n, 'nhiss', r_hp(3000))
+    rng = rng_for('flicker')
+    for k in range(9):          # flicker crackles
+        m = S(rng.uniform(0.03, 0.12))
+        cr = _noise(m, 'fl%d' % k) * (rng.random(m) > 0.7) * env_exp(m, m / SR / 2)
+        place_wrap(y, int(rng.uniform(0, n)), filt(cr, r_bp(1000, 8000)), rng.uniform(0.2, 0.5))
+    return y
+
+
+# id -> (function, loudness target, description)
+#   target: momentary-max LUFS for one-shots, integrated LUFS for loops
+SFX = [
+    ('punch_light', sfx_punch_light, -13, 'Light jab impact: low thump, noise crack, pitch drop'),
+    ('punch_heavy', sfx_punch_heavy, -11, 'Heavy punch: deeper thump, sub boom, crunchy crack'),
+    ('kick_light', sfx_kick_light, -13, 'Light kick impact with short air slap'),
+    ('kick_heavy', sfx_kick_heavy, -11, 'Heavy kick: long low thump and crunch'),
+    ('whiff', sfx_whiff, -18, 'Missed attack: band-passed noise sweep'),
+    ('block', sfx_block, -15, 'Blocked hit: short leathery/metallic click'),
+    ('perfect_guard', sfx_perfect_guard, -14, 'Perfect guard: bright ringing ping'),
+    ('hurt_player', sfx_hurt_player, -14, 'Player hurt: gritty downward pitch blip (abstract, no voice)'),
+    ('hurt_enemy', sfx_hurt_enemy, -15, 'Enemy hurt: lower, grittier downward blip'),
+    ('fall', sfx_fall, -13, 'Body hits the ground with a small bounce'),
+    ('land', sfx_land, -17, 'Landing from a jump: short thud with grit'),
+    ('footstep_a', sfx_footstep_a, -24, 'Soft footstep scuff (variant A)'),
+    ('footstep_b', sfx_footstep_b, -24, 'Soft footstep scuff (variant B)'),
+    ('jump', sfx_jump, -18, 'Jump: rising chip blip with air'),
+    ('pickup', sfx_pickup, -17, 'Item pickup: two quick rising chip notes'),
+    ('drop', sfx_drop, -18, 'Item dropped: small thud and bounce'),
+    ('cash', sfx_cash, -16, 'Money pickup: bright two-note coin chime'),
+    ('cash_big', sfx_cash_big, -15, 'Big money pickup: coin cascade and final chime'),
+    ('purchase', sfx_purchase, -15, 'Shop purchase: register click and chime'),
+    ('deny', sfx_deny, -17, 'Not allowed / cannot afford: low two-note buzz'),
+    ('eat', sfx_eat, -16, 'Eating: three crunchy bites'),
+    ('drink', sfx_drink, -17, 'Drinking: three gulps'),
+    ('heal', sfx_heal, -16, 'Health restored: rising sparkle arpeggio'),
+    ('level_up', sfx_level_up, -14, 'Level up: rising pulse arpeggio with bell chord'),
+    ('weapon_hit_blunt', sfx_weapon_hit_blunt, -12, 'Bat/pipe-wood blunt hit: thock and thump'),
+    ('weapon_hit_metal', sfx_weapon_hit_metal, -12, 'Metal weapon hit: clang over impact'),
+    ('weapon_hit_chain', sfx_weapon_hit_chain, -12, 'Chain hit: rattling links and impact'),
+    ('weapon_swing', sfx_weapon_swing, -17, 'Heavy weapon swing whoosh'),
+    ('throw', sfx_throw, -18, 'Throw release whoosh'),
+    ('bottle_break', sfx_bottle_break, -13, 'Glass bottle shatter'),
+    ('crate_break', sfx_crate_break, -12, 'Wooden crate smashed to splinters'),
+    ('metal_clang', sfx_metal_clang, -13, 'Big ringing metal clang (barrels, poles)'),
+    ('tire_bounce', sfx_tire_bounce, -14, 'Rubber tire bounce'),
+    ('ui_move', sfx_ui_move, -22, 'Menu cursor move tick'),
+    ('ui_confirm', sfx_ui_confirm, -20, 'Menu confirm: rising two-note blip'),
+    ('ui_cancel', sfx_ui_cancel, -21, 'Menu cancel: falling two-note blip'),
+    ('ui_open', sfx_ui_open, -21, 'Menu open: upward blip sweep'),
+    ('ui_close', sfx_ui_close, -21, 'Menu close: downward blip sweep'),
+    ('door', sfx_door, -16, 'Door: latch click, creak, close thump'),
+    ('dialogue_blip', sfx_dialogue_blip, -24, 'Dialogue text blip (per character)'),
+    ('quest_update', sfx_quest_update, -17, 'Quest updated: two-note chime'),
+    ('quest_complete', sfx_quest_complete, -15, 'Quest complete: chime triad with warm swell'),
+    ('boss_intro', sfx_boss_intro, -12, 'Boss intro: riser into low boom, brass cluster and gong'),
+    ('ko', sfx_ko, -11, 'Knockout: heavy hit, boom, echoes and bell ring'),
+    ('dizzy', sfx_dizzy, -19, 'Dizzy/stunned: warbling circling tones'),
+    ('grab', sfx_grab, -17, 'Grab: cloth swish and soft thud'),
+    ('slam', sfx_slam, -11, 'Body slam: very heavy thump and rumble'),
+    ('shockwave', sfx_shockwave, -12, 'Shockwave: low boom with expanding whoosh'),
+    ('whistle', sfx_whistle, -17, 'Trilling whistle (police/referee style)'),
+    ('crate_fall', sfx_crate_fall, -14, 'Crate falls and lands with a bounce'),
+    ('alarm', sfx_alarm, -17, 'Two-tone alarm siren'),
+    ('dog_bark', sfx_dog_bark, -15, 'Stylized synth dog bark (two woofs)'),
+    ('splash', sfx_splash, -15, 'Water splash with bubbles'),
+    ('crowd_cheer', sfx_crowd_cheer, -16, 'Abstract crowd cheer swell with claps'),
+    ('countdown_tick', sfx_countdown_tick, -19, 'Countdown tick beep'),
+    ('bus_horn', sfx_bus_horn, -16, 'City bus horn honk'),
+    ('save', sfx_save, -17, 'Game saved: soft rising chime'),
+    ('guard_break', sfx_guard_break, -12, 'Guard broken: shatter, thump, falling tone'),
+    ('charge', sfx_charge, -16, 'Charging power: rising tremolo sweep'),
+    ('rain_loop', sfx_rain_loop, -26, 'Seamless rain ambience loop with drips'),
+    ('street_loop', sfx_street_loop, -27, 'Seamless city ambience: distant traffic, murmur, passing cars'),
+    ('industrial_loop', sfx_industrial_loop, -25, 'Seamless factory ambience: hum, press thumps, steam, clinks'),
+    ('neon_buzz_loop', sfx_neon_buzz_loop, -28, 'Seamless neon-sign hum with flicker crackles'),
+]
+SFX_LOOPS = {'rain_loop', 'street_loop', 'industrial_loop', 'neon_buzz_loop'}
+
+
+def master_sfx(x, target, loop=False):
+    x = np.asarray(x, dtype=np.float64)
+    x = x - x.mean()
+    c = undb(-1.5)
+    if loop:
+        x = filt(x, r_hp(30, 2), circular=True)
+        return normalize_loudness(x, target, -1.5, circular=True)
+    x = fade(filt(x, r_hp(30, 2)), 0.0003, 0.008)
+    g = 1.0
+    for _ in range(4):
+        pk = np.max(np.abs(x * g)) + 1e-12
+        L = lufs_momentary_max(softclip(x * g, c))
+        g *= undb(target - L)
+        g = min(g, 1.25 * c / (np.max(np.abs(x)) + 1e-12))   # keep limiting gentle
+        if abs(target - L) < 0.2:
+            break
+    return softclip(x * g, c)
+
+
+# ===========================================================================
+# build / verify / document
+# ===========================================================================
+MODE_NAMES = {MAJOR: 'major', MINOR: 'minor', HMINOR: 'harmonic minor', MIXO: 'mixolydian', DORIAN: 'dorian'}
+
+
+def music_meta(fn):
+    Song.dry = True
+    try:
+        s = fn()
+    finally:
+        Song.dry = False
+    root, mode = s.key_name
+    return {'bpm': s.bpm, 'bpm_nominal': s.bpm_nominal, 'bars': s.bars, 'loop': s.loop, 'step': s.step,
+            'body': s.body, 'key': '%s %s' % (root, MODE_NAMES.get(mode, ''))}
+
+
+def probe(path):
+    out = subprocess.run([FFMPEG.replace('ffmpeg', 'ffprobe'), '-v', 'error', '-show_entries',
+                          'stream=codec_name,sample_rate,channels,duration_ts:format=duration', '-of', 'default=nw=1',
+                          path],
+                         capture_output=True, text=True, check=True).stdout
+    d = {}
+    for line in out.split():
+        k, _, v = line.partition('=')
+        d[k] = v
+    return d
+
+
+def analyse(path, channels, loop):
+    pr = probe(path)
+    y = decode_ogg(path, channels)
+    # The container's final granule position is the authoritative length (what Godot plays).
+    # ffmpeg's ogg demuxer is sloppy about end trimming on very short single-page files,
+    # so trim/measure against duration_ts rather than the raw decoded sample count.
+    n = int(pr.get('duration_ts', len(y)))
+    if loop and len(y) != n:
+        raise RuntimeError('%s: decoded %d samples, container says %d' % (path, len(y), n))
+    y = y[:n]
+    yy = y if y.ndim == 2 else y[:, None]
+    pk = float(np.max(np.abs(yy)))
+    rms = float(np.sqrt(np.mean(yy ** 2)))
+    L = lufs(y, circular=loop) if loop else lufs_momentary_max(y)
+    seam = None
+    if loop:
+        jump = float(np.max(np.abs(yy[0] - yy[-1])))
+        typ = float(np.percentile(np.abs(np.diff(yy, axis=0)), 99.0))
+        seam = jump / max(typ, 1e-9)
+    return {'codec': pr.get('codec_name'), 'sr': int(pr.get('sample_rate', 0)), 'ch': int(pr.get('channels', 0)),
+            'samples': n, 'dur': n / SR, 'peak': db(pk), 'rms': db(rms), 'lufs': L,
+            'seam': seam, 'bytes': os.path.getsize(path)}
+
+
+def build(selected, do_music, do_sfx):
+    t_all = __import__('time').time()
+    if do_music:
+        for mid, fn, _ in MUSIC:
+            if selected and mid not in selected:
+                continue
+            t0 = __import__('time').time()
+            s = fn()
+            y = s.render()
+            if s.loop:
+                assert y.shape[0] == s.body, (mid, y.shape, s.body)
+            write_ogg(os.path.join(MUSIC_DIR, mid + '.ogg'), y)
+            print('music %-14s %6.2fs  %2d bars @ %.2f bpm  (%.1fs)' % (
+                mid, y.shape[0] / SR, s.bars, s.bpm, __import__('time').time() - t0), flush=True)
+    if do_sfx:
+        for sid, fn, target, _ in SFX:
+            if selected and sid not in selected:
+                continue
+            x = master_sfx(fn(), target, loop=sid in SFX_LOOPS)
+            write_ogg(os.path.join(SFX_DIR, sid + '.ogg'), x)
+            print('sfx   %-16s %5.2fs' % (sid, len(x) / SR), flush=True)
+    print('build time %.1fs' % (__import__('time').time() - t_all))
+
+
+def verify_and_document(write_doc=True):
+    problems = []
+    rows_m, rows_s = [], []
+    for mid, fn, desc in MUSIC:
+        path = os.path.join(MUSIC_DIR, mid + '.ogg')
+        if not os.path.exists(path):
+            problems.append('missing ' + path)
+            continue
+        meta = music_meta(fn)
+        a = analyse(path, 2, meta['loop'])
+        if a['ch'] != 2 or a['sr'] != SR or a['codec'] != 'vorbis':
+            problems.append('%s: bad format %s' % (mid, a))
+        if meta['loop']:
+            bars = a['samples'] / (16 * meta['step'])
+            if a['samples'] != meta['body'] or abs(bars - round(bars)) > 1e-9:
+                problems.append('%s: loop length %d != %d (%.4f bars)' % (mid, a['samples'], meta['body'], bars))
+            if a['seam'] > 3.0:
+                problems.append('%s: loop seam jump %.2fx typical' % (mid, a['seam']))
+        if a['peak'] > -1.0:
+            problems.append('%s: peak %.2f dBFS' % (mid, a['peak']))
+        rows_m.append((mid, desc, meta, a))
+    for sid, fn, target, desc in SFX:
+        path = os.path.join(SFX_DIR, sid + '.ogg')
+        if not os.path.exists(path):
+            problems.append('missing ' + path)
+            continue
+        loop = sid in SFX_LOOPS
+        a = analyse(path, 1, loop)
+        if a['ch'] != 1 or a['sr'] != SR or a['codec'] != 'vorbis':
+            problems.append('%s: bad format %s' % (sid, a))
+        lim = 3.0 if sid in ('boss_intro', 'crowd_cheer', 'alarm') else 1.5
+        if not loop and a['dur'] > lim + 0.01:
+            problems.append('%s: too long %.2fs' % (sid, a['dur']))
+        if sid.startswith('ui_') and a['dur'] > 0.12:
+            problems.append('%s: ui sound longer than 120 ms' % sid)
+        if sid == 'dialogue_blip' and a['dur'] > 0.04:
+            problems.append('dialogue_blip longer than 40 ms')
+        if loop and a['seam'] > 3.0:
+            problems.append('%s: loop seam jump %.2fx typical' % (sid, a['seam']))
+        if a['peak'] > -1.0:
+            problems.append('%s: peak %.2f dBFS' % (sid, a['peak']))
+        rows_s.append((sid, desc, loop, a))
+
+    total = sum(r[3]['bytes'] for r in rows_m) + sum(r[3]['bytes'] for r in rows_s)
+    print('\n%-16s %7s %5s %6s %7s %7s %7s %6s %7s' % ('id', 'dur', 'loop', 'bars', 'peak', 'rms', 'lufs', 'seam', 'KB'))
+    for mid, _, meta, a in rows_m:
+        print('%-16s %7.2f %5s %6s %7.2f %7.2f %7.2f %6s %7.0f' % (
+            mid, a['dur'], 'yes' if meta['loop'] else 'no', meta['bars'] if meta['loop'] else '-', a['peak'], a['rms'],
+            a['lufs'], '%.2f' % a['seam'] if a['seam'] is not None else '-', a['bytes'] / 1024))
+    for sid, _, loop, a in rows_s:
+        print('%-16s %7.3f %5s %6s %7.2f %7.2f %7.2f %6s %7.0f' % (
+            sid, a['dur'], 'yes' if loop else 'no', '-', a['peak'], a['rms'], a['lufs'],
+            '%.2f' % a['seam'] if a['seam'] is not None else '-', a['bytes'] / 1024))
+    print('\nfiles: %d music + %d sfx, total %.2f MB' % (len(rows_m), len(rows_s), total / 1048576.0))
+    if problems:
+        print('PROBLEMS:\n  ' + '\n  '.join(problems))
+    else:
+        print('all checks passed')
+    if write_doc:
+        write_docs(rows_m, rows_s, total, problems)
+    return problems
+
+
+def write_docs(rows_m, rows_s, total, problems):
+    L = []
+    L.append('# BACKSTREET OATH - Audio Assets\n')
+    L.append('All music and sound effects are **%s**. No samples, recordings or third-party material are used; '
+             'every melody is an original composition written for this game.\n' % ORIGIN)
+    L.append('Rebuild everything with `python3 tools/audio/gen_audio.py` (Python 3 + numpy + ffmpeg/libvorbis). '
+             'Output is deterministic. Use `--only id1,id2` to rebuild single assets and `--verify` to re-run the checks '
+             'and regenerate this file.\n')
+    L.append('## Format\n')
+    L.append('- Music: `game/assets/audio/music/<id>.ogg`, Ogg Vorbis q%d, 44.1 kHz **stereo**.' % OGG_QUALITY)
+    L.append('- SFX: `game/assets/audio/sfx/<id>.ogg`, Ogg Vorbis q%d, 44.1 kHz **mono**.' % OGG_QUALITY)
+    L.append('- Looping music is an exact whole number of bars; the file length *is* the loop. In Godot import the looping '
+             'files with **Loop = on, Loop Offset = 0** (AudioStreamOggVorbis `loop = true`). `victory` and `defeat` '
+             'are one-shots. The four `*_loop` SFX also loop with offset 0.')
+    L.append('- Seamless loops: the arrangement is rendered past the loop end and the tail is wrapped onto the start; '
+             'echo, room reverb, EQ and limiting are applied circularly, so the last sample flows into the first.')
+    L.append('- Levels: music is normalised to about -16 LUFS integrated (BS.1770 K-weighting; `safe_hub` -17, '
+             '`setback`/`defeat` -18 for their quieter mood) with a soft limiter, peaks below -1 dBFS after encoding. '
+             'One-shot SFX are normalised by momentary loudness per category (impacts loudest, UI and footsteps soft); '
+             'ambient loops sit at -25..-28 LUFS so they can play under music.\n')
+    L.append('Total size of all OGG files: **%.2f MB** (%d files).\n' % (total / 1048576.0, len(rows_m) + len(rows_s)))
+    L.append('## Music\n')
+    L.append('| id | file | duration | loop | bars | BPM | key | description | origin |')
+    L.append('|---|---|---|---|---|---|---|---|---|')
+    for mid, desc, meta, a in rows_m:
+        L.append('| `%s` | `music/%s.ogg` | %.2f s | %s | %s | %.2f | %s | %s | %s |' % (
+            mid, mid, a['dur'], 'yes' if meta['loop'] else 'no', meta['bars'] if meta['loop'] else '-',
+            meta['bpm'], meta['key'], desc, ORIGIN))
+    L.append('\nBPM values are exact: the 16th-note is a whole number of samples (nominal tempo nudged by < 0.3 %).\n')
+    L.append('## Sound effects\n')
+    L.append('| id | file | duration | loop | description | origin |')
+    L.append('|---|---|---|---|---|---|')
+    for sid, desc, loop, a in rows_s:
+        L.append('| `%s` | `sfx/%s.ogg` | %.3f s | %s | %s | %s |' % (sid, sid, a['dur'], 'yes' if loop else 'no', desc, ORIGIN))
+    L.append('\n## Level report (measured from the decoded OGG files)\n')
+    L.append('Peak = sample peak dBFS, RMS = whole-file RMS dBFS, LUFS = integrated loudness for loops / '
+             'max momentary (300 ms) loudness for one-shots, Seam = |last-first sample| jump divided by the '
+             '99th-percentile sample-to-sample step (values around 1 or below mean the loop point is inaudible).\n')
+    L.append('| id | type | peak dBFS | RMS dBFS | LUFS | seam | size KB |')
+    L.append('|---|---|---|---|---|---|---|')
+    for mid, _, meta, a in rows_m:
+        L.append('| `%s` | music | %.2f | %.2f | %.1f | %s | %.0f |' % (
+            mid, a['peak'], a['rms'], a['lufs'], '%.2f' % a['seam'] if a['seam'] is not None else '-', a['bytes'] / 1024))
+    for sid, _, loop, a in rows_s:
+        L.append('| `%s` | sfx | %.2f | %.2f | %.1f | %s | %.0f |' % (
+            sid, a['peak'], a['rms'], a['lufs'], '%.2f' % a['seam'] if a['seam'] is not None else '-', a['bytes'] / 1024))
+    L.append('\nVerification: %s\n' % ('all checks passed (format, channels, sample rate, whole-bar loop lengths, '
+                                        'loop seams, peaks <= -1 dBFS, SFX length limits).' if not problems
+                                        else 'issues: ' + '; '.join(problems)))
+    os.makedirs(os.path.dirname(DOC_PATH), exist_ok=True)
+    with open(DOC_PATH, 'w') as f:
+        f.write('\n'.join(L))
+    print('wrote', DOC_PATH)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    ap.add_argument('--only', default='', help='comma separated asset ids')
+    ap.add_argument('--music', action='store_true', help='music only')
+    ap.add_argument('--sfx', action='store_true', help='sfx only')
+    ap.add_argument('--verify', action='store_true', help='skip building; verify files and rewrite the doc')
+    ap.add_argument('--no-doc', action='store_true', help='do not rewrite docs/assets/AUDIO_ASSETS.md')
+    a = ap.parse_args()
+    sel = set(x for x in a.only.split(',') if x)
+    known = {m[0] for m in MUSIC} | {s_[0] for s_ in SFX}
+    if sel - known:
+        sys.exit('unknown ids: ' + ', '.join(sorted(sel - known)))
+    if not a.verify:
+        do_m = not a.sfx or a.music
+        do_s = not a.music or a.sfx
+        build(sel, do_m, do_s)
+    probs = verify_and_document(not a.no_doc)
+    sys.exit(1 if probs else 0)
+
+
+if __name__ == '__main__':
+    main()

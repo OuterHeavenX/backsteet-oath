@@ -24,8 +24,10 @@ var toast_box: VBoxContainer
 var levelup: PanelContainer
 var levelup_t := 0.0
 var hint_label: Label
+var hint_panel: PanelContainer
 var hint_t := 0.0
 var top_panel: PanelContainer
+var timer_label: Label
 var shown_hp := 0.0
 var cash_flash := 0.0
 
@@ -35,6 +37,7 @@ func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _ready() -> void:
+	UIKit.apply(self)
 	top_panel = PanelContainer.new()
 	top_panel.add_theme_stylebox_override("panel", UIKit.panel_style(Color(0.1, 0.07, 0.12, 0.78), Color(0.9, 0.85, 0.7, 0.8), 1))
 	top_panel.position = Vector2(4, 4)
@@ -101,14 +104,17 @@ func _ready() -> void:
 	prompt_label.add_theme_constant_override("outline_size", 4)
 	add_child(prompt_label)
 
-	hint_label = UIKit.label("", UIKit.MUSTARD, 0, HORIZONTAL_ALIGNMENT_CENTER)
-	hint_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	hint_label.position = Vector2(-220, 64)
-	hint_label.size = Vector2(440, 30)
-	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint_label.add_theme_color_override("font_outline_color", UIKit.INK)
-	hint_label.add_theme_constant_override("outline_size", 4)
-	add_child(hint_label)
+	hint_panel = PanelContainer.new()
+	hint_panel.add_theme_stylebox_override("panel", UIKit.panel_style(Color(0.1, 0.07, 0.12, 0.82), UIKit.MUSTARD, 1))
+	hint_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	hint_panel.position = Vector2(-200, 60)
+	hint_panel.custom_minimum_size = Vector2(400, 0)
+	hint_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint_panel.visible = false
+	add_child(hint_panel)
+	hint_label = UIKit.wrap_label("", 384, UIKit.MUSTARD)
+	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint_panel.add_child(hint_label)
 
 	boss_box = PanelContainer.new()
 	boss_box.add_theme_stylebox_override("panel", UIKit.panel_style(Color(0.1, 0.07, 0.12, 0.85), UIKit.DANGER, 1))
@@ -141,6 +147,15 @@ func _ready() -> void:
 	boss_fill.size = Vector2(284, 6)
 	bb.add_child(boss_fill)
 
+	timer_label = UIKit.heading("", UIKit.MUSTARD)
+	timer_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	timer_label.position = Vector2(-60, 8)
+	timer_label.size = Vector2(120, 16)
+	timer_label.add_theme_color_override("font_outline_color", UIKit.INK)
+	timer_label.add_theme_constant_override("outline_size", 4)
+	add_child(timer_label)
+
 	toast_box = UIKit.vbox(2)
 	toast_box.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	toast_box.position = Vector2(-160, 34)
@@ -162,7 +177,9 @@ func _ready() -> void:
 	GameState.xp_changed.connect(refresh)
 	GameState.stage_changed.connect(func(_s): refresh_objective())
 	GameState.flag_changed.connect(func(_f): refresh_objective())
-	Settings.changed.connect(func(): refresh_objective())
+	Settings.changed.connect(func():
+		UIKit.apply(self)
+		refresh_objective())
 	shown_hp = float(GameState.hp)
 	refresh()
 	refresh_objective()
@@ -217,16 +234,22 @@ func _process(delta: float) -> void:
 			levelup.visible = false
 	if hint_t > 0.0:
 		hint_t -= delta
-		hint_label.modulate.a = clampf(hint_t, 0.0, 1.0)
+		hint_panel.modulate.a = clampf(hint_t, 0.0, 1.0)
 		if hint_t <= 0.0:
 			hint_label.text = ""
+			hint_panel.visible = false
+
+func set_timer(t: String) -> void:
+	timer_label.text = t
 
 func show_hint(t: String, dur: float = 6.0) -> void:
 	if not Settings.show_hints:
 		return
 	hint_label.text = t
 	hint_t = dur
-	hint_label.modulate.a = 1.0
+	hint_panel.visible = true
+	hint_panel.size = Vector2(400, 0)
+	hint_panel.modulate.a = 1.0
 
 func set_bosses(list: Array) -> void:
 	bosses = list.duplicate() if list else []

@@ -12,6 +12,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = false
 	get_tree().root.theme = UIKit.build_theme()
+	UIKit.apply(self)
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	var bg_tex := SpriteLib.tex("res://assets/bg/title_bg.png")
 	if bg_tex:

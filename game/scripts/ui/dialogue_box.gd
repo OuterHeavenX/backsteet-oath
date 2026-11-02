@@ -32,6 +32,7 @@ func _init() -> void:
 	visible = false
 
 func _ready() -> void:
+	UIKit.apply(self)
 	panel = PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	panel.custom_minimum_size = Vector2(600, 84)

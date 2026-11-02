@@ -36,6 +36,7 @@ func make_frame(title: String, min_size: Vector2 = Vector2(300, 200)) -> VBoxCon
 	return content
 
 func _ready() -> void:
+	UIKit.apply(self)
 	build()
 	await get_tree().process_frame
 	focus_first()

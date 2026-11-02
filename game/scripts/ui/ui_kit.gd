@@ -95,7 +95,14 @@ static func build_theme() -> Theme:
 	t.set_stylebox("panel", "ScrollContainer", empty)
 	t.set_stylebox("focus", "ScrollContainer", empty)
 	_theme = t
+	if f:
+		ThemeDB.fallback_font = f
+	ThemeDB.fallback_font_size = base_size()
 	return t
+
+## Theme inheritance stops at CanvasLayers, so every UI root gets the theme explicitly.
+static func apply(c: Control) -> void:
+	c.theme = theme()
 
 static func theme() -> Theme:
 	if _theme == null:

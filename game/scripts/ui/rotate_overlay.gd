@@ -11,6 +11,7 @@ func _init() -> void:
 	visible = false
 
 func _ready() -> void:
+	UIKit.apply(self)
 	var bg := ColorRect.new()
 	bg.color = Color(0.06, 0.04, 0.08, 0.97)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)

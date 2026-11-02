@@ -20,6 +20,7 @@ func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _ready() -> void:
+	UIKit.apply(self)
 	_layout()
 	get_viewport().size_changed.connect(_layout)
 	Settings.changed.connect(_refresh_active)
@@ -82,7 +83,7 @@ func _try_press(finger: int, pos: Vector2) -> bool:
 		var r := BTN_R * (0.7 if b.get("small", false) else 1.0) + 6.0
 		if pos.distance_to(b.pos) <= r and b.finger == -1:
 			b.finger = finger
-			Input.action_press(b.action)
+			_send(b.action, true)
 			queue_redraw()
 			return true
 	if pos.x < get_viewport_rect().size.x * 0.45 and pos.y > get_viewport_rect().size.y * 0.35 and stick_finger == -1:
@@ -103,7 +104,7 @@ func _release(finger: int) -> bool:
 	for b in buttons:
 		if b.finger == finger:
 			b.finger = -1
-			Input.action_release(b.action)
+			_send(b.action, false)
 			handled = true
 	queue_redraw()
 	return handled
@@ -125,9 +126,17 @@ func _apply_stick() -> void:
 		v = Vector2.ZERO
 	for pair in [["move_left", maxf(-v.x, 0.0)], ["move_right", maxf(v.x, 0.0)], ["move_up", maxf(-v.y, 0.0)], ["move_down", maxf(v.y, 0.0)]]:
 		if pair[1] > 0.0:
-			Input.action_press(pair[0], clampf(pair[1] * 1.25, 0.0, 1.0))
-		else:
-			Input.action_release(pair[0])
+			_send(pair[0], true, clampf(pair[1] * 1.25, 0.0, 1.0))
+		elif Input.is_action_pressed(pair[0]):
+			_send(pair[0], false)
+
+## Dispatches a real InputEventAction so both polling (gameplay) and event handlers (menus, dialogue) see it.
+func _send(action: String, pressed: bool, strength: float = 1.0) -> void:
+	var ev := InputEventAction.new()
+	ev.action = action
+	ev.pressed = pressed
+	ev.strength = strength if pressed else 0.0
+	Input.parse_input_event(ev)
 
 func _release_all() -> void:
 	if stick_finger != -1 or stick_vec != Vector2.ZERO:
@@ -137,7 +146,7 @@ func _release_all() -> void:
 	for b in buttons:
 		if b.finger != -1:
 			b.finger = -1
-			Input.action_release(b.action)
+			_send(b.action, false)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:

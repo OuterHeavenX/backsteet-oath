@@ -8,6 +8,7 @@ var done := false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().root.theme = UIKit.build_theme()
+	UIKit.apply(self)
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
 	bg.color = Color(0.07, 0.05, 0.09)

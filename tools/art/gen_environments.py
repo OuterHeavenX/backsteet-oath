@@ -1037,59 +1037,62 @@ def poster(cv, x, y, w, h, rng, palette=None):
 
 
 def graffiti(cv, x, y, w, h, rng, cols=None):
-    """Abstract bubble-style graffiti piece (original, no lettering)."""
+    """Abstract bubble-style graffiti piece (original, no real lettering): chunky letter-like
+    blocks with counters, a 3D drop shadow, white outline, highlight stripe, drips and sparkles."""
     cols = cols or rng.sample([P["n_pink"], P["n_cyan"], P["mustard"], P["n_green"], P["orange"], P["purple"],
                                C("#e05a5a"), C("#5a8ae0")], 3)
-    m = np.zeros((h, w), bool)
     im = Image.new("L", (w, h), 0)
+    holes = Image.new("L", (w, h), 0)
     d = ImageDraw.Draw(im)
-    n = max(2, w // 14)
-    xx = 2
-    for i in range(n):
-        bw = rng.randrange(10, 18)
-        bh = rng.randrange(int(h * 0.55), h - 2)
-        by = rng.randrange(1, max(2, h - bh))
-        shape = rng.random()
-        if shape < 0.5:
-            d.rounded_rectangle([xx, by, xx + bw, by + bh], radius=rng.randrange(3, 6), fill=255)
+    dh = ImageDraw.Draw(holes)
+    xx = 3
+    while xx < w - 14:
+        bw = rng.randrange(11, 17)
+        top = rng.randrange(2, max(3, h // 5))
+        bot = h - 4 - rng.randrange(0, max(1, h // 6))
+        kind = rng.random()
+        if kind < 0.45:
+            d.rounded_rectangle([xx, top, xx + bw, bot], radius=rng.randrange(3, 6), fill=255)
+            if rng.random() < 0.7:
+                hy = rng.randrange(top + 4, max(top + 5, (top + bot) // 2))
+                dh.rounded_rectangle([xx + 4, hy, xx + bw - 4, hy + rng.randrange(3, 6)], radius=1, fill=255)
+        elif kind < 0.75:
+            d.ellipse([xx, top, xx + bw + 2, bot], fill=255)
+            dh.ellipse([xx + 4, top + (bot - top) // 3, xx + bw - 2, top + (bot - top) // 3 + 4], fill=255)
         else:
-            d.ellipse([xx, by, xx + bw, by + bh], fill=255)
-        if rng.random() < 0.6:
-            d.polygon([(xx + bw // 2, by - 3), (xx + bw, by + 4), (xx + 2, by + 3)], fill=255)
-        xx += bw - rng.randrange(2, 5)
-        if xx > w - 12:
-            break
-    m = np.array(im) > 127
-    o1 = dilate(m, 1)
+            d.polygon([(xx, bot), (xx + bw // 2, top), (xx + bw + 2, bot)], fill=255)
+            d.rectangle([xx + 2, bot - 5, xx + bw, bot], fill=255)
+        xx += bw - rng.randrange(1, 4)
+    # arrow flourish
+    ay = rng.randrange(h // 4, h // 2)
+    d.polygon([(w - 14, ay - 5), (w - 3, ay), (w - 14, ay + 5)], fill=255)
+    m = (np.array(im) > 127) & ~(np.array(holes) > 127)
+    sh = np.zeros_like(m)
+    sh[2:, 2:] = m[:-2, :-2]
+    o1 = dilate(m | sh, 1)
     o2 = dilate(o1, 1)
     cv.mask_fill(x, y, o2 & ~o1, P["white"])
     cv.mask_fill(x, y, o1 & ~m, INK)
-    # fill with vertical two-tone
-    top = np.zeros_like(m)
-    top[: h // 2] = True
-    cv.mask_fill(x, y, m & top, cols[0])
-    cv.mask_fill(x, y, m & ~top, cols[1])
-    # highlight dashes + inner stripe
-    hl = m & ~dilate(~m, 2)
+    cv.mask_fill(x, y, sh & ~m, dk(cols[1], 0.55))
+    top_m = np.zeros_like(m)
+    top_m[: h // 2] = True
+    cv.mask_fill(x, y, m & top_m, cols[0])
+    cv.mask_fill(x, y, m & ~top_m, cols[1])
     stripe = np.zeros_like(m)
     stripe[h // 2 - 1:h // 2 + 1] = True
-    cv.mask_fill(x, y, hl & stripe, cols[2])
-    for _ in range(4):
-        sx = rng.randrange(0, w)
-        sy = rng.randrange(0, h)
-        if 0 <= sy < h and m[sy, sx]:
-            cv.px(x + sx, y + sy, P["white"])
-            cv.px(x + sx + 1, y + sy, P["white"])
-    # drips
+    cv.mask_fill(x, y, m & stripe, cols[2])
+    # inner highlight on the upper-left edges
+    hl = m & ~np.roll(np.roll(m, 1, 0), 1, 1)
+    cv.mask_fill(x, y, hl & top_m, lt(cols[0], 0.55))
     for _ in range(rng.randrange(2, 5)):
         sx = rng.randrange(4, w - 4)
-        col = np.nonzero(m[:, sx])[0]
-        if len(col):
-            cv.vl(x + sx, y + col[-1] + 1, rng.randrange(2, 7), cols[1])
-    # sparkle star
-    sx, sy = x + w - rng.randrange(2, 8), y + rng.randrange(0, 5)
-    for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
-        cv.px(sx + dx, sy + dy, P["white"])
+        col_idx = np.nonzero(m[:, sx])[0]
+        if len(col_idx):
+            cv.vl(x + sx, y + col_idx[-1] + 1, rng.randrange(2, 7), cols[1])
+    for _ in range(2):
+        sx, sy = x + rng.randrange(0, w), y + rng.randrange(0, 6)
+        for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+            cv.px(sx + dx, sy + dy, P["white"])
 
 
 def tag_scribble(cv, x, y, rng, c=None):
@@ -1141,7 +1144,7 @@ def entrance(R, d, style="shop", accent=None):
     y0 = yb - Hh
     R.doors_drawn.append((d["id"], x))
     if style == "tunnel":
-        aw, ah = 44, 62
+        aw, ah = 38, 56
         ax0 = x - aw // 2
         stone = C("#8a8274")
         # voussoir ring
@@ -1430,8 +1433,6 @@ def g_boardwalk(R, x, w):
 def g_bridge(R, x, w):
     cv = R.cv
     base = C("#a8835a")
-    for (yy, hh) in persp_rows(214, H, 6, 9):
-        pass
     tex_planks_v(cv, x, 214, w, H - 214, base, pw=7, seed=R.id)
     rng = R.rng("bp", x)
     for xx in range(x, x + w, 7):
@@ -1499,7 +1500,7 @@ def g_foundry(R, x, w):
     cv.dither_blend(x, 214, w, 4, (20, 10, 10), 0.5)
     fg_curb(cv, x, w, top=C("#4a4446"), face=C("#221e22"))
     # hazard edge
-    for xx in range(x, x + w, 8):
+    for xx in range(x, x + w + 8, 8):
         cv.poly([(xx, CURB_Y + 1), (xx + 4, CURB_Y + 1), (xx + 2, CURB_Y + 5), (xx - 2, CURB_Y + 5)], P["yellow"])
 
 
@@ -1591,7 +1592,8 @@ def g_wfloor(R, x, w):
         cv.rect(x, yy, w, 2, yl)
         cv.dither_blend(x, yy, w, 2, base, 0.2)
     cv.dither_blend(x, 214, w, 4, (20, 20, 30), 0.5)
-    for xx in range(x, x + w, 10):
+    cv.rect(x, CURB_Y, w, 6, C("#24222a"))
+    for xx in range(x, x + w + 10, 10):
         cv.poly([(xx, CURB_Y), (xx + 5, CURB_Y), (xx + 1, CURB_Y + 5), (xx - 4, CURB_Y + 5)], yl)
         cv.poly([(xx + 5, CURB_Y), (xx + 10, CURB_Y), (xx + 6, CURB_Y + 5), (xx + 1, CURB_Y + 5)], C("#24222a"))
     cv.vgrad(x, CURB_Y + 5, w, H - CURB_Y - 5, [C("#4a4850"), C("#24222a")], levels=4)
@@ -2294,11 +2296,37 @@ def f_alley_gap(R, x0, w, f):
     cv.rect(x0 + side + 3, far_top, 2, FACADE_BOTTOM - far_top - 14, C("#3a3440"))
     if w >= 100:
         fire_escape(cv, x0 + side + 10, min(60, w - 2 * side - 20), [90, 140], c=C("#1e1a24"), ladder=False)
-    # trash silhouettes
+    # side walls: dark brick texture in perspective shading
+    for xx in range(x0, x0 + side):
+        t = (xx - x0) / side
+        y_top, y_bot = int(t * 18), FACADE_BOTTOM - int(t * 14)
+        for yy in range(y_top, y_bot, 4):
+            off = 0 if (yy // 4) % 2 else 3
+            if (xx - x0 + off) % 6 == 0:
+                cv.vl(xx, yy, 3, C("#1e161e"))
+            cv.px(xx, yy + 3, C("#1e161e"))
+    # a lit back window high on the far wall + a laundry line across the gap
+    wx = x0 + w // 2 - 6
+    cv.rect(wx - 1, 96, 14, 18, C("#3a2a2a"))
+    cv.vgrad(wx, 97, 12, 16, [C("#ffd890"), C("#e09050")], em=1)
+    cv.vl(wx + 6, 97, 16, C("#3a2a2a"))
+    R.lights.append((wx + 6, 105, C("#ffc870"), 16, 0.4))
+    laundry_line(cv, x0 + side, 56, x0 + w - side, 60, R.rng("alley_line", x0))
+    # trash silhouettes + a cat on the left can
     for k in range(2):
         tx = x0 + side + 4 + k * (w - 2 * side - 16)
         cv.rect(tx, FACADE_BOTTOM - 24, 9, 11, C("#2a2a34"))
         cv.hl(tx - 1, FACADE_BOTTOM - 25, 11, C("#3a3a46"))
+    cx_ = x0 + side + 6
+    cv.rect(cx_, FACADE_BOTTOM - 31, 6, 5, C("#141018"))
+    cv.rect(cx_ + 4, FACADE_BOTTOM - 34, 3, 3, C("#141018"))
+    cv.px(cx_ + 4, FACADE_BOTTOM - 35, C("#141018"))
+    cv.px(cx_ + 6, FACADE_BOTTOM - 35, C("#141018"))
+    cv.px(cx_ + 5, FACADE_BOTTOM - 33, C("#e8e060"), em=1)
+    cv.vl(cx_ - 1, FACADE_BOTTOM - 34, 4, C("#141018"))
+    # puddle on the alley floor catching the window light
+    cv.ellipse(x0 + w // 2 - 8, FACADE_BOTTOM - 9, x0 + w // 2 + 8, FACADE_BOTTOM - 5, C("#5a4a50"))
+    cv.hl(x0 + w // 2 - 3, FACADE_BOTTOM - 7, 6, C("#c8a070"))
     # dim lamp
     wall_lamp(cv, R, x0 + w // 2, 70, color=C("#ffcf7a"), em_strength=0.5)
     if f.get("sign"):
@@ -2658,8 +2686,8 @@ def f_graffiti_wall(R, x0, w, f):
         pw = min(pw, x0 + w - 8 - xx)
         if pw < 50:
             break
-        ph = rng.randrange(34, 50)
-        graffiti(cv, xx, rng.randrange(top + 14, FACADE_BOTTOM - ph - 12), pw, ph, rng)
+        ph = rng.randrange(40, 60)
+        graffiti(cv, xx, rng.randrange(top + 12, max(top + 13, FACADE_BOTTOM - ph - 14)), pw, ph, rng)
         xx += pw + rng.randrange(6, 20)
     for _ in range(w // 50):
         tag_scribble(cv, rng.randrange(x0 + 4, x0 + w - 30), rng.randrange(top + 6, FACADE_BOTTOM - 10), rng)
@@ -3704,7 +3732,6 @@ def f_chainlink_yard(R, x0, w, f):
     sx = x0 + w // 2 - 14
     cv.rect(sx, 150, 28, 20, C("#e8e4dc"))
     cv.rect(sx + 1, 151, 26, 6, P["red"])
-    cv.text_c(sx + 14, 151, "KEEP", P["white"], 1) if False else None
     cv.hl(sx + 4, 160, 20, C("#3a3a46"))
     cv.hl(sx + 4, 163, 16, C("#3a3a46"))
     cv.hl(sx + 4, 166, 18, C("#3a3a46"))
@@ -3971,8 +3998,8 @@ def f_furnace(R, x0, w, f):
             cv.px(chx + 1, yy + 1, C("#2a2a32"))
     # molten channel at the base spilling forward
     cv.rect(mx0 + 10, FACADE_BOTTOM - 4, mw - 20, 4, C("#ff8a20"), em=1)
-    R.lights.append((cx, my0 + 40, C("#ff8a30"), 200, 1.0))
-    R.lights.append((cx, FACADE_BOTTOM + 40, C("#ff7a20"), 180, 0.8, "pool"))
+    R.lights.append((cx, my0 + 40, C("#ff8a30"), 220, 1.6))
+    R.lights.append((cx, FACADE_BOTTOM + 30, C("#ff7a20"), 220, 1.8, "pool"))
     R.refl.append((mx0, mx0 + mw, my0, C("#ff9a40"), 1.0))
     # gauges either side
     for gx in (fb_x0 + 14, fb_x0 + fb_w - 30):
@@ -4007,14 +4034,11 @@ def f_crane_bay(R, x0, w, f):
     tx = x0 + w // 2 - 20
     cv.rect(tx, 40, 40, 14, C("#3a3a46"))
     cv.rect(tx + 4, 44, 32, 6, P["yellow"])
-    for k in range(0, 4):
-        cv.text(tx + 6 + k * 8, 44, "", INK)
     for yy in range(54, 140, 4):
         cv.rect(tx + 19, yy, 3, 3, C("#6a6a76"))
     cv.rect(tx + 12, 140, 16, 8, C("#4a4a56"))
     cv.ellipse(tx + 12, 146, tx + 26, 162, C("#5a5a66"))
     cv.ellipse(tx + 16, 148, tx + 24, 156, C("#2a1e24"))
-    cv.clear(tx + 12, 146, 0, 0)
     # hanging steel beam load
     cv.line(tx + 19, 160, tx - 10, 176, C("#6a6a76"))
     cv.line(tx + 21, 160, tx + 50, 176, C("#6a6a76"))
@@ -4299,7 +4323,7 @@ def f_pharmacy(R, x0, w, f):
     dx = doors[0]["x"] if doors else x0 + w // 2
     fy = 154
     cv.rect(x0 + 6, fy, w - 12, FACADE_BOTTOM - fy, C("#3a4a44"))
-    for (bx, bw) in ((x0 + 12, dx - 22 - (x0 + 12)), (dx + 22, x0 + w - 12 - (dx + 22))):
+    for (bx, bw) in ((x0 + 12, dx - 42 - (x0 + 12)), (dx + 42, x0 + w - 12 - (dx + 42))):
         if bw < 16:
             continue
         cv.vgrad(bx, fy + 4, bw, FACADE_BOTTOM - fy - 14, [C("#ffffff"), C("#e0f4f0"), C("#b0d8d0")], em=1)
@@ -4311,6 +4335,8 @@ def f_pharmacy(R, x0, w, f):
                         [P["red"], P["blue"], P["mustard"], P["teal"], P["white"], C("#e890b0")]), em=1)
         cv.rect(bx - 1, FACADE_BOTTOM - 10, bw + 2, 10, C("#3a4a44"))
         R.refl.append((bx, bx + bw, fy, C("#e0fff0"), 0.4))
+    for px_ in (dx - 40, dx + 22):
+        tex_brick(cv, px_, fy + 2, 18, FACADE_BOTTOM - fy - 2, base=C("#6a4a44"), seed=px_, calm=True)
     R.accents[x0] = C("#2a9a5a")
 
 
@@ -4719,7 +4745,6 @@ def f_pump_station(R, x0, w, f):
     for yy in range(188, FACADE_BOTTOM):
         cv.hl(sx + 3 + (yy % 3 == 0), yy, 6, C("#8ab0c8") if yy % 2 else C("#b8d0e0"))
     cv.ellipse(sx - 4, FACADE_BOTTOM - 4, sx + 16, FACADE_BOTTOM + 2, C("#a8c8e0"))
-    deco_door(cv, x0 + 20 + (w - 60) // 2, FACADE_BOTTOM, 0, 0, C("#3a3a46")) if False else None
 
 
 @facade("bait_shop")
@@ -5163,14 +5188,14 @@ def f_office_wall(R, x0, w, f):
     for k in range(x0 + 40, x0 + w - 290, 220):
         ww = 150
         cv.rect(k - 3, 52, ww + 6, 100, C("#5a5a62"))
-        cv.vgrad(k, 55, ww, 94, [C("#9ab0c0"), C("#6a8090")], em=1)
+        cv.vgrad(k, 55, ww, 94, [C("#c8dce8"), C("#8aa0b0")])
         for j in range(k + 6, k + ww - 20, 24):
-            cv.rect(j, 110, 18, 39, C("#6a7078"), em=1)
+            cv.rect(j, 110, 18, 39, C("#7a8088"))
             for yy in (116, 128, 140):
-                cv.hl(j + 2, yy, 14, C("#3a4048"), em=1)
-                cv.rect(j + 7, yy + 3, 4, 1, C("#a8acb0"), em=1)
+                cv.hl(j + 2, yy, 14, C("#4a5058"))
+                cv.rect(j + 7, yy + 3, 4, 1, C("#c8ccd0"))
         for yy in range(56, 100, 3):
-            cv.hl(k, yy, ww, C("#a8b0b8"), em=1)
+            cv.hl(k, yy, ww, C("#d8dce0"))
         cv.vl(k + ww // 2, 55, 94, C("#5a5a62"))
         R.lights.append((k + ww // 2, 100, C("#d8e8f0"), 80, 0.35))
     # HOLDING door
@@ -5230,7 +5255,10 @@ def f_crane_hall(R, x0, w, f):
     cv.ellipse(bx + 136, 152, bx + 144, 160, C("#2a2a32"))
     # giant painted logo on the back wall
     s = f.get("sign", "BANNER")
-    cv.text_c(x0 + w // 2, 100, s, mix(C("#5a5e66"), C("#c8ccd0"), 0.35), 4)
+    lx = min(x0 + w - 90, x0 + 380)
+    cv.text_c(lx, 104, s, mix(C("#5a5e66"), C("#c8ccd0"), 0.35), 3)
+    cv.hl(lx - 74, 128, 148, mix(C("#5a5e66"), C("#b02a32"), 0.5))
+    cv.hl(lx - 74, 130, 148, mix(C("#5a5e66"), C("#b02a32"), 0.5))
     # crates at the back wall
     for k in range(x0 + 10, x0 + w - 40, 70):
         for lv in range(rng.randrange(1, 3)):
@@ -5414,8 +5442,7 @@ def i_diner(R, x0, w, f):
         cv.rect(mx + 2, 58, 92, 36, C("#1e1e24"))
         for i, it in enumerate(items):
             cv.text(mx + 6, 61 + i * 11, it, C("#f0e8d0"), 1)
-            cv.text(mx + 70, 61 + i * 11, str(rng.randrange(1, 5)) + str(rng.choice([0, 5])) + "C"
-                    if False else f"{rng.randrange(1, 4)}.{rng.choice([0, 2, 5])}0", P["yellow"], 1)
+            cv.text(mx + 70, 61 + i * 11, f"{rng.randrange(1, 4)}.{rng.choice([0, 2, 5])}0", P["yellow"], 1)
     # kitchen pass-through with cook bell and plates
     kx = x0 + 420
     cv.rect(kx - 4, 50, 170, 74, P["steel"])
@@ -5602,7 +5629,6 @@ def i_noodle(R, x0, w, f):
     cv.ellipse(x0 + 54, 66, x0 + 126, 132, C("#c03a3a"))
     cv.ellipse(x0 + 58, 70, x0 + 122, 128, C("#8ac8e8"), em=1)
     cv.rect(x0 + 58, 110, 64, 18, C("#c89a7a"), em=1)
-    cv.ellipse(x0 + 54, 66, x0 + 126, 132, C("#7a4a2a")) if False else None
     cv.vl(x0 + 90, 70, 58, C("#7a4a2a"))
     cv.hl(x0 + 58, 99, 64, C("#7a4a2a"))
     # lanterns
@@ -6130,6 +6156,1678 @@ def gen_parallax():
         print(f"parallax {name}")
 
 
+
+# ============================================================================
+# PROPS (3/4 belt-scroller view, 1px #1a1220 outline, light from upper-left)
+# ============================================================================
+PROPS = {}
+
+
+def prop(name, footprint):
+    def deco(f):
+        PROPS[name] = (f, footprint)
+        return f
+    return deco
+
+
+def box3(cv, x, y, w, h, d, col, top=None, edge=True):
+    """Box: top face (height d) above front face (height h). x,y = top-left of top face."""
+    top = top or lt(col, 0.28)
+    cv.rect(x, y, w, d, top)
+    cv.hl(x, y, w, lt(top, 0.25))
+    cv.rect(x, y + d, w, h, col)
+    if edge:
+        cv.vl(x, y + d, h, lt(col, 0.15))
+        cv.vl(x + w - 1, y, d + h, dk(col, 0.3))
+        cv.hl(x, y + d + h - 1, w, dk(col, 0.35))
+    cv.hl(x, y + d, w, dk(top, 0.2))
+
+
+def cylinder(cv, x, y, w, h, col, top=None, cap=4):
+    """Upright cylinder; y = top of the cap ellipse."""
+    top = top or lt(col, 0.3)
+    cv.rect(x, y + cap // 2, w, h - cap // 2, col)
+    cv.ellipse(x, y + h - cap, x + w - 1, y + h, col)
+    cv.vl(x + 1, y + cap // 2, h - cap, lt(col, 0.3))
+    cv.vl(x + 2, y + cap // 2, h - cap, lt(col, 0.15))
+    cv.rect(x + w - 3, y + cap // 2, 3, h - cap // 2 - 1, dk(col, 0.25))
+    cv.vl(x + w - 1, y + cap // 2, h - cap // 2 - 1, dk(col, 0.4))
+    cv.ellipse(x, y, x + w - 1, y + cap, top)
+
+
+def wheel(cv, x, y, r, tyre=None, hub=None):
+    tyre = tyre or C("#24242e")
+    hub = hub or P["steel_l"]
+    cv.ellipse(x - r, y - r, x + r, y + r, tyre)
+    cv.ellipse(x - r // 2, y - r // 2, x + r // 2, y + r // 2, hub)
+    cv.px(x - 1, y - 1, lt(hub, 0.4))
+
+
+def finish_prop(cv):
+    """Crop to content, pad 1px, add 1px outline (4-connected)."""
+    a = cv.a
+    m = a[..., 3] > 0
+    ys, xs = np.nonzero(m)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    sub = a[y0:y1, x0:x1]
+    h, w = sub.shape[:2]
+    out = np.zeros((h + 2, w + 2, 4), np.uint8)
+    out[1:-1, 1:-1] = sub
+    mm = out[..., 3] > 0
+    d = dilate(mm, 1)
+    ring = d & ~mm
+    out[ring, :3] = INK
+    out[ring, 3] = 255
+    return out
+
+
+@prop("bus_stop", [48, 6])
+def pr_bus_stop():
+    cv = Canvas(64, 80)
+    # shelter
+    x0, top = 14, 12
+    cv.rect(x0, top, 46, 5, C("#3a6a5a"))
+    cv.hl(x0, top, 46, C("#5a9a7a"))
+    cv.hl(x0, top + 4, 46, C("#22403a"))
+    for px_ in (x0 + 1, x0 + 43):
+        cv.rect(px_, top + 5, 3, 56, C("#5a6068"))
+        cv.vl(px_, top + 5, 56, C("#8a9098"))
+    cv.rect(x0 + 4, top + 7, 39, 34, C("#a8d0e0"))
+    cv.vgrad(x0 + 4, top + 7, 39, 34, [C("#c8e8f0"), C("#8ab8d0")])
+    cv.line(x0 + 8, top + 9, x0 + 18, top + 37, C("#e8f8ff"))
+    cv.line(x0 + 11, top + 9, x0 + 21, top + 37, C("#e8f8ff"))
+    # route map poster on the glass
+    cv.rect(x0 + 28, top + 12, 12, 16, C("#e8e4dc"))
+    cv.hl(x0 + 30, top + 16, 8, P["red"])
+    cv.hl(x0 + 30, top + 20, 8, P["blue"])
+    cv.hl(x0 + 30, top + 24, 6, P["green"])
+    # bench
+    cv.rect(x0 + 6, top + 42, 34, 4, P["wood"])
+    cv.hl(x0 + 6, top + 42, 34, lt(P["wood"], 0.3))
+    cv.rect(x0 + 8, top + 46, 2, 15, C("#3a3a46"))
+    cv.rect(x0 + 36, top + 46, 2, 15, C("#3a3a46"))
+    # sign pole
+    cv.rect(5, 6, 3, 68, C("#5a6068"))
+    cv.vl(5, 6, 68, C("#8a9098"))
+    cv.ellipse(0, 0, 12, 12, C("#2a6ac0"))
+    cv.ellipse(2, 2, 10, 10, C("#f0f0f0"))
+    cv.rect(3, 4, 7, 4, C("#2a6ac0"))
+    cv.px(4, 9, INK)
+    cv.px(8, 9, INK)
+    cv.rect(2, 74, 9, 3, C("#5a6068"))
+    return cv
+
+
+@prop("lamp_post", [6, 4])
+def pr_lamp_post():
+    cv = Canvas(20, 80)
+    c = C("#2e3440")
+    hi = lt(c, 0.35)
+    cv.rect(6, 72, 8, 6, c)
+    cv.hl(6, 72, 8, hi)
+    cv.rect(7, 66, 6, 6, c)
+    cv.rect(9, 14, 3, 54, c)
+    cv.vl(9, 14, 54, hi)
+    for yy in (30, 50):
+        cv.rect(8, yy, 5, 2, c)
+    # lantern head
+    cv.rect(5, 12, 11, 2, c)
+    cv.rect(6, 4, 9, 8, P["lamp"], em=1)
+    cv.rect(7, 5, 7, 6, (255, 248, 220))
+    cv.vl(10, 4, 8, c)
+    cv.poly([(4, 4), (16, 4), (13, 0), (7, 0)], c)
+    cv.px(10, 0, hi)
+    return cv
+
+
+@prop("newsbox", [12, 6])
+def pr_newsbox():
+    cv = Canvas(20, 30)
+    col = C("#c03a3a")
+    box3(cv, 2, 2, 14, 16, 3, col)
+    cv.rect(4, 7, 10, 7, C("#e8e4dc"))
+    for yy in (8, 10, 12):
+        cv.hl(5, yy, 8, C("#5a5a66"))
+    cv.rect(4, 15, 6, 2, C("#5a5a66"))
+    cv.rect(3, 21, 2, 6, C("#3a3a46"))
+    cv.rect(13, 21, 2, 6, C("#3a3a46"))
+    return cv
+
+
+@prop("hydrant", [10, 4])
+def pr_hydrant():
+    cv = Canvas(18, 22)
+    col = C("#d0402e")
+    cv.rect(3, 18, 12, 3, dk(col, 0.2))
+    cylinder(cv, 4, 5, 10, 13, col, cap=3)
+    cv.ellipse(5, 1, 13, 7, col)
+    cv.rect(8, 0, 2, 2, dk(col, 0.2))
+    cv.rect(1, 9, 3, 4, dk(col, 0.1))
+    cv.rect(14, 9, 3, 4, dk(col, 0.3))
+    cv.rect(4, 7, 10, 2, C("#e0b040"))
+    cv.px(8, 11, C("#e0b040"))
+    return cv
+
+
+@prop("trash_can", [14, 6])
+def pr_trash_can():
+    cv = Canvas(20, 26)
+    col = C("#7a8088")
+    cylinder(cv, 2, 4, 15, 19, col, cap=4)
+    for yy in (10, 16):
+        cv.hl(2, yy, 15, dk(col, 0.25))
+        cv.hl(2, yy + 1, 15, lt(col, 0.15))
+    cv.ellipse(1, 2, 17, 7, lt(col, 0.25))
+    cv.rect(7, 0, 5, 3, dk(col, 0.2))
+    cv.rect(5, 6, 3, 2, C("#a8b088"))   # paper sticking out
+    return cv
+
+
+@prop("mailbox", [16, 6])
+def pr_mailbox():
+    cv = Canvas(22, 32)
+    col = C("#2e5a4a")
+    cv.rect(3, 8, 16, 14, col)
+    cv.ellipse(3, 2, 18, 14, col)
+    cv.vl(4, 6, 16, lt(col, 0.3))
+    cv.rect(15, 6, 4, 16, dk(col, 0.25))
+    cv.rect(6, 9, 10, 2, C("#18181e"))
+    cv.rect(3, 15, 16, 2, C("#e0b040"))
+    cv.rect(4, 22, 3, 7, C("#2a2a32"))
+    cv.rect(15, 22, 3, 7, C("#2a2a32"))
+    return cv
+
+
+@prop("bench", [38, 6])
+def pr_bench():
+    cv = Canvas(46, 26)
+    wood = C("#9a6a3e")
+    iron = C("#2e3440")
+    for yy in (3, 7):
+        cv.rect(2, yy, 40, 3, wood)
+        cv.hl(2, yy, 40, lt(wood, 0.3))
+    cv.rect(2, 13, 40, 3, wood)
+    cv.hl(2, 13, 40, lt(wood, 0.3))
+    cv.rect(2, 16, 40, 2, dk(wood, 0.3))
+    for lx in (4, 37):
+        cv.rect(lx, 3, 3, 20, iron)
+        cv.vl(lx, 3, 20, lt(iron, 0.3))
+        cv.rect(lx - 1, 21, 5, 2, iron)
+    return cv
+
+
+@prop("crate", [22, 10])
+def pr_crate():
+    cv = Canvas(28, 28)
+    wood = C("#a8783e")
+    box3(cv, 2, 2, 22, 18, 5, wood)
+    for yy in range(8, 25, 5):
+        cv.hl(3, yy, 20, dk(wood, 0.25))
+    cv.rect(2, 7, 3, 18, dk(wood, 0.15))
+    cv.rect(21, 7, 3, 18, dk(wood, 0.3))
+    cv.line(5, 8, 20, 23, dk(wood, 0.3))
+    cv.line(5, 9, 20, 24, lt(wood, 0.15))
+    for xx in range(4, 23, 5):
+        cv.vl(xx, 2, 5, dk(lt(wood, 0.28), 0.15))
+    return cv
+
+
+@prop("traffic_cone", [0, 0])
+def pr_cone():
+    cv = Canvas(14, 18)
+    o = C("#f07a2a")
+    cv.poly([(5, 1), (8, 1), (11, 13), (2, 13)], o)
+    cv.vl(5, 2, 10, lt(o, 0.3))
+    cv.rect(4, 5, 6, 2, P["white"])
+    cv.rect(3, 9, 8, 2, P["white"])
+    cv.rect(0, 13, 14, 3, dk(o, 0.3))
+    cv.hl(0, 13, 14, o)
+    return cv
+
+
+@prop("planter", [24, 8])
+def pr_planter():
+    cv = Canvas(30, 28)
+    conc = C("#a8a090")
+    box3(cv, 3, 12, 24, 10, 4, conc)
+    cv.rect(4, 12, 22, 3, C("#5a3a20"))
+    for k in range(8):
+        cx = 5 + k * 3
+        cv.ellipse(cx - 3, 3 + (k % 3) * 2, cx + 4, 14, C("#3a7a3a") if k % 2 else C("#4a9a4a"))
+    for (fx, fy, c) in ((7, 5, P["red"]), (13, 3, P["n_pink"]), (19, 6, P["yellow"]), (23, 4, P["red"]),
+                        (10, 8, P["white"])):
+        cv.rect(fx, fy, 2, 2, c)
+    return cv
+
+
+@prop("barrel", [16, 8])
+def pr_barrel():
+    cv = Canvas(22, 28)
+    wood = C("#9a6a3a")
+    cylinder(cv, 2, 2, 17, 23, wood, top=C("#b88a5a"), cap=5)
+    for xx in range(5, 17, 4):
+        cv.vl(xx, 5, 18, dk(wood, 0.15))
+    for yy in (7, 20):
+        cv.hl(2, yy, 17, C("#4a4a56"))
+        cv.hl(2, yy + 1, 17, C("#6a6a76"))
+    return cv
+
+
+@prop("dumpster", [46, 14])
+def pr_dumpster():
+    cv = Canvas(54, 38)
+    col = C("#3a7a4a")
+    box3(cv, 2, 4, 48, 24, 6, col)
+    # lids
+    cv.poly([(2, 4), (26, 4), (26, 0), (4, 1)], dk(col, 0.1))
+    cv.poly([(26, 4), (50, 4), (49, 1), (26, 0)], dk(col, 0.2))
+    for yy in (14, 22):
+        cv.hl(3, yy, 46, dk(col, 0.3))
+    cv.rect(16, 16, 20, 6, lt(col, 0.1))
+    cv.rect(17, 17, 18, 4, C("#e8e4dc"))
+    cv.hl(18, 18, 14, C("#3a3a46"))
+    cv.rect(0, 12, 3, 4, C("#5a5a66"))
+    cv.rect(49, 12, 3, 4, C("#5a5a66"))
+    wheel(cv, 8, 33, 3)
+    wheel(cv, 44, 33, 3)
+    return cv
+
+
+@prop("oil_drum", [14, 6])
+def pr_oil_drum():
+    cv = Canvas(20, 28)
+    col = C("#2e5a8a")
+    cylinder(cv, 2, 2, 15, 22, col, cap=4)
+    for yy in (9, 16):
+        cv.hl(2, yy, 15, dk(col, 0.3))
+        cv.hl(2, yy + 1, 15, lt(col, 0.2))
+    cv.vl(9, 11, 4, P["yellow"])
+    cv.px(5, 4, C("#24242e"))
+    return cv
+
+
+@prop("car_wreck", [90, 18])
+def pr_car_wreck():
+    cv = Canvas(104, 46)
+    body = C("#8a5a3a")
+    rust = C("#6a3a24")
+    cv.rect(4, 18, 92, 16, body)
+    cv.poly([(22, 18), (32, 6), (68, 6), (80, 18)], dk(body, 0.1))
+    cv.poly([(26, 17), (34, 8), (48, 8), (48, 17)], C("#2a2026"))
+    cv.poly([(52, 17), (52, 8), (66, 8), (76, 17)], C("#2a2026"))
+    cv.line(36, 9, 44, 16, C("#9aa0a8"))
+    cv.vl(50, 7, 11, dk(body, 0.25))
+    cv.hl(4, 18, 92, lt(body, 0.2))
+    cv.hl(4, 25, 92, dk(body, 0.25))
+    # rust patches + dents
+    r = rng_of("wreck")
+    for _ in range(30):
+        cv.rect(r.randrange(5, 94), r.randrange(19, 33), r.randrange(2, 6), r.randrange(1, 4), rust)
+    cv.rect(4, 30, 92, 4, dk(body, 0.35))
+    # wheel wells empty, sitting on blocks
+    for wx in (20, 78):
+        cv.ellipse(wx - 9, 26, wx + 9, 42, C("#1a1418"))
+        cv.rect(wx - 6, 36, 12, 7, C("#9a948a"))
+        cv.hl(wx - 6, 36, 12, C("#b8b2a8"))
+    cv.rect(2, 22, 4, 6, C("#5a5a66"))
+    cv.rect(94, 22, 6, 5, C("#5a5a66"))
+    cv.rect(88, 19, 6, 3, C("#3a3a46"))   # smashed light
+    return cv
+
+
+@prop("tire_stack", [20, 8])
+def pr_tire_stack():
+    cv = Canvas(26, 32)
+    t = C("#2a2a32")
+    for i in range(3):
+        y = 20 - i * 8
+        cv.ellipse(2, y, 23, y + 10, t)
+        cv.hl(4, y + 2, 18, C("#4a4a56"))
+        cv.hl(5, y + 8, 16, C("#18181e"))
+    cv.ellipse(5, 2, 20, 8, C("#4a4a56"))
+    cv.ellipse(8, 3, 17, 7, C("#18181e"))
+    return cv
+
+
+@prop("pallet", [30, 8])
+def pr_pallet():
+    cv = Canvas(36, 18)
+    wood = C("#b8955e")
+    for i in range(2):
+        y = 9 - i * 6
+        cv.rect(2, y, 32, 2, wood)
+        cv.hl(2, y, 32, lt(wood, 0.3))
+        for bx in (2, 16, 31):
+            cv.rect(bx, y + 2, 3, 3, dk(wood, 0.25))
+        cv.rect(2, y + 5, 32, 1, dk(wood, 0.3))
+    cv.rect(2, 1, 32, 2, lt(wood, 0.15))
+    for xx in range(4, 34, 6):
+        cv.vl(xx, 1, 2, dk(wood, 0.2))
+    return cv
+
+
+def stall(cv, awn1, awn2, goods_fn):
+    wood = C("#8a5a34")
+    for px_ in (4, 74):
+        cv.rect(px_, 14, 3, 46, dk(wood, 0.2))
+        cv.vl(px_, 14, 46, lt(wood, 0.2))
+    # canopy
+    for i in range(12):
+        yy = 4 + i
+        inset = int((1 - i / 11) * 3)
+        for xx in range(inset, 82 - inset):
+            k = (xx // 8) % 2
+            cv.px(xx, yy, mix(dk(awn1 if k == 0 else awn2, 0.25), awn1 if k == 0 else awn2, i / 11))
+    for xx in range(0, 82):
+        k = (xx // 8) % 2
+        cv.vl(xx, 16, 3, awn1 if k == 0 else awn2)
+        if 1 <= xx % 8 <= 6:
+            cv.px(xx, 19, dk(awn1 if k == 0 else awn2, 0.2))
+    # counter (3/4 box)
+    box3(cv, 2, 36, 78, 22, 6, wood)
+    for yy in range(46, 58, 5):
+        cv.hl(3, yy, 76, dk(wood, 0.25))
+    goods_fn(cv)
+
+
+@prop("market_stall_fruit", [76, 14])
+def pr_stall_fruit():
+    cv = Canvas(84, 64)
+
+    def goods(cv):
+        cols = [(C("#e04a3a"), C("#a02a20")), (C("#f0a030"), C("#c07018")), (C("#8ac040"), C("#5a9a30")),
+                (C("#f0d040"), C("#c0a020"))]
+        for i, (a, b) in enumerate(cols):
+            x = 5 + i * 19
+            cv.rect(x, 33, 17, 7, C("#c8a070"))
+            cv.hl(x, 33, 17, C("#e0c090"))
+            for yy in (29, 31):
+                for xx in range(x + 1 + (yy // 2) % 2, x + 16, 3):
+                    cv.rect(xx, yy, 2, 2, a)
+                    cv.px(xx + 1, yy + 1, b)
+            cv.rect(x + 1, 27, 2, 2, a)
+        cv.rect(30, 22, 20, 7, C("#f0e8d0"))
+        cv.hl(33, 25, 14, C("#3a3a46"))
+    stall(cv, P["red"], P["white"], goods)
+    return cv
+
+
+@prop("market_stall_fish", [76, 14])
+def pr_stall_fish():
+    cv = Canvas(84, 64)
+
+    def goods(cv):
+        cv.rect(4, 32, 74, 8, C("#e8f4f8"))
+        cv.hl(4, 32, 74, C("#ffffff"))
+        r = rng_of("fishstall")
+        for x in range(6, 72, 9):
+            fc = r.choice([C("#9aa8b8"), C("#c87a5a"), C("#7a8aa0"), C("#c8b8a8")])
+            cv.ellipse(x, 29, x + 8, 33, fc)
+            cv.poly([(x + 8, 31), (x + 11, 29), (x + 11, 33)], dk(fc, 0.2))
+            cv.px(x + 1, 30, INK)
+        cv.rect(56, 20, 16, 8, C("#f0e8d0"))
+        cv.hl(58, 23, 12, C("#3a3a46"))
+        cv.vl(14, 20, 10, C("#3a3a46"))
+        cv.rect(9, 30 - 2, 11, 2, P["steel_l"])
+    stall(cv, C("#2a6aa0"), P["white"], goods)
+    return cv
+
+
+@prop("mooring_post", [8, 4])
+def pr_mooring():
+    cv = Canvas(16, 20)
+    c = C("#3a3a46")
+    cylinder(cv, 3, 4, 10, 13, c, cap=3)
+    cv.ellipse(1, 2, 14, 7, lt(c, 0.15))
+    cv.ellipse(3, 3, 12, 6, lt(c, 0.35))
+    cv.hl(3, 11, 10, C("#c8b898"))
+    cv.hl(3, 12, 10, C("#a89878"))
+    return cv
+
+
+@prop("crate_stack", [42, 12])
+def pr_crate_stack():
+    cv = Canvas(50, 50)
+    wood = C("#a8783e")
+    wood2 = C("#94683a")
+    for (x, y, c) in ((2, 22, wood), (24, 22, wood2), (12, 0, wood)):
+        box3(cv, x, y, 22, 18, 5, c)
+        for yy in range(y + 10, y + 23, 5):
+            cv.hl(x + 1, yy, 20, dk(c, 0.25))
+        cv.line(x + 3, y + 6, x + 19, y + 22, dk(c, 0.3))
+        cv.rect(x, y + 5, 2, 18, dk(c, 0.15))
+    cv.rect(26, 31, 10, 6, C("#e8e4dc"))
+    cv.hl(27, 33, 8, P["red"])
+    return cv
+
+
+@prop("fish_crate", [22, 8])
+def pr_fish_crate():
+    cv = Canvas(28, 20)
+    wood = C("#b8955e")
+    box3(cv, 2, 4, 22, 10, 4, wood)
+    cv.rect(3, 4, 20, 4, C("#e8f4f8"))
+    for x in range(3, 20, 5):
+        cv.ellipse(x, 2, x + 6, 6, C("#9aa8b8"))
+        cv.px(x + 1, 3, INK)
+    cv.hl(3, 10, 20, dk(wood, 0.25))
+    return cv
+
+
+@prop("ice_chest", [26, 8])
+def pr_ice_chest():
+    cv = Canvas(32, 24)
+    col = C("#e8e4dc")
+    box3(cv, 2, 3, 28, 14, 5, col, top=C("#3a8ac0"))
+    cv.rect(2, 8, 28, 3, C("#3a8ac0"))
+    cv.rect(12, 12, 8, 3, dk(col, 0.3))
+    cv.rect(0, 9, 3, 4, C("#5a5a66"))
+    cv.rect(29, 9, 3, 4, C("#5a5a66"))
+    return cv
+
+
+@prop("floodlight", [6, 4])
+def pr_floodlight():
+    cv = Canvas(24, 88)
+    c = C("#4a4a56")
+    cv.rect(8, 80, 8, 6, c)
+    cv.rect(10, 14, 4, 68, c)
+    cv.vl(10, 14, 68, lt(c, 0.35))
+    for yy in range(22, 78, 8):
+        cv.px(13, yy, lt(c, 0.5))
+    cv.rect(2, 8, 20, 3, c)
+    for lx in (2, 13):
+        cv.rect(lx, 0, 9, 8, C("#2a2a32"))
+        cv.rect(lx + 1, 1, 7, 6, C("#f0f4ff"))
+        cv.rect(lx + 2, 2, 3, 2, (255, 255, 255))
+    return cv
+
+
+@prop("pipe_stack", [56, 12])
+def pr_pipe_stack():
+    cv = Canvas(66, 34)
+
+    def pipe(x, y, col):
+        # horizontal pipe lying along x, open end facing the viewer on the left
+        cv.rect(x + 4, y, 50, 9, col)
+        cv.hl(x + 4, y + 1, 50, lt(col, 0.4))
+        cv.hl(x + 4, y + 2, 50, lt(col, 0.2))
+        cv.hl(x + 4, y + 7, 50, dk(col, 0.3))
+        cv.hl(x + 4, y + 8, 50, dk(col, 0.45))
+        cv.ellipse(x + 50, y, x + 57, y + 8, dk(col, 0.1))
+        cv.ellipse(x, y, x + 8, y + 8, lt(col, 0.15))
+        cv.ellipse(x + 2, y + 2, x + 6, y + 6, C("#24242e"))
+    cols = [C("#6a7280"), C("#8a6040"), C("#7a8290")]
+    # stacked pyramid seen from the front: each layer sits up and slightly back
+    order = [(2, 22, cols[0]), (6, 13, cols[1]), (10, 4, cols[2])]
+    for x, y, c in order:
+        pipe(x, y, c)
+    cv.rect(12, 30, 6, 4, P["wood"])
+    cv.rect(46, 30, 6, 4, P["wood"])
+    return cv
+
+
+@prop("rail_cart", [46, 12])
+def pr_rail_cart():
+    cv = Canvas(54, 38)
+    col = C("#6a5a50")
+    cv.poly([(2, 4), (50, 4), (46, 26), (6, 26)], col)
+    cv.hl(2, 4, 48, lt(col, 0.3))
+    cv.rect(4, 5, 44, 4, C("#3a2e2a"))
+    for k in range(4, 48, 3):
+        cv.px(k, 6, rng_of("ore", k).choice([C("#8a7a6a"), C("#5a4a40"), C("#a08a70")]))
+    for xx in (14, 26, 38):
+        cv.vl(xx, 9, 17, dk(col, 0.25))
+    cv.hl(6, 16, 40, dk(col, 0.2))
+    for r in range(3):
+        cv.px(8 + r * 14, 12, lt(col, 0.4))
+    cv.rect(4, 26, 44, 3, C("#3a3a46"))
+    wheel(cv, 13, 31, 5)
+    wheel(cv, 39, 31, 5)
+    return cv
+
+
+@prop("ingot_stack", [34, 10])
+def pr_ingot_stack():
+    cv = Canvas(40, 26)
+    col = C("#a8b0bc")
+    for row in range(3):
+        n = 3 - row
+        for k in range(n):
+            x = 3 + row * 6 + k * 12
+            y = 17 - row * 7
+            c = col if (k + row) % 2 == 0 else C("#c8a060")
+            cv.poly([(x, y + 6), (x + 11, y + 6), (x + 9, y), (x + 2, y)], c)
+            cv.rect(x + 2, y, 8, 2, lt(c, 0.45))
+            cv.hl(x, y + 5, 11, dk(c, 0.35))
+            cv.vl(x + 10, y + 1, 4, dk(c, 0.3))
+            cv.px(x + 3, y + 3, lt(c, 0.25))
+    return cv
+
+
+@prop("phone_booth", [22, 8])
+def pr_phone_booth():
+    cv = Canvas(30, 68)
+    frame = C("#3a5a8a")
+    cv.rect(3, 6, 24, 58, frame)
+    cv.rect(2, 3, 26, 4, dk(frame, 0.2))
+    cv.rect(5, 0, 20, 4, C("#f0f4ff"), em=1)
+    cv.hl(8, 1, 14, C("#3a5a8a"))
+    cv.vgrad(6, 10, 18, 44, [C("#e0f0ff"), C("#a8c8e0")])
+    cv.rect(8, 20, 6, 10, C("#2a2a32"))
+    cv.rect(9, 22, 4, 2, C("#c8c8c8"))
+    cv.vl(15, 24, 10, C("#2a2a32"))
+    cv.line(6, 12, 12, 40, C("#ffffff"))
+    for yy in (24, 38):
+        cv.hl(6, yy, 18, frame)
+    cv.vl(15, 10, 44, frame)
+    cv.vl(26, 6, 58, dk(frame, 0.35))
+    cv.rect(2, 62, 26, 3, dk(frame, 0.3))
+    return cv
+
+
+@prop("vending_machine", [26, 8])
+def pr_vending():
+    cv = Canvas(32, 52)
+    col = C("#c03a3a")
+    box3(cv, 2, 2, 28, 44, 4, col)
+    cv.rect(5, 9, 16, 26, C("#fff4e0"))
+    for yy in range(11, 33, 7):
+        for xx in range(6, 20, 4):
+            cv.rect(xx, yy, 3, 5, rng_of("vend", xx, yy).choice([P["red"], P["blue"], P["n_green"], P["yellow"]]))
+        cv.hl(5, yy + 5, 16, C("#c8c0b0"))
+    cv.rect(22, 10, 6, 16, C("#2a2a32"))
+    for yy in range(12, 24, 3):
+        cv.rect(23, yy, 4, 2, C("#e0b040"))
+    cv.rect(6, 38, 14, 5, C("#1a1a20"))
+    cv.rect(4, 3, 24, 4, P["white"])
+    cv.hl(6, 4, 18, P["red"])
+    return cv
+
+
+@prop("car_parked", [92, 18])
+def pr_car_parked():
+    cv = Canvas(104, 46)
+    body = C("#2e5a8a")
+    cv.rect(4, 20, 94, 14, body)
+    cv.poly([(24, 20), (34, 7), (72, 7), (82, 20)], body)
+    cv.poly([(28, 19), (36, 9), (51, 9), (51, 19)], C("#a8d0e8"))
+    cv.poly([(55, 19), (55, 9), (70, 9), (78, 19)], C("#a8d0e8"))
+    cv.line(32, 18, 38, 10, C("#e8f8ff"))
+    cv.vl(53, 8, 12, dk(body, 0.2))
+    cv.hl(34, 7, 38, lt(body, 0.3))
+    cv.hl(4, 20, 94, lt(body, 0.3))
+    cv.hl(4, 26, 94, dk(body, 0.25))
+    cv.rect(4, 29, 94, 3, P["steel_l"])
+    cv.hl(4, 29, 94, (240, 244, 250))
+    cv.rect(96, 22, 4, 4, C("#fff0b0"))
+    cv.rect(2, 22, 4, 4, C("#e04a3a"))
+    cv.vl(52, 21, 8, dk(body, 0.3))
+    cv.rect(44, 23, 5, 1, P["steel_l"])
+    cv.rect(60, 23, 5, 1, P["steel_l"])
+    for wx in (22, 80):
+        cv.ellipse(wx - 10, 24, wx + 10, 42, dk(body, 0.5))
+        wheel(cv, wx, 35, 7)
+    return cv
+
+
+@prop("neon_post", [6, 4])
+def pr_neon_post():
+    cv = Canvas(22, 80)
+    c = C("#2e3440")
+    cv.rect(7, 74, 8, 5, c)
+    cv.rect(10, 26, 3, 50, c)
+    cv.vl(10, 26, 50, lt(c, 0.35))
+    cv.rect(1, 0, 20, 26, C("#1a1424"))
+    cv.rect(2, 1, 18, 24, C("#241c30"))
+    # neon star
+    pts = []
+    for k in range(10):
+        a = -math.pi / 2 + k * math.pi / 5
+        r = 8 if k % 2 == 0 else 3.5
+        pts.append((11 + math.cos(a) * r, 13 + math.sin(a) * r))
+    for (ax, ay), (bx, by) in zip(pts, pts[1:] + pts[:1]):
+        cv.line(ax, ay, bx, by, P["n_pink"])
+    cv.px(11, 13, (255, 220, 240))
+    return cv
+
+
+@prop("ac_unit", [32, 10])
+def pr_ac_unit():
+    cv = Canvas(38, 32)
+    col = C("#b8b8b0")
+    box3(cv, 2, 2, 34, 22, 6, col)
+    cv.ellipse(6, 11, 22, 25, dk(col, 0.35))
+    cv.ellipse(8, 13, 20, 23, C("#3a3a46"))
+    cv.line(14, 14, 14, 22, dk(col, 0.1))
+    cv.line(9, 18, 19, 18, dk(col, 0.1))
+    for yy in range(12, 26, 3):
+        cv.hl(25, yy, 9, dk(col, 0.25))
+    cv.rect(4, 28, 4, 2, C("#3a3a46"))
+    cv.rect(30, 28, 4, 2, C("#3a3a46"))
+    return cv
+
+
+@prop("vent", [16, 6])
+def pr_vent():
+    cv = Canvas(24, 34)
+    col = C("#9aa2b0")
+    cylinder(cv, 7, 10, 10, 20, col, cap=3)
+    cv.ellipse(1, 2, 22, 12, col)
+    cv.ellipse(3, 2, 20, 8, lt(col, 0.3))
+    cv.hl(3, 10, 18, dk(col, 0.4))
+    cv.rect(5, 28, 14, 3, C("#5a5a66"))
+    return cv
+
+
+@prop("chimney", [22, 10])
+def pr_chimney():
+    cv = Canvas(28, 48)
+    tex_brick(cv, 2, 8, 24, 38, base=C("#8a4434"), seed=7, bw=6, bh=3)
+    cv.vl(25, 8, 38, dk(C("#8a4434"), 0.4))
+    cv.rect(0, 4, 28, 5, C("#8a8478"))
+    cv.hl(0, 4, 28, C("#b8b0a0"))
+    for px_ in (6, 15):
+        cv.rect(px_, 0, 6, 5, C("#a0603a"))
+        cv.rect(px_ + 1, 0, 4, 1, C("#2a1a1a"))
+    return cv
+
+
+@prop("lamp_sodium", [6, 4])
+def pr_lamp_sodium():
+    cv = Canvas(30, 90)
+    c = C("#5a6068")
+    cv.rect(2, 82, 8, 6, c)
+    cv.rect(4, 6, 4, 78, c)
+    cv.vl(4, 6, 78, lt(c, 0.35))
+    cv.line(6, 6, 14, 2, c)
+    cv.line(6, 7, 14, 3, c)
+    cv.hl(14, 2, 6, c)
+    cv.poly([(14, 1), (28, 1), (27, 6), (16, 6)], C("#4a5058"))
+    cv.rect(17, 6, 9, 2, P["sodium"])
+    cv.hl(18, 6, 7, (255, 230, 170))
+    return cv
+
+
+@prop("barrier", [42, 6])
+def pr_barrier():
+    cv = Canvas(50, 28)
+    for yy in (6, 12):
+        for xx in range(3, 47, 8):
+            cv.rect(xx, yy, 4, 4, P["white"])
+            cv.rect(xx + 4, yy, 4, 4, C("#e04a2a"))
+        cv.hl(3, yy, 44, (255, 255, 255))
+    for lx in (6, 40):
+        cv.line(lx - 3, 26, lx, 4, C("#3a3a46"))
+        cv.line(lx + 3, 26, lx, 4, C("#3a3a46"))
+    cv.rect(22, 0, 6, 5, C("#3a3a46"))
+    cv.rect(23, 1, 4, 3, C("#ffb030"))
+    return cv
+
+
+@prop("sandbags", [44, 10])
+def pr_sandbags():
+    cv = Canvas(50, 24)
+    col = C("#b8a478")
+    rows = [(2, 14, 4), (8, 7, 3), (14, 0, 2)]
+    for (x0, y, n) in rows:
+        for k in range(n):
+            x = x0 + k * 12
+            cv.ellipse(x, y, x + 13, y + 9, col)
+            cv.hl(x + 3, y + 2, 7, lt(col, 0.3))
+            cv.hl(x + 2, y + 7, 9, dk(col, 0.3))
+            cv.px(x + 2, y + 4, dk(col, 0.35))
+    return cv
+
+
+@prop("guard_booth", [38, 14])
+def pr_guard_booth():
+    cv = Canvas(48, 64)
+    col = C("#8a9098")
+    cv.rect(2, 2, 44, 6, C("#4a5058"))
+    cv.hl(2, 2, 44, C("#7a8088"))
+    box3(cv, 4, 8, 40, 48, 0, col)
+    cv.rect(7, 14, 24, 18, C("#3a3e46"))
+    cv.vgrad(8, 15, 22, 16, [C("#fff0c8"), C("#d8a870")])
+    cv.ellipse(15, 20, 21, 26, C("#5a4a40"))
+    cv.rect(13, 26, 10, 5, C("#4a5068"))
+    cv.rect(33, 14, 9, 40, dk(col, 0.25))
+    cv.px(35, 34, P["steel_l"])
+    cv.rect(4, 36, 28, 3, C("#c03a3a"))
+    cv.rect(2, 56, 44, 4, C("#5a5a62"))
+    return cv
+
+
+@prop("forklift", [52, 16])
+def pr_forklift():
+    cv = Canvas(64, 56)
+    y = C("#e0b030")
+    # mast + forks (front, right side)
+    cv.rect(46, 4, 4, 44, C("#3a3a46"))
+    cv.rect(52, 4, 3, 44, C("#3a3a46"))
+    cv.vl(46, 4, 44, C("#6a6a76"))
+    cv.rect(50, 30, 12, 3, C("#5a5a66"))
+    cv.rect(50, 44, 13, 3, C("#5a5a66"))
+    # body
+    cv.rect(6, 26, 40, 18, y)
+    cv.hl(6, 26, 40, lt(y, 0.3))
+    cv.rect(2, 22, 10, 22, dk(y, 0.15))
+    # cage
+    for xx in (14, 40):
+        cv.rect(xx, 6, 3, 20, C("#2a2a32"))
+    cv.rect(14, 4, 29, 3, C("#2a2a32"))
+    cv.rect(22, 16, 10, 10, C("#3a3a46"))
+    cv.rect(20, 24, 16, 3, C("#24242e"))
+    cv.line(36, 18, 30, 24, C("#24242e"))
+    for xx in range(8, 44, 6):
+        cv.px(xx, 36, dk(y, 0.3))
+    hazard_band(cv, 6, 40, 40, 4)
+    wheel(cv, 14, 48, 6)
+    wheel(cv, 38, 48, 6)
+    cv.rect(4, 20, 4, 3, C("#ff7a2a"))
+    return cv
+
+
+@prop("shelf", [64, 12])
+def pr_shelf():
+    cv = Canvas(70, 78)
+    up = C("#d07a2a")
+    beam = C("#2e5a9a")
+    for x in (2, 64):
+        cv.rect(x, 2, 4, 72, up)
+        cv.vl(x, 2, 72, lt(up, 0.3))
+    r = rng_of("shelfprop")
+    for ly in (24, 48, 72):
+        cv.rect(2, ly, 66, 3, beam)
+        cv.hl(2, ly, 66, lt(beam, 0.3))
+        bx = 7
+        while bx < 60:
+            bw = r.randrange(10, 18)
+            bh = r.randrange(10, 20)
+            col = r.choice([C("#8a6a4a"), C("#a07a50"), C("#c8b898")])
+            cv.rect(bx, ly - bh, min(bw, 63 - bx), bh, col)
+            cv.hl(bx, ly - bh, min(bw, 63 - bx), lt(col, 0.2))
+            cv.hl(bx, ly - bh // 2, min(bw, 63 - bx), C("#c8a060"))
+            bx += bw + 2
+    cv.rect(2, 2, 66, 2, beam)
+    return cv
+
+
+@prop("desk", [54, 12])
+def pr_desk():
+    cv = Canvas(62, 40)
+    wood = C("#7a5030")
+    box3(cv, 2, 14, 58, 20, 6, wood)
+    cv.rect(4, 22, 20, 10, dk(wood, 0.15))
+    for yy in (26, 30):
+        cv.hl(5, yy, 18, dk(wood, 0.35))
+        cv.px(14, yy - 2, C("#c8a040"))
+    cv.rect(40, 20, 3, 14, dk(wood, 0.3))
+    cv.rect(56, 20, 3, 14, dk(wood, 0.3))
+    # lamp, papers, phone
+    cv.vl(10, 4, 10, C("#2a2a32"))
+    cv.poly([(6, 6), (14, 6), (12, 2), (8, 2)], C("#2a7a4a"))
+    cv.rect(18, 12, 14, 4, C("#e8e4dc"))
+    cv.rect(20, 11, 12, 3, C("#f4f0e8"))
+    cv.rect(38, 10, 10, 6, C("#2a2a32"))
+    cv.rect(39, 8, 8, 3, C("#3a3a46"))
+    cv.rect(50, 12, 6, 4, C("#c03a3a"))
+    return cv
+
+
+@prop("filing_cabinet", [18, 8])
+def pr_filing():
+    cv = Canvas(24, 42)
+    col = C("#7a8088")
+    box3(cv, 2, 2, 20, 36, 3, col)
+    for yy in range(6, 38, 9):
+        cv.rect(4, yy, 16, 7, lt(col, 0.08))
+        cv.hl(4, yy + 6, 16, dk(col, 0.35))
+        cv.rect(9, yy + 2, 6, 2, P["steel_l"])
+        cv.rect(10, yy + 4, 4, 1, C("#e8e4dc"))
+    return cv
+
+
+def counter_base(cv, w, top_col, front_col, d=7, h=26):
+    box3(cv, 2, 6, w, h, d, front_col, top=top_col)
+
+
+@prop("counter_diner", [160, 14])
+def pr_counter_diner():
+    cv = Canvas(166, 46)
+    counter_base(cv, 160, C("#e8e4dc"), C("#c03a3a"))
+    cv.rect(2, 12, 160, 3, P["steel_l"])
+    cv.hl(2, 12, 160, (240, 244, 250))
+    for xx in range(2, 162, 10):
+        cv.vl(xx, 16, 22, dk(P["red"], 0.25))
+    cv.rect(2, 36, 160, 3, P["steel"])
+    # pie stand, napkins, mugs, sugar
+    cv.ellipse(20, 0, 40, 6, C("#e8f4f8"))
+    cv.ellipse(23, 2, 37, 6, C("#d8a050"))
+    cv.rect(29, 6, 2, 3, P["steel_l"])
+    for x in (60, 96, 128):
+        cv.rect(x, 4, 5, 5, P["white"])
+        cv.px(x + 5, 5, P["white"])
+        cv.rect(x + 1, 4, 3, 1, C("#5a3a20"))
+    cv.rect(80, 2, 7, 7, P["steel_l"])
+    cv.rect(81, 1, 5, 2, P["white"])
+    cv.rect(110, 4, 4, 5, C("#e8e4dc"))
+    cv.rect(110, 2, 4, 2, P["steel_l"])
+    return cv
+
+
+@prop("jukebox", [28, 10])
+def pr_jukebox():
+    cv = Canvas(34, 48)
+    wood = C("#7a3a2a")
+    cv.rect(2, 16, 30, 28, wood)
+    cv.ellipse(2, 2, 31, 30, wood)
+    cv.ellipse(5, 5, 28, 27, C("#ffb050"))
+    cv.ellipse(8, 8, 25, 24, C("#ff6a9a"))
+    cv.ellipse(11, 11, 22, 21, C("#7af0f0"))
+    cv.rect(8, 16, 18, 10, C("#2a1a2a"))
+    for xx in range(9, 25, 3):
+        cv.vl(xx, 17, 8, C("#e8d8b0"))
+    cv.rect(6, 28, 22, 10, C("#c8a040"))
+    for xx in range(7, 27, 3):
+        cv.vl(xx, 29, 8, C("#8a6a20"))
+    cv.vl(4, 16, 26, lt(wood, 0.3))
+    cv.rect(2, 42, 30, 3, dk(wood, 0.4))
+    return cv
+
+
+@prop("booth_seat", [62, 14])
+def pr_booth():
+    cv = Canvas(70, 42)
+    red = C("#c03a3a")
+    for x in (2, 52):
+        cv.rect(x, 2, 14, 36, red)
+        cv.vl(x + 1, 3, 34, lt(red, 0.3))
+        cv.rect(x, 24, 14, 6, dk(red, 0.2))
+        cv.rect(x, 30, 14, 8, C("#7a2028"))
+        for yy in range(6, 22, 6):
+            cv.hl(x + 2, yy, 10, dk(red, 0.2))
+    # table
+    cv.rect(16, 18, 36, 5, C("#e8e4dc"))
+    cv.hl(16, 18, 36, (255, 255, 255))
+    cv.rect(16, 22, 36, 2, P["steel_l"])
+    cv.rect(32, 24, 4, 14, P["steel"])
+    cv.rect(26, 36, 16, 2, P["steel"])
+    cv.rect(22, 14, 5, 4, P["white"])
+    cv.rect(40, 13, 4, 5, C("#c03a3a"))
+    cv.rect(40, 12, 4, 1, P["white"])
+    return cv
+
+
+@prop("stool", [8, 4])
+def pr_stool():
+    cv = Canvas(16, 24)
+    cv.ellipse(1, 1, 14, 7, C("#c03a3a"))
+    cv.ellipse(2, 1, 12, 4, lt(C("#c03a3a"), 0.3))
+    cv.rect(2, 5, 12, 2, P["steel_l"])
+    cv.rect(7, 7, 3, 12, P["steel"])
+    cv.vl(7, 7, 12, P["steel_l"])
+    cv.ellipse(2, 18, 13, 22, P["steel"])
+    return cv
+
+
+@prop("workbench", [116, 14])
+def pr_workbench():
+    cv = Canvas(126, 50)
+    wood = C("#8a6a40")
+    box3(cv, 2, 14, 120, 8, 6, wood)
+    cv.rect(4, 28, 5, 18, dk(wood, 0.3))
+    cv.rect(115, 28, 5, 18, dk(wood, 0.3))
+    cv.rect(4, 38, 116, 3, dk(wood, 0.2))
+    cv.rect(70, 28, 40, 10, C("#c03a3a"))
+    for yy in (31, 35):
+        cv.hl(72, yy, 36, dk(P["red"], 0.3))
+        cv.px(90, yy - 1, P["steel_l"])
+    # vise, toolbox, tools, oil can
+    cv.rect(10, 6, 14, 8, C("#3a5a8a"))
+    cv.rect(8, 10, 4, 4, C("#3a5a8a"))
+    cv.hl(10, 6, 14, C("#5a7aaa"))
+    cv.rect(36, 6, 24, 8, C("#c03a3a"))
+    cv.rect(36, 6, 24, 2, lt(C("#c03a3a"), 0.3))
+    cv.rect(44, 3, 8, 3, C("#2a2a32"))
+    cv.line(66, 13, 76, 9, P["steel_l"])
+    cv.rect(76, 8, 3, 3, P["steel"])
+    cv.rect(86, 4, 8, 10, C("#3a8a4a"))
+    cv.line(94, 6, 98, 2, C("#3a8a4a"))
+    cv.rect(102, 10, 12, 4, C("#e0b040"))
+    return cv
+
+
+def shop_counter(w, front, top, deco):
+    cv = Canvas(w + 6, 46)
+    counter_base(cv, w, top, front)
+    deco(cv)
+    return cv
+
+
+@prop("counter_shop", [140, 14])
+def pr_counter_shop():
+    def deco(cv):
+        for xx in range(2, 142, 20):
+            cv.rect(xx + 2, 18, 16, 16, dk(C("#7a5030"), 0.12))
+            cv.hl(xx + 2, 33, 16, dk(C("#7a5030"), 0.35))
+        # cash register
+        cv.rect(96, 0, 24, 10, C("#3a3a46"))
+        cv.rect(98, 2, 10, 3, C("#3aff6a"))
+        cv.rect(110, 2, 8, 6, C("#5a5a66"))
+        for xx in range(111, 118, 2):
+            cv.px(xx, 3, P["white"])
+            cv.px(xx, 6, P["white"])
+        cv.rect(20, 6, 18, 3, C("#e8e4dc"))
+        cv.rect(50, 4, 6, 5, C("#c03a3a"))
+    return shop_counter(140, C("#7a5030"), C("#a87a50"), deco)
+
+
+@prop("punching_bag", [16, 8])
+def pr_punching_bag():
+    cv = Canvas(36, 68)
+    iron = C("#3a3a46")
+    cv.rect(4, 2, 28, 3, iron)
+    cv.rect(4, 2, 3, 62, iron)
+    cv.vl(4, 2, 62, lt(iron, 0.3))
+    cv.rect(0, 62, 12, 3, iron)
+    cv.vl(22, 5, 6, C("#8a8a96"))
+    bag = C("#c03a3a")
+    cv.rect(16, 11, 13, 38, bag)
+    cv.ellipse(16, 8, 28, 14, lt(bag, 0.2))
+    cv.ellipse(16, 44, 28, 52, bag)
+    cv.vl(18, 12, 36, lt(bag, 0.35))
+    cv.rect(26, 12, 3, 38, dk(bag, 0.3))
+    cv.rect(16, 20, 13, 2, C("#2a2a32"))
+    cv.rect(16, 40, 13, 2, C("#2a2a32"))
+    return cv
+
+
+@prop("training_dummy", [14, 8])
+def pr_dummy():
+    cv = Canvas(28, 54)
+    wood = C("#a87a4a")
+    cv.rect(11, 6, 6, 40, wood)
+    cv.vl(11, 6, 40, lt(wood, 0.3))
+    cv.ellipse(8, 0, 20, 12, C("#c8a070"))
+    cv.rect(7, 12, 14, 18, C("#e0b040"))
+    cv.vl(8, 12, 18, lt(C("#e0b040"), 0.3))
+    cv.rect(2, 16, 6, 3, wood)
+    cv.rect(20, 18, 6, 3, wood)
+    cv.rect(16, 34, 9, 3, wood)
+    cv.ellipse(4, 46, 24, 52, C("#5a3a20"))
+    return cv
+
+
+@prop("counter_noodle", [160, 14])
+def pr_counter_noodle():
+    def deco(cv):
+        for xx in range(2, 162, 16):
+            cv.vl(xx, 14, 24, dk(C("#7a3a2a"), 0.25))
+        cv.rect(2, 13, 160, 2, C("#c03a3a"))
+        for x in range(14, 150, 28):
+            cv.ellipse(x, 1, x + 14, 9, C("#f4f0e8"))
+            cv.rect(x + 1, 3, 13, 2, C("#c03a3a"))
+            cv.ellipse(x + 3, 1, x + 11, 4, C("#e8c070"))
+            cv.line(x + 10, 0, x + 16, 2, C("#c8a070"))
+        cv.rect(150, 0, 6, 9, C("#5a3a20"))
+        for xx in range(151, 156, 2):
+            cv.vl(xx, 0, 3, C("#e8d8b0"))
+    return shop_counter(160, C("#7a3a2a"), C("#b88a5a"), deco)
+
+
+@prop("book_pile", [28, 8])
+def pr_book_pile():
+    cv = Canvas(34, 30)
+    spines = [C("#7a2030"), C("#22305a"), C("#2a5a3a"), C("#a87a20"), C("#5a2a6a"), C("#c8b898")]
+    r = rng_of("books")
+    for pile, x0 in ((0, 2), (1, 17)):
+        y = 26
+        for k in range(r.randrange(4, 7)):
+            bw = r.randrange(11, 15)
+            bh = r.randrange(3, 5)
+            off = r.randrange(-1, 2)
+            col = spines[(k + pile * 3) % len(spines)]
+            cv.rect(x0 + off, y - bh, bw, bh, col)
+            cv.hl(x0 + off, y - bh, bw, lt(col, 0.3))
+            cv.vl(x0 + off + bw - 2, y - bh, bh, C("#e8e4dc"))
+            y -= bh
+    return cv
+
+
+@prop("counter_canteen", [160, 14])
+def pr_counter_canteen():
+    def deco(cv):
+        for xx in range(2, 162, 32):
+            cv.rect(xx + 2, 17, 28, 18, lt(P["steel"], 0.12))
+            cv.vl(xx + 30, 17, 18, dk(P["steel"], 0.3))
+        cv.rect(2, 13, 160, 2, P["steel_l"])
+        for x in (12, 48, 84):
+            cv.rect(x, 4, 26, 6, C("#9aa2b0"))
+            cv.hl(x, 4, 26, C("#d8dce4"))
+            cv.rect(x + 3, 5, 20, 3, [C("#a0603a"), C("#e0c060"), C("#7aa04a")][(x // 36) % 3])
+        cv.rect(124, 0, 14, 10, C("#9aa2b0"))
+        cv.hl(124, 0, 14, C("#d8dce4"))
+        cv.rect(140, 4, 8, 5, P["white"])
+    return shop_counter(160, P["steel"], C("#c8ccd4"), deco)
+
+
+@prop("lever_panel", [60, 12])
+def pr_lever_panel():
+    cv = Canvas(68, 60)
+    wood = C("#5a3a20")
+    box3(cv, 2, 34, 64, 18, 5, wood)
+    cv.rect(2, 52, 64, 4, dk(wood, 0.3))
+    cols = [P["red"], P["red"], P["blue"], C("#2a2a32"), P["yellow"], P["red"]]
+    for i, col in enumerate(cols):
+        x = 7 + i * 10
+        lean = (-4 if i % 3 == 0 else 2)
+        cv.line(x, 36, x + lean, 6, P["steel_l"])
+        cv.line(x + 1, 36, x + lean + 1, 6, P["steel"])
+        cv.rect(x + lean - 1, 2, 4, 6, col)
+        cv.hl(x + lean - 1, 2, 4, lt(col, 0.4))
+        cv.rect(x - 2, 38, 6, 3, C("#3a3a46"))
+        cv.rect(x - 2, 44, 6, 5, C("#e8e4dc"))
+        cv.px(x, 46, INK)
+    return cv
+
+
+@prop("arcade_cabinet", [24, 10])
+def pr_arcade_cab():
+    cv = Canvas(30, 58)
+    body = C("#2a2a46")
+    cv.rect(3, 2, 24, 52, body)
+    cv.rect(3, 2, 24, 8, C("#e04a8a"))
+    cv.rect(5, 4, 20, 4, C("#ffd0e8"))
+    cv.rect(5, 12, 20, 16, C("#101018"))
+    cv.rect(6, 13, 18, 14, C("#3ad0e0"))
+    cv.rect(8, 16, 5, 4, C("#ffffff"))
+    cv.rect(16, 20, 6, 3, C("#f0f040"))
+    cv.rect(3, 30, 24, 6, C("#3a3a5a"))
+    cv.hl(3, 30, 24, C("#5a5a7a"))
+    cv.rect(8, 31, 2, 3, C("#2a2a32"))
+    cv.ellipse(7, 29, 11, 32, P["red"])
+    cv.rect(15, 32, 3, 2, P["n_yellow"])
+    cv.rect(20, 32, 3, 2, P["n_cyan"])
+    cv.rect(10, 40, 10, 6, C("#1a1a2a"))
+    cv.rect(12, 42, 2, 3, C("#ff7a3a"))
+    cv.rect(16, 42, 2, 3, C("#ff7a3a"))
+    cv.vl(4, 10, 44, lt(body, 0.3))
+    cv.vl(26, 2, 52, dk(body, 0.4))
+    cv.rect(2, 54, 26, 2, dk(body, 0.3))
+    return cv
+
+
+@prop("counter_arcade", [140, 14])
+def pr_counter_arcade():
+    cv = Canvas(146, 50)
+    box3(cv, 2, 10, 140, 26, 6, C("#3a2a5a"), top=C("#a8d8f0"))
+    cv.rect(4, 18, 136, 16, C("#c8ecf8"))
+    r = rng_of("plush")
+    for x in range(8, 134, 12):
+        col = r.choice([C("#ff8ab0"), C("#8ad0ff"), C("#ffe070"), C("#a0f070")])
+        cv.ellipse(x, 22, x + 9, 32, col)
+        cv.ellipse(x + 1, 20, x + 4, 24, col)
+        cv.ellipse(x + 5, 20, x + 8, 24, col)
+        cv.px(x + 3, 26, INK)
+        cv.px(x + 6, 26, INK)
+    cv.hl(4, 19, 136, (255, 255, 255))
+    cv.rect(2, 36, 140, 4, P["n_pink"])
+    cv.rect(100, 2, 24, 9, C("#3a3a46"))
+    cv.rect(102, 4, 10, 3, C("#3aff6a"))
+    cv.rect(20, 4, 14, 6, C("#e0b040"))
+    cv.rect(21, 2, 12, 2, C("#f0d070"))
+    return cv
+
+
+@prop("counter_pharmacy", [160, 14])
+def pr_counter_pharmacy():
+    def deco(cv):
+        cv.rect(2, 13, 160, 3, C("#2a9a5a"))
+        cv.rect(2, 34, 160, 3, C("#2a9a5a"))
+        for (rx, ry, rw, rh) in ((76, 19, 6, 14), (72, 23, 14, 6)):
+            cv.rect(rx, ry, rw, rh, C("#3ac06a"))
+        cv.rect(120, 0, 24, 10, C("#3a3a46"))
+        cv.rect(122, 2, 10, 3, C("#3aff6a"))
+        for x in range(14, 60, 8):
+            cv.rect(x, 3, 5, 7, [C("#e07a30"), C("#ffffff"), C("#7ab0e0")][(x // 8) % 3])
+            cv.rect(x, 2, 5, 2, P["white"])
+    return shop_counter(160, C("#e8ecec"), C("#f4f8f8"), deco)
+
+
+@prop("counter_bait", [160, 14])
+def pr_counter_bait():
+    def deco(cv):
+        for xx in range(2, 162, 7):
+            cv.vl(xx, 14, 24, dk(C("#7a5a3a"), 0.25))
+        # bait tank
+        cv.rect(14, 0, 30, 10, C("#5a6a6a"))
+        cv.rect(16, 2, 26, 7, C("#6ab0c8"))
+        cv.px(22, 5, C("#e0e0e0"))
+        cv.px(32, 6, C("#e0e0e0"))
+        # tackle box + register + lure card
+        cv.rect(60, 3, 20, 7, C("#3a8a4a"))
+        cv.hl(60, 3, 20, lt(C("#3a8a4a"), 0.3))
+        cv.rect(68, 1, 4, 2, C("#2a2a32"))
+        cv.rect(110, 0, 24, 10, C("#3a3a46"))
+        cv.rect(112, 2, 10, 3, C("#3aff6a"))
+        cv.rect(140, 2, 10, 8, C("#e8e4dc"))
+        cv.px(144, 5, P["red"])
+    return shop_counter(160, C("#7a5a3a"), C("#a88a60"), deco)
+
+
+def gen_props(rooms):
+    used = sorted({p["type"] for r in rooms.values() for p in r.get("props", [])})
+    missing = [t for t in used if t not in PROPS]
+    if missing:
+        raise SystemExit(f"props without a drawing routine: {missing}")
+    meta = {}
+    os.makedirs(PROP_DIR, exist_ok=True)
+    for name in sorted(PROPS):
+        fn, fp = PROPS[name]
+        cv = fn()
+        arr = finish_prop(cv)
+        h, w = arr.shape[:2]
+        Image.fromarray(arr, "RGBA").save(os.path.join(PROP_DIR, f"{name}.png"), optimize=True)
+        # anchor follows the character-sheet convention (foot anchor (32, 60), feet on row 59):
+        # the bottom outline row of the base sits on the line just above the anchor point.
+        meta[name] = {"file": f"res://assets/props/{name}.png", "anchor": [w // 2, h],
+                      "footprint": list(fp)}
+    with open(os.path.join(PROP_DIR, "props.json"), "w") as fh:
+        json.dump(meta, fh, indent=1, sort_keys=True)
+        fh.write("\n")
+    print(f"props {len(meta)} written ({len(used)} used in rooms)")
+
+
+
+# ============================================================================
+# shared post helpers for standalone images (title, map)
+# ============================================================================
+class _Scene:
+    """Minimal room-like holder so standalone images can reuse the post pipeline."""
+
+    def __init__(self, w, h, district="old_quarter"):
+        self.cv = Canvas(w, h)
+        self.w = w
+        self.lights = []
+        self.refl = []
+        self.night = True
+        self.interior = True
+        self.district = district
+        self.id = "scene"
+
+    def rng(self, *k):
+        return rng_of(self.id, *k)
+
+
+def scene_bloom(S, strength):
+    cv = S.cv
+    h, w = cv.h, cv.w
+    src = np.zeros((h, w, 3), np.uint8)
+    m = cv.em > 0
+    src[m] = cv.a[..., :3][m]
+    im = Image.fromarray(src, "RGB")
+    b1 = np.array(im.filter(ImageFilter.GaussianBlur(3)), np.float32)
+    b2 = np.array(im.filter(ImageFilter.GaussianBlur(9)), np.float32)
+    acc = (b1 * 0.55 + b2 * 0.9) * strength
+    yy, xx = np.mgrid[0:h, 0:w]
+    acc = _quant_dither(acc, 12.0, yy[..., None], xx[..., None])
+    out = cv.a[..., :3].astype(np.float32) + acc * np.where(m, 0.3, 1.0)[..., None]
+    cv.a[..., :3] = np.clip(out, 0, 255).astype(np.uint8)
+
+
+def scene_lights(S):
+    cv = S.cv
+    h, w = cv.h, cv.w
+    acc = np.zeros((h, w, 3), np.float32)
+    for L in S.lights:
+        x, y, col, r, st = L[:5]
+        kind = L[5] if len(L) > 5 else "halo"
+        ry = r * (0.35 if kind == "pool" else 1.0)
+        x0, x1 = int(max(0, x - r)), int(min(w, x + r + 1))
+        y0, y1 = int(max(0, y - ry)), int(min(h, y + ry + 1))
+        if x1 <= x0 or y1 <= y0:
+            continue
+        yy, xx = np.mgrid[y0:y1, x0:x1]
+        d = np.sqrt(((xx - x) / r) ** 2 + ((yy - y) / max(1, ry)) ** 2)
+        v = np.clip(1 - d, 0, 1) ** 1.6 * st
+        acc[y0:y1, x0:x1] += v[..., None] * np.array(col, np.float32)[None, None, :] * 0.55
+    yy, xx = np.mgrid[0:h, 0:w]
+    acc = _quant_dither(acc, 10.0, yy[..., None], xx[..., None])
+    cv.a[..., :3] = np.clip(cv.a[..., :3].astype(np.float32) + acc, 0, 255).astype(np.uint8)
+
+
+# ============================================================================
+# TITLE BACKDROP 640x360
+# ============================================================================
+def gen_title():
+    S = _Scene(640, 360)
+    cv = S.cv
+    rng = rng_of("title")
+    # sky: deep dusk at the top (calm for the logo), sunset glow at the horizon
+    cv.vgrad(0, 0, 640, 196, [C("#1c1a3a"), C("#2c2a5a"), C("#5a3a62"), C("#a8586a"), C("#e08a5a"),
+                              C("#f0b070")], levels=28)
+    for _ in range(40):
+        sx, sy = rng.randrange(0, 640), rng.randrange(0, 70)
+        cv.px(sx, sy, rng.choice([C("#8a88b0"), C("#c8c8e8"), C("#5a5880")]))
+    for _ in range(9):
+        y = rng.randrange(120, 182)
+        x = rng.randrange(-40, 600)
+        ww = rng.randrange(60, 180)
+        cv.rect(x, y, ww, 2, C("#f0a070"))
+        cv.rect(x + 8, y + 2, ww - 16, 1, C("#b8606a"))
+    # setting sun behind the far bank
+    cv.ellipse(296, 160, 344, 208, C("#f8d890"))
+    cv.ellipse(302, 166, 338, 202, C("#fff0b8"))
+    for yy in range(180, 200, 5):
+        cv.rect(292, yy, 56, 2, C("#f0a070"))
+    # far bank skyline + bridge
+    hz = 204
+    xx = 0
+    while xx < 640:
+        bw = rng.randrange(14, 34)
+        bh = rng.randrange(10, 34)
+        cv.rect(xx, hz - bh, bw, bh + 2, C("#6a3a52"))
+        if rng.random() < 0.3:
+            cv.rect(xx + bw // 2, hz - bh - 10, 3, 10, C("#6a3a52"))
+        for wy in range(hz - bh + 3, hz - 2, 5):
+            for wx in range(xx + 2, xx + bw - 2, 4):
+                if rng.random() < 0.12:
+                    cv.rect(wx, wy, 1, 2, C("#ffc870"), em=1)
+        xx += bw
+    # long truss bridge across the river
+    by = 186
+    steel = C("#3e2a40")
+    cv.rect(60, by + 10, 520, 4, steel)
+    for k in range(60, 580, 26):
+        cv.line(k, by + 10, k + 13, by, steel)
+        cv.line(k + 13, by, k + 26, by + 10, steel)
+    cv.rect(60, by - 1, 520, 2, steel)
+    for px_ in (60, 316, 576):
+        cv.rect(px_ - 2, by - 8, 6, 30, steel)
+    for k in range(70, 580, 34):
+        cv.px(k, by + 9, C("#ffd890"), em=1)
+        S.lights.append((k, by + 10, C("#ffd890"), 8, 0.4))
+    # river with sunset reflection
+    cv.vgrad(0, hz, 640, 46, [C("#a8586a"), C("#5a3a62"), C("#2c2a4a")], levels=10)
+    for k in range(40):
+        yy = hz + 2 + k
+        ww = max(4, 50 - k)
+        cv.rect(320 - ww // 2 + int(math.sin(k) * 3), yy, ww, 1, C("#f0b070") if k % 3 else C("#e08a5a"))
+    for _ in range(80):
+        cv.hl(rng.randrange(0, 640), rng.randrange(hz + 2, hz + 44), rng.randrange(3, 10), C("#7a4a6a"))
+    # quay wall + railing
+    qy = 250
+    cv.rect(0, qy, 640, 6, C("#5a4a50"))
+    cv.hl(0, qy, 640, C("#8a7a78"))
+    for k in range(0, 640, 10):
+        cv.vl(k, qy - 16, 16, C("#1e1a28"))
+    cv.hl(0, qy - 16, 640, C("#2a2434"))
+    cv.hl(0, qy - 8, 640, C("#2a2434"))
+    # street
+    cv.vgrad(0, qy + 6, 640, 360 - qy - 6, [C("#3a3448"), C("#2a2638"), C("#1e1a2a")], levels=10)
+    for k in range(0, 640, 56):
+        cv.rect(k, 312, 26, 2, C("#4e4858"))
+    # left foreground: diner corner with neon (kept left of x=104 so the logo area stays calm)
+    LW = 104
+    tex_brick(cv, 0, 30, LW, qy + 40 - 30, base=C("#7a3a32"), shadow=C("#5a2a24"), hi=C("#9a4e40"),
+              seed=11, weather=0.3)
+    cv.blend(0, 30, LW, 260, C("#2a1a30"), 0.35)
+    cv.rect(0, 26, LW + 4, 5, C("#4a3a40"))
+    for wy in (46, 90):
+        for wx in (14, 62):
+            window(cv, None, wx, wy, 18, 26, lit=rng.random() < 0.6, frame=C("#8a7a6a"), rng=rng)
+    cv.rect(0, 138, LW, 6, C("#c03a3a"))
+    cv.rect(0, 144, LW, 3, P["steel_l"])
+    cv.vgrad(6, 150, LW - 12, 70, [C("#e8c890"), C("#d8a060"), C("#a86a40")], em=1)
+    for k in range(6, LW - 6, 30):
+        cv.vl(k, 150, 70, P["steel"])
+        cv.rect(k + 4, 198, 22, 22, C("#9a3036"), em=1)
+        cv.hl(k + 4, 198, 22, C("#c85a5a"), em=1)
+        cv.ellipse(k + 10, 184, k + 18, 192, C("#5a3a34"), em=1)
+    cv.rect(0, 220, LW, 70, C("#2a8a8a"))
+    for yy in range(222, 290, 4):
+        for xx in range(0, LW, 4):
+            if (xx // 4 + yy // 4) % 2:
+                cv.rect(xx, yy, 4, 4, C("#d8d0bc"))
+    cv.blend(0, 220, LW, 70, C("#1a1428"), 0.45)
+    S.lights.append((52, 190, C("#ffd890"), 80, 0.5))
+    # projecting neon blade sign (below the logo band)
+    cv.rect(LW, 170, 8, 3, C("#2a2630"))
+    cv.rect(LW, 220, 8, 3, C("#2a2630"))
+    cv.rect(LW + 8, 152, 30, 96, C("#1a1424"))
+    bulbs(cv, LW + 9, 153, 28, 94, step=4)
+    for i, ch in enumerate("DINER"):
+        neon_text(cv, None, LW + 23, 160 + i * 17, ch, P["n_pink"])
+    S.lights.append((LW + 23, 200, P["n_pink"], 70, 0.8))
+    # right foreground: apartment with fire escape + water tank (right of x=536)
+    RX = 536
+    tex_brick(cv, RX, 44, 640 - RX, qy + 40 - 44, base=C("#6a3a34"), shadow=C("#4a2824"), hi=C("#8a4e44"),
+              seed=12, weather=0.3)
+    cv.blend(RX, 44, 640 - RX, 250, C("#1a1430"), 0.4)
+    cv.rect(RX - 2, 40, 640 - RX + 2, 5, C("#3a2a34"))
+    water_tank(cv, 590, 40, w=28, h=20, legs=10)
+    for wy in (58, 98, 138, 178):
+        for wx in (548, 588, 620):
+            window(cv, None, wx, wy, 14, 22, lit=rng.random() < 0.5, frame=C("#7a6a60"), rng=rng,
+                   pal=LIT_TV if rng.random() < 0.2 else None)
+    fire_escape(cv, 570, 44, [82, 122, 162, 202], c=C("#141018"), ladder=False)
+    cv.rect(RX, 230, 640 - RX, 60, C("#2a2236"))
+    cv.vgrad(RX + 8, 238, 640 - RX - 16, 40, [C("#3a98a8"), C("#1e4a5a")], em=1)
+    neon_text(cv, None, 588, 216, "OPEN", P["n_cyan"])
+    S.lights.append((588, 240, P["n_cyan"], 60, 0.5))
+    # lamp posts with pools of light
+    for lx in (230, 420):
+        cv.rect(lx, 222, 3, 90, C("#1e1a26"))
+        cv.rect(lx - 3, 310, 9, 4, C("#1e1a26"))
+        cv.rect(lx - 3, 214, 9, 8, C("#ffd890"), em=1)
+        cv.rect(lx - 4, 212, 11, 2, C("#1e1a26"))
+        S.lights.append((lx + 1, 218, C("#ffd890"), 30, 0.8))
+        S.lights.append((lx + 1, 318, C("#ffd890"), 70, 0.6, "pool"))
+    # wet street reflections (kept low and soft; bottom centre stays calm)
+    for (cx, col, wv) in ((127, P["n_pink"], 18), (52, C("#ffd890"), 80), (588, P["n_cyan"], 60),
+                          (231, C("#ffd890"), 6), (421, C("#ffd890"), 6)):
+        for k in range(60):
+            if k % 3 == 2:
+                continue
+            al = 0.35 * (1 - k / 60) ** 1.5
+            cv.blend(cx - wv // 2 + int(math.sin(k * 0.8) * 2), 262 + k, wv, 1, col, al)
+    # curb strip at the very bottom
+    cv.rect(0, 346, 640, 14, C("#18141e"))
+    cv.hl(0, 346, 640, C("#4a4450"))
+    # telephone wires on the sides only
+    cv.sag(0, 60, 104, 66, 6, C("#140e1a"))
+    cv.sag(536, 60, 640, 66, 6, C("#140e1a"))
+    scene_lights(S)
+    scene_bloom(S, 0.6)
+    cv.a[..., 3] = 255
+    cv.save(os.path.join(BG_DIR, "title_bg.png"))
+    print("title_bg 640x360")
+
+
+# ============================================================================
+# DISTRICT MAP 480x260 (folded paper street map, no baked labels)
+# ============================================================================
+MAP_POS = {"old_quarter": [70, 112], "canal_market": [148, 150], "ironworks": [226, 98],
+           "neon_mile": [300, 132], "floodgate": [366, 168], "warehouse": [430, 204]}
+
+
+def gen_map():
+    W, Hm = 480, 260
+    cv = Canvas(W, Hm)
+    rng = rng_of("map")
+    paper = C("#e8dcc0")
+    cv.rect(0, 0, W, Hm, paper)
+    cv.noise_tint(0, 0, W, Hm, rng, amount=6, density=0.25)
+    # fold panels: alternating shade
+    for i, (x0, x1) in enumerate(((0, 160), (160, 320), (320, 480))):
+        for j, (y0, y1) in enumerate(((0, 130), (130, 260))):
+            if (i + j) % 2:
+                cv.blend(x0, y0, x1 - x0, y1 - y0, C("#c8b898"), 0.18)
+    # district tints (soft blobs with dithered edges)
+    tints = {"old_quarter": C("#c8664a"), "canal_market": C("#3a9a9a"), "ironworks": C("#e07a30"),
+             "neon_mile": C("#7a4aa0"), "floodgate": C("#4a6a8a"), "warehouse": C("#6a6a76")}
+    for k, (px_, py_) in MAP_POS.items():
+        col = tints[k]
+        for r, t in ((44, 0.12), (34, 0.2), (24, 0.28)):
+            x0, y0 = px_ - r, py_ - int(r * 0.75)
+            m = np.zeros((int(r * 1.5) + 1, 2 * r + 1), bool)
+            yy, xx = np.mgrid[0:m.shape[0], 0:m.shape[1]]
+            m = ((xx - r) / r) ** 2 + ((yy - r * 0.75) / (r * 0.75)) ** 2 <= 1
+            reg_y0, reg_x0 = max(0, y0), max(0, x0)
+            sub = m[reg_y0 - y0:min(Hm, y0 + m.shape[0]) - y0, reg_x0 - x0:min(W, x0 + m.shape[1]) - x0]
+            sh = sub.shape
+            bay = BAYER[(np.arange(sh[0])[:, None] + reg_y0) % 4, (np.arange(sh[1])[None, :] + reg_x0) % 4]
+            mm = sub & (bay < t * 2.2)
+            reg = cv.a[reg_y0:reg_y0 + sh[0], reg_x0:reg_x0 + sh[1]]
+            reg[mm, :3] = mix(paper, col, 0.55)
+    # river: west -> east, widening to the harbour at the east end
+    pts = []
+    for x in range(-10, W + 10, 4):
+        t = x / W
+        y = 190 + 18 * math.sin(t * 5.2 + 0.4) - 30 * t + 40 * t * t
+        pts.append((x, y))
+    for (x, y) in pts:
+        wdt = 9 + int(10 * max(0, (x - 360) / 120) ** 2)
+        cv.rect(x, int(y - wdt / 2), 4, wdt, C("#8ac0d0"))
+    for (x, y) in pts:
+        wdt = 9 + int(10 * max(0, (x - 360) / 120) ** 2)
+        cv.rect(x, int(y - wdt / 2), 4, 1, C("#4a8aa8"))
+        cv.rect(x, int(y + wdt / 2), 4, 1, C("#4a8aa8"))
+    # harbour basin at the east
+    cv.ellipse(400, 214, 490, 262, C("#8ac0d0"))
+    cv.ellipse(400, 214, 490, 262, C("#8ac0d0"))
+    for k in range(6):
+        cv.hl(410 + k * 12, 236 + (k % 2) * 6, 6, C("#5a9ab8"))
+    # canal branching north through the market
+    for k in range(60):
+        cv.rect(148 + int(math.sin(k * 0.12) * 4), 192 - k, 4, 1, C("#8ac0d0"))
+    # main road (route) west -> east through every district
+    route = [(8, 118)] + [tuple(MAP_POS[k]) for k in ("old_quarter", "canal_market", "ironworks", "neon_mile",
+                                                       "floodgate", "warehouse")]
+    for (ax, ay), (bx, by) in zip(route, route[1:]):
+        for o in (-1, 0, 1):
+            cv.line(ax, ay + o, bx, by + o, C("#c8a050"))
+        cv.line(ax, ay - 2, bx, by - 2, C("#a07a30"))
+    # street grids per district
+    for k, (px_, py_) in MAP_POS.items():
+        for gx in range(px_ - 30, px_ + 31, 10):
+            cv.vl(gx, py_ - 20, 40, mix(paper, C("#8a7a60"), 0.35))
+        for gy in range(py_ - 20, py_ + 21, 10):
+            cv.hl(px_ - 30, gy, 60, mix(paper, C("#8a7a60"), 0.35))
+    # rail line + tunnel (Old Quarter <-> Ironworks)
+    rx0, ry0, rx1, ry1 = 96, 92, 206, 84
+    for k in range(0, 112, 1):
+        x = rx0 + k
+        y = int(ry0 + (ry1 - ry0) * k / 112 - 10 * math.sin(math.pi * k / 112))
+        cv.px(x, y, C("#3a3a46"))
+        if k % 6 < 3:
+            cv.px(x, y + 1, C("#3a3a46"))
+    # bridges over the river
+    for bx in (112, 262, 340):
+        t = bx / W
+        y = 190 + 18 * math.sin(t * 5.2 + 0.4) - 30 * t + 40 * t * t
+        cv.rect(bx - 2, int(y) - 9, 5, 18, C("#8a7a60"))
+        cv.vl(bx - 3, int(y) - 9, 18, C("#5a4a3a"))
+        cv.vl(bx + 3, int(y) - 9, 18, C("#5a4a3a"))
+    # landmark icons
+    ink = C("#4a3a34")
+
+    def houses(x, y):
+        for k in range(3):
+            cv.rect(x + k * 7, y, 6, 6, C("#a04a3a"))
+            cv.poly([(x + k * 7 - 1, y), (x + k * 7 + 3, y - 4), (x + k * 7 + 7, y)], C("#7a3428"))
+
+    def stall(x, y):
+        for k in range(4):
+            cv.rect(x + k * 4, y, 4, 4, C("#c03a3a") if k % 2 else C("#f4f0e4"))
+        cv.rect(x, y + 4, 16, 4, C("#8a5a34"))
+
+    def stack(x, y):
+        cv.rect(x, y - 8, 4, 14, C("#7a3a2a"))
+        cv.rect(x + 6, y, 12, 6, C("#9a5a30"))
+        cv.ellipse(x + 2, y - 15, x + 9, y - 9, C("#a8a0a0"))
+
+    def star(x, y):
+        pts_ = []
+        for k in range(10):
+            a = -math.pi / 2 + k * math.pi / 5
+            r = 6 if k % 2 == 0 else 2.6
+            pts_.append((x + math.cos(a) * r, y + math.sin(a) * r))
+        cv.poly(pts_, C("#e04a90"))
+
+    def gate(x, y):
+        cv.rect(x, y - 6, 4, 12, C("#5a6a7a"))
+        cv.rect(x + 12, y - 6, 4, 12, C("#5a6a7a"))
+        cv.rect(x + 4, y - 2, 8, 6, C("#8a9aaa"))
+
+    def warehouse_icon(x, y):
+        cv.rect(x, y, 18, 8, C("#6a6a76"))
+        cv.poly([(x, y), (x + 9, y - 5), (x + 18, y)], C("#4a4a56"))
+        cv.vl(x + 22, y - 10, 18, C("#c8a030"))
+        cv.hl(x + 16, y - 10, 12, C("#c8a030"))
+    icons = {"old_quarter": houses, "canal_market": stall, "ironworks": stack, "neon_mile": star,
+             "floodgate": gate, "warehouse": warehouse_icon}
+    offs = {"old_quarter": (-10, -30), "canal_market": (-8, 16), "ironworks": (14, -22), "neon_mile": (-6, -30),
+            "floodgate": (12, -26), "warehouse": (-30, -30)}
+    for k, fn in icons.items():
+        px_, py_ = MAP_POS[k]
+        ox, oy = offs[k]
+        fn(px_ + ox, py_ + oy)
+    # marker plazas (where the engine pins its markers)
+    for k, (px_, py_) in MAP_POS.items():
+        cv.ellipse(px_ - 6, py_ - 5, px_ + 6, py_ + 5, mix(paper, C("#5a4a3a"), 0.2))
+        cv.ellipse(px_ - 4, py_ - 3, px_ + 4, py_ + 3, paper)
+    # compass rose (no letters) + scale bar
+    cx, cy = 440, 44
+    cv.ellipse(cx - 16, cy - 16, cx + 16, cy + 16, mix(paper, ink, 0.25))
+    cv.ellipse(cx - 14, cy - 14, cx + 14, cy + 14, paper)
+    cv.poly([(cx, cy - 18), (cx + 4, cy), (cx - 4, cy)], C("#a03a2a"))
+    cv.poly([(cx, cy + 18), (cx + 4, cy), (cx - 4, cy)], ink)
+    cv.poly([(cx - 18, cy), (cx, cy - 3), (cx, cy + 3)], mix(paper, ink, 0.5))
+    cv.poly([(cx + 18, cy), (cx, cy - 3), (cx, cy + 3)], mix(paper, ink, 0.5))
+    for k in range(4):
+        cv.rect(30 + k * 12, 236, 12, 4, ink if k % 2 == 0 else paper)
+    cv.rect(30, 236, 48, 1, ink)
+    cv.rect(30, 239, 48, 1, ink)
+    # fold creases
+    for x in (160, 320):
+        cv.vl(x, 0, Hm, mix(paper, C("#7a6a50"), 0.45))
+        cv.vl(x + 1, 0, Hm, lt(paper, 0.5))
+    cv.hl(0, 130, W, mix(paper, C("#7a6a50"), 0.45))
+    cv.hl(0, 131, W, lt(paper, 0.5))
+    # frame: double rule + worn edges
+    cv.rect(6, 6, W - 12, 1, ink)
+    cv.rect(6, Hm - 7, W - 12, 1, ink)
+    cv.rect(6, 6, 1, Hm - 12, ink)
+    cv.rect(W - 7, 6, 1, Hm - 12, ink)
+    cv.rect(9, 9, W - 18, 1, mix(paper, ink, 0.5))
+    cv.rect(9, Hm - 10, W - 18, 1, mix(paper, ink, 0.5))
+    cv.rect(9, 9, 1, Hm - 18, mix(paper, ink, 0.5))
+    cv.rect(W - 10, 9, 1, Hm - 18, mix(paper, ink, 0.5))
+    for (ox, oy) in ((6, 6), (W - 13, 6), (6, Hm - 13), (W - 13, Hm - 13)):
+        cv.rect(ox, oy, 7, 7, ink)
+        cv.rect(ox + 2, oy + 2, 3, 3, paper)
+    edge = np.zeros((Hm, W), np.float32)
+    yy, xx = np.mgrid[0:Hm, 0:W]
+    dist = np.minimum(np.minimum(xx, W - 1 - xx), np.minimum(yy, Hm - 1 - yy)).astype(np.float32)
+    t = np.clip(1 - dist / 6, 0, 1) * 0.35
+    m = BAYER[yy % 4, xx % 4] < t
+    cv.a[m, :3] = mix(paper, C("#8a7050"), 0.6)
+    # coffee ring stain
+    cv.a[..., 3] = 255
+    os.makedirs(UI_DIR, exist_ok=True)
+    cv.save(os.path.join(UI_DIR, "map.png"))
+    with open(os.path.join(UI_DIR, "map.json"), "w") as fh:
+        json.dump(MAP_POS, fh, indent=1)
+        fh.write("\n")
+    print("map 480x260 + map.json")
+
+
+
+# ============================================================================
+# verification
+# ============================================================================
+def _lum(a):
+    return (a[..., 0].astype(np.float32) * 0.3 + a[..., 1] * 0.59 + a[..., 2] * 0.11)
+
+
+def verify(rooms):
+    """Check every output against rooms.json + the art bible contract. Returns list of problems."""
+    probs = []
+    for rid, r in rooms.items():
+        path = os.path.join(BG_DIR, f"{rid}.png")
+        if not os.path.exists(path):
+            probs.append(f"{rid}: missing {path}")
+            continue
+        im = np.array(Image.open(path).convert("RGBA"))
+        h, w = im.shape[:2]
+        if (w, h) != (r["width"], H):
+            probs.append(f"{rid}: size {w}x{h} != {r['width']}x{H}")
+            continue
+        alpha = im[..., 3]
+        if r["kind"] == "interior":
+            if (alpha < 255).any():
+                probs.append(f"{rid}: interior has non-opaque pixels")
+        else:
+            if (alpha[FACADE_BOTTOM:] < 255).any():
+                probs.append(f"{rid}: transparent pixels in the ground band")
+            if ((alpha > 0) & (alpha < 255)).any():
+                probs.append(f"{rid}: semi-transparent pixels")
+        # doors: lit (or dark for tunnels/alleys) opening contrasting with the facade beside it
+        for d in r.get("doors", []):
+            x = int(d["x"])
+            inner = im[FACADE_BOTTOM - 40:FACADE_BOTTOM - 4, max(0, x - 8):x + 8]
+            side = np.concatenate([im[FACADE_BOTTOM - 40:FACADE_BOTTOM - 4, max(0, x - 40):max(0, x - 26)],
+                                   im[FACADE_BOTTOM - 40:FACADE_BOTTOM - 4, x + 26:x + 40]], axis=1)
+            if (inner[..., 3] < 255).any():
+                probs.append(f"{rid}: door {d['id']} at x={x} not opaque")
+                continue
+            diff = abs(float(_lum(inner).mean()) - float(_lum(side).mean())) if side.size else 99
+            if diff < 25:
+                probs.append(f"{rid}: door {d['id']} at x={x} low contrast ({diff:.0f})")
+        # water blockers are drawn as water (blue-dominant)
+        for b in r.get("blockers", []):
+            if b.get("kind") != "water":
+                continue
+            reg = im[b["y"] + 4:b["y"] + b["h"] - 4, b["x"] + 8:b["x"] + b["w"] - 8].astype(np.int32)
+            reg = im[b["y"] + 2:b["y"] + b["h"] - 20 if b["y"] <= FACADE_BOTTOM + 2 else b["y"] + b["h"],
+                     b["x"] + 8:b["x"] + b["w"] - 8].astype(np.int32)
+            if not (reg[..., 2].mean() > reg[..., 0].mean() + 15):
+                probs.append(f"{rid}: water blocker {b} does not read as water")
+    # props
+    pj = os.path.join(PROP_DIR, "props.json")
+    if not os.path.exists(pj):
+        probs.append("props.json missing")
+    else:
+        meta = json.load(open(pj))
+        used = {p["type"] for r in rooms.values() for p in r.get("props", [])}
+        for t in sorted(used):
+            if t not in meta:
+                probs.append(f"props.json lacks {t}")
+                continue
+            f = os.path.join(ROOT, "game", meta[t]["file"][len("res://"):])
+            if not os.path.exists(f):
+                probs.append(f"prop file missing {f}")
+                continue
+            pw, ph = Image.open(f).size
+            ax, ay = meta[t]["anchor"]
+            if not (0 <= ax < pw and 0 < ay <= ph):
+                probs.append(f"prop {t}: anchor {ax},{ay} outside {pw}x{ph}")
+    # parallax
+    for dname in ("old_quarter", "canal_market", "ironworks", "neon_mile", "floodgate", "warehouse"):
+        f = os.path.join(BG_DIR, f"parallax_{dname}.png")
+        if not os.path.exists(f):
+            probs.append(f"missing parallax {dname}")
+            continue
+        a = np.array(Image.open(f).convert("RGBA")).astype(np.int32)
+        if a.shape[:2] != (220, 960):
+            probs.append(f"parallax {dname} size {a.shape[1]}x{a.shape[0]}")
+            continue
+        seam = np.abs(a[:, 0, :3] - a[:, -1, :3]).mean()
+        inner = np.abs(a[:, 1:, :3] - a[:, :-1, :3]).mean(axis=(0, 2))
+        if seam > np.percentile(inner, 99) + 1:
+            probs.append(f"parallax {dname} seam {seam:.1f} vs typical {inner.mean():.1f}")
+    for f, size in ((os.path.join(BG_DIR, "title_bg.png"), (640, 360)), (os.path.join(UI_DIR, "map.png"), None)):
+        if not os.path.exists(f):
+            probs.append(f"missing {f}")
+            continue
+        im = Image.open(f).convert("RGBA")
+        if size and im.size != size:
+            probs.append(f"{f} size {im.size}")
+        if (np.array(im)[..., 3] < 255).any():
+            probs.append(f"{f} not opaque")
+    mj = os.path.join(UI_DIR, "map.json")
+    if os.path.exists(mj):
+        keys = set(json.load(open(mj)))
+        need = {"old_quarter", "canal_market", "ironworks", "neon_mile", "floodgate", "warehouse"}
+        if keys != need:
+            probs.append(f"map.json keys {sorted(keys)}")
+    else:
+        probs.append("map.json missing")
+    return probs
+
+
 # ============================================================================
 # main
 # ============================================================================
@@ -6143,25 +7841,26 @@ def main(argv=None):
     ap.add_argument("--rooms", nargs="*", help="only these room ids")
     ap.add_argument("--only", nargs="*", choices=["rooms", "parallax", "props", "title", "map"],
                     help="only these asset groups")
-    ap.add_argument("--placeholder", action="store_true", help="draw grey blocks for unknown facades (dev)")
+    ap.add_argument("--verify", action="store_true", help="only verify existing outputs against rooms.json")
     args = ap.parse_args(argv)
     groups = set(args.only or ["rooms", "parallax", "props", "title", "map"])
     rooms = load_rooms()
-    if args.placeholder:
-        for r in rooms.values():
-            for f in r.get("facades", []):
-                if f["kind"] not in FACADES:
-                    FACADES[f["kind"]] = lambda R, x, w, f: R.cv.rect(x, 60, w, 154, C("#606070"))
-            for g in r.get("ground", []):
-                if g["style"] not in GROUNDS:
-                    GROUNDS[g["style"]] = lambda R, x, w: R.cv.rect(x, 214, w, 146, C("#505060"))
+    if args.verify:
+        probs = verify(rooms)
+        for pr in probs:
+            print("FAIL", pr)
+        print("verify:", "OK" if not probs else f"{len(probs)} problem(s)")
+        return 1 if probs else 0
     if "rooms" in groups:
         for rid, data in rooms.items():
             if args.rooms and rid not in args.rooms:
                 continue
             R = build_room(rid, data)
+            want = sorted((d["id"], int(d["x"])) for d in data.get("doors", []))
+            if sorted(R.doors_drawn) != want:
+                raise SystemExit(f"[{rid}] doors drawn {R.doors_drawn} != rooms.json {want}")
             R.cv.save(os.path.join(BG_DIR, f"{rid}.png"))
-            print(f"room {rid:16s} {R.w}x{H}")
+            print(f"room {rid:16s} {R.w}x{H}  doors={len(R.doors_drawn)}")
     if "parallax" in groups and "gen_parallax" in globals():
         gen_parallax()
     if "props" in groups and "gen_props" in globals():
@@ -6170,7 +7869,12 @@ def main(argv=None):
         gen_title()
     if "map" in groups and "gen_map" in globals():
         gen_map()
+    if not args.rooms and not args.only:
+        probs = verify(rooms)
+        for pr in probs:
+            print("FAIL", pr)
+        print("verify:", "OK" if not probs else f"{len(probs)} problem(s)")
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)

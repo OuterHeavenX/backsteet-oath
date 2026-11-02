@@ -75,6 +75,10 @@ func boss_update() -> void:
 		"rook":
 			if phase == 1 and frac <= 0.5 and not phase_pending:
 				phase_pending = true
+				phase = 2
+				hazard_t = 9999
+				if room:
+					room.rook_phase_two(self)
 			if phase == 2:
 				hazard_t -= 1
 				if hazard_t <= 0 and room:
@@ -98,14 +102,6 @@ func take_damage_and_react(attacker: Actor, d: Dictionary, raw: float, dir: int,
 	super.take_damage_and_react(attacker, d, raw, dir, force)
 	if script_id == "rook" and phase_pending and phase == 1 and state == "knockdown":
 		pass
-
-func _getup_state() -> void:
-	super._getup_state()
-	if state == "idle" and script_id == "rook" and phase_pending and phase == 1:
-		phase = 2
-		phase_pending = false
-		if room:
-			room.rook_phase_two(self)
 
 func become_phase_two() -> void:
 	setup_visual_swap("rook_p2")

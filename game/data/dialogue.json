@@ -1,1 +1,2109 @@
-{}
+{
+ "lines": {
+  "intro_1": [
+   [
+    "narrator",
+    "neutral",
+    "Bellwether, 1988. The 6:15 bus drops Nico Vale at the end of Kettle Street. His first time home in two years."
+   ],
+   [
+    "dogs",
+    "angry",
+    "Protection fee, grandma. Same as last week."
+   ],
+   [
+    "dot",
+    "neutral",
+    "Protection from what?"
+   ],
+   [
+    "dogs",
+    "neutral",
+    "From us."
+   ],
+   [
+    "dot",
+    "neutral",
+    "So I pay you to protect me from you. And if I don't pay, you protect me from you by... not protecting me from you?"
+   ],
+   [
+    "dogs",
+    "surprised",
+    "...Yeah. Wait. Yeah."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Delivery! For whoever's about to get punched."
+   ],
+   [
+    "dogs",
+    "angry",
+    "Who's this clown?"
+   ],
+   [
+    "nico",
+    "happy",
+    "Sign here."
+   ]
+  ],
+  "intro_hint_1": [
+   [
+    "narrator",
+    "neutral",
+    "Move with {move}. {punch} Punch, {kick} Kick, {jump} Jump. Chain Punches into a combo!"
+   ]
+  ],
+  "intro_2": [
+   [
+    "dot",
+    "happy",
+    "Nico Vale. Look at you. Still punching above your weight class."
+   ],
+   [
+    "nico",
+    "happy",
+    "Hi, Dot. Still sassing guys twice your size?"
+   ],
+   [
+    "dot",
+    "neutral",
+    "Somebody has to. Those Chain Dogs have been leaning on every shop on the street for a month."
+   ],
+   [
+    "nico",
+    "neutral",
+    "I'm looking for Eli. He sent me a postcard. 'Come home. Need someone I trust.'"
+   ],
+   [
+    "dot",
+    "sad",
+    "Hon... Eli's been gone four days. He came in Thursday white as a sheet, hugging some notebook. Ordered coffee and didn't touch it."
+   ],
+   [
+    "dot",
+    "neutral",
+    "Mara's been tearing the town apart looking for him. She's at her garage on Brickrow Lane, just east of here."
+   ],
+   [
+    "dot",
+    "happy",
+    "Go. And come back for pie. The diner's always open to you, hon."
+   ],
+   [
+    "nico",
+    "happy",
+    "Always."
+   ]
+  ],
+  "mara_meet": [
+   [
+    "mara",
+    "angry",
+    "If that's another Chain Dog, I've got a wrench with your name on it."
+   ],
+   [
+    "nico",
+    "neutral",
+    "It's me."
+   ],
+   [
+    "mara",
+    "surprised",
+    "Nico?! Two years, and you just walk in like you went out for milk?"
+   ],
+   [
+    "mara",
+    "angry",
+    "Two years of no calls. No letters. And you show up NOW?"
+   ],
+   [
+    "nico",
+    "sad",
+    "Eli wrote me."
+   ],
+   [
+    "mara",
+    "sad",
+    "...He wrote you. Figures. He's been weird for weeks. Late nights, new shoes, wouldn't say where the money came from."
+   ],
+   [
+    "mara",
+    "neutral",
+    "Thursday he slid a note under my door. 'If I don't come back, the Chain Dogs know where the book went. Don't go after it. Luv you, M.'"
+   ],
+   [
+    "mara",
+    "sad",
+    "He spelled 'love' wrong. He only does that when he's scared."
+   ],
+   [
+    "nico",
+    "angry",
+    "Then I'm going after it."
+   ],
+   [
+    "mara",
+    "neutral",
+    "Obviously. The Chain Dogs hang out in the Chain Lot at the end of Brickrow. Their boss is Duke Brannigan. Big mohawk, bigger mouth."
+   ],
+   [
+    "mara",
+    "happy",
+    "Here. Twenty bucks for food. Dot will fix you up, and Coach Benny still sells fighting manuals at the rec center down the lane."
+   ],
+   [
+    "mara",
+    "neutral",
+    "Don't be stupid."
+   ],
+   [
+    "nico",
+    "happy",
+    "When have I ever been stupid?"
+   ],
+   [
+    "mara",
+    "happy",
+    "You want that list alphabetical or chronological?"
+   ]
+  ],
+  "duke_intro": [
+   [
+    "duke",
+    "neutral",
+    "Well, well. The delivery boy. You know how many of my pups you put in the gutter today?"
+   ],
+   [
+    "nico",
+    "neutral",
+    "Lost count. Where's Eli Mercer?"
+   ],
+   [
+    "duke",
+    "happy",
+    "Mercer? Skinny, glasses, cries a lot? We jumped him Thursday. Guy in a gray coat paid us to grab his bag."
+   ],
+   [
+    "duke",
+    "angry",
+    "Bag was full of nothing. Kid ripped the pages out. So now I'm out a payday AND I'm in a bad mood."
+   ],
+   [
+    "nico",
+    "angry",
+    "Let me fix your mood."
+   ],
+   [
+    "duke",
+    "angry",
+    "Chain Dogs don't lose on our own turf!"
+   ]
+  ],
+  "duke_whistle": [
+   [
+    "duke",
+    "angry",
+    "PUPS! Get over here!"
+   ]
+  ],
+  "duke_defeat": [
+   [
+    "duke",
+    "sad",
+    "Okay! OKAY! Uncle! You hit like a garbage truck."
+   ],
+   [
+    "nico",
+    "angry",
+    "The bag. Where is it?"
+   ],
+   [
+    "duke",
+    "sad",
+    "Sold it to the Pike sisters at the Canal Market. They fence anything. Gray-coat guy wanted it bad, so they figured they'd jack the price."
+   ],
+   [
+    "duke",
+    "neutral",
+    "Look... that gray coat. He paid us to scare Kettle Street. Break windows. Make folks want to move. I didn't ask why."
+   ],
+   [
+    "nico",
+    "neutral",
+    "You never ask why, Duke. That's your whole problem."
+   ],
+   [
+    "duke",
+    "sad",
+    "Here. Key to the underpass. And tell Dot... tell her the windows are on me."
+   ]
+  ],
+  "bus_unlocked": [
+   [
+    "narrator",
+    "neutral",
+    "With the Chain Dogs off the streets, the River Line buses are running again. Bus stops let you travel between districts you've visited."
+   ]
+  ],
+  "jett_intro": [
+   [
+    "jett",
+    "happy",
+    "Hold up, hero. Word on the Mile is somebody's paying top dollar for a certain courier bag."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Word on the street is you're in my way."
+   ],
+   [
+    "jett",
+    "happy",
+    "Ooh, he's got lines. Name's Jett Vance. Fastest feet on the Neon Mile."
+   ],
+   [
+    "jett",
+    "neutral",
+    "Let's see what the Old Quarter's got."
+   ]
+  ],
+  "jett_retreat": [
+   [
+    "jett",
+    "surprised",
+    "Okay, okay, you're decent! I've got a date with some rooftops."
+   ],
+   [
+    "jett",
+    "happy",
+    "Catch you on the Mile, Delivery Boy!"
+   ],
+   [
+    "nico",
+    "angry",
+    "It's NICO!"
+   ],
+   [
+    "jett",
+    "happy",
+    "Whatever you say, Delivery Boy!"
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Jett vaults the railing, lands on a passing barge, and is gone."
+   ]
+  ],
+  "pikes_intro": [
+   [
+    "rhea",
+    "neutral",
+    "Lou, look. A customer."
+   ],
+   [
+    "lou",
+    "neutral",
+    "Customers pay, Rhea. This one's got that 'I'm about to make a scene' face."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Eli Mercer's satchel. Duke says you bought it."
+   ],
+   [
+    "rhea",
+    "neutral",
+    "Bought it, cleaned it, priced it. Two hundred dollars."
+   ],
+   [
+    "nico",
+    "happy",
+    "How about a discount on getting beaten up?"
+   ],
+   [
+    "lou",
+    "happy",
+    "Ooh. Rhea, he's funny."
+   ],
+   [
+    "rhea",
+    "angry",
+    "Funny doesn't pay rent. Get him!"
+   ]
+  ],
+  "pikes_defeat": [
+   [
+    "lou",
+    "sad",
+    "Fine! FINE! Take the stupid bag! It smells like fish anyway. Everything smells like fish."
+   ],
+   [
+    "rhea",
+    "neutral",
+    "There wasn't any ledger in it, if that's what you're after. Just route sheets and a photo."
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Inside the satchel: Eli's delivery manifests. Envelopes to Switch House 4 at the Ironworks, every one signed 'V.R.' And a polaroid of Eli with an older rail worker."
+   ],
+   [
+    "rhea",
+    "neutral",
+    "That's Gus Pereira. Switchman. Nice guy. Haven't seen him at the market in a week."
+   ],
+   [
+    "lou",
+    "sad",
+    "We'll lower the drawbridge. Just... go away. And buy a fish sometime."
+   ]
+  ],
+  "act2_card": [
+   [
+    "narrator",
+    "neutral",
+    "ACT II: THE IRONWORKS. Heavy Yard Boys shrug off light hits while they wind up. Hit them with finishers, kicks and throws, or get out of the way."
+   ]
+  ],
+  "switch_hint": [
+   [
+    "narrator",
+    "neutral",
+    "Otto's Yard Boys are guarding someone in the back. Clear them out!"
+   ]
+  ],
+  "gus_rescue": [
+   [
+    "gus",
+    "surprised",
+    "You're not one of Otto's boys. Who are you?"
+   ],
+   [
+    "nico",
+    "neutral",
+    "Nico Vale. Eli Mercer's friend."
+   ],
+   [
+    "gus",
+    "sad",
+    "Eli... that kid. He delivered envelopes here every Friday. Cash. Payroll for Otto's crew, straight from Greyline Development."
+   ],
+   [
+    "nico",
+    "surprised",
+    "Greyline?"
+   ],
+   [
+    "gus",
+    "angry",
+    "The company buying up every block from here to the river. Folks who won't sell get visits. Fires. Broken windows. Rail-side houses 'condemned.'"
+   ],
+   [
+    "gus",
+    "sad",
+    "Eli figured it out. He asked me to testify. Next thing I know, Otto's boys lock me in here so I won't talk."
+   ],
+   [
+    "gus",
+    "neutral",
+    "Otto keeps the payroll book in the foundry office. That's your proof. The foundry's at the east end of the Rail Spur. I'll unbolt the door for you."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Get somewhere safe, Gus."
+   ],
+   [
+    "gus",
+    "happy",
+    "My brother runs a bait shop out on Floodgate Road. I'll lie low there. Thank you, son."
+   ]
+  ],
+  "otto_intro": [
+   [
+    "otto",
+    "angry",
+    "Pereira's out. Mercer's buddy is in my foundry. Somebody's getting docked a week's pay."
+   ],
+   [
+    "nico",
+    "angry",
+    "Greyline's paying you to burn people out of their homes, Otto."
+   ],
+   [
+    "otto",
+    "neutral",
+    "I'm paid to keep the line moving. What happens down the line ain't my business."
+   ],
+   [
+    "nico",
+    "angry",
+    "It's my neighborhood. That makes it my business."
+   ],
+   [
+    "otto",
+    "angry",
+    "Then clock in, kid."
+   ]
+  ],
+  "otto_defeat": [
+   [
+    "otto",
+    "sad",
+    "Hrrgh... okay. You win. Rook's gonna... ugh."
+   ],
+   [
+    "nico",
+    "surprised",
+    "Rook?"
+   ],
+   [
+    "otto",
+    "neutral",
+    "Victor Rook. Greyline's fixer. Gray coat, nice gloves, scary calm. He signs the checks, and the Starlight Arcade on the Neon Mile counts the cash. Back room."
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Victor Rook. Everybody on Kettle Street knows that name. The best fighter the Old Quarter ever had. The man who taught Nico and Eli to throw a punch."
+   ],
+   [
+    "nico",
+    "angry",
+    "...Rook."
+   ],
+   [
+    "otto",
+    "sad",
+    "Take the payroll. And the tunnel key. The rail tunnel runs straight back to Brickrow Lane. I'm done."
+   ]
+  ],
+  "neon_hint": [
+   [
+    "narrator",
+    "neutral",
+    "The Neon Saints leap in with jump kicks. Guard them, or meet them in the air."
+   ]
+  ],
+  "arcade_jett": [
+   [
+    "jett",
+    "surprised",
+    "Delivery Boy?! Didn't think you'd make it this far east."
+   ],
+   [
+    "nico",
+    "angry",
+    "The back room, Jett. The count book. Hand it over."
+   ],
+   [
+    "jett",
+    "surprised",
+    "How do you even... ugh. Okay. You want it?"
+   ],
+   [
+    "jett",
+    "happy",
+    "Come get it! Rooftops! If you can keep up!"
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Jett bolts out the door with a ledger under his arm. The fire escape is at the east end of Arcade Alley."
+   ]
+  ],
+  "jett_intro2": [
+   [
+    "jett",
+    "happy",
+    "Welcome to my office. Best view in Bellwether."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Why are you working for Rook, Jett?"
+   ],
+   [
+    "jett",
+    "angry",
+    "Working FOR? I don't work for anybody. Rook pays me to keep the Mile quiet. Easy money."
+   ],
+   [
+    "nico",
+    "angry",
+    "Quiet. Like the families getting burned out of the rail houses? Like Eli?"
+   ],
+   [
+    "jett",
+    "sad",
+    "...Shut up and fight."
+   ]
+  ],
+  "jett_defeat": [
+   [
+    "jett",
+    "sad",
+    "Man... nobody's ever kept up with me before."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Rook's paying you to scare your own people."
+   ],
+   [
+    "jett",
+    "sad",
+    "I know. I KNOW, okay? I found out last week. My grandma's building on Velvet Street got a Greyline notice."
+   ],
+   [
+    "jett",
+    "neutral",
+    "I was going to bail. I just didn't know how. Here. The count book. Every payment to every gang, in Rook's handwriting."
+   ],
+   [
+    "jett",
+    "happy",
+    "And take this. My lucky bandana. Never been beaten till today, so... maybe it's your luck now."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Help me end this, Jett."
+   ],
+   [
+    "jett",
+    "neutral",
+    "Get the proof somewhere safe, Delivery Boy. When you're ready to hit Rook, the whole Mile will be there."
+   ],
+   [
+    "teddy",
+    "surprised",
+    "Mister Nico! MISTER NICO! Mara called the newsstand! She said get back to the garage, fast! Something's wrong!"
+   ]
+  ],
+  "setback_arrive": [
+   [
+    "narrator",
+    "neutral",
+    "Smoke curls out of Quinn Garage. Men in gray jackets are hauling boxes out the roll-up door."
+   ],
+   [
+    "mott",
+    "neutral",
+    "Well, look who came home. Mr. Rook says hello."
+   ],
+   [
+    "nico",
+    "angry",
+    "Where's Mara?!"
+   ],
+   [
+    "mott",
+    "happy",
+    "Inside. Mostly fine. Get him, boys."
+   ]
+  ],
+  "setback_garage": [
+   [
+    "mara",
+    "angry",
+    "They took everything, Nico. The manifests. The payroll. The count book. They knew exactly what to look for."
+   ],
+   [
+    "nico",
+    "surprised",
+    "Mara, your arm..."
+   ],
+   [
+    "mara",
+    "angry",
+    "My ARM is fine! My GARAGE is not fine! I told you not to drag..."
+   ],
+   [
+    "mara",
+    "sad",
+    "...No. That's not fair. Eli dragged us. You came because he asked. Like you always do."
+   ],
+   [
+    "nico",
+    "sad",
+    "I'm sorry."
+   ],
+   [
+    "mara",
+    "neutral",
+    "Don't be sorry. Be smart. You think I'd leave evidence lying around? I photocopied every page. They're in the spare tire."
+   ],
+   [
+    "nico",
+    "happy",
+    "Mara Quinn, you're a genius."
+   ],
+   [
+    "mara",
+    "happy",
+    "Finally, somebody says it."
+   ]
+  ],
+  "rook_garage": [
+   [
+    "rook",
+    "neutral",
+    "Hello, Nico. You got tall."
+   ],
+   [
+    "nico",
+    "angry",
+    "Rook."
+   ],
+   [
+    "rook",
+    "neutral",
+    "I taught you that stance. Chin's still too high."
+   ],
+   [
+    "rook",
+    "neutral",
+    "This neighborhood is dying, Nico. The mill closed. The rail's half dead. Greyline is going to build something new here, and I'm making sure it happens in an orderly way."
+   ],
+   [
+    "nico",
+    "angry",
+    "Orderly? You're burning people out of their homes."
+   ],
+   [
+    "rook",
+    "neutral",
+    "I'm moving them along before the people who don't care do it worse. You left. I stayed. Somebody has to manage the ending."
+   ],
+   [
+    "mara",
+    "angry",
+    "Get out of my garage."
+   ],
+   [
+    "rook",
+    "neutral",
+    "Eli is safe. For now. He made a choice, Nico. Ask him about it, if you ever see him again."
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Rook buttons his coat and walks out into the rain."
+   ],
+   [
+    "mara",
+    "sad",
+    "...What did he mean, Eli made a choice?"
+   ],
+   [
+    "nico",
+    "sad",
+    "I don't know."
+   ],
+   [
+    "mara",
+    "neutral",
+    "There's something else. This was taped inside the tire with the copies. Eli's handwriting on the label."
+   ],
+   [
+    "narrator",
+    "neutral",
+    "A cassette. Eli's voice crackles from Mara's shop radio: 'If they take me, it's the Floodgate warehouse. Rook's place by the river.'"
+   ],
+   [
+    "mara",
+    "neutral",
+    "Go get Jett and his crew. Floodgate Road is past the Neon Mile rooftops. I'll fix the tow truck and meet you at the warehouse. Don't argue."
+   ],
+   [
+    "nico",
+    "happy",
+    "Wasn't going to."
+   ],
+   [
+    "mara",
+    "happy",
+    "First time for everything."
+   ]
+  ],
+  "act3_card": [
+   [
+    "narrator",
+    "neutral",
+    "ACT III: FLOODGATE. Coach Benny has a new manual for you, and Mara's workbench can go all the way now."
+   ]
+  ],
+  "alliance": [
+   [
+    "jett",
+    "happy",
+    "Delivery Boy! Told you the whole Mile would show up."
+   ],
+   [
+    "nico",
+    "neutral",
+    "That's... two guys."
+   ],
+   [
+    "jett",
+    "happy",
+    "Two VERY committed guys. Plus..."
+   ],
+   [
+    "lou",
+    "angry",
+    "Plus us. Rook's people stiffed us on the satchel money. Then they kicked over our fish."
+   ],
+   [
+    "rhea",
+    "angry",
+    "Nobody kicks over our fish."
+   ],
+   [
+    "duke",
+    "happy",
+    "And the Chain Dogs! Well. Me. The pups are grounded."
+   ],
+   [
+    "nico",
+    "happy",
+    "Okay. Nobody fights alone."
+   ],
+   [
+    "jett",
+    "surprised",
+    "Is that... the Backstreet Oath? Man, I haven't heard that since Benny's junior league."
+   ],
+   [
+    "nico",
+    "angry",
+    "Rook taught it to us. Time somebody reminded him. Here they come!"
+   ]
+  ],
+  "alliance_done": [
+   [
+    "rhea",
+    "happy",
+    "Bridge is ours. We'll hold it. Go on."
+   ],
+   [
+    "jett",
+    "happy",
+    "I'm sticking with you, Delivery Boy. Somebody's gotta make you look good."
+   ]
+  ],
+  "price_meet": [
+   [
+    "price",
+    "neutral",
+    "Hold it. Officer Dana Price, Bellwether PD. You're the kid tearing up half the city."
+   ],
+   [
+    "nico",
+    "neutral",
+    "Allegedly."
+   ],
+   [
+    "price",
+    "neutral",
+    "Relax. I've been trying to build a case against Greyline for a year. Every witness gets scared off. Every file goes missing."
+   ],
+   [
+    "nico",
+    "neutral",
+    "We've got copies of the payroll and the count book."
+   ],
+   [
+    "price",
+    "sad",
+    "Copies won't stick. Rook's lawyers will call them forgeries. I need his original ledger. Get me that, and I can make arrests."
+   ],
+   [
+    "nico",
+    "angry",
+    "Then I'll get it."
+   ],
+   [
+    "price",
+    "happy",
+    "I'll be outside the warehouse with backup. Officially, I never met you."
+   ]
+  ],
+  "sabine_intro": [
+   [
+    "sabine",
+    "neutral",
+    "Captain Holt, Greyline Security. This is private property. Turn around."
+   ],
+   [
+    "nico",
+    "angry",
+    "Rook has my friend inside."
+   ],
+   [
+    "sabine",
+    "neutral",
+    "Mr. Rook has a lot of things inside. My job is the fence. Not the why."
+   ],
+   [
+    "nico",
+    "angry",
+    "Everybody keeps saying that. 'Not my business.' 'Not the why.'"
+   ],
+   [
+    "sabine",
+    "angry",
+    "Formation! Take him down!"
+   ]
+  ],
+  "sabine_whistle": [
+   [
+    "sabine",
+    "angry",
+    "Squad two, flank him!"
+   ]
+  ],
+  "sabine_defeat": [
+   [
+    "sabine",
+    "sad",
+    "...Stand down. All units, stand down."
+   ],
+   [
+    "sabine",
+    "sad",
+    "He told us we were keeping order. Clearing squatters. Then I saw the files. Families. Kids."
+   ],
+   [
+    "sabine",
+    "neutral",
+    "Here's the gate key. Mercer is in the holding office past the storage floor."
+   ],
+   [
+    "sabine",
+    "neutral",
+    "And Vale... Rook keeps the ledger on him. Always."
+   ],
+   [
+    "jett",
+    "neutral",
+    "I'll keep the Gray Jackets busy out here. Go get your friend."
+   ]
+  ],
+  "mara_arrives": [
+   [
+    "narrator",
+    "neutral",
+    "Headlights. An engine roar. Mara's patched-up tow truck smashes straight through the loading dock gate."
+   ],
+   [
+    "mara",
+    "happy",
+    "Did somebody call a mechanic?"
+   ],
+   [
+    "nico",
+    "surprised",
+    "Mara! Your arm..."
+   ],
+   [
+    "mara",
+    "neutral",
+    "Is attached to the steering wheel. I'm fine. Price is outside with half the police force pretending they're not here."
+   ],
+   [
+    "mara",
+    "angry",
+    "Let's go get our idiot."
+   ]
+  ],
+  "eli_found": [
+   [
+    "eli",
+    "surprised",
+    "N-Nico? Is that actually you, or did they finally hit me hard enough?"
+   ],
+   [
+    "nico",
+    "happy",
+    "It's me, Eli."
+   ],
+   [
+    "mara",
+    "angry",
+    "You IDIOT! You absolute IDIOT!"
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Mara hugs him hard enough to make him wheeze."
+   ],
+   [
+    "eli",
+    "sad",
+    "I deserve that. Nico... there's something I have to tell you."
+   ],
+   [
+    "eli",
+    "sad",
+    "Mom's hospital bills. Forty thousand dollars. The bank was going to take the house. Then Rook offered me a delivery job. Envelopes. Good money. No questions."
+   ],
+   [
+    "eli",
+    "sad",
+    "So I didn't ask any. For three months. Then the Hendersons' house on Rail Street burned, the same week I dropped an envelope at Otto's."
+   ],
+   [
+    "eli",
+    "neutral",
+    "I copied his ledger. Every page I could. I tried to get it to the paper, and they grabbed me on the way."
+   ],
+   [
+    "nico",
+    "angry",
+    "Why didn't you tell me?"
+   ],
+   [
+    "eli",
+    "sad",
+    "Because you left, Nico. And I was ashamed. I wrote you anyway."
+   ],
+   [
+    "nico",
+    "sad",
+    "...You should've called me sooner."
+   ],
+   [
+    "eli",
+    "happy",
+    "I did. You came."
+   ],
+   [
+    "mara",
+    "neutral",
+    "Group hug later. Ledger now. Price needs the original."
+   ],
+   [
+    "eli",
+    "neutral",
+    "Rook keeps it on him. And there's a safe in his office full of deeds Greyline forged. Mara, help me crack it. Nico..."
+   ],
+   [
+    "nico",
+    "angry",
+    "I'll handle Rook."
+   ],
+   [
+    "eli",
+    "neutral",
+    "He's on the main floor, through that door. He'll be waiting. He always waits."
+   ]
+  ],
+  "rook_intro": [
+   [
+    "rook",
+    "neutral",
+    "You came alone. Good. I hate crowds."
+   ],
+   [
+    "nico",
+    "neutral",
+    "I'm not alone. Nobody fights alone. You taught us that."
+   ],
+   [
+    "rook",
+    "neutral",
+    "I taught a lot of kids a lot of things. Most of them grew up and left. The ones who stayed got eaten."
+   ],
+   [
+    "rook",
+    "neutral",
+    "I didn't burn this neighborhood, Nico. Time did. I'm just the man holding the match."
+   ],
+   [
+    "nico",
+    "angry",
+    "Then I'm putting it out."
+   ],
+   [
+    "rook",
+    "neutral",
+    "Chin down. Hands up. Let's see what you remember."
+   ]
+  ],
+  "rook_phase2": [
+   [
+    "rook",
+    "angry",
+    "Fine. No more lessons."
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Rook peels off his coat and pulls a steel pipe from a rack. Overhead, the warehouse crane groans to life."
+   ],
+   [
+    "rook",
+    "angry",
+    "Lights!"
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Watch for red shadows: falling crates! The crates they leave behind can be picked up and thrown."
+   ]
+  ],
+  "rook_bark_1": [
+   [
+    "rook",
+    "neutral",
+    "Chin down, Nico."
+   ]
+  ],
+  "rook_bark_2": [
+   [
+    "rook",
+    "angry",
+    "You left! I stayed!"
+   ]
+  ],
+  "rook_bark_3": [
+   [
+    "rook",
+    "neutral",
+    "Sloppy. I taught you better."
+   ]
+  ],
+  "rook_defeat": [
+   [
+    "rook",
+    "sad",
+    "...Chin down. Hands up. You remembered."
+   ],
+   [
+    "nico",
+    "neutral",
+    "The ledger, Rook."
+   ],
+   [
+    "rook",
+    "sad",
+    "Take it. It was always going to end with somebody taking it. I'm glad it was you."
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Eli, Mara and Officer Price burst through the door."
+   ],
+   [
+    "price",
+    "neutral",
+    "Victor Rook, you're under arrest for arson, extortion and conspiracy. You have the right to remain silent."
+   ],
+   [
+    "rook",
+    "neutral",
+    "I usually do."
+   ],
+   [
+    "mara",
+    "happy",
+    "The safe was full of forged deeds. Every 'sale' on Kettle Street. Price has all of it."
+   ],
+   [
+    "eli",
+    "happy",
+    "Nico... thanks. For coming home."
+   ],
+   [
+    "nico",
+    "happy",
+    "Somebody had to make the delivery."
+   ]
+  ],
+  "ending_diner": [
+   [
+    "dot",
+    "happy",
+    "Well, look at this. A full house. First time in a year."
+   ],
+   [
+    "eli",
+    "neutral",
+    "Dot, can I get a coffee? I promise I'll drink this one."
+   ],
+   [
+    "dot",
+    "happy",
+    "On the house. Everything's on the house tonight."
+   ],
+   [
+    "jett",
+    "happy",
+    "Everything? Then I'll have one of everything."
+   ],
+   [
+    "dot",
+    "angry",
+    "Not you."
+   ],
+   [
+    "mara",
+    "happy",
+    "So, Nico. You staying this time?"
+   ],
+   [
+    "nico",
+    "happy",
+    "Somebody's got to keep an eye on you two."
+   ],
+   [
+    "narrator",
+    "neutral",
+    "Nico pulls a battered clipboard out of his jacket."
+   ],
+   [
+    "nico",
+    "happy",
+    "Oh, Dot. Delivery. One neighborhood. Slightly dented. Sign here."
+   ],
+   [
+    "dot",
+    "neutral",
+    "...Do I have to tip?"
+   ],
+   [
+    "nico",
+    "happy",
+    "First one's free."
+   ]
+  ],
+  "postgame_welcome": [
+   [
+    "narrator",
+    "neutral",
+    "THE END... of the story. Bellwether is yours to explore. Gangs still cause trouble for practice, the Alley Cat Cup is open, and every shop is stocked. Thanks for playing!"
+   ]
+  ],
+  "dog_offer": [
+   [
+    "alvarez",
+    "sad",
+    "Young man! Have you seen my Biscuit? Little tan terrier, red collar, ears like satellite dishes."
+   ],
+   [
+    "alvarez",
+    "sad",
+    "He slipped his leash when those hoodlums started shouting. He's always chasing trains. Oh, I hope he didn't go all the way to the rail yard."
+   ],
+   [
+    "nico",
+    "neutral",
+    "I'll keep an eye out, Mrs. Alvarez."
+   ],
+   [
+    "alvarez",
+    "happy",
+    "Take his leash. He'll follow anyone holding it. Bless you, dear."
+   ]
+  ],
+  "dog_found": [
+   [
+    "narrator",
+    "neutral",
+    "A scruffy tan terrier sniffs the leash, sneezes, and wags his whole back end. Biscuit is ready to go home."
+   ]
+  ],
+  "dog_return": [
+   [
+    "alvarez",
+    "happy",
+    "BISCUIT! Oh, you naughty, wonderful boy!"
+   ],
+   [
+    "alvarez",
+    "happy",
+    "Thank you, dear. Here, a little something, and empanadas. Don't argue, you're too skinny."
+   ]
+  ],
+  "dog_waiting": [
+   [
+    "alvarez",
+    "sad",
+    "Any sign of Biscuit? He loves trains. Try the rail yard out at the Ironworks."
+   ]
+  ],
+  "tools_offer": [
+   [
+    "mara",
+    "angry",
+    "You want to help? Some Wharf Rat called Sticky Vic walked off with my red toolbox while I was out looking for Eli."
+   ],
+   [
+    "mara",
+    "neutral",
+    "He hangs around the Canal Walk. Get it back and I'll tape up your weapons for free."
+   ]
+  ],
+  "tools_return": [
+   [
+    "mara",
+    "happy",
+    "My toolbox! Every socket accounted for. You're not totally useless."
+   ],
+   [
+    "mara",
+    "happy",
+    "As promised: Grip Tape on the house. Your weapons will hit harder and last longer."
+   ]
+  ],
+  "escort_offer": [
+   [
+    "hollis",
+    "sad",
+    "Oh, Mr. Vale. My sister lives above the fish hall at Pier Square. I haven't visited in weeks. Those Wharf Rats knock my hat off every time."
+   ],
+   [
+    "hollis",
+    "neutral",
+    "If you'd walk with me along the Canal Walk, I'd be ever so grateful. I'd make it worth your while: a first-edition fighting manual."
+   ]
+  ],
+  "escort_start": [
+   [
+    "hollis",
+    "happy",
+    "Splendid! Lead the way. I'll stay right behind you. Please don't let them near me."
+   ]
+  ],
+  "escort_fail": [
+   [
+    "narrator",
+    "neutral",
+    "Mr. Hollis panics and runs back to his bookshop. Talk to him there to try again."
+   ]
+  ],
+  "escort_done": [
+   [
+    "hollis",
+    "happy",
+    "We made it! Not a scratch. Well, one scratch. A dignified scratch."
+   ],
+   [
+    "hollis",
+    "happy",
+    "As promised: the Heel Drop manual, first edition, and a little extra for your trouble. Do come by the shop."
+   ]
+  ],
+  "parcels_offer": [
+   [
+    "teddy",
+    "neutral",
+    "Extra, extra! Read all about... nobody buys papers anymore, mister."
+   ],
+   [
+    "teddy",
+    "neutral",
+    "Hey, you look like a delivery guy."
+   ],
+   [
+    "nico",
+    "happy",
+    "I AM a delivery guy."
+   ],
+   [
+    "teddy",
+    "happy",
+    "Then deliver THESE back! Somebody swiped three Bellwether Courier parcels and stashed them around town. The Courier pays a reward!"
+   ],
+   [
+    "teddy",
+    "neutral",
+    "I heard one's on the Canal Walk, one by the Ironworks gate, and one on the Neon Mile. Check crates and trash cans."
+   ]
+  ],
+  "parcels_waiting": [
+   [
+    "teddy",
+    "neutral",
+    "Found the parcels yet? Canal Walk, Yard Gate, Marquee Strip. Smash stuff! Responsibly!"
+   ]
+  ],
+  "parcels_return": [
+   [
+    "teddy",
+    "happy",
+    "All three! You're the best courier in Bellwether!"
+   ],
+   [
+    "teddy",
+    "happy",
+    "The Courier sent these for whoever found them. Fancy sneakers! You'll run like the wind. Or like a slightly faster you."
+   ]
+  ],
+  "score_offer": [
+   [
+    "lacey",
+    "angry",
+    "You! You look like someone with eyes. Pip took my high score on Cabinet 3. NOBODY beats my score. He cheated."
+   ],
+   [
+    "lacey",
+    "neutral",
+    "Ask around. Pip, Marv at the snack bar, that kid hogging the back machines. Then tell me what really happened."
+   ]
+  ],
+  "score_pip": [
+   [
+    "pip",
+    "surprised",
+    "I didn't cheat! I swear! The stick kept sliding up-left on its own and I got like a ZILLION points."
+   ],
+   [
+    "pip",
+    "sad",
+    "Lacey's gonna pound me."
+   ]
+  ],
+  "score_marv": [
+   [
+    "marv",
+    "neutral",
+    "Cabinet 3? Been acting up since Tuesday. Joystick sticks up-left. I wrote it in the service log."
+   ],
+   [
+    "marv",
+    "neutral",
+    "Here, take a look. Nobody reads my logs."
+   ]
+  ],
+  "score_teen": [
+   [
+    "townc",
+    "neutral",
+    "Lacey? She played Cabinet 3 on Tuesday too. Her score was weirdly high. She didn't complain then."
+   ]
+  ],
+  "score_ask": [
+   [
+    "lacey",
+    "neutral",
+    "Well? Did Pip cheat, or what?"
+   ]
+  ],
+  "score_right": [
+   [
+    "lacey",
+    "surprised",
+    "The joystick was broken? So my Tuesday score... was also the joystick?"
+   ],
+   [
+    "lacey",
+    "sad",
+    "...Ugh. Fine. Rematch on a fixed machine, Pip. Fair and square."
+   ],
+   [
+    "pip",
+    "happy",
+    "You're on!"
+   ],
+   [
+    "lacey",
+    "happy",
+    "You've got a good head, Nico. Take my token jacket. Every pin is a high score I earned. Honestly."
+   ]
+  ],
+  "score_wrong": [
+   [
+    "lacey",
+    "neutral",
+    "Hmm. That doesn't add up, but whatever. Here's a few bucks for asking around."
+   ],
+   [
+    "marv",
+    "neutral",
+    "For the record, Cabinet 3's joystick is broken. Nobody reads my logs."
+   ]
+  ],
+  "cup_offer": [
+   [
+    "bigmo",
+    "happy",
+    "Step right up! The ALLEY CAT CUP! Three rounds, ninety seconds, bare knuckles. No weapons allowed in Big Mo's alley."
+   ],
+   [
+    "bigmo",
+    "neutral",
+    "Entry fee's ten bucks. Win, and you take the Champion Wraps home. Interested?"
+   ]
+  ],
+  "cup_go": [
+   [
+    "bigmo",
+    "happy",
+    "Through the alley door, champ! Big Mo's alley is right behind me. The clock starts when you walk in!"
+   ]
+  ],
+  "cup_win": [
+   [
+    "bigmo",
+    "happy",
+    "UNBELIEVABLE! A new Alley Cat champion! Here's your prize!"
+   ]
+  ],
+  "cup_rematch_win": [
+   [
+    "bigmo",
+    "happy",
+    "Still got it! Here's your purse, champ."
+   ]
+  ],
+  "cup_lose": [
+   [
+    "bigmo",
+    "sad",
+    "Time! Ooh, so close. Talk to me outside if you want another shot."
+   ]
+  ],
+  "hub_menu": [
+   [
+    "narrator",
+    "neutral",
+    "What do you want to do?"
+   ]
+  ],
+  "save_done": [
+   [
+    "narrator",
+    "neutral",
+    "Game saved."
+   ]
+  ],
+  "dot_1": [
+   [
+    "dot",
+    "neutral",
+    "Mara's garage is on Brickrow Lane, just east. Eat something first, hon, you look like a stray."
+   ]
+  ],
+  "dot_2": [
+   [
+    "dot",
+    "neutral",
+    "The Chain Dogs' lot is at the end of Brickrow. Duke Brannigan used to steal pies off my windowsill when he was eight. Now look at him."
+   ]
+  ],
+  "dot_3": [
+   [
+    "dot",
+    "happy",
+    "Duke's boys came by and swept the sidewalk. SWEPT it. What did you DO to them?"
+   ]
+  ],
+  "dot_4": [
+   [
+    "dot",
+    "sad",
+    "Greyline men keep leaving letters under my door. 'Generous offer.' Fifty years I've run this diner."
+   ]
+  ],
+  "dot_5": [
+   [
+    "dot",
+    "angry",
+    "They smashed my window last night, hon. I'm not going anywhere. You hear me? Nowhere."
+   ]
+  ],
+  "dot_6": [
+   [
+    "dot",
+    "happy",
+    "You did it, hon. You brought everybody home. Pie's on the house. Forever. Within reason."
+   ]
+  ],
+  "fong_1": [
+   [
+    "fong",
+    "happy",
+    "Noodles fix everything! Except Wharf Rats. Noodles do not fix Wharf Rats."
+   ]
+  ],
+  "fong_2": [
+   [
+    "fong",
+    "neutral",
+    "The Pike sisters sell fish to half the market. Also stolen bicycles. Also more stolen bicycles."
+   ]
+  ],
+  "fong_3": [
+   [
+    "fong",
+    "happy",
+    "You beat the Pike sisters? They still owe me for three hundred bowls of ramen!"
+   ]
+  ],
+  "hank_1": [
+   [
+    "hank",
+    "neutral",
+    "Otto's crew eats here. Don't start nothin' in my canteen. Start it outside like a gentleman."
+   ]
+  ],
+  "hank_2": [
+   [
+    "hank",
+    "happy",
+    "Otto's quiet for once. Half his crew came in asking about real jobs. Never seen that before."
+   ]
+  ],
+  "marv_1": [
+   [
+    "marv",
+    "neutral",
+    "The back room? Employees only. I'm an employee and even I don't go back there."
+   ]
+  ],
+  "marv_2": [
+   [
+    "marv",
+    "neutral",
+    "Snack bar's open. The joystick on Cabinet 3 is still broken. Nobody reads my logs."
+   ]
+  ],
+  "gus_bait_1": [
+   [
+    "gus",
+    "happy",
+    "Nico! My brother's shop. Clam chowder's on the stove. Eat, you'll need it out in that rain."
+   ]
+  ],
+  "gus_bait_2": [
+   [
+    "gus",
+    "happy",
+    "They're saying Greyline's finished. My old switch house might reopen. Me? I'm retiring. Fish don't testify."
+   ]
+  ],
+  "benny_1": [
+   [
+    "benny",
+    "neutral",
+    "Nico Vale. Still drop your right hand when you jab. Want to learn something new? It'll cost you, nothing's free at Benny's."
+   ]
+  ],
+  "benny_2": [
+   [
+    "benny",
+    "sad",
+    "Victor Rook used to train here. Best student I ever had. Taught the little ones the Oath. 'Nobody fights alone.' Funny how people change."
+   ]
+  ],
+  "benny_3": [
+   [
+    "benny",
+    "neutral",
+    "I've got one manual I don't show anybody. Victor's old signature move. The Oath Breaker. I think you've earned the right."
+   ]
+  ],
+  "benny_4": [
+   [
+    "benny",
+    "happy",
+    "Victor asked the judge to keep this place open. Guess he remembered the Oath after all."
+   ]
+  ],
+  "hollis_1": [
+   [
+    "hollis",
+    "neutral",
+    "Welcome, welcome. Fighting manuals on the second shelf. Please, no fighting near the first editions."
+   ]
+  ],
+  "hollis_2": [
+   [
+    "hollis",
+    "happy",
+    "My sister sends her regards, and a fruitcake. I'm afraid it's also a weapon."
+   ]
+  ],
+  "rosa_1": [
+   [
+    "rosa",
+    "neutral",
+    "Bandages, tonics, smelling salts. Smelling salts in your bag will wake you up if you get knocked out. Trust me, you'll want some."
+   ]
+  ],
+  "rosa_2": [
+   [
+    "rosa",
+    "happy",
+    "Business is slower now that people stopped getting beaten up. I'm not complaining. Mostly."
+   ]
+  ],
+  "mara_1": [
+   [
+    "mara",
+    "neutral",
+    "Bring me money and I'll make your weapons nastier. Grip tape, chain links, the works."
+   ]
+  ],
+  "mara_2": [
+   [
+    "mara",
+    "neutral",
+    "Pier Square's at the end of the Canal Walk. The Pike sisters will sell you your own shoes if you stand still."
+   ]
+  ],
+  "mara_3": [
+   [
+    "mara",
+    "angry",
+    "Victor Rook. Benny's golden boy. He used to fix my bike chain when I was seven. I hate this."
+   ]
+  ],
+  "mara_4": [
+   [
+    "mara",
+    "happy",
+    "Quinn and Mercer Repairs. Eli can't change a tire, but he does the books. Turns out he's good with ledgers."
+   ]
+  ],
+  "eli_post": [
+   [
+    "eli",
+    "happy",
+    "I'm going to spend the rest of my life making this up to everybody. Starting with fixing Dot's window. Badly."
+   ]
+  ],
+  "jett_post": [
+   [
+    "jett",
+    "happy",
+    "Rooftop parkour club meets Thursdays. You're invited, Delivery Boy. Nico. Delivery Nico."
+   ]
+  ],
+  "duke_post": [
+   [
+    "duke",
+    "sad",
+    "One window down, forty-two to go. This squeegee is my life now."
+   ]
+  ],
+  "otto_post": [
+   [
+    "otto",
+    "neutral",
+    "We're rebuilding the rail houses. Proper ones. On time, under budget. Turns out I like building better than wrecking."
+   ]
+  ],
+  "pikes_post": [
+   [
+    "lou",
+    "happy",
+    "Legit fish! Freshest on the canal!"
+   ],
+   [
+    "rhea",
+    "neutral",
+    "Mostly legit. Buy something."
+   ]
+  ],
+  "alvarez_post": [
+   [
+    "alvarez",
+    "happy",
+    "Biscuit and I walk to the diner every morning now. Well. Biscuit walks. I get dragged."
+   ]
+  ],
+  "biscuit_bark": [
+   [
+    "biscuit",
+    "happy",
+    "Arf! Arf!"
+   ]
+  ],
+  "teddy_1": [
+   [
+    "teddy",
+    "neutral",
+    "Extra! Extra! Kid hero punches entire Old Quarter! That's you, right? Can I get a quote?"
+   ]
+  ],
+  "teddy_2": [
+   [
+    "teddy",
+    "happy",
+    "Thanks for the parcels! The Courier says you can have a job anytime."
+   ]
+  ],
+  "bigmo_1": [
+   [
+    "bigmo",
+    "happy",
+    "Champ! Back for another round? It's twenty-five bucks a win now."
+   ]
+  ],
+  "towna_1": [
+   [
+    "towna",
+    "neutral",
+    "I jog this street every morning. Lately I jog it faster. Those gangs are everywhere."
+   ]
+  ],
+  "towna_2": [
+   [
+    "towna",
+    "happy",
+    "Streets are quiet now. I can jog at a reasonable pace again."
+   ]
+  ],
+  "townb_1": [
+   [
+    "townb",
+    "neutral",
+    "Greyline offered me twice what my place is worth. My neighbor said no. Then his garage caught fire."
+   ]
+  ],
+  "townb_2": [
+   [
+    "townb",
+    "happy",
+    "Heard they arrested the gray-coat guy. My neighbor's rebuilding his garage. Bigger."
+   ]
+  ],
+  "townc_1": [
+   [
+    "townc",
+    "neutral",
+    "Benny's Rec Center is the best place in town. Coach says if you can buy a manual, you can learn a move."
+   ]
+  ],
+  "townc_2": [
+   [
+    "townc",
+    "neutral",
+    "Did you know you can pick up a dizzy guy and throw him at his friends? Grab button. It rules."
+   ]
+  ],
+  "townd_1": [
+   [
+    "townd",
+    "neutral",
+    "Dot's pie is the only reason I haven't moved. Don't tell her I said that."
+   ]
+  ],
+  "townd_2": [
+   [
+    "townd",
+    "happy",
+    "Whole street's out tonight. Feels like the old days."
+   ]
+  ],
+  "price_wait": [
+   [
+    "price",
+    "neutral",
+    "The ledger, kid. Original only. I'll be at the warehouse."
+   ]
+  ],
+  "bus_locked": [
+   [
+    "narrator",
+    "neutral",
+    "The River Line isn't running. The Chain Dogs keep jumping the drivers."
+   ]
+  ],
+  "ending_cards": [
+   [
+    "narrator",
+    "neutral",
+    "Greyline Development's permits were revoked. Its directors spent the next year explaining themselves to a grand jury."
+   ],
+   [
+    "rook",
+    "sad",
+    "Victor Rook pleaded guilty. At sentencing he asked the judge for one thing: that Benny's Rec Center stay open."
+   ],
+   [
+    "eli",
+    "happy",
+    "Eli Mercer testified against Greyline. The neighborhood held a pancake breakfast every Sunday until his mother's bills were paid."
+   ],
+   [
+    "mara",
+    "happy",
+    "Mara Quinn rebuilt the garage. The new sign says QUINN & MERCER REPAIRS. Eli is a terrible mechanic. Mara keeps him anyway."
+   ],
+   [
+    "jett",
+    "happy",
+    "Jett Vance started a free rooftop club for Neon Mile kids. His grandmother still lives on Velvet Street."
+   ],
+   [
+    "gus",
+    "happy",
+    "Gus Pereira testified too, then retired to his brother's bait shop. The clam chowder got even better."
+   ],
+   [
+    "lou",
+    "happy",
+    "The Pike sisters went legit. Mostly. Their fish stand is the best on the canal."
+   ],
+   [
+    "duke",
+    "sad",
+    "Duke Brannigan paid for every broken window on Kettle Street. Personally. With a squeegee."
+   ],
+   [
+    "otto",
+    "neutral",
+    "Otto Kragg became foreman of the crew rebuilding the rail houses. On time and under budget."
+   ],
+   [
+    "sabine",
+    "neutral",
+    "Captain Holt now runs security for the Canal Market. Nobody kicks over the fish."
+   ],
+   [
+    "price",
+    "happy",
+    "Officer Price made detective. Officially, she still never met Nico Vale."
+   ],
+   [
+    "narrator",
+    "neutral",
+    "And one evening, the Lucky Spoon was full again."
+   ]
+  ]
+ },
+ "npc": {
+  "dot": [
+   {
+    "if": "boss_rook",
+    "say": "dot_6"
+   },
+   {
+    "if": "stage>=floodgate",
+    "say": "dot_5"
+   },
+   {
+    "if": "stage>=ironworks",
+    "say": "dot_4"
+   },
+   {
+    "if": "boss_duke",
+    "say": "dot_3"
+   },
+   {
+    "if": "met_mara",
+    "say": "dot_2"
+   },
+   {
+    "say": "dot_1"
+   }
+  ],
+  "fong": [
+   {
+    "if": "boss_pikes",
+    "say": "fong_3"
+   },
+   {
+    "if": "stage>=market",
+    "say": "fong_2"
+   },
+   {
+    "say": "fong_1"
+   }
+  ],
+  "hank": [
+   {
+    "if": "boss_otto",
+    "say": "hank_2"
+   },
+   {
+    "say": "hank_1"
+   }
+  ],
+  "marv": [
+   {
+    "if": "boss_jett",
+    "say": "marv_2"
+   },
+   {
+    "say": "marv_1"
+   }
+  ],
+  "gus": [
+   {
+    "if": "boss_rook",
+    "say": "gus_bait_2"
+   },
+   {
+    "say": "gus_bait_1"
+   }
+  ],
+  "benny": [
+   {
+    "if": "boss_rook",
+    "say": "benny_4"
+   },
+   {
+    "if": "act3_started",
+    "say": "benny_3"
+   },
+   {
+    "if": "boss_otto",
+    "say": "benny_2"
+   },
+   {
+    "say": "benny_1"
+   }
+  ],
+  "hollis": [
+   {
+    "if": "quest:escort=done",
+    "say": "hollis_2"
+   },
+   {
+    "say": "hollis_1"
+   }
+  ],
+  "rosa": [
+   {
+    "if": "boss_rook",
+    "say": "rosa_2"
+   },
+   {
+    "say": "rosa_1"
+   }
+  ],
+  "mara": [
+   {
+    "if": "boss_rook",
+    "say": "mara_4"
+   },
+   {
+    "if": "boss_otto",
+    "say": "mara_3"
+   },
+   {
+    "if": "boss_duke",
+    "say": "mara_2"
+   },
+   {
+    "say": "mara_1"
+   }
+  ],
+  "eli": [
+   {
+    "say": "eli_post"
+   }
+  ],
+  "jett": [
+   {
+    "say": "jett_post"
+   }
+  ],
+  "duke": [
+   {
+    "say": "duke_post"
+   }
+  ],
+  "otto": [
+   {
+    "say": "otto_post"
+   }
+  ],
+  "rhea": [
+   {
+    "say": "pikes_post"
+   }
+  ],
+  "lou": [
+   {
+    "say": "pikes_post"
+   }
+  ],
+  "alvarez": [
+   {
+    "if": "quest:dog=done",
+    "say": "alvarez_post"
+   },
+   {
+    "say": "dog_waiting"
+   }
+  ],
+  "biscuit": [
+   {
+    "say": "biscuit_bark"
+   }
+  ],
+  "teddy": [
+   {
+    "if": "quest:parcels=done",
+    "say": "teddy_2"
+   },
+   {
+    "say": "teddy_1"
+   }
+  ],
+  "bigmo": [
+   {
+    "say": "bigmo_1"
+   }
+  ],
+  "price": [
+   {
+    "say": "price_wait"
+   }
+  ],
+  "towna": [
+   {
+    "if": "boss_rook",
+    "say": "towna_2"
+   },
+   {
+    "say": "towna_1"
+   }
+  ],
+  "townb": [
+   {
+    "if": "boss_rook",
+    "say": "townb_2"
+   },
+   {
+    "say": "townb_1"
+   }
+  ],
+  "townc": [
+   {
+    "if": "boss_duke",
+    "say": "townc_2"
+   },
+   {
+    "say": "townc_1"
+   }
+  ],
+  "townd": [
+   {
+    "if": "boss_rook",
+    "say": "townd_2"
+   },
+   {
+    "say": "townd_1"
+   }
+  ],
+  "pip": [
+   {
+    "say": "score_pip"
+   }
+  ],
+  "lacey": [
+   {
+    "say": "score_ask"
+   }
+  ]
+ }
+}

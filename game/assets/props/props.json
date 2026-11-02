@@ -1,0 +1,629 @@
+{
+ "ac_unit": {
+  "anchor": [
+   18,
+   30
+  ],
+  "file": "res://assets/props/ac_unit.png",
+  "footprint": [
+   32,
+   10
+  ]
+ },
+ "arcade_cabinet": {
+  "anchor": [
+   14,
+   56
+  ],
+  "file": "res://assets/props/arcade_cabinet.png",
+  "footprint": [
+   24,
+   10
+  ]
+ },
+ "barrel": {
+  "anchor": [
+   9,
+   26
+  ],
+  "file": "res://assets/props/barrel.png",
+  "footprint": [
+   16,
+   8
+  ]
+ },
+ "barrier": {
+  "anchor": [
+   24,
+   29
+  ],
+  "file": "res://assets/props/barrier.png",
+  "footprint": [
+   42,
+   6
+  ]
+ },
+ "bench": {
+  "anchor": [
+   21,
+   22
+  ],
+  "file": "res://assets/props/bench.png",
+  "footprint": [
+   38,
+   6
+  ]
+ },
+ "book_pile": {
+  "anchor": [
+   15,
+   21
+  ],
+  "file": "res://assets/props/book_pile.png",
+  "footprint": [
+   28,
+   8
+  ]
+ },
+ "booth_seat": {
+  "anchor": [
+   33,
+   38
+  ],
+  "file": "res://assets/props/booth_seat.png",
+  "footprint": [
+   62,
+   14
+  ]
+ },
+ "bus_stop": {
+  "anchor": [
+   31,
+   79
+  ],
+  "file": "res://assets/props/bus_stop.png",
+  "footprint": [
+   48,
+   6
+  ]
+ },
+ "car_parked": {
+  "anchor": [
+   50,
+   38
+  ],
+  "file": "res://assets/props/car_parked.png",
+  "footprint": [
+   92,
+   18
+  ]
+ },
+ "car_wreck": {
+  "anchor": [
+   50,
+   39
+  ],
+  "file": "res://assets/props/car_wreck.png",
+  "footprint": [
+   90,
+   18
+  ]
+ },
+ "chimney": {
+  "anchor": [
+   15,
+   48
+  ],
+  "file": "res://assets/props/chimney.png",
+  "footprint": [
+   22,
+   10
+  ]
+ },
+ "counter_arcade": {
+  "anchor": [
+   71,
+   42
+  ],
+  "file": "res://assets/props/counter_arcade.png",
+  "footprint": [
+   140,
+   14
+  ]
+ },
+ "counter_bait": {
+  "anchor": [
+   81,
+   41
+  ],
+  "file": "res://assets/props/counter_bait.png",
+  "footprint": [
+   160,
+   14
+  ]
+ },
+ "counter_canteen": {
+  "anchor": [
+   81,
+   41
+  ],
+  "file": "res://assets/props/counter_canteen.png",
+  "footprint": [
+   160,
+   14
+  ]
+ },
+ "counter_diner": {
+  "anchor": [
+   81,
+   41
+  ],
+  "file": "res://assets/props/counter_diner.png",
+  "footprint": [
+   160,
+   14
+  ]
+ },
+ "counter_noodle": {
+  "anchor": [
+   81,
+   41
+  ],
+  "file": "res://assets/props/counter_noodle.png",
+  "footprint": [
+   160,
+   14
+  ]
+ },
+ "counter_pharmacy": {
+  "anchor": [
+   81,
+   41
+  ],
+  "file": "res://assets/props/counter_pharmacy.png",
+  "footprint": [
+   160,
+   14
+  ]
+ },
+ "counter_shop": {
+  "anchor": [
+   71,
+   41
+  ],
+  "file": "res://assets/props/counter_shop.png",
+  "footprint": [
+   140,
+   14
+  ]
+ },
+ "crate": {
+  "anchor": [
+   12,
+   25
+  ],
+  "file": "res://assets/props/crate.png",
+  "footprint": [
+   22,
+   10
+  ]
+ },
+ "crate_stack": {
+  "anchor": [
+   23,
+   47
+  ],
+  "file": "res://assets/props/crate_stack.png",
+  "footprint": [
+   42,
+   12
+  ]
+ },
+ "desk": {
+  "anchor": [
+   30,
+   40
+  ],
+  "file": "res://assets/props/desk.png",
+  "footprint": [
+   54,
+   12
+  ]
+ },
+ "dumpster": {
+  "anchor": [
+   27,
+   39
+  ],
+  "file": "res://assets/props/dumpster.png",
+  "footprint": [
+   46,
+   14
+  ]
+ },
+ "filing_cabinet": {
+  "anchor": [
+   11,
+   41
+  ],
+  "file": "res://assets/props/filing_cabinet.png",
+  "footprint": [
+   18,
+   8
+  ]
+ },
+ "fish_crate": {
+  "anchor": [
+   12,
+   18
+  ],
+  "file": "res://assets/props/fish_crate.png",
+  "footprint": [
+   22,
+   8
+  ]
+ },
+ "floodlight": {
+  "anchor": [
+   11,
+   88
+  ],
+  "file": "res://assets/props/floodlight.png",
+  "footprint": [
+   6,
+   4
+  ]
+ },
+ "forklift": {
+  "anchor": [
+   31,
+   53
+  ],
+  "file": "res://assets/props/forklift.png",
+  "footprint": [
+   52,
+   16
+  ]
+ },
+ "guard_booth": {
+  "anchor": [
+   23,
+   60
+  ],
+  "file": "res://assets/props/guard_booth.png",
+  "footprint": [
+   38,
+   14
+  ]
+ },
+ "hydrant": {
+  "anchor": [
+   9,
+   23
+  ],
+  "file": "res://assets/props/hydrant.png",
+  "footprint": [
+   10,
+   4
+  ]
+ },
+ "ice_chest": {
+  "anchor": [
+   17,
+   21
+  ],
+  "file": "res://assets/props/ice_chest.png",
+  "footprint": [
+   26,
+   8
+  ]
+ },
+ "ingot_stack": {
+  "anchor": [
+   19,
+   23
+  ],
+  "file": "res://assets/props/ingot_stack.png",
+  "footprint": [
+   34,
+   10
+  ]
+ },
+ "jukebox": {
+  "anchor": [
+   16,
+   45
+  ],
+  "file": "res://assets/props/jukebox.png",
+  "footprint": [
+   28,
+   10
+  ]
+ },
+ "lamp_post": {
+  "anchor": [
+   7,
+   80
+  ],
+  "file": "res://assets/props/lamp_post.png",
+  "footprint": [
+   6,
+   4
+  ]
+ },
+ "lamp_sodium": {
+  "anchor": [
+   14,
+   89
+  ],
+  "file": "res://assets/props/lamp_sodium.png",
+  "footprint": [
+   6,
+   4
+  ]
+ },
+ "lever_panel": {
+  "anchor": [
+   33,
+   57
+  ],
+  "file": "res://assets/props/lever_panel.png",
+  "footprint": [
+   60,
+   12
+  ]
+ },
+ "mailbox": {
+  "anchor": [
+   9,
+   29
+  ],
+  "file": "res://assets/props/mailbox.png",
+  "footprint": [
+   16,
+   6
+  ]
+ },
+ "market_stall_fish": {
+  "anchor": [
+   42,
+   62
+  ],
+  "file": "res://assets/props/market_stall_fish.png",
+  "footprint": [
+   76,
+   14
+  ]
+ },
+ "market_stall_fruit": {
+  "anchor": [
+   42,
+   62
+  ],
+  "file": "res://assets/props/market_stall_fruit.png",
+  "footprint": [
+   76,
+   14
+  ]
+ },
+ "mooring_post": {
+  "anchor": [
+   8,
+   18
+  ],
+  "file": "res://assets/props/mooring_post.png",
+  "footprint": [
+   8,
+   4
+  ]
+ },
+ "neon_post": {
+  "anchor": [
+   11,
+   81
+  ],
+  "file": "res://assets/props/neon_post.png",
+  "footprint": [
+   6,
+   4
+  ]
+ },
+ "newsbox": {
+  "anchor": [
+   8,
+   27
+  ],
+  "file": "res://assets/props/newsbox.png",
+  "footprint": [
+   12,
+   6
+  ]
+ },
+ "oil_drum": {
+  "anchor": [
+   8,
+   25
+  ],
+  "file": "res://assets/props/oil_drum.png",
+  "footprint": [
+   14,
+   6
+  ]
+ },
+ "pallet": {
+  "anchor": [
+   17,
+   16
+  ],
+  "file": "res://assets/props/pallet.png",
+  "footprint": [
+   30,
+   8
+  ]
+ },
+ "phone_booth": {
+  "anchor": [
+   14,
+   67
+  ],
+  "file": "res://assets/props/phone_booth.png",
+  "footprint": [
+   22,
+   8
+  ]
+ },
+ "pipe_stack": {
+  "anchor": [
+   33,
+   32
+  ],
+  "file": "res://assets/props/pipe_stack.png",
+  "footprint": [
+   56,
+   12
+  ]
+ },
+ "planter": {
+  "anchor": [
+   15,
+   25
+  ],
+  "file": "res://assets/props/planter.png",
+  "footprint": [
+   24,
+   8
+  ]
+ },
+ "punching_bag": {
+  "anchor": [
+   17,
+   65
+  ],
+  "file": "res://assets/props/punching_bag.png",
+  "footprint": [
+   16,
+   8
+  ]
+ },
+ "rail_cart": {
+  "anchor": [
+   25,
+   35
+  ],
+  "file": "res://assets/props/rail_cart.png",
+  "footprint": [
+   46,
+   12
+  ]
+ },
+ "sandbags": {
+  "anchor": [
+   25,
+   26
+  ],
+  "file": "res://assets/props/sandbags.png",
+  "footprint": [
+   44,
+   10
+  ]
+ },
+ "shelf": {
+  "anchor": [
+   34,
+   75
+  ],
+  "file": "res://assets/props/shelf.png",
+  "footprint": [
+   64,
+   12
+  ]
+ },
+ "stool": {
+  "anchor": [
+   8,
+   24
+  ],
+  "file": "res://assets/props/stool.png",
+  "footprint": [
+   8,
+   4
+  ]
+ },
+ "tire_stack": {
+  "anchor": [
+   12,
+   31
+  ],
+  "file": "res://assets/props/tire_stack.png",
+  "footprint": [
+   20,
+   8
+  ]
+ },
+ "traffic_cone": {
+  "anchor": [
+   8,
+   17
+  ],
+  "file": "res://assets/props/traffic_cone.png",
+  "footprint": [
+   0,
+   0
+  ]
+ },
+ "training_dummy": {
+  "anchor": [
+   13,
+   55
+  ],
+  "file": "res://assets/props/training_dummy.png",
+  "footprint": [
+   14,
+   8
+  ]
+ },
+ "trash_can": {
+  "anchor": [
+   9,
+   26
+  ],
+  "file": "res://assets/props/trash_can.png",
+  "footprint": [
+   14,
+   6
+  ]
+ },
+ "vending_machine": {
+  "anchor": [
+   15,
+   50
+  ],
+  "file": "res://assets/props/vending_machine.png",
+  "footprint": [
+   26,
+   8
+  ]
+ },
+ "vent": {
+  "anchor": [
+   12,
+   31
+  ],
+  "file": "res://assets/props/vent.png",
+  "footprint": [
+   16,
+   6
+  ]
+ },
+ "workbench": {
+  "anchor": [
+   61,
+   46
+  ],
+  "file": "res://assets/props/workbench.png",
+  "footprint": [
+   116,
+   14
+  ]
+ }
+}

@@ -43,4 +43,9 @@ func build() -> void:
 
 func _apply_text() -> void:
 	get_tree().root.theme = UIKit.build_theme()
+	UIKit.apply(self)
+	var w = host
+	if w and w.get("dialogue"):
+		UIKit.apply(w.dialogue)
+		UIKit.apply(w.hud)
 	rebuild()

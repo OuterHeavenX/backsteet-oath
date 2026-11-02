@@ -51,6 +51,7 @@ var transition_cd := 30
 var rain: Node2D
 var edge_msg_cd := 0
 var max_alive := 6
+var hazards: Array = []           # pending falling crates: {pos, t_end}
 
 # ---------------------------------------------------------------- build
 func build(id: String, spawn: String, w: Node) -> void:
@@ -145,6 +146,19 @@ func _placeholder_parallax() -> Texture2D:
 	img.fill(Color(0.85, 0.55, 0.4))
 	return ImageTexture.create_from_image(img)
 
+const DISTRICT_TINT := {
+	"old_quarter": Color(1.0, 0.93, 0.86), "canal_market": Color(1.0, 1.0, 1.0), "ironworks": Color(1.0, 0.86, 0.76),
+	"neon_mile": Color(0.66, 0.64, 0.86), "floodgate": Color(0.64, 0.7, 0.84), "warehouse": Color(0.78, 0.76, 0.84)
+}
+
+func prop_tint() -> Color:
+	if interior:
+		return Color.WHITE
+	return DISTRICT_TINT.get(district, Color.WHITE)
+
+func actor_tint() -> Color:
+	return Color.WHITE.lerp(prop_tint(), 0.45)
+
 func _build_props() -> void:
 	var contents: Dictionary = enc.get("prop_contents", {})
 	var list: Array = data.get("props", [])
@@ -165,6 +179,7 @@ func _build_props() -> void:
 		var prop := Prop.new()
 		world_node.add_child(prop)
 		prop.setup(self, p.type, Vector2(float(p.x), float(p.y)), i, c)
+		prop.modulate = prop_tint()
 		props.append(prop)
 
 func _build_pickups() -> void:
@@ -214,6 +229,7 @@ func _spawn_facing(spawn: String) -> int:
 func add_actor(a: Actor) -> void:
 	a.room = self
 	world_node.add_child(a)
+	a.modulate = actor_tint()
 	actors.append(a)
 
 func remove_actor(a: Actor) -> void:
@@ -232,7 +248,10 @@ func spawn_enemy(id: String, pos: Vector2, opts: Dictionary = {}) -> Enemy:
 	else:
 		e = Enemy.new()
 		e.room = self
-		e.setup_enemy(id, tier, opts)
+		e.setup_enemy(id, int(opts.get("tier", tier)), opts)
+	if opts.has("hp_mult"):
+		e.max_hp = maxi(1, int(e.max_hp * float(opts.hp_mult)))
+		e.hp = e.max_hp
 	if opts.has("name"):
 		e.named = opts.name
 		e.display_name = opts.name
@@ -334,6 +353,7 @@ func remove_projectile(p: Projectile) -> void:
 func drop_hazard_crate(at: Vector2) -> void:
 	var target := clamp_ground(at + Vector2(randf_range(-10, 10), randf_range(-6, 6)))
 	spawn_fx("target_shadow", target, 0.0, null, 70)
+	hazards.append({"pos": target, "t_end": ticks + 72})
 	Audio.sfx("crate_fall", -4.0)
 	var tw := create_tween()
 	tw.tween_interval(70.0 / 60.0)
@@ -428,6 +448,8 @@ func _physics_process(_delta: float) -> void:
 		hitstop -= 1
 		return
 	_clean_tokens()
+	if not hazards.is_empty():
+		hazards = hazards.filter(func(h): return int(h.t_end) > ticks)
 	for a in actors.duplicate():
 		if is_instance_valid(a) and a.get_parent():
 			if cutscene and a != player and not a.get_meta("cutscene_active", false):
@@ -435,17 +457,44 @@ func _physics_process(_delta: float) -> void:
 			elif a.frozen and not cutscene and not a.get_meta("scripted_freeze", false):
 				a.frozen = false
 			a.tick()
+	_separate_bodies()
 	for p in projectiles.duplicate():
 		p.tick()
 	for p in pickups.duplicate():
 		p.tick()
 	if not cutscene:
+		_update_events()
 		_update_waves()
 		_check_exits()
 	if parallax:
 		var vw := view_width()
 		parallax.position = Vector2(cam_left(), 0)
 		parallax.region_rect = Rect2(cam_left() * 0.25, 0, vw, parallax.texture.get_height())
+
+## Keeps fighters from standing inside each other (enemies yield to the player).
+func _separate_bodies() -> void:
+	var n := actors.size()
+	for i in n:
+		var a: Actor = actors[i]
+		if a.dead or a.lying or a.state in ["carried", "thrown", "knockdown"] or a.team == Actor.TEAM_NEUTRAL or a.is_airborne():
+			continue
+		for j in range(i + 1, n):
+			var b: Actor = actors[j]
+			if b.dead or b.lying or b.state in ["carried", "thrown", "knockdown"] or b.team == Actor.TEAM_NEUTRAL or b.is_airborne():
+				continue
+			var dx := b.position.x - a.position.x
+			var dy := b.position.y - a.position.y
+			var min_x := (a.half_w + b.half_w) * 0.75
+			if absf(dy) < 7.0 and absf(dx) < min_x:
+				var push := (min_x - absf(dx)) * 0.5
+				var dir := signf(dx) if dx != 0.0 else (1.0 if i % 2 == 0 else -1.0)
+				if a == player:
+					b.position = move_actor(b, Vector2(dir * push * 2.0, 0))
+				elif b == player:
+					a.position = move_actor(a, Vector2(-dir * push * 2.0, 0))
+				else:
+					a.position = move_actor(a, Vector2(-dir * push, 0))
+					b.position = move_actor(b, Vector2(dir * push, 0))
 
 func view_width() -> float:
 	return get_viewport_rect().size.x
@@ -499,12 +548,23 @@ func move_actor(a: Actor, d: Vector2) -> Vector2:
 		left = -80.0
 		right = width + 80.0
 	nx = clampf(nx, left, right)
-	if a.state != "thrown" and _blocked_box(nx, p.y, hw, a):
-		nx = p.x
 	var ny := clampf(p.y + d.y, walk_top, walk_bot)
-	if a.state != "thrown" and _blocked_box(nx, ny, hw, a):
+	if a.state == "thrown" or _blocked_box(p.x, p.y, hw, a):
+		return Vector2(nx, ny)  # never trap anything already overlapping geometry
+	if _blocked_box(nx, p.y, hw, a):
+		nx = p.x
+	if _blocked_box(nx, ny, hw, a):
 		ny = p.y
 	return Vector2(nx, ny)
+
+## A random walkable depth at x (avoids water and solid props).
+func free_y(x: float) -> float:
+	var cx := clampf(x, 12.0, width - 12.0)
+	for i in 16:
+		var y := randf_range(walk_top + 6, walk_bot - 6)
+		if not _blocked_box(cx, y, 8.0, null):
+			return y
+	return clamp_ground(Vector2(cx, (walk_top + walk_bot) * 0.5)).y
 
 func _blocked_box(x: float, y: float, hw: float, _a: Actor) -> bool:
 	var box := Rect2(x - hw, y - 2.0, hw * 2.0, 4.0)
@@ -598,6 +658,13 @@ func enemies_alive() -> int:
 			n += 1
 	return n
 
+func _visible_enemies() -> int:
+	var n := 0
+	for t in actors:
+		if t is Enemy and t.team == Actor.TEAM_ENEMY and not t.dead and on_screen(t, -30):
+			n += 1
+	return n
+
 func combat_active() -> bool:
 	return enemies_alive() > 0
 
@@ -634,9 +701,32 @@ func _update_waves() -> void:
 		_start_wave(wv)
 	var bcfg: Dictionary = enc.get("boss", {})
 	if not bcfg.is_empty() and not boss_active and not GameState.has_flag("boss_" + bcfg.id):
-		if (not bcfg.has("requires") or GameState.check(bcfg.requires)) and player.position.x >= float(bcfg.get("at", 0)) and enemies_alive() == 0:
+		if (not bcfg.has("requires") or GameState.check(bcfg.requires)) and player.position.x >= float(bcfg.get("at", 0)) and _visible_enemies() == 0 and wave_queue.is_empty():
+			# stragglers that wandered off-screen leave the arena instead of blocking the fight
+			for t in actors.duplicate():
+				if t is Enemy and t.team == Actor.TEAM_ENEMY and not t.dead:
+					remove_actor(t)
+			active_waves.clear()
 			boss_active = true
 			Story.start_boss(self, bcfg)
+
+var fired_events: Dictionary = {}
+func _update_events() -> void:
+	if player == null or Story.busy or (world and world.dialogue_active()):
+		return
+	for ev in enc.get("events", []):
+		var eid: String = ev.id
+		if fired_events.has(eid):
+			continue
+		if ev.has("requires") and not GameState.check(ev.requires):
+			continue
+		if ev.has("hide_if") and GameState.check(ev.hide_if):
+			continue
+		if player.position.x < float(ev.get("at", 0)):
+			continue
+		fired_events[eid] = true
+		Story.on_event(self, eid)
+		return
 
 func _start_wave(wv: Dictionary) -> void:
 	active_waves[wv.id] = true
@@ -667,7 +757,6 @@ func _start_wave(wv: Dictionary) -> void:
 		world.toast(wv.say)
 
 func _spawn_wave_enemy(def: Dictionary, wid: String, from: String) -> void:
-	var y := randf_range(walk_top + 6, walk_bot - 6)
 	var x: float
 	var entering := true
 	if from == "left":
@@ -678,6 +767,7 @@ func _spawn_wave_enemy(def: Dictionary, wid: String, from: String) -> void:
 		x = cam_right() + 24.0
 		if x > width - 10.0:
 			x = width - 10.0
+	var y := free_y(x)
 	if from == "back":
 		x = clampf(player.position.x + randf_range(-140, 140), 20, width - 20)
 		y = walk_top + 2
@@ -687,9 +777,6 @@ func _spawn_wave_enemy(def: Dictionary, wid: String, from: String) -> void:
 	var e := spawn_enemy(def.id, clamp_ground(Vector2(x, y)) if not entering else Vector2(x, y), opts)
 	e.entering = entering and not on_screen(e, 20)
 	e.leash = true
-	if def.has("hp_mult"):
-		e.max_hp = int(e.max_hp * float(def.hp_mult))
-		e.hp = e.max_hp
 
 func lock_exits(on: bool, reason: String = "") -> void:
 	exits_locked = on
@@ -743,6 +830,12 @@ func _check_boss_done() -> void:
 	for b in boss_actors:
 		if is_instance_valid(b) and not b.dead and actors.has(b):
 			return
+	if boss_active and not boss_actors.is_empty() and boss_cfg.is_empty():
+		# scripted fight (setback sergeant, Jett duel): the story coroutine handles the aftermath
+		boss_active = false
+		boss_actors.clear()
+		world.boss_bar(null)
+		return
 	if boss_active and not boss_actors.is_empty():
 		boss_active = false
 		var ids: Array = []
@@ -753,7 +846,7 @@ func _check_boss_done() -> void:
 		for t in actors.duplicate():
 			if t is Enemy and not t.is_boss and not t.ally and not t.dead and t.team == Actor.TEAM_ENEMY:
 				t.hp = 0
-				t.take_damage_and_react(hazard_actor, {"knockdown": true, "kb": 100, "launch": 120}, 0.0, 1 if t.position.x > player.position.x else -1)
+				t.take_damage_and_react(hazard_actor, {"knockdown": true, "kb": 100, "launch": 120}, 0.0, 1 if t.position.x > player.position.x else -1, false)
 		lock_exits(false)
 		world.boss_bar(null)
 		Story.boss_defeated(self, boss_cfg, ids)

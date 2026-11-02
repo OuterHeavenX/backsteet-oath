@@ -83,4 +83,10 @@ func move_label() -> String:
 	match kind:
 		"gamepad": return "Left Stick / D-Pad"
 		"touch": return "Left Pad"
-		_: return "/".join(Settings.key_names("move_up")) + " " + "/".join(Settings.key_names("move_left")) + " " + "/".join(Settings.key_names("move_down")) + " " + "/".join(Settings.key_names("move_right"))
+		_:
+			var k := []
+			for a in ["move_up", "move_left", "move_down", "move_right"]:
+				var n := Settings.key_names(a)
+				k.append(n[0] if n.size() > 0 else "?")
+			var s := "".join(k)
+			return ("WASD or arrow keys" if s == "WASD" else s)
