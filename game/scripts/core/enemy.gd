@@ -242,7 +242,7 @@ func _attack_range(id: String) -> Vector2:
 		return Vector2(80, 230)
 	if id in ["e_charge", "otto_charge", "rook_dash", "jett_dash", "sabine_bash"]:
 		return Vector2(60, 200)
-	if id in ["e_jump_kick", "jett_flip"]:
+	if id in ["e_jump_kick", "jett_flip", "lou_hop"]:
 		return Vector2(46, 110)
 	var xr: Array = d.get("x", [4, 28])
 	return Vector2(maxf(float(xr[0]), 6.0), float(xr[1]) - 3.0)

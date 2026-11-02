@@ -161,62 +161,59 @@ func on_attack_end() -> void:
 			if script_id == "lou":
 				tired = 10
 
+## Weighted movesets: [attack, weight, preferred min distance, preferred max distance].
+## The boss steers into range for whatever it picks, so variety comes from weights, cooldowns
+## and a repeat penalty rather than from reading the player's inputs.
+const MOVESETS := {
+	"duke": [["duke_chain", 3.0, 36, 90], ["duke_spin", 2.0, 0, 60], ["e_charge", 1.5, 100, 400], ["e_cross", 1.5, 0, 45]],
+	"rhea": [["pike_pole", 3.0, 40, 90], ["pike_sweep", 2.0, 0, 70], ["e_kick", 1.2, 0, 45], ["e_charge", 1.0, 100, 400]],
+	"lou": [["e_throw", 3.0, 90, 300], ["lou_lob", 2.0, 90, 300], ["e_kick", 1.5, 0, 50], ["lou_hop", 1.2, 40, 120]],
+	"otto": [["otto_haymaker", 3.0, 0, 50], ["otto_slam", 2.0, 0, 110], ["otto_charge", 1.5, 100, 400], ["e_grab", 1.2, 0, 40]],
+	"jett": [["jett_flip", 2.5, 40, 120], ["jett_dash", 2.0, 90, 400], ["jett_combo", 2.5, 0, 50]],
+	"sabine": [["sabine_baton", 3.0, 0, 50], ["sabine_bash", 2.0, 60, 250], ["e_hook", 1.2, 0, 40], ["e_kick", 1.0, 0, 45]],
+	"heavy": [["e_heavy_punch", 3.0, 0, 45], ["e_grab", 1.5, 0, 40], ["e_charge", 1.5, 90, 400]],
+	"rook1": [["rook_jab", 3.0, 0, 40], ["rook_combo", 2.0, 0, 45], ["rook_uppercut", 1.5, 0, 40], ["rook_dash", 1.5, 100, 400]],
+	"rook2": [["rook_pipe", 3.0, 0, 60], ["rook_pound", 1.5, 0, 120], ["rook_dash", 1.5, 100, 400], ["rook_uppercut", 1.2, 0, 40], ["rook_combo", 1.0, 0, 45]],
+}
+var last_attacks: Array = []
+
 func choose_attack() -> String:
+	var key := script_id
+	if script_id == "rook":
+		key = "rook1" if phase == 1 else "rook2"
+	if not MOVESETS.has(key):
+		return super.choose_attack()
 	var dist := absf(target.position.x - position.x) if target else 999.0
-	var r := randf()
-	match script_id:
-		"duke":
-			if dist < 46:
-				return "duke_spin" if r < 0.45 and not cooldowns.has("duke_spin") else "e_cross"
-			if dist > 120 and not cooldowns.has("e_charge"):
-				return "e_charge"
-			return "duke_chain"
-		"rhea":
-			if dist < 40:
-				return "pike_sweep" if r < 0.5 else "e_kick"
-			return "pike_pole" if r < 0.7 else "pike_sweep"
-		"lou":
-			if dist < 50:
-				return "e_kick"
-			return "e_throw"
-		"otto":
-			if target and target.state == "guard" and dist < 40:
-				return "e_grab"
-			if dist < 44:
-				return "otto_haymaker" if r < 0.6 else ("otto_slam" if not cooldowns.has("otto_slam") else "e_grab")
-			if dist > 110 and not cooldowns.has("otto_charge"):
-				return "otto_charge"
-			return "otto_slam" if not cooldowns.has("otto_slam") else "otto_haymaker"
-		"jett":
-			if dist < 44:
-				return "jett_combo"
-			if dist > 120 and not cooldowns.has("jett_dash"):
-				return "jett_dash"
-			return "jett_flip"
-		"sabine":
-			if dist < 46:
-				return "sabine_baton"
-			return "sabine_bash" if not cooldowns.has("sabine_bash") else "sabine_baton"
-		"rook":
-			if phase == 1:
-				if dist < 40:
-					return ["rook_jab", "rook_combo", "rook_uppercut"][int(r * 3.0) % 3]
-				if dist > 110 and not cooldowns.has("rook_dash"):
-					return "rook_dash"
-				return "rook_jab" if r < 0.5 else "rook_combo"
-			if dist < 50:
-				return "rook_pipe" if r < 0.55 else ("rook_pound" if not cooldowns.has("rook_pound") else "rook_uppercut")
-			if dist > 110 and not cooldowns.has("rook_dash"):
-				return "rook_dash"
-			return "rook_pound" if not cooldowns.has("rook_pound") and r < 0.4 else "rook_pipe"
-		"heavy":
-			if dist < 40:
-				return "e_heavy_punch" if r < 0.6 else "e_grab"
-			return "e_charge" if dist > 100 else "e_heavy_punch"
-	return super.choose_attack()
+	if script_id == "otto" and target and target.state == "guard" and dist < 40 and not cooldowns.has("e_grab"):
+		return "e_grab"
+	var total := 0.0
+	var opts: Array = []
+	for m in MOVESETS[key]:
+		var id: String = m[0]
+		if cooldowns.has(id):
+			continue
+		var wgt: float = m[1]
+		wgt *= 1.6 if dist >= float(m[2]) and dist <= float(m[3]) else 0.6
+		if last_attacks.size() > 0 and last_attacks[-1] == id:
+			wgt *= 0.25
+		if last_attacks.size() > 1 and last_attacks[-2] == id:
+			wgt *= 0.6
+		opts.append([id, wgt])
+		total += wgt
+	if opts.is_empty():
+		return MOVESETS[key][0][0]
+	var r := randf() * total
+	for o in opts:
+		r -= float(o[1])
+		if r <= 0.0:
+			return o[0]
+	return opts[-1][0]
 
 func _launch_attack(id: String) -> void:
 	super._launch_attack(id)
+	last_attacks.append(id)
+	if last_attacks.size() > 3:
+		last_attacks.pop_front()
 	match id:
 		"otto_slam", "rook_pound":
 			cooldowns[id] = 260
@@ -226,10 +223,8 @@ func _launch_attack(id: String) -> void:
 			cooldowns[id] = 220
 		"e_throw":
 			cooldowns[id] = 50 if script_id == "lou" else 90
-			if script_id == "lou" and randf() < 0.35:
-				throw_item = "crate"
-			elif script_id == "lou":
-				throw_item = "fish"
+		"lou_lob":
+			cooldowns[id] = 160
 
 func _attack_state() -> void:
 	super._attack_state()
@@ -238,7 +233,7 @@ func _attack_state() -> void:
 		room.shake(4)
 
 func spawn_projectile() -> void:
-	if script_id == "lou" and throw_item == "crate" and target:
+	if atk_id == "lou_lob" and target:
 		room.spawn_lob(self, "crate", target.position)
 		return
 	super.spawn_projectile()
