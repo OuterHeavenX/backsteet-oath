@@ -40,6 +40,8 @@ func setup(r: Node, t: String, pos: Vector2, idx: int, cont: Dictionary) -> void
 	add_child(spr)
 	var fp: Array = meta.get("footprint", [tex.get_width() - 4, 8])
 	footprint = Vector2(float(fp[0]), float(fp[1]))
+	if t.begins_with("counter") or t == "workbench":
+		footprint.y = maxf(footprint.y, position.y - float(room.walk_top) + 2.0)
 	half_w = maxf(footprint.x / 2.0, 6.0)
 	depth_r = maxf(footprint.y / 2.0, 3.0)
 	if BREAKABLE.has(t) and int(BREAKABLE[t]) > 0:

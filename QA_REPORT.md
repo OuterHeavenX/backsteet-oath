@@ -1,4 +1,4 @@
-# QA Report (1.0.0-rc2)
+# QA Report (1.0.0-rc3)
 
 **Test environment (all results below):** Linux x86_64 VM, 4 vCPU, 15 GB RAM, no GPU; Godot 4.7.2-stable official
 editor binary for tests and the official export templates. Rendering: Mesa llvmpipe (OpenGL 4.5, software)
@@ -25,6 +25,7 @@ Bug classification: **blocker** = prevents completion or crashes; **major** = si
 | Browser audio activation | Title waits for first key/click/tap before music (`Audio.unlocked`) | Implemented; no audio device to listen |
 | Browser console errors | Captured during boot, menus, fight, status, reload | **None** (only engine banner lines) |
 | Tablet landscape + touch (rc2) | iPad Pro 11 landscape emulation (1194×834): tap to start, menus, tap/skip dialogue, multi-touch fight, BAG → Back | **Pass:** street on top, control deck below with no overlap, controls dimmed during dialogue, Back button closes menus. *Emulation only* |
+| Tablet 4:3 choice dialog (rc3) | 1024×768 render with touch controls forced on: Coach Benny's Shop/Chat/Leave choice | **Pass:** all options visible above the control deck; deck dimmed and drawn beneath |
 | Mobile landscape + touch | Pixel 7 landscape emulation, CDP multi-touch: stick + PUNCH held together | **Pass:** controls auto-appear, simultaneous move/attack registered, page scroll offset 0. *Emulation only; not a real phone* |
 | Portrait orientation | Rotate overlay pauses without losing state | Implemented; not tested on a real phone |
 | Linux package | Release zip extracted to a path with spaces, launched via `start.sh` under X11/Mesa | **Pass:** exec bits preserved, clean exit, no absolute paths |

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-rc3 (2026-11-02): tablet dialogue fix (tester feedback)
+- Conversation boxes with choices (shopkeepers' Shop / Chat / Leave, quest questions) now grow upward from the
+  bottom of the street, so every option stays visible above the touch control deck.
+- The touch control deck always draws underneath the HUD and dialogue.
+- Shop counters block the space behind them, so Nico can no longer walk behind or "onto" a counter.
+
 ## 1.0.0-rc2 (2026-11-02): touch & device identity pass (tester feedback)
 - **Tablets:** the street sits on top and the touch controls get their own deck underneath (no overlap).
   The screen now fills taller displays instead of letterboxing.

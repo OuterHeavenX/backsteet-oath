@@ -8,6 +8,9 @@ func _ready() -> void:
 		out = "user://shots"
 	DirAccess.make_dir_recursive_absolute(out)
 	Audio.unlocked = true
+	if OS.get_environment("SHOT_TOUCH") != "":
+		Settings.touch_controls = "on"
+		InputPrompts.kind = "touch"
 	var room_id := OS.get_environment("SHOT_ROOM")
 	GameState.reset_new_game()
 	if room_id != "":

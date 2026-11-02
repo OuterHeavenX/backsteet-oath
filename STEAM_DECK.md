@@ -3,7 +3,7 @@
 Backstreet Oath ships a **native Linux x86_64** build. It does not need Proton.
 
 ## Install (Desktop Mode)
-1. Copy `backstreet-oath-v1.0.0-rc2-linux-x86_64.zip` to the Deck and extract it (e.g. to `~/Games/BackstreetOath`).
+1. Copy `backstreet-oath-v1.0.0-rc3-linux-x86_64.zip` to the Deck and extract it (e.g. to `~/Games/BackstreetOath`).
 2. Make sure the launcher is executable: right-click `start.sh` → Properties → Permissions → *Is executable*
    (or in Konsole: `chmod +x start.sh BackstreetOath.x86_64`).
 3. Steam → *Games* → *Add a Non-Steam Game to My Library* → *Browse* → pick `start.sh` (or `BackstreetOath.x86_64`).

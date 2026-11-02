@@ -33,6 +33,7 @@ func _ready() -> void:
 	touch = TouchControls.new()
 	touch.world = self
 	ui_layer.add_child(touch)
+	ui_layer.move_child(touch, 0)   # controls/deck render beneath the HUD and dialogue
 	touch.layout_changed.connect(_layout_ui)
 	get_viewport().size_changed.connect(_layout_ui)
 	menu_layer = CanvasLayer.new()

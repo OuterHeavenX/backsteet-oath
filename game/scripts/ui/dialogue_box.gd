@@ -37,6 +37,7 @@ func _ready() -> void:
 	panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(600, 84)
 	UIKit.place(panel, Control.PRESET_CENTER_BOTTOM, -300, -92, 600, 84)
+	panel.grow_vertical = Control.GROW_DIRECTION_BEGIN   # extra lines/choices grow upward, never into the control deck
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.gui_input.connect(_on_panel_input)
 	add_child(panel)
