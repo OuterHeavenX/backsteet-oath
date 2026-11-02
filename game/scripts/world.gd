@@ -61,6 +61,8 @@ var debug_fps := false
 var _fps_t := 0.0
 var _frame_max_ms := 0.0
 func _process(delta: float) -> void:
+	# count gameplay frames only: not paused, not mid-transition, and not the first second after a room loads
+	PerfStats.tick(delta, not get_tree().paused and room != null and not transitioning and not SceneFlow.busy and room.ticks > 60)
 	if not debug_fps:
 		return
 	_fps_t += delta
@@ -233,6 +235,12 @@ func boss_bar(bosses) -> void:
 			hud.show_card(key, sub)
 			if room:
 				room.impulse(Vector2(0, 1), 1.2)
+
+## End-of-game card (run stats + device performance); returns when the player continues to the credits.
+func show_run_summary() -> void:
+	var m := RunSummaryMenu.new()
+	push_menu(m)
+	await m.closed
 
 ## Boss phase change: flash, a short slow-motion beat and a camera kick. Gameplay state is not altered.
 func phase_beat() -> void:

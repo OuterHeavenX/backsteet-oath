@@ -4,7 +4,7 @@ An original 2D belt-scrolling action RPG set in Bellwether, a fictional late-198
 Walk the streets with depth, punch, kick and jump, grab whatever's lying around, buy food and fighting
 manuals, level up, and take your neighborhood back from the man in the gray coat.
 
-**Version:** 1.1.0-rc1 (visual upgrade of 1.0.0-rc3/rc4; feature-complete and tested by automated play; no human playtest yet)
+**Version:** 1.1.0-rc2 (visual upgrade of 1.0.0-rc3/rc4; feature-complete and tested by automated play; no human playtest yet)
 **Engine:** Godot **4.7.2-stable** (official build), GDScript, Compatibility renderer (WebGL 2 / OpenGL 3.3)
 **Platforms:** Web (HTML5, itch.io), Linux x86_64 (Steam Deck native), Windows x86_64 (built, not run-tested)
 
@@ -49,7 +49,7 @@ godot --headless --import
 godot --headless --export-release "Web" ../build/web/index.html
 godot --headless --export-release "Linux" ../build/linux/BackstreetOath.x86_64
 godot --headless --export-release "Windows" ../build/windows/BackstreetOath.exe
-python3 ../tools/package.py 1.1.0-rc1   # versioned zips in release/
+python3 ../tools/package.py 1.1.0-rc2   # versioned zips in release/
 ```
 Regenerate the v2 art (Python 3 + Pillow + numpy; `pip install imagequant` for the final optimisation step):
 ```bash

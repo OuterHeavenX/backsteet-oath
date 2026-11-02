@@ -754,6 +754,7 @@ func _rook_ending(room: Node) -> void:
 	GameState.hp = GameState.max_hp()
 	SaveService.save_game()
 	credits_return = "world"
+	await world.show_run_summary()
 	busy = false
 	SceneFlow.goto("res://scenes/credits.tscn", 1.0)
 

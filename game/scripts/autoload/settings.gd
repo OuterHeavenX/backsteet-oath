@@ -46,6 +46,7 @@ var touch_controls := "auto"     # auto / on / off
 var show_hints := true
 var effects := "full"            # "full" or "reduced" (fewer particles, no cast shadows/reflections/ambient)
 var cinematic_bars := true
+var show_fps := false
 var bindings: Dictionary = {}    # action -> {"keys": [...], "pad": [...]}
 
 func _ready() -> void:
@@ -196,6 +197,7 @@ func load_settings() -> void:
 	var fx_q: String = str(cfg.get_value("display", "effects", effects))
 	effects = fx_q if fx_q in ["full", "reduced"] else "full"
 	cinematic_bars = bool(cfg.get_value("display", "cinematic_bars", cinematic_bars))
+	show_fps = bool(cfg.get_value("display", "show_fps", show_fps))
 	var saved_b = cfg.get_value("input", "bindings", {})
 	if typeof(saved_b) == TYPE_DICTIONARY:
 		for a in saved_b:
@@ -224,6 +226,7 @@ func save_settings() -> void:
 	cfg.set_value("display", "fullscreen", fullscreen)
 	cfg.set_value("display", "effects", effects)
 	cfg.set_value("display", "cinematic_bars", cinematic_bars)
+	cfg.set_value("display", "show_fps", show_fps)
 	cfg.save(PATH)
 	changed.emit()
 

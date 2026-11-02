@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0-rc2 (2026-11-02): playtest reporting
+- **Show FPS** (Settings): a small corner readout with the current frame rate and the slowest recent frame, coloured
+  green at 55 FPS and above, amber at 30 FPS and above, red below that.
+- **Run summary card** after the ending, before the credits. It shows the run (play time, difficulty, level,
+  enemies, knockouts, meals, cash, side jobs) and how the game ran on this device:
+  - average FPS, share of frames under 30 FPS, slowest frame;
+  - effects setting, window and view size, version;
+  - OS and GPU/driver.
+
+  Frames are counted only during gameplay: not paused, not during room transitions, and not in the first second
+  after a room loads. Screenshot the card to report a playtest.
+
 ## 1.1.0-rc1 (2026-11-02): visual upgrade
 The same game, redrawn. Story, quests, combat timing, controls and saves are unchanged; rc1–rc4 saves load.
 - **One art direction:** inked, cel-shaded 2D illustration at 2× density, rendered at window resolution

@@ -1,4 +1,4 @@
-# Known Issues & Limitations (1.1.0-rc1)
+# Known Issues & Limitations (1.1.0-rc2)
 
 No known blocker or major bugs remain in the main campaign or on the tested platforms. The automated campaign
 run, feature tests, quest tests and unit tests all pass on the visual-upgrade build.
@@ -7,7 +7,7 @@ run, feature tests, quest tests and unit tests all pass on the visual-upgrade bu
 - **Human playtest not performed.** The campaign duration (target: 60+ minutes of active play) is an estimate
   based on automated runs of 47–49 in-game minutes; see PLAYTHROUGH_REPORT.md. This is the reason for the `-rc`
   label.
-- **No GPU performance measurement.** Every measurement so far ran on a GPU-less VM using software rendering, at
+- **No GPU performance measurement yet.** Players can now report it from the run summary card or with Settings → Show FPS. Every measurement so far ran on a GPU-less VM using software rendering, at
   28–47 FPS for 1.1.0 against 117–140 FPS for rc4 (see docs/visual/UPGRADE_REPORT.md). The new art renders at
   window resolution, so it needs about 4× the pixel fill of rc3. Real GPUs are expected to hold 60 FPS, but nobody
   has measured that, including on a Steam Deck. *Effects: Reduced* is the fallback for slow devices.

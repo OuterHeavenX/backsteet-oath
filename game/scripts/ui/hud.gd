@@ -47,6 +47,8 @@ var card_t := 0.0
 var card_name := ""
 var card_sub := ""
 var flash_rect: ColorRect
+var fps_label: Label
+var _fps_upd := 0.0
 const BAR_H := 30.0
 
 func _init() -> void:
@@ -148,6 +150,12 @@ func _ready() -> void:
 	flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(flash_rect)
 
+	fps_label = UIKit.outlined(UIKit.num_label("", UIKit.CREAM, 10), 3)
+	UIKit.place(fps_label, Control.PRESET_TOP_LEFT, 8, 58, 220, 12)
+	fps_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fps_label.visible = false
+	add_child(fps_label)
+
 	timer_label = UIKit.heading("", UIKit.MUSTARD)
 	UIKit.place(timer_label, Control.PRESET_CENTER_TOP, -60, 8, 120, 16)
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -231,6 +239,14 @@ func _process(delta: float) -> void:
 		set_prompt(p.current_context_text() if not world.dialogue_active() and InputPrompts.kind != "touch" else "")
 	_update_boss()
 	_update_cinema(delta)
+	fps_label.visible = Settings.show_fps
+	if Settings.show_fps:
+		_fps_upd -= delta
+		if _fps_upd <= 0.0:
+			_fps_upd = 0.5
+			var f := PerfStats.shown_fps
+			fps_label.text = "%d FPS  ·  slowest %d ms" % [int(round(f)), int(round(PerfStats.shown_worst))]
+			fps_label.add_theme_color_override("font_color", UIKit.CASHC if f >= 55.0 else (UIKit.MUSTARD if f >= 30.0 else UIKit.DANGER))
 	var right_pad := 84.0 if world and world.touch and world.touch.visible and not world.touch.docked else 6.0
 	if obj_label.offset_right != -right_pad:
 		obj_label.offset_right = -right_pad
