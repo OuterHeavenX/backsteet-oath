@@ -1,0 +1,291 @@
+{
+ "room": "fr_bridge",
+ "width": 1760,
+ "density": 2,
+ "layers": [
+  {
+   "name": "sky",
+   "files": [
+    "../_district/floodgate_sky.png"
+   ],
+   "parallax": 0.05,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "far",
+   "files": [
+    "../_district/floodgate_far.png"
+   ],
+   "parallax": 0.25,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "mid",
+   "files": [
+    "../_district/floodgate_mid.png"
+   ],
+   "parallax": 0.5,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_jersey.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_jersey.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_jersey.png",
+   "x": 1540.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 560.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 1320.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#c8e0e4",
+ "rim": {
+  "color": "#a8e8f0",
+  "dir": [
+   0.3,
+   1.0
+  ],
+  "strength": 0.4
+ },
+ "glows": [
+  {
+   "x": 410,
+   "y": 137,
+   "r": 38,
+   "color": "#ffb050",
+   "energy": 0.65,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 410,
+   "y": 167,
+   "r": 51.3,
+   "color": "#ffb050",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 910,
+   "y": 137,
+   "r": 38,
+   "color": "#ffb050",
+   "energy": 0.65,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 910,
+   "y": 167,
+   "r": 51.3,
+   "color": "#ffb050",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 1410,
+   "y": 137,
+   "r": 38,
+   "color": "#ffb050",
+   "energy": 0.65,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1410,
+   "y": 167,
+   "r": 51.3,
+   "color": "#ffb050",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "drip",
+   "x": 528.0,
+   "y": 120.0,
+   "rate": 0.5
+  },
+  {
+   "type": "water_shimmer",
+   "x": 0.0,
+   "y": 150.0,
+   "w": 1760.0,
+   "h": 40.0
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    1008.5,
+    295.8,
+    63.6,
+    8.3
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1333.0,
+    318.0,
+    43.9,
+    5.2
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    761.6,
+    256.9,
+    61.0,
+    8.8
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    129.6,
+    297.4,
+    38.3,
+    5.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    754.5,
+    257.9,
+    52.4,
+    5.3
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    22.2,
+    270.9,
+    63.5,
+    5.3
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    797.3,
+    276.5,
+    48.9,
+    8.8
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    39.1,
+    279.6,
+    28.9,
+    7.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    755.1,
+    293.0,
+    64.6,
+    8.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1544.4,
+    316.4,
+    63.6,
+    9.2
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    639.4,
+    296.4,
+    50.4,
+    8.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    106.6,
+    257.6,
+    47.5,
+    6.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    0.0,
+    218.0,
+    1760.0,
+    126.0
+   ],
+   "alpha": 0.2
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.2
+  ],
+  "alpha": 0.0
+ }
+}

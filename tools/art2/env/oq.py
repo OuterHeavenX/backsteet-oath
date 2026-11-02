@@ -411,6 +411,11 @@ def f_alley_gap(R, x0, w, f):
     for k in range(3):
         cable(cv, x0 - 4, top + 6 + k * 16, x0 + w + 4, top + 10 + k * 16, sag=6 + k * 2, w=0.5, col='#140e18')
     R.ambient.append({"type": "steam", "x": round(x0 + w * 0.55, 1), "y": round(by1 - 2, 1), "rate": 0.6})
+    if f.get('sign'):
+        sx = x0 + w / 2
+        cv.rect(sx - 34, top + 6, 68, 14, C('#1a1020'), ink=C('#06040a'), iw=MAJOR)
+        neon_text(cv, f['sign'], sx, top + 13.5, 6.5, C('#ff4ab0'), tracking=0.4, glow=0.45)
+        R.glow(sx, top + 13, 44, '#ff4ab0', 0.45, 'neon')
     # cat on the dumpster lid (environmental life)
     cx, cy = back_l + 7, by1 - 9
     cv.ellipse(cx, cy - 1.6, 2.4, 1.6, C('#1a1420'))

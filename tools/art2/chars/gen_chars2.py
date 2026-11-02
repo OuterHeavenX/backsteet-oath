@@ -38,7 +38,7 @@ DEN = 2
 PAD = 8                    # transparent padding between packed rects and to the atlas edge (>= 6 tx)
 
 BENCHMARK = ['nico', 'dogs_brawler', 'dogs_flanker', 'duke', 'dot', 'towna', 'townd']
-BENCH_PORTRAITS = ['nico', 'dot', 'duke', 'dogs_weapon']
+BENCH_PORTRAITS = ['nico', 'dot', 'duke', 'dogs']
 
 # v2 spec extensions (bosses read bigger; everything else inherits v1 identity)
 EXT = {
@@ -67,8 +67,25 @@ def spec_for(cid):
     return s
 
 
+GANG_STYLE = {'brawler': 'brawler', 'flanker': 'flanker', 'blocker': 'blocker', 'heavy': 'heavy', 'weapon': 'weapon',
+              'thrower': 'thrower'}
+STORY_STYLE = {'nico': 'hero', 'mara': 'hero', 'eli': 'hero', 'benny': 'brawler', 'price': 'blocker', 'duke': 'heavy',
+               'otto': 'heavy', 'jett': 'flanker', 'rhea': 'weapon', 'sabine': 'weapon', 'lou': 'thrower',
+               'rook': 'hero', 'rook_p2': 'brawler'}
+SIG = {'duke': 'duke', 'otto': 'otto', 'grays_heavy': 'sergeant', 'jett': 'jett', 'rhea': 'rhea', 'lou': 'lou',
+       'sabine': 'sabine', 'rook': 'rook', 'rook_p2': 'rook_p2'}
+
+
+def style_for(cid):
+    if '_' in cid and cid.split('_', 1)[0] in V1.GANG_NAMES:
+        return GANG_STYLE.get(cid.split('_', 1)[1], 'brawler')
+    return STORY_STYLE.get(cid, 'hero')
+
+
 def anims_for(spec):
-    return poses.civilian_anims() if spec.get('civilian') else poses.fighter_anims()
+    if spec.get('civilian'):
+        return poses.civilian_anims()
+    return poses.fighter_anims(style_for(spec['id']), SIG.get(spec['id']))
 
 
 # ----------------------------------------------------------------------------- secondary motion
@@ -161,7 +178,7 @@ def render_frame(args):
     crop = img.crop((x_0, y_0, x_1, y_1))
     p = s.pose
     hand = [round(s.fist_n[0] * DEN, 1), round(s.fist_n[1] * DEN, 1), round(float(p['wang']), 1),
-            0 if p['near_arm_back'] else 1]
+            0 if (p['near_arm_back'] or p.get('near_arm_under')) else 1]
     head = [round(s.head_c[0] * DEN, 1), round(s.head_c[1] * DEN, 1)]
     meta = dict(ox=int(x_0 - round(ox)), oy=int(y_0 - round(oy)), hand=hand, head=head,
                 feet=[(s.ank_n[0], s.ank_n[1]), (s.ank_f[0], s.ank_f[1])], lift=(p['lift_n'] or p['fn'][1] < -0.6,
@@ -251,6 +268,63 @@ def build_character(cid, pool, preview=None):
     return js
 
 
+def _dog_frame(args):
+    name, idx = args
+    import dog
+    A = dog.anims()
+    cv = dog.render(A[name]['frames'][idx], den=DEN)
+    img = cv.downsample()
+    ox, oy = cv.origin_tx()
+    a = np.asarray(img)[..., 3]
+    ys, xs = np.nonzero(a > 0)
+    x_0, x_1 = max(xs.min() - 1, 0), min(xs.max() + 2, img.width)
+    y_0, y_1 = max(ys.min() - 1, 0), min(ys.max() + 2, img.height)
+    if xs.min() <= 0 or ys.min() <= 0 or xs.max() >= img.width - 1:
+        print('WARNING clipped frame biscuit', name, idx, file=sys.stderr)
+    crop = img.crop((x_0, y_0, x_1, y_1))
+    p = A[name]['frames'][idx]
+    return (name, idx, crop.tobytes(), crop.size, dict(ox=int(x_0 - round(ox)), oy=int(y_0 - round(oy))))
+
+
+def build_dog(pool, preview=None):
+    import dog
+    t0 = time.time()
+    A = dog.anims()
+    names = ['idle', 'walk', 'sit', 'bark']
+    jobs = [(n, i) for n in names for i in range(len(A[n]['frames']))]
+    results = pool.map(_dog_frame, jobs)
+    frames, metas, anim_frames = [], [], {n: [] for n in names}
+    for (name, idx, data, size, meta) in results:
+        anim_frames[name].append(len(frames))
+        frames.append(Image.frombytes('RGBA', size, data))
+        metas.append(meta)
+    pos, H = pack([f.size for f in frames], 512)
+    H = int(math.ceil(H / 8.0) * 8)
+    atlas = Image.new('RGBA', (512, H), (0, 0, 0, 0))
+    for f, p in zip(frames, pos):
+        atlas.alpha_composite(f, p)
+    anims = {}
+    for n in names:
+        e = {'frames': anim_frames[n], 'fps': A[n]['fps'], 'loop': bool(A[n].get('loop', False))}
+        for k in ('stride', 'contact'):
+            if k in A[n]:
+                e[k] = A[n][k]
+        anims[n] = e
+    anims['run'] = dict(anims['walk'])
+    height = max(-m['oy'] - 1 for m in metas[:len(anim_frames['idle'])])
+    js = {'id': 'biscuit', 'version': 2, 'density': DEN, 'height': int(height),
+          'frames': [[p[0], p[1], f.size[0], f.size[1], m['ox'], m['oy']] for f, p, m in zip(frames, pos, metas)],
+          'hand': [[0, -20, 0, 1] for _ in frames], 'head': [[22, -36] for _ in frames], 'anims': anims}
+    atlas.save(os.path.join(OUT_SPR, 'biscuit.png'), optimize=True)
+    with open(os.path.join(OUT_SPR, 'biscuit.json'), 'w') as fh:
+        json.dump(js, fh, separators=(',', ':'))
+    print('%-14s %3d frames  atlas %dx%d  %.1fs' % ('biscuit', len(frames), 512, H, time.time() - t0))
+    if preview:
+        make_previews('biscuit', frames, [dict(m, hand=[0, 0, 0, 1]) for m in metas], anim_frames, anims, preview,
+                      names=names)
+    return js
+
+
 def foot_drift(A, metas, anim_frames, leg_r):
     """Max world-x drift (tx) of a planted foot across consecutive planted frames."""
     out = {}
@@ -276,13 +350,13 @@ def foot_drift(A, metas, anim_frames, leg_r):
 
 # ----------------------------------------------------------------------------- previews
 
-def make_previews(cid, frames, metas, anim_frames, anims, outdir):
+def make_previews(cid, frames, metas, anim_frames, anims, outdir, names=None):
     os.makedirs(outdir, exist_ok=True)
     z = 2
     cellw = max(f.size[0] for f in frames) + 8
     cellh = max(f.size[1] for f in frames) + 8
     # contact sheet: one row per anim, frames placed by anchor on a ground line
-    names = [n for n in FIGHTER_ORDER if n in anim_frames]
+    names = names or [n for n in FIGHTER_ORDER if n in anim_frames]
     maxn = max(len(anim_frames[n]) for n in names)
     cw, ch = 120, 150
     sheet = Image.new('RGBA', (cw * maxn + 90, ch * len(names)), (104, 106, 116, 255))
@@ -330,7 +404,8 @@ def build_portraits(ids):
     os.makedirs(OUT_POR, exist_ok=True)
     import portrait
     for cid in ids:
-        strip = portrait.render(spec_for(cid), PEXPR)
+        src = V1.GANG_PORTRAIT.get(cid, cid)          # gang portraits (dogs, rats ...) use their v1 model
+        strip = portrait.render(spec_for(src), PEXPR)
         strip.save(os.path.join(OUT_POR, cid + '.png'), optimize=True)
         print('portrait', cid, strip.size)
 
@@ -345,9 +420,11 @@ def main():
     ap.add_argument('--preview', default=None)
     ap.add_argument('--jobs', type=int, default=4)
     a = ap.parse_args()
+    v1dir = os.path.join(ROOT, 'game', 'assets', 'sprites', 'characters')
+    v1por = os.path.join(ROOT, 'game', 'assets', 'portraits')
     if a.all:
-        ids = [c['id'] for c in V1.ALL_CHARS]
-        pids = list(V1.PORTRAIT_IDS) + list(V1.GANG_PORTRAIT.values())
+        ids = sorted(f[:-5] for f in os.listdir(v1dir) if f.endswith('.json'))
+        pids = sorted(f[:-4] for f in os.listdir(v1por) if f.endswith('.png'))
     elif a.benchmark:
         ids, pids = BENCHMARK, BENCH_PORTRAITS
     else:
@@ -358,7 +435,10 @@ def main():
         ids = [] if not a.only else ids
     with Pool(a.jobs) as pool:
         for cid in ids:
-            build_character(cid, pool, a.preview)
+            if cid == 'biscuit':
+                build_dog(pool, a.preview)
+            else:
+                build_character(cid, pool, a.preview)
     if pids and not a.no_portraits:
         build_portraits(pids)
 

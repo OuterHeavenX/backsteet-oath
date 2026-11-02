@@ -1,0 +1,256 @@
+{
+ "room": "fr_dockgate",
+ "width": 1440,
+ "density": 2,
+ "layers": [
+  {
+   "name": "sky",
+   "files": [
+    "../_district/floodgate_sky.png"
+   ],
+   "parallax": 0.05,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "far",
+   "files": [
+    "../_district/floodgate_far.png"
+   ],
+   "parallax": 0.25,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "mid",
+   "files": [
+    "../_district/floodgate_mid.png"
+   ],
+   "parallax": 0.5,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_jersey.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_jersey.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 560.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 1320.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#c8e0e4",
+ "rim": {
+  "color": "#a8e8f0",
+  "dir": [
+   0.3,
+   1.0
+  ],
+  "strength": 0.4
+ },
+ "glows": [
+  {
+   "x": 1020.0,
+   "y": 80,
+   "r": 420.0,
+   "color": "#c8f0d8",
+   "energy": 0.2,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 640,
+   "y": 137,
+   "r": 44,
+   "color": "#e8f4ff",
+   "energy": 0.6,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 640,
+   "y": 167,
+   "r": 59.4,
+   "color": "#e8f4ff",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 1240,
+   "y": 137,
+   "r": 44,
+   "color": "#e8f4ff",
+   "energy": 0.6,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 1240,
+   "y": 167,
+   "r": 59.4,
+   "color": "#e8f4ff",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "drip",
+   "x": 432.0,
+   "y": 120.0,
+   "rate": 0.5
+  },
+  {
+   "type": "drip",
+   "x": 300.0,
+   "y": 82.0,
+   "rate": 0.5
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    868.4,
+    317.6,
+    59.2,
+    6.7
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    272.8,
+    258.9,
+    61.6,
+    9.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    91.4,
+    307.1,
+    37.2,
+    6.4
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    297.4,
+    310.9,
+    37.7,
+    8.5
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    56.6,
+    332.5,
+    54.0,
+    5.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    698.7,
+    292.2,
+    39.3,
+    5.2
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    358.2,
+    264.2,
+    44.4,
+    9.7
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    676.1,
+    259.6,
+    31.6,
+    7.8
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1369.1,
+    290.2,
+    57.7,
+    7.5
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1081.2,
+    280.7,
+    40.8,
+    7.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    0.0,
+    218.0,
+    1440.0,
+    126.0
+   ],
+   "alpha": 0.2
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.2
+  ],
+  "alpha": 0.0
+ }
+}

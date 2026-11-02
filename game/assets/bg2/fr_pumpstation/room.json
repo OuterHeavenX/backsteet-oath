@@ -1,0 +1,317 @@
+{
+ "room": "fr_pumpstation",
+ "width": 1920,
+ "density": 2,
+ "layers": [
+  {
+   "name": "sky",
+   "files": [
+    "../_district/floodgate_sky.png"
+   ],
+   "parallax": 0.05,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "far",
+   "files": [
+    "../_district/floodgate_far.png"
+   ],
+   "parallax": 0.25,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "mid",
+   "files": [
+    "../_district/floodgate_mid.png"
+   ],
+   "parallax": 0.5,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_jersey.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_jersey.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_jersey.png",
+   "x": 1540.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 560.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 1320.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#c8e0e4",
+ "rim": {
+  "color": "#a8e8f0",
+  "dir": [
+   0.3,
+   1.0
+  ],
+  "strength": 0.4
+ },
+ "glows": [
+  {
+   "x": 250.0,
+   "y": 90,
+   "r": 200.0,
+   "color": "#e8f0c0",
+   "energy": 0.2,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 514,
+   "y": 124,
+   "r": 18,
+   "color": "#ffd890",
+   "energy": 0.45,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 470,
+   "y": 137,
+   "r": 38,
+   "color": "#ffb050",
+   "energy": 0.65,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 470,
+   "y": 167,
+   "r": 51.3,
+   "color": "#ffb050",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 1290,
+   "y": 137,
+   "r": 38,
+   "color": "#ffb050",
+   "energy": 0.65,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1290,
+   "y": 167,
+   "r": 51.3,
+   "color": "#ffb050",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "drip",
+   "x": 576.0,
+   "y": 120.0,
+   "rate": 0.5
+  },
+  {
+   "type": "drip",
+   "x": 100.0,
+   "y": 194.0,
+   "rate": 0.6
+  },
+  {
+   "type": "drip",
+   "x": 936.0,
+   "y": 70.0,
+   "rate": 0.7
+  },
+  {
+   "type": "drip",
+   "x": 1144.0,
+   "y": 70.0,
+   "rate": 0.5
+  },
+  {
+   "type": "drip",
+   "x": 1610.0,
+   "y": 82.0,
+   "rate": 0.5
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    646.8,
+    322.8,
+    28.1,
+    6.8
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1713.3,
+    332.0,
+    35.7,
+    8.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    108.4,
+    297.4,
+    34.3,
+    9.3
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1831.4,
+    301.0,
+    48.9,
+    9.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1393.9,
+    255.0,
+    55.7,
+    7.9
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    89.5,
+    310.8,
+    41.5,
+    6.2
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1656.4,
+    272.6,
+    66.9,
+    5.9
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1491.7,
+    303.5,
+    43.8,
+    8.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    761.7,
+    285.5,
+    49.1,
+    5.7
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    481.9,
+    266.6,
+    35.8,
+    5.8
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1125.9,
+    271.7,
+    34.7,
+    6.9
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1318.3,
+    265.7,
+    38.8,
+    6.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1062.6,
+    264.6,
+    59.3,
+    8.5
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    0.0,
+    218.0,
+    1920.0,
+    126.0
+   ],
+   "alpha": 0.2
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.2
+  ],
+  "alpha": 0.0
+ }
+}

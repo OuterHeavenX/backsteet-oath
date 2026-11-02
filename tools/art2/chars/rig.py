@@ -33,7 +33,18 @@ BODY = {
                   fist=1.5, w=0.98, chest=4.0, back=4.4, waist=3.8, hip=4.0, belly=0.8, stoop=1.6,
                   limb=0.92, foot=0.95),
 }
-NORMAL = BODY['normal']
+NORMAL = dict(BODY['normal'])       # authoring reference: poses are written for this body, then retargeted
+
+# per-type overall scale (lengths and widths) so crown heights land in the contract ranges:
+# normal/slim ~94 tx, tall ~104, heavy ~108, big ~116, kid ~80, elder ~88 (hair not included)
+TYPE_SCALE = {'normal': 1.045, 'slim': 1.045, 'tall': 1.06, 'heavy': 1.12, 'big': 1.074, 'kid': 1.077, 'elder': 1.044}
+LENGTH_KEYS = ('R', 'neck', 'torso', 'thigh', 'shin', 'ankle', 'ua', 'fa', 'fist', 'stoop')
+WIDTH_KEYS = ('w', 'chest', 'back', 'waist', 'hip', 'belly', 'limb', 'foot')
+for _k, _f in list(TYPE_SCALE.items()):
+    for _key in LENGTH_KEYS:
+        BODY[_k][_key] *= _f
+    for _key in WIDTH_KEYS:
+        BODY[_k][_key] *= _f ** 0.8
 
 
 def body_for(spec):

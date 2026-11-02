@@ -1,0 +1,198 @@
+{
+ "room": "iy_gate",
+ "width": 1600,
+ "density": 2,
+ "layers": [
+  {
+   "name": "sky",
+   "files": [
+    "../_district/ironworks_sky.png"
+   ],
+   "parallax": 0.05,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "far",
+   "files": [
+    "../_district/ironworks_far.png"
+   ],
+   "parallax": 0.25,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "mid",
+   "files": [
+    "../_district/ironworks_mid.png"
+   ],
+   "parallax": 0.5,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_beam.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_beam.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_pipes.png",
+   "x": 560.0,
+   "y": 44.0,
+   "parallax": 1.12,
+   "fade": false
+  },
+  {
+   "file": "fg_hook.png",
+   "x": 1320.0,
+   "y": 130.0,
+   "parallax": 1.18,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#d8e0f0",
+ "rim": {
+  "color": "#ff9a50",
+  "dir": [
+   -1.0,
+   0.2
+  ],
+  "strength": 0.5
+ },
+ "glows": [
+  {
+   "x": 25,
+   "y": 92,
+   "r": 20,
+   "color": "#ffd890",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 275,
+   "y": 92,
+   "r": 20,
+   "color": "#ffd890",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 200.0,
+   "y": 170,
+   "r": 40,
+   "color": "#ffd890",
+   "energy": 0.3,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 500.0,
+   "y": 184,
+   "r": 60,
+   "color": "#ff9a40",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 1350.0,
+   "y": 120,
+   "r": 250.0,
+   "color": "#ff9a40",
+   "energy": 0.25,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 660,
+   "y": 137,
+   "r": 44,
+   "color": "#e8f4ff",
+   "energy": 0.6,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 660,
+   "y": 167,
+   "r": 59.4,
+   "color": "#e8f4ff",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 1460,
+   "y": 137,
+   "r": 44,
+   "color": "#e8f4ff",
+   "energy": 0.6,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 1460,
+   "y": 167,
+   "r": 59.4,
+   "color": "#e8f4ff",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "steam",
+   "x": 380.0,
+   "y": 82.0,
+   "rate": 0.5
+  },
+  {
+   "type": "smoke",
+   "x": 1560.0,
+   "y": -42.0,
+   "rate": 0.8
+  },
+  {
+   "type": "sparks",
+   "x": 1250.0,
+   "y": 140.0,
+   "rate": 0.3
+  }
+ ],
+ "reflect": [],
+ "cast_shadow": {
+  "dir": [
+   -0.5,
+   0.2
+  ],
+  "alpha": 0.12
+ }
+}

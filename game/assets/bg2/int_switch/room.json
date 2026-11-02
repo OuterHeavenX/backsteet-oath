@@ -1,0 +1,101 @@
+{
+ "room": "int_switch",
+ "width": 800,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_tube.png",
+   "x": 240.0,
+   "y": 30.0,
+   "parallax": 1.15,
+   "fade": false
+  },
+  {
+   "file": "fg_tube.png",
+   "x": 600.0,
+   "y": 30.0,
+   "parallax": 1.15,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#e0f0ff",
+ "rim": {
+  "color": "#ffd8a8",
+  "dir": [
+   0.3,
+   1.0
+  ],
+  "strength": 0.3
+ },
+ "glows": [
+  {
+   "x": 400.0,
+   "y": 61.0,
+   "r": 160,
+   "color": "#8affb0",
+   "energy": 0.2,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 90.0,
+   "y": 62.0,
+   "r": 96.0,
+   "color": "#d8d0c0",
+   "energy": 0.22,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 140,
+   "y": 13,
+   "r": 45.0,
+   "color": "#d8f0ff",
+   "energy": 0.4,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 400,
+   "y": 13,
+   "r": 45.0,
+   "color": "#d8f0ff",
+   "energy": 0.4,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 660,
+   "y": 13,
+   "r": 45.0,
+   "color": "#d8f0ff",
+   "energy": 0.4,
+   "flicker": "fluor",
+   "front": false
+  }
+ ],
+ "ambient": [
+  {
+   "type": "smoke",
+   "x": 102.0,
+   "y": 50.8,
+   "rate": 0.3
+  }
+ ],
+ "reflect": []
+}

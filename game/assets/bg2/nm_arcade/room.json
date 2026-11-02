@@ -1,0 +1,448 @@
+{
+ "room": "nm_arcade",
+ "width": 1600,
+ "density": 2,
+ "layers": [
+  {
+   "name": "sky",
+   "files": [
+    "../_district/neon_mile_sky.png"
+   ],
+   "parallax": 0.05,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "far",
+   "files": [
+    "../_district/neon_mile_far.png"
+   ],
+   "parallax": 0.25,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "mid",
+   "files": [
+    "../_district/neon_mile_mid.png"
+   ],
+   "parallax": 0.5,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_boxes.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.28,
+   "fade": true
+  },
+  {
+   "file": "fg_boxes.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.28,
+   "fade": true
+  },
+  {
+   "file": "fg_blade.png",
+   "x": 560.0,
+   "y": 120.0,
+   "parallax": 1.15,
+   "fade": false
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 1320.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#b8a8e8",
+ "rim": {
+  "color": "#ff5ab0",
+  "dir": [
+   0.6,
+   0.6
+  ],
+  "strength": 0.55
+ },
+ "glows": [
+  {
+   "x": 150.0,
+   "y": 135,
+   "r": 135.0,
+   "color": "#4ae0ff",
+   "energy": 0.45,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 150.0,
+   "y": 178.5,
+   "r": 135.0,
+   "color": "#ffc070",
+   "energy": 0.22,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 500.0,
+   "y": 38,
+   "r": 200.0,
+   "color": "#4ae0ff",
+   "energy": 0.35,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 500.0,
+   "y": 76,
+   "r": 120,
+   "color": "#ff4ab0",
+   "energy": 0.55,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 500.0,
+   "y": 70,
+   "r": 70,
+   "color": "#f8e040",
+   "energy": 0.35,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 328,
+   "y": 158,
+   "r": 14,
+   "color": "#ff8a3a",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 354,
+   "y": 158,
+   "r": 14,
+   "color": "#f8e040",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 380,
+   "y": 158,
+   "r": 14,
+   "color": "#c070ff",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 406,
+   "y": 158,
+   "r": 14,
+   "color": "#c070ff",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 432,
+   "y": 158,
+   "r": 14,
+   "color": "#ff4ab0",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 458,
+   "y": 158,
+   "r": 14,
+   "color": "#4ae0ff",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 536,
+   "y": 158,
+   "r": 14,
+   "color": "#ff4ab0",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 562,
+   "y": 158,
+   "r": 14,
+   "color": "#ff4ab0",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 588,
+   "y": 158,
+   "r": 14,
+   "color": "#f8e040",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 614,
+   "y": 158,
+   "r": 14,
+   "color": "#ff4ab0",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 640,
+   "y": 158,
+   "r": 14,
+   "color": "#ff4ab0",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 666,
+   "y": 158,
+   "r": 14,
+   "color": "#4ae0ff",
+   "energy": 0.25,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 744.0,
+   "y": 119,
+   "r": 18,
+   "color": "#ffc070",
+   "energy": 0.45,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 800.0,
+   "y": 65,
+   "r": 44,
+   "color": "#ff4ab0",
+   "energy": 0.45,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 1450.0,
+   "y": 135,
+   "r": 135.0,
+   "color": "#c070ff",
+   "energy": 0.45,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 1450.0,
+   "y": 178.5,
+   "r": 135.0,
+   "color": "#ffc070",
+   "energy": 0.22,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1450.0,
+   "y": 118,
+   "r": 30,
+   "color": "#ff4a4a",
+   "energy": 0.4,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 260,
+   "y": 150,
+   "r": 34,
+   "color": "#ffd27a",
+   "energy": 0.6,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 260,
+   "y": 180,
+   "r": 45.9,
+   "color": "#ffd27a",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 1290,
+   "y": 151,
+   "r": 26,
+   "color": "#ff4ab0",
+   "energy": 0.5,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 1290,
+   "y": 181,
+   "r": 35.1,
+   "color": "#ff4ab0",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 1520,
+   "y": 150,
+   "r": 34,
+   "color": "#ffd27a",
+   "energy": 0.6,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1520,
+   "y": 180,
+   "r": 45.9,
+   "color": "#ffd27a",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "steam",
+   "x": 810.0,
+   "y": 186,
+   "rate": 0.6
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    439.7,
+    276.7,
+    42.2,
+    6.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    516.0,
+    272.5,
+    36.8,
+    6.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    584.7,
+    275.5,
+    30.6,
+    5.2
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    686.7,
+    298.0,
+    44.7,
+    5.9
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    604.4,
+    288.3,
+    27.4,
+    8.3
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    81.6,
+    280.3,
+    51.7,
+    5.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    826.9,
+    309.4,
+    33.0,
+    6.9
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    514.0,
+    284.1,
+    31.5,
+    8.6
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1152.0,
+    260.7,
+    44.6,
+    8.5
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    0.0,
+    251.0,
+    1600.0,
+    93.0
+   ],
+   "alpha": 0.16
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.3
+  ],
+  "alpha": 0.06
+ }
+}

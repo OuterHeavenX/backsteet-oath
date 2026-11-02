@@ -56,7 +56,7 @@ def room_shell(R, x0, w, upper, lower, wall_kind='plaster', trim='#3a2a24', rail
             xx += 40
     else:
         mk = cv.rect(x0, 0, w, WB, um.b)
-        kit.weather(cv, x0, 0, w, WB, seed, soot=0.1, blotch=0.12, streak=False)
+        kit.weather(cv, x0, 0, w, WB, seed, soot=0.05, blotch=0.04, streak=False)
     if wall_kind in ('wood', 'paper', 'plaster'):
         lm = M(C(lower))
         cv.rect(x0, rail_y, w, WB - rail_y, lm.b)

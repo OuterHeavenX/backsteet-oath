@@ -1,0 +1,222 @@
+{
+ "room": "cm_pier",
+ "width": 1440,
+ "density": 2,
+ "layers": [
+  {
+   "name": "sky",
+   "files": [
+    "../_district/canal_market_sky.png"
+   ],
+   "parallax": 0.05,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "far",
+   "files": [
+    "../_district/canal_market_far.png"
+   ],
+   "parallax": 0.25,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  },
+  {
+   "name": "bridge_up",
+   "files": [
+    "spacer_2048.png",
+    "spacer_300.png",
+    "bridge_up.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false,
+   "unless": "boss_pikes"
+  },
+  {
+   "name": "bridge_down",
+   "files": [
+    "spacer_2048.png",
+    "spacer_300.png",
+    "bridge_down.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false,
+   "requires": "boss_pikes"
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_bollards.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_fishcrates.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.3,
+   "fade": true
+  },
+  {
+   "file": "fg_bunting.png",
+   "x": 560.0,
+   "y": 40.0,
+   "parallax": 1.12,
+   "fade": false
+  },
+  {
+   "file": "fg_bunting.png",
+   "x": 1320.0,
+   "y": 40.0,
+   "parallax": 1.12,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#fff6e4",
+ "rim": {
+  "color": "#ffe0a0",
+  "dir": [
+   1.0,
+   0.3
+  ],
+  "strength": 0.4
+ },
+ "glows": [
+  {
+   "x": 1411,
+   "y": 123,
+   "r": 14,
+   "color": "#ff4a3a",
+   "energy": 0.5,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 520,
+   "y": 150,
+   "r": 34,
+   "color": "#ffd27a",
+   "energy": 0.6,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 520,
+   "y": 180,
+   "r": 45.9,
+   "color": "#ffd27a",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "pigeons",
+   "x": 210.0,
+   "y": 53.0,
+   "w": 80
+  },
+  {
+   "type": "water_shimmer",
+   "x": 500.0,
+   "y": 128.0,
+   "w": 600.0,
+   "h": 70.0
+  },
+  {
+   "type": "pigeons",
+   "x": 680.0,
+   "y": 149.0,
+   "w": 60
+  },
+  {
+   "type": "water_shimmer",
+   "x": 1180.0,
+   "y": 120.0,
+   "w": 260.0,
+   "h": 94.0
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    177.7,
+    296.9,
+    30.7,
+    5.3
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    986.2,
+    324.0,
+    25.0,
+    5.4
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    244.1,
+    317.7,
+    30.4,
+    5.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1276.2,
+    322.9,
+    27.8,
+    5.2
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1216.5,
+    325.3,
+    30.9,
+    5.7
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    1144.9,
+    273.5,
+    21.3,
+    4.5
+   ],
+   "alpha": 0.22
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.5,
+   0.2
+  ],
+  "alpha": 0.24
+ }
+}

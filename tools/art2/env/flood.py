@@ -292,7 +292,6 @@ def f_warehouse_wall(R, x0, w, f):
             for j in range(3):
                 if rs.random() < 0.8:
                     cw = rs.uniform(30, 40)
-                    cv.rect(rx + 4 + j * 42, ry - 2 - rs.uniform(30, 44), cw, 0, C('#000000'))
                     hh = rs.uniform(26, 44)
                     cv.rect(rx + 4 + j * 42, ry - 2 - hh, cw, hh, C(rs.choice(['#9a7448', '#8a8a7a', '#6a7a5a'])),
                             ink=C('#1e1a14'), iw=DETAIL)
@@ -384,7 +383,7 @@ def f_crane_hall(R, x0, w, f):
     gm = M(C('#3a4448'))
     cv.rect(x0, 24, w, 16, C('#c8a030'), ink=C('#2a2008'), iw=MAJOR)
     hazard(cv, x0, 38, w, 3)
-    tx = x0 + w * 0.65
+    tx = x0 + w * 0.88
     cv.rect(tx - 18, 40, 36, 18, gm.b, ink=gm.i, iw=MAJOR)
     for off in (-5, 5):
         cv.line([(tx + off, 58), (tx + off, 120)], 0.6, C('#2a2a34'))

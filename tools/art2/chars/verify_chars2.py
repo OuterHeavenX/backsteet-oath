@@ -10,8 +10,23 @@ MIN = dict(idle=6, walk=8, run=8, jump=3, land=2, punch_a=4, punch_b=4, punch_c=
 CIV = ['idle', 'walk', 'run', 'talk', 'cower', 'victory']
 ATTACKS = ['punch_a', 'punch_b', 'punch_c', 'kick', 'kick_c', 'jump_kick', 'jump_punch', 'run_punch', 'dropkick',
            'throw', 'swing', 'sweep', 'rising_kick', 'slam']
+V1D = os.path.join(D, '..', 'characters')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 bad = 0
 ids = sys.argv[1:] or sorted(f[:-5] for f in os.listdir(D) if f.endswith('.json'))
+RANGES = {'normal': (92, 100), 'slim': (92, 100), 'tall': (96, 108), 'heavy': (104, 116), 'big': (104, 120),
+          'kid': (76, 84), 'elder': (84, 100)}
+
+
+def body_height(cid):
+    """Crown height without hair (tx) in the relaxed stance, from the rig."""
+    import gen_chars2 as g
+    from rig import body_for, solve
+    from poses import Rx
+    sp = g.spec_for(cid)
+    b = body_for(sp)
+    s = solve(Rx(), b)
+    return int(round((-s.head_c[1] + b['R'] * 1.0) * 2)), sp.get('body', 'normal')
 for cid in ids:
     js = json.load(open(os.path.join(D, cid + '.json')))
     im = Image.open(os.path.join(D, cid + '.png'))
@@ -33,6 +48,18 @@ for cid in ids:
             if xi < xj + wj + 6 and xj < xi + wi + 6 and yi < yj + hj + 6 and yj < yi + hi + 6:
                 errs.append('pad %d/%d' % (i, j))
     a = js['anims']
+    v1 = json.load(open(os.path.join(V1D, cid + '.json')))
+    for k in v1['anims']:
+        if k not in a:
+            errs.append('missing v1 key ' + k)
+    if cid == 'biscuit':
+        print('%-14s %3d frames %4dx%-4d height %3d %s' % (cid, n, W, H, js['height'], 'OK' if not errs else 'FAIL ' + '; '.join(errs[:6])))
+        bad += bool(errs)
+        continue
+    bh, bt = body_height(cid)
+    lo, hi = RANGES.get(bt, (92, 100))
+    if not (lo - 2 <= bh <= hi + 2):
+        errs.append('body height %d outside %s %d-%d' % (bh, bt, lo, hi))
     civ = 'punch_a' in a and a['punch_a']['frames'] == a['talk']['frames'][:3]
     for k, m in MIN.items():
         if k not in a:
@@ -48,6 +75,7 @@ for cid in ids:
     for k in ('walk', 'run', 'carry_walk'):
         if 'stride' not in a.get(k, {}):
             errs.append('no stride ' + k)
-    print('%-14s %3d frames %4dx%-4d height %3d %s' % (cid, n, W, H, js['height'], 'OK' if not errs else 'FAIL ' + '; '.join(errs[:6])))
+    print('%-14s %3d frames %4dx%-4d height %3d (body %3d %s) %s' % (cid, n, W, H, js['height'], bh, bt,
+          'OK' if not errs else 'FAIL ' + '; '.join(errs[:6])))
     bad += bool(errs)
 sys.exit(1 if bad else 0)

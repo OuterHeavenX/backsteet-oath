@@ -1,0 +1,101 @@
+{
+ "room": "rw_floor",
+ "width": 1120,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_pallets.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_pallets.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_hook.png",
+   "x": 560.0,
+   "y": 130.0,
+   "parallax": 1.18,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#d0f0e0",
+ "rim": {
+  "color": "#c8ffe0",
+  "dir": [
+   0.2,
+   1.0
+  ],
+  "strength": 0.4
+ },
+ "glows": [
+  {
+   "x": 200,
+   "y": 60,
+   "r": 70,
+   "color": "#e0fff0",
+   "energy": 0.35,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 560,
+   "y": 60,
+   "r": 70,
+   "color": "#e0fff0",
+   "energy": 0.35,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 920,
+   "y": 60,
+   "r": 70,
+   "color": "#e0fff0",
+   "energy": 0.35,
+   "flicker": "fluor",
+   "front": false
+  }
+ ],
+ "ambient": [],
+ "reflect": [
+  {
+   "rect": [
+    0.0,
+    230.0,
+    1120.0,
+    110.0
+   ],
+   "alpha": 0.1
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.2
+  ],
+  "alpha": 0.0
+ }
+}

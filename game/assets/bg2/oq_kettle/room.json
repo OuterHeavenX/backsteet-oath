@@ -91,13 +91,6 @@
   ],
   "strength": 0.45
  },
- "cast_shadow": {
-  "dir": [
-   0.6,
-   0.22
-  ],
-  "alpha": 0.22
- },
  "glows": [
   {
    "x": 460.0,
@@ -174,8 +167,8 @@
   {
    "x": 280,
    "y": 180,
-   "r": 46,
-   "color": "#ffc070",
+   "r": 45.9,
+   "color": "#ffd27a",
    "energy": 0.12,
    "flicker": "none",
    "front": true
@@ -192,8 +185,8 @@
   {
    "x": 960,
    "y": 180,
-   "r": 46,
-   "color": "#ffc070",
+   "r": 45.9,
+   "color": "#ffd27a",
    "energy": 0.12,
    "flicker": "none",
    "front": true
@@ -210,8 +203,8 @@
   {
    "x": 1520,
    "y": 180,
-   "r": 46,
-   "color": "#ffc070",
+   "r": 45.9,
+   "color": "#ffd27a",
    "energy": 0.12,
    "flicker": "none",
    "front": true
@@ -277,5 +270,12 @@
    ],
    "alpha": 0.22
   }
- ]
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.6,
+   0.22
+  ],
+  "alpha": 0.22
+ }
 }

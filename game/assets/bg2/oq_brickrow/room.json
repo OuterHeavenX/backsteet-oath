@@ -1,0 +1,184 @@
+{
+ "room": "oq_brickrow",
+ "width": 1760,
+ "density": 2,
+ "layers": [
+  {
+   "name": "sky",
+   "files": [
+    "../_district/old_quarter_sky.png"
+   ],
+   "parallax": 0.05,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "far",
+   "files": [
+    "../_district/old_quarter_far.png"
+   ],
+   "parallax": 0.25,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "mid",
+   "files": [
+    "../_district/old_quarter_mid.png"
+   ],
+   "parallax": 0.5,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_car.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_meter.png",
+   "x": 920.0,
+   "y": 380.0,
+   "parallax": 1.3,
+   "fade": true
+  },
+  {
+   "file": "fg_car.png",
+   "x": 1540.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_signal.png",
+   "x": 560.0,
+   "y": 70.0,
+   "parallax": 1.12,
+   "fade": false
+  },
+  {
+   "file": "fg_signal.png",
+   "x": 1320.0,
+   "y": 70.0,
+   "parallax": 1.12,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#fff0e0",
+ "rim": {
+  "color": "#ffb070",
+  "dir": [
+   1.0,
+   0.25
+  ],
+  "strength": 0.45
+ },
+ "glows": [
+  {
+   "x": 734,
+   "y": 164,
+   "r": 70,
+   "color": "#ffc070",
+   "energy": 0.35,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1400,
+   "y": 174,
+   "r": 40,
+   "color": "#ffd090",
+   "energy": 0.3,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 200,
+   "y": 150,
+   "r": 34,
+   "color": "#ffd27a",
+   "energy": 0.6,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 200,
+   "y": 180,
+   "r": 45.9,
+   "color": "#ffd27a",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 980,
+   "y": 150,
+   "r": 34,
+   "color": "#ffd27a",
+   "energy": 0.6,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 980,
+   "y": 180,
+   "r": 45.9,
+   "color": "#ffd27a",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  },
+  {
+   "x": 1540,
+   "y": 150,
+   "r": 34,
+   "color": "#ffd27a",
+   "energy": 0.6,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1540,
+   "y": 180,
+   "r": 45.9,
+   "color": "#ffd27a",
+   "energy": 0.12,
+   "flicker": "none",
+   "front": true
+  }
+ ],
+ "ambient": [
+  {
+   "type": "drip",
+   "x": 1640.0,
+   "y": 114.0,
+   "rate": 0.4
+  }
+ ],
+ "reflect": [],
+ "cast_shadow": {
+  "dir": [
+   0.6,
+   0.22
+  ],
+  "alpha": 0.22
+ }
+}

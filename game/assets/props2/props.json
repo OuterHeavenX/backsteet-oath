@@ -1,4 +1,52 @@
 {
+ "ac_unit": {
+  "anchor": [
+   18,
+   30
+  ],
+  "footprint": [
+   32,
+   10
+  ],
+  "density": 2,
+  "file": "res://assets/props2/ac_unit.png"
+ },
+ "arcade_cabinet": {
+  "anchor": [
+   14,
+   56
+  ],
+  "footprint": [
+   24,
+   10
+  ],
+  "density": 2,
+  "file": "res://assets/props2/arcade_cabinet.png"
+ },
+ "barrel": {
+  "anchor": [
+   9,
+   26
+  ],
+  "footprint": [
+   16,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/barrel.png"
+ },
+ "barrier": {
+  "anchor": [
+   24,
+   29
+  ],
+  "footprint": [
+   42,
+   6
+  ],
+  "density": 2,
+  "file": "res://assets/props2/barrier.png"
+ },
  "bench": {
   "anchor": [
    21,
@@ -10,6 +58,18 @@
   ],
   "density": 2,
   "file": "res://assets/props2/bench.png"
+ },
+ "book_pile": {
+  "anchor": [
+   15,
+   21
+  ],
+  "footprint": [
+   28,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/book_pile.png"
  },
  "booth_seat": {
   "anchor": [
@@ -35,6 +95,18 @@
   "density": 2,
   "file": "res://assets/props2/bus_stop.png"
  },
+ "car_parked": {
+  "anchor": [
+   50,
+   38
+  ],
+  "footprint": [
+   92,
+   18
+  ],
+  "density": 2,
+  "file": "res://assets/props2/car_parked.png"
+ },
  "car_wreck": {
   "anchor": [
    50,
@@ -46,6 +118,54 @@
   ],
   "density": 2,
   "file": "res://assets/props2/car_wreck.png"
+ },
+ "chimney": {
+  "anchor": [
+   15,
+   48
+  ],
+  "footprint": [
+   22,
+   10
+  ],
+  "density": 2,
+  "file": "res://assets/props2/chimney.png"
+ },
+ "counter_arcade": {
+  "anchor": [
+   71,
+   42
+  ],
+  "footprint": [
+   140,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/counter_arcade.png"
+ },
+ "counter_bait": {
+  "anchor": [
+   81,
+   41
+  ],
+  "footprint": [
+   160,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/counter_bait.png"
+ },
+ "counter_canteen": {
+  "anchor": [
+   81,
+   41
+  ],
+  "footprint": [
+   160,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/counter_canteen.png"
  },
  "counter_diner": {
   "anchor": [
@@ -59,6 +179,42 @@
   "density": 2,
   "file": "res://assets/props2/counter_diner.png"
  },
+ "counter_noodle": {
+  "anchor": [
+   81,
+   41
+  ],
+  "footprint": [
+   160,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/counter_noodle.png"
+ },
+ "counter_pharmacy": {
+  "anchor": [
+   81,
+   41
+  ],
+  "footprint": [
+   160,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/counter_pharmacy.png"
+ },
+ "counter_shop": {
+  "anchor": [
+   71,
+   41
+  ],
+  "footprint": [
+   140,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/counter_shop.png"
+ },
  "crate": {
   "anchor": [
    12,
@@ -70,6 +226,30 @@
   ],
   "density": 2,
   "file": "res://assets/props2/crate.png"
+ },
+ "crate_stack": {
+  "anchor": [
+   23,
+   47
+  ],
+  "footprint": [
+   42,
+   12
+  ],
+  "density": 2,
+  "file": "res://assets/props2/crate_stack.png"
+ },
+ "desk": {
+  "anchor": [
+   30,
+   40
+  ],
+  "footprint": [
+   54,
+   12
+  ],
+  "density": 2,
+  "file": "res://assets/props2/desk.png"
  },
  "dumpster": {
   "anchor": [
@@ -83,6 +263,66 @@
   "density": 2,
   "file": "res://assets/props2/dumpster.png"
  },
+ "filing_cabinet": {
+  "anchor": [
+   11,
+   41
+  ],
+  "footprint": [
+   18,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/filing_cabinet.png"
+ },
+ "fish_crate": {
+  "anchor": [
+   12,
+   18
+  ],
+  "footprint": [
+   22,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/fish_crate.png"
+ },
+ "floodlight": {
+  "anchor": [
+   11,
+   88
+  ],
+  "footprint": [
+   6,
+   4
+  ],
+  "density": 2,
+  "file": "res://assets/props2/floodlight.png"
+ },
+ "forklift": {
+  "anchor": [
+   31,
+   53
+  ],
+  "footprint": [
+   52,
+   16
+  ],
+  "density": 2,
+  "file": "res://assets/props2/forklift.png"
+ },
+ "guard_booth": {
+  "anchor": [
+   23,
+   60
+  ],
+  "footprint": [
+   38,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/guard_booth.png"
+ },
  "hydrant": {
   "anchor": [
    9,
@@ -94,6 +334,30 @@
   ],
   "density": 2,
   "file": "res://assets/props2/hydrant.png"
+ },
+ "ice_chest": {
+  "anchor": [
+   17,
+   21
+  ],
+  "footprint": [
+   26,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/ice_chest.png"
+ },
+ "ingot_stack": {
+  "anchor": [
+   19,
+   23
+  ],
+  "footprint": [
+   34,
+   10
+  ],
+  "density": 2,
+  "file": "res://assets/props2/ingot_stack.png"
  },
  "jukebox": {
   "anchor": [
@@ -119,6 +383,30 @@
   "density": 2,
   "file": "res://assets/props2/lamp_post.png"
  },
+ "lamp_sodium": {
+  "anchor": [
+   14,
+   89
+  ],
+  "footprint": [
+   6,
+   4
+  ],
+  "density": 2,
+  "file": "res://assets/props2/lamp_sodium.png"
+ },
+ "lever_panel": {
+  "anchor": [
+   33,
+   57
+  ],
+  "footprint": [
+   60,
+   12
+  ],
+  "density": 2,
+  "file": "res://assets/props2/lever_panel.png"
+ },
  "mailbox": {
   "anchor": [
    9,
@@ -130,6 +418,54 @@
   ],
   "density": 2,
   "file": "res://assets/props2/mailbox.png"
+ },
+ "market_stall_fish": {
+  "anchor": [
+   42,
+   62
+  ],
+  "footprint": [
+   76,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/market_stall_fish.png"
+ },
+ "market_stall_fruit": {
+  "anchor": [
+   42,
+   62
+  ],
+  "footprint": [
+   76,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/market_stall_fruit.png"
+ },
+ "mooring_post": {
+  "anchor": [
+   8,
+   18
+  ],
+  "footprint": [
+   8,
+   4
+  ],
+  "density": 2,
+  "file": "res://assets/props2/mooring_post.png"
+ },
+ "neon_post": {
+  "anchor": [
+   11,
+   81
+  ],
+  "footprint": [
+   6,
+   4
+  ],
+  "density": 2,
+  "file": "res://assets/props2/neon_post.png"
  },
  "newsbox": {
   "anchor": [
@@ -167,6 +503,90 @@
   "density": 2,
   "file": "res://assets/props2/pallet.png"
  },
+ "phone_booth": {
+  "anchor": [
+   14,
+   67
+  ],
+  "footprint": [
+   22,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/phone_booth.png"
+ },
+ "pipe_stack": {
+  "anchor": [
+   33,
+   32
+  ],
+  "footprint": [
+   56,
+   12
+  ],
+  "density": 2,
+  "file": "res://assets/props2/pipe_stack.png"
+ },
+ "planter": {
+  "anchor": [
+   15,
+   25
+  ],
+  "footprint": [
+   24,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/planter.png"
+ },
+ "punching_bag": {
+  "anchor": [
+   17,
+   65
+  ],
+  "footprint": [
+   16,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/punching_bag.png"
+ },
+ "rail_cart": {
+  "anchor": [
+   25,
+   35
+  ],
+  "footprint": [
+   46,
+   12
+  ],
+  "density": 2,
+  "file": "res://assets/props2/rail_cart.png"
+ },
+ "sandbags": {
+  "anchor": [
+   25,
+   26
+  ],
+  "footprint": [
+   44,
+   10
+  ],
+  "density": 2,
+  "file": "res://assets/props2/sandbags.png"
+ },
+ "shelf": {
+  "anchor": [
+   34,
+   75
+  ],
+  "footprint": [
+   64,
+   12
+  ],
+  "density": 2,
+  "file": "res://assets/props2/shelf.png"
+ },
  "stool": {
   "anchor": [
    8,
@@ -203,6 +623,18 @@
   "density": 2,
   "file": "res://assets/props2/traffic_cone.png"
  },
+ "training_dummy": {
+  "anchor": [
+   13,
+   55
+  ],
+  "footprint": [
+   14,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/training_dummy.png"
+ },
  "trash_can": {
   "anchor": [
    9,
@@ -214,5 +646,41 @@
   ],
   "density": 2,
   "file": "res://assets/props2/trash_can.png"
+ },
+ "vending_machine": {
+  "anchor": [
+   15,
+   50
+  ],
+  "footprint": [
+   26,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/vending_machine.png"
+ },
+ "vent": {
+  "anchor": [
+   12,
+   31
+  ],
+  "footprint": [
+   16,
+   6
+  ],
+  "density": 2,
+  "file": "res://assets/props2/vent.png"
+ },
+ "workbench": {
+  "anchor": [
+   61,
+   46
+  ],
+  "footprint": [
+   116,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/workbench.png"
  }
 }

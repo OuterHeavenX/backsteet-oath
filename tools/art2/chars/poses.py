@@ -227,9 +227,9 @@ def signature(sig, base, G):
                          hf=(11.2, -28.6 + 1.2 * max(0.0, math.sin(2 * t))), fn=(6.8, 0), ff=(-6.6, 0), toe_f=0,
                          blink=(i == 4)) for i, t in enumerate(T)]
         out['victory'] = [G(hn=(6.0, -22.0), hf=(8.0, -23.0), expr='grin', lean=4),
-                          G(hn=(12.4, -40.6), hf=(-7.0, -40.0), eb_n='down', eb_f='down', expr='shout', lean=-2, tilt=-8,
+                          G(hn=(12.4, -40.6), hf=(-9.6, -37.0), eb_n='down', eb_f='down', expr='shout', lean=-2, tilt=-8,
                             hip=(0.0, -17.2), wang=-90),
-                          G(hn=(12.6, -41.4), hf=(-7.2, -40.8), eb_n='down', eb_f='down', expr='shout', lean=-3, tilt=-9,
+                          G(hn=(12.6, -41.4), hf=(-9.8, -37.6), eb_n='down', eb_f='down', expr='shout', lean=-3, tilt=-9,
                             hip=(0.0, -17.4), wang=-90),
                           G(hn=(11.0, -35.0), hf=(-5.0, -33.0), eb_n='down', eb_f='down', expr='grin', lean=0, wang=-80)]
     elif sig == 'otto':

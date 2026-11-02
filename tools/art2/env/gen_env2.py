@@ -34,6 +34,7 @@ import props2                                                              # noq
 import common                                                              # noqa: E402
 import grounds2                                                            # noqa: E402
 import oq2, canal, interiors                                               # noqa: E402,F401
+import fg2                                                                 # noqa: E402
 for _mod in ('iron', 'neon', 'flood', 'ware', 'props3'):
     try:
         __import__(_mod)
@@ -59,7 +60,9 @@ GROUNDS = {
 
 # Static props get a baked long dusk shadow on the ground (movable/breakable ones do not).
 STATIC_SHADOW = {'lamp_post': (3, 78), 'bus_stop': (50, 60), 'mailbox': (14, 26), 'bench': (38, 14),
-                 'hydrant': (10, 20), 'newsbox': (12, 24), 'car_wreck': (90, 30)}
+                 'hydrant': (10, 20), 'newsbox': (12, 24), 'car_wreck': (90, 30), 'floodlight': (4, 84),
+                 'market_stall_fish': (70, 50), 'market_stall_fruit': (70, 50), 'phone_booth': (22, 60),
+                 'mooring_post': (8, 16), 'planter': (24, 20), 'guard_booth': (38, 56), 'pipe_stack': (56, 28)}
 
 DISTRICT_LAYERS = {d: [('sky', 0.05, 0), ('far', 0.25, 0), ('mid', 0.5, 0)]
                    for d in ('old_quarter', 'canal_market', 'ironworks', 'neon_mile', 'floodgate', 'warehouse')}
@@ -122,7 +125,11 @@ def prop_shadow(R, p, meta):
     dx, dy = R.cast_shadow['dir']
     x, y = p['x'], p['y']
     L = h * 0.75
-    lay = R.cv.layer(x - w, y - 10, w * 2 + L * dx + 20, 24 + L * dy)
+    if R.cast_shadow.get('alpha', 0) <= 0.01:
+        return
+    lx0 = min(x - w, x - w + L * dx)
+    lx1 = max(x + w, x + w + L * dx) + 20
+    lay = R.cv.layer(lx0, y - 10, lx1 - lx0, 24 + abs(L * dy))
     tipw = w * (0.35 if t == 'lamp_post' else 0.8)
     lay.fill_poly([(x - w / 2, y), (x + w / 2, y), (x + tipw / 2 + L * dx, y + L * dy),
                    (x - tipw / 2 + L * dx, y + L * dy)], C('#000000'))
@@ -134,13 +141,14 @@ def prop_shadow(R, p, meta):
 
 def lamp_lights(R):
     for p in R.data.get('props', []):
-        if p['type'] == 'lamp_post':
+        if p['type'] in LIGHT_PROPS:
+            dx, hy_off, r, col, en, fl, pool = LIGHT_PROPS[p['type']]
             x, y = p['x'], p['y']
-            hx, hy = x, y - 80 + 9
-            R.glow(hx, hy, 34, '#ffd27a', 0.6, 'none')
-            R.glow(hx, hy + 30, 46, '#ffc070', 0.12, 'none', front=True)
-            roommod.light_pool(R, x + 2, y + 8, 34, 11, '#ffc878', a=0.22)
-            R.light(x, y + 14, 60, 42, '#ffc070', 0.2)
+            hx, hy = x + dx, y - hy_off
+            R.glow(hx, hy, r, col, en, fl)
+            R.glow(hx, hy + 30, r * 1.35, col, 0.12, 'none', front=True)
+            roommod.light_pool(R, x + 2, y + 8, 34, 11, pool, a=0.22)
+            R.light(x, y + 14, 60, 42, pool, 0.2)
 
 
 def extras_oq_kettle(R):
@@ -176,7 +184,70 @@ def extras_int_diner(R):
     R.reflect.append({"rect": [0, 200, 640, 160], "alpha": 0.12})
 
 
-SELF_DOORS = {'diner'}
+SELF_DOORS = {'diner', 'alley_gap'}
+
+LIGHT_PROPS = {   # type: (dx, head offset from the ground y, glow r, colour, energy, flicker, pool colour)
+    'lamp_post': (0, 71, 34, '#ffd27a', 0.6, 'none', '#ffc878'),
+    'lamp_sodium': (10, 84, 38, '#ffb050', 0.65, 'none', '#ffa848'),
+    'floodlight': (0, 84, 44, '#e8f4ff', 0.6, 'fluor', '#d8ecff'),
+    'neon_post': (0, 70, 26, '#ff4ab0', 0.5, 'neon', '#ff70c0'),
+}
+
+
+def drawbridge_layers(R, d):
+    """cm_pier: bascule leaf raised until boss_pikes, lowered after (spacer tiles position the leaf)."""
+    px, py, x_end = R.drawbridge
+    x0 = int(px - 20)
+    out = []
+    for state in ('up', 'down'):
+        cv = Canvas(x_end - x0, FACADE_BOTTOM, D, x0, 0)
+        leaf = M(C('#3e4a56'))
+        L = x_end - px + 10
+        ang = math.radians(64 if state == 'up' else 0)
+        tip = (px + math.cos(ang) * L, py - math.sin(ang) * L)
+        nrm = (-math.sin(ang), -math.cos(ang))
+        th = 12
+        poly = [(px, py), tip, (tip[0] + nrm[0] * th, tip[1] + nrm[1] * th), (px + nrm[0] * th, py + nrm[1] * th)]
+        cv.fill_poly(poly, leaf.b, ink=leaf.i, iw=MAJOR)
+        n = 14
+        for k in range(n + 1):
+            t = k / n
+            a = (px + (tip[0] - px) * t, py + (tip[1] - py) * t)
+            b = (a[0] + nrm[0] * th, a[1] + nrm[1] * th)
+            cv.line([a, b], 0.8, leaf.l)
+            if k < n:
+                t2 = (k + 1) / n
+                c2 = (px + (tip[0] - px) * t2 + nrm[0] * th, py + (tip[1] - py) * t2 + nrm[1] * th)
+                cv.line([a, c2], 0.6, leaf.l)
+        cv.line([(px, py), tip], 0.8, C('#ffe0a0'), a=0.6)
+        cv.ellipse(px, py, 6, 6, C('#5a5c66'), ink=C('#1a1420'), iw=MAJOR)
+        if state == 'down':
+            sx = x_end - 29
+            cv.ellipse(sx, 123, 2.4, 2.4, C('#3a2a2a'))
+            cv.ellipse(sx, 132, 2.4, 2.4, C('#3aff6a'), em=1.0)
+            cv.rect(px, py - 14, L, 1.2, leaf.b)
+            for k in range(int(L / 10)):
+                cv.rect(px + k * 10, py - 14, 0.8, 8, leaf.b)
+        im = cv.to_image()
+        fn = f'bridge_{state}.png'
+        im.save(os.path.join(d, fn), optimize=True)
+        files = []
+        left = x0 * D
+        while left > 0:
+            sw = min(2048, left)
+            sp = f'spacer_{sw}.png'
+            if not os.path.exists(os.path.join(d, sp)):
+                Image.new('RGBA', (sw, 1), (0, 0, 0, 0)).save(os.path.join(d, sp))
+            files.append(sp)
+            left -= sw
+        files.append(fn)
+        e = {"name": f'bridge_{state}', "files": files, "parallax": 1.0, "y": 0, "repeat": False}
+        if state == 'up':
+            e["unless"] = "boss_pikes"
+        else:
+            e["requires"] = "boss_pikes"
+        out.append(e)
+    return out
 
 
 def exterior_south(R, x0, x1):
@@ -425,7 +496,8 @@ def mid_chainlot():
 
 
 ROOM_MID = {'oq_chainlot': [('mid', mid_chainlot, 0.6, 80)]}
-ROOM_DISTRICT_LAYERS = {'oq_chainlot': ['sky', 'far']}
+ROOM_DISTRICT_LAYERS = {'oq_chainlot': ['sky', 'far'], 'cm_pier': ['sky', 'far'], 'iy_foundry': [],
+                        'rw_storage': [], 'rw_office': [], 'rw_floor': [], 'nm_backalley': []}
 
 
 # ----------------------------------------------------------------------------- build
@@ -492,7 +564,7 @@ def write_room(R, img, out_root):
     if not R.interior:
         only = ROOM_DISTRICT_LAYERS.get(R.id)
         for name, par, y in DISTRICT_LAYERS.get(R.district, []):
-            if only and name not in only:
+            if only is not None and name not in only:
                 continue
             layers.append({"name": name, "files": [f'../_district/{R.district}_{name}.png'], "parallax": par,
                            "y": y, "repeat": True})
@@ -502,11 +574,33 @@ def write_room(R, img, out_root):
         layers.append({"name": f'room_{name}', "files": files, "parallax": par, "y": y, "repeat": True})
     layers.append({"name": "base", "files": base_files, "parallax": 1.0, "y": 0, "repeat": False})
     fg = []
-    for name, fn, places, par, fade in FG.get(R.id, []):
-        cv = fn()
-        cv.to_image().save(os.path.join(d, f'{name}.png'), optimize=True)
-        for (x, y) in places:
-            fg.append({"file": f'{name}.png', "x": x, "y": y, "parallax": par, "fade": fade})
+    if R.id in FG:
+        for name, fn, places, par, fade in FG[R.id]:
+            cv = fn()
+            cv.to_image().save(os.path.join(d, f'{name}.png'), optimize=True)
+            for (x, y) in places:
+                fg.append({"file": f'{name}.png', "x": x, "y": y, "parallax": par, "fade": fade})
+    else:
+        south = R.data.get('exits', {}).get('south')
+        spec = None
+        if R.id == 'rw_office':
+            spec = [('fg_tube', fg2.fg_tube, 'top', 1.15, False)]
+        elif R.district == 'old_quarter' and not R.interior:
+            spec = [('fg_car', fg_car, 'bottom', 1.25, True), ('fg_meter', fg_meter, 'bottom', 1.3, True),
+                    ('fg_signal', fg_signal_cables, 'top', 1.12, False)]
+        made = set()
+        for name, fn, x, y, par, fade in fg2.auto_fg(R.id, R.district, R.interior, R.W,
+                                                     (south['x0'], south['x1']) if south else None, spec):
+            if name not in made:
+                fn().to_image().save(os.path.join(d, f'{name}.png'), optimize=True)
+                made.add(name)
+            if name == 'fg_signal':
+                y = 70.0
+            elif name == 'fg_meter':
+                y = 380.0
+            fg.append({"file": f'{name}.png', "x": round(x, 1), "y": y, "parallax": par, "fade": fade})
+    if R.drawbridge:
+        layers.extend(drawbridge_layers(R, d))
     lm = roommod.build_lightmap(R, 8)
     lm.save(os.path.join(d, 'light.png'))
     if R.interior:
@@ -525,8 +619,7 @@ def write_room(R, img, out_root):
     }
     if not R.interior:
         js["cast_shadow"] = R.cast_shadow
-    for k, v in R.extra_layers.items():
-        pass
+
     with open(os.path.join(d, 'room.json'), 'w') as f:
         json.dump(js, f, indent=1)
     return js
@@ -706,8 +799,15 @@ def write_ledger(built):
         '',
         '## Built',
     ]
+    prev = {}
+    if os.path.exists(LEDGER):
+        for ln in open(LEDGER).read().splitlines():
+            if ln.startswith('- `') and '`: ' in ln:
+                prev[ln[3:ln.index('`', 3)]] = ln
     for rid, info in built:
-        lines.append(f'- `{rid}`: {info}')
+        prev[rid] = f'- `{rid}`: {info}'
+    for rid in sorted(prev):
+        lines.append(prev[rid])
     with open(LEDGER, 'w') as f:
         f.write('\n'.join(lines) + '\n')
 

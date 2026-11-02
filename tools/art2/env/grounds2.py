@@ -37,7 +37,7 @@ def stones(R, x, w, y0, y1, base, seed, h0=4.0, h1=8.0, aspect=1.6, var=0.07, jo
     cv = R.cv
     m = M(C(base))
     mk = cv.rect(x, y0, w, y1 - y0, m.b)
-    jc = np.array((joint or shade(m.b, 1.4))[:3], np.float32) / 255
+    jc = np.array((joint or shade(m.b, 0.85))[:3], np.float32) / 255
     bs = np.array(m.b[:3], np.float32) / 255
     lt = np.array(m.l[:3], np.float32) / 255
     sh = np.array(m.s[:3], np.float32) / 255
@@ -61,8 +61,8 @@ def stones(R, x, w, y0, y1, base, seed, h0=4.0, h1=8.0, aspect=1.6, var=0.07, jo
         dx = (fx - 0.5) * 2
         dy = (fy - 0.5) * 2
         r = np.sqrt(dx * dx * 0.8 + dy * dy)
-        c = np.where((dy < -0.35)[..., None], c * 0.6 + lt * 0.4, c)
-        c = np.where((dy > 0.45)[..., None], c * 0.6 + sh * 0.4, c)
+        c = np.where((dy < -0.35)[..., None], c * 0.75 + lt * 0.25, c)
+        c = np.where((dy > 0.45)[..., None], c * 0.75 + sh * 0.25, c)
         c = np.where((r > 0.92)[..., None], jc, c)
         return np.clip(c, 0, 1)
     cv.texture(mk, fn)
@@ -197,7 +197,7 @@ def g_bridge_planks(R, x, w):
     deck1 = bot_w[0]['y'] if bot_w else CURB_Y
     for b in bl:
         canal_water(R, b['x'], b['y'], b['w'], b['h'] if b['y'] + b['h'] <= H else H - b['y'], seed=int(b['y']))
-    planks(R, x, w, deck0, deck1, '#9a7450', hash((R.id, 'deck')) % 9999, across=True)
+    planks(R, x, w, deck0, deck1, '#a07a54', hash((R.id, 'deck')) % 9999, h0=4, h1=7, joint_every=(30, 60))
     cv.vgrad(x, deck0, w, 5, [C('#140c1c', 120), C('#140c1c', 0)], mode='atop')
     # deck edges (timber kerbs) and railings at both water sides
     for yy, up in ((deck0, True), (deck1, False)):
@@ -251,13 +251,13 @@ def g_gravel_rail(R, x, w):
     ty0, ty1 = 286, 312
     xx = x
     while xx < x + w:
-        cv.fill_poly([(xx, ty0 - 2), (xx + 5, ty0 - 2), (xx + 7, ty1 + 3), (xx + 2, ty1 + 3)], C('#5a4a40'), a=0.75,
+        cv.fill_poly([(xx, ty0 - 2), (xx + 5, ty0 - 2), (xx + 7, ty1 + 3), (xx + 2, ty1 + 3)], C('#5a4a40'), a=0.38,
                      mode='atop')
         xx += 11
     for ry in (ty0, ty1):
-        cv.rect(x, ry - 1.2, w, 2.4, C('#6a6a72'), mode='atop')
-        cv.rect(x, ry - 1.2, w, 0.7, C('#c8ccd8'), a=0.8, mode='atop')
-        cv.rect(x, ry + 0.8, w, 0.6, C('#2a2430'), a=0.7, mode='atop')
+        cv.rect(x, ry - 1.2, w, 2.4, C('#6a6a72'), a=0.6, mode='atop')
+        cv.rect(x, ry - 1.2, w, 0.7, C('#c8ccd8'), a=0.45, mode='atop')
+        cv.rect(x, ry + 0.8, w, 0.6, C('#2a2430'), a=0.4, mode='atop')
     cv.rect(x, FB, w, 3, C('#5a5458'), ink=C('#2a2430'), iw=DETAIL)
     wall_contact(R, x, w, FB)
     rs = R.rng('grw')
@@ -299,7 +299,7 @@ def g_neon(R, x, w):
     cv = R.cv
     rm.sidewalk(R, x, w, base='#5a5260')
     rm.curb(R, x, w, top='#6a6270', face='#2e2a36')
-    rm.asphalt(R, x, w, base='#3a3446')
+    rm.asphalt(R, x, w, base='#3a3446', lane=R.id != 'nm_backalley')
     rs = R.rng('nwet')
     for _ in range(int(w / 200) + 1):
         puddle(R, rs.uniform(x + 30, x + w - 30), rs.uniform(262, 334), rs.uniform(12, 26), rs.uniform(2.5, 4.5),
@@ -407,14 +407,14 @@ def g_carpet(R, x, w):
     hh, ww = mm.shape
     XX, YY = np.meshgrid(np.arange(ww), np.arange(hh))
     pat = (((XX // 24) + (YY // 14)) % 2 == 0) & ((XX % 24 < 3) | (YY % 14 < 2))
-    cv.paint((x0, y0, pat.astype(np.float32) * mm * 0.22), C('#d8a060'), mode='atop')
+    cv.paint((x0, y0, pat.astype(np.float32) * mm * 0.12), C('#d8a060'), mode='atop')
     _noise_tone(R, mk, 1.0, 5, 0.04, 0.04, m)
     cv.rect(x, WB + 4, w, 3, C('#d8a060'), a=0.35, mode='atop')
     wall_contact(R, x, w, WB)
 
 
 def g_tile_floor(R, x, w):
-    tiles(R, x, w, WB, H, '#c8ccc0', '#a8b0a4', hash((R.id, 'tf')) % 9999, tile=10, h0=4, h1=10, checker=True)
+    tiles(R, x, w, WB, H, '#c8ccc0', '#b6bdb2', hash((R.id, 'tf')) % 9999, tile=10, h0=4, h1=10, checker=True)
     wall_contact(R, x, w, WB)
     R.reflect.append({"rect": [float(x), 236.0, float(w), 124.0], "alpha": 0.1})
 

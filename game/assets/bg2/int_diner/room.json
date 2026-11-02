@@ -49,13 +49,6 @@
   ],
   "strength": 0.3
  },
- "cast_shadow": {
-  "dir": [
-   0.0,
-   0.0
-  ],
-  "alpha": 0.0
- },
  "glows": [
   {
    "x": 84.0,

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cfmqqty8sgind"
-path="res://.godot/imported/dogs_weapon.png-50e60c8356c3c3b5779321e81885f238.ctex"
+uid="uid://d1gj5wluq1k2n"
+path="res://.godot/imported/base_1.png-c71374c2f35c03392819e9d14d4e9d2c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/portraits2/dogs_weapon.png"
-dest_files=["res://.godot/imported/dogs_weapon.png-50e60c8356c3c3b5779321e81885f238.ctex"]
+source_file="res://assets/bg2/rw_floor/base_1.png"
+dest_files=["res://.godot/imported/base_1.png-c71374c2f35c03392819e9d14d4e9d2c.ctex"]
 
 [params]
 

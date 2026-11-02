@@ -1,0 +1,144 @@
+{
+ "room": "rw_dock",
+ "width": 1600,
+ "density": 2,
+ "layers": [
+  {
+   "name": "sky",
+   "files": [
+    "../_district/warehouse_sky.png"
+   ],
+   "parallax": 0.05,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "far",
+   "files": [
+    "../_district/warehouse_far.png"
+   ],
+   "parallax": 0.25,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "mid",
+   "files": [
+    "../_district/warehouse_mid.png"
+   ],
+   "parallax": 0.5,
+   "y": 0,
+   "repeat": true
+  },
+  {
+   "name": "base",
+   "files": [
+    "base_0.png",
+    "base_1.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_pallets.png",
+   "x": 300.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_pallets.png",
+   "x": 920.0,
+   "y": 384.0,
+   "parallax": 1.25,
+   "fade": true
+  },
+  {
+   "file": "fg_hook.png",
+   "x": 560.0,
+   "y": 130.0,
+   "parallax": 1.18,
+   "fade": false
+  },
+  {
+   "file": "fg_hook.png",
+   "x": 1320.0,
+   "y": 130.0,
+   "parallax": 1.18,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#d0f0e0",
+ "rim": {
+  "color": "#c8ffe0",
+  "dir": [
+   0.2,
+   1.0
+  ],
+  "strength": 0.4
+ },
+ "glows": [
+  {
+   "x": 100,
+   "y": 154,
+   "r": 60,
+   "color": "#c8ffe0",
+   "energy": 0.3,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 540,
+   "y": 154,
+   "r": 60,
+   "color": "#c8ffe0",
+   "energy": 0.3,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 980,
+   "y": 154,
+   "r": 60,
+   "color": "#c8ffe0",
+   "energy": 0.3,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 1420,
+   "y": 154,
+   "r": 60,
+   "color": "#c8ffe0",
+   "energy": 0.3,
+   "flicker": "fluor",
+   "front": false
+  }
+ ],
+ "ambient": [],
+ "reflect": [
+  {
+   "rect": [
+    0.0,
+    230.0,
+    1600.0,
+    110.0
+   ],
+   "alpha": 0.1
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.2
+  ],
+  "alpha": 0.0
+ }
+}

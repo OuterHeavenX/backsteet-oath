@@ -1,0 +1,162 @@
+{
+ "room": "int_noodle",
+ "width": 640,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_shade.png",
+   "x": 192.0,
+   "y": 52.0,
+   "parallax": 1.15,
+   "fade": false
+  },
+  {
+   "file": "fg_shade.png",
+   "x": 480.0,
+   "y": 52.0,
+   "parallax": 1.15,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#ffe8d0",
+ "rim": {
+  "color": "#ffd8a8",
+  "dir": [
+   0.3,
+   1.0
+  ],
+  "strength": 0.3
+ },
+ "glows": [
+  {
+   "x": 55.0,
+   "y": 85.0,
+   "r": 40.0,
+   "color": "#e8f0d8",
+   "energy": 0.22,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 120,
+   "y": 40,
+   "r": 26,
+   "color": "#ff8a5a",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 210,
+   "y": 40,
+   "r": 26,
+   "color": "#ff8a5a",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 300,
+   "y": 40,
+   "r": 26,
+   "color": "#ff8a5a",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 390,
+   "y": 40,
+   "r": 26,
+   "color": "#ff8a5a",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 480,
+   "y": 40,
+   "r": 26,
+   "color": "#ff8a5a",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 570,
+   "y": 40,
+   "r": 26,
+   "color": "#ff8a5a",
+   "energy": 0.4,
+   "flicker": "flame",
+   "front": false
+  },
+  {
+   "x": 310.0,
+   "y": 91.0,
+   "r": 120,
+   "color": "#ffc880",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  }
+ ],
+ "ambient": [
+  {
+   "type": "steam",
+   "x": 224.0,
+   "y": 104.0,
+   "rate": 0.4
+  },
+  {
+   "type": "steam",
+   "x": 266.0,
+   "y": 104.0,
+   "rate": 0.4
+  },
+  {
+   "type": "steam",
+   "x": 308.0,
+   "y": 104.0,
+   "rate": 0.4
+  },
+  {
+   "type": "steam",
+   "x": 350.0,
+   "y": 104.0,
+   "rate": 0.4
+  },
+  {
+   "type": "steam",
+   "x": 392.0,
+   "y": 104.0,
+   "rate": 0.4
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    0.0,
+    236.0,
+    640.0,
+    124.0
+   ],
+   "alpha": 0.08
+  }
+ ]
+}

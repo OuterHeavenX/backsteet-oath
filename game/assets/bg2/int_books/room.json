@@ -1,0 +1,91 @@
+{
+ "room": "int_books",
+ "width": 640,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_boxes.png",
+   "x": 600.0,
+   "y": 384.0,
+   "parallax": 1.2,
+   "fade": true
+  },
+  {
+   "file": "fg_shade.png",
+   "x": 192.0,
+   "y": 52.0,
+   "parallax": 1.15,
+   "fade": false
+  },
+  {
+   "file": "fg_shade.png",
+   "x": 480.0,
+   "y": 52.0,
+   "parallax": 1.15,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#fff0d8",
+ "rim": {
+  "color": "#ffd8a8",
+  "dir": [
+   0.3,
+   1.0
+  ],
+  "strength": 0.3
+ },
+ "glows": [
+  {
+   "x": 223.0,
+   "y": 78.0,
+   "r": 88.0,
+   "color": "#e8f0d8",
+   "energy": 0.22,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 223,
+   "y": 39,
+   "r": 28,
+   "color": "#ffe0a0",
+   "energy": 0.42,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 560,
+   "y": 39,
+   "r": 28,
+   "color": "#ffe0a0",
+   "energy": 0.42,
+   "flicker": "none",
+   "front": false
+  }
+ ],
+ "ambient": [
+  {
+   "type": "dust_motes",
+   "x": 170.0,
+   "y": 50.0,
+   "w": 110,
+   "h": 150
+  }
+ ],
+ "reflect": []
+}

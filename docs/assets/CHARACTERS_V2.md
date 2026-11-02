@@ -14,13 +14,15 @@ The renderer, bodies, poses and animation are new.
     `head` [x, y], `height`, and `anims` (frames, fps, loop, `stride` for walk/run/carry_walk, `contact` for
     attacks).
   - `hurt` is kept as an alias of `hurt_high` for v1 code paths.
-- `game/assets/portraits2/<id>.png`: 5 × 192² busts (neutral, happy, angry, surprised, sad).
+- `game/assets/portraits2/<id>.png`: 5 × 192² busts (neutral, happy, angry, surprised, sad). The ids match
+  `game/assets/portraits/`. Gang portraits (`dogs`, `rats`, `yard`, `saints`, `grays`) use their v1 model character.
 
 ## Build
 ```bash
 python3 tools/art2/chars/gen_chars2.py --benchmark            # nico, Chain Dogs brawler/flanker, Duke, Dot, towna, townd + 4 portraits
 python3 tools/art2/chars/gen_chars2.py --only nico,duke --preview /tmp/prev   # contact sheets + per-anim GIFs
-python3 tools/art2/chars/gen_chars2.py --all                  # every humanoid id in the v1 tables + all portraits
+python3 tools/art2/chars/gen_chars2.py --all                  # every id in game/assets/sprites/characters (60, incl. biscuit) + every v1 portrait id
+python3 tools/art2/chars/verify_chars2.py                     # contract check: anims/counts/contact/padding/v1 keys/heights
 python3 tools/art2/chars/gen_chars2.py --portraits nico,dot   # portraits only
 ```
 Runtime: about 15–40 s per character on 4 cores. The script prints a numeric foot-plant check for every
@@ -32,6 +34,43 @@ locomotion cycle: the maximum world-x drift of a planted foot between frames, in
   - Two-bone IK for arms (to fist targets) and legs (to foot targets), plus foot pitch.
   - Seven body types (normal, slim, heavy, big, tall, kid, elder), with `bulk`/`wide`/`boss_scale` modifiers.
   - Poses are authored once for the normal body and retargeted by limb-relative scaling.
+- **Archetype personality** (`poses.py`, styles chosen by `style_for()` in `gen_chars2.py`): each style changes
+  the stance, idle, walk, run and guard. Attacks keep the shared, contract-checked contact frames.
+
+| Style | Stance and idle | Walk | Guard |
+|---|---|---|---|
+| hero (Nico, Mara, Eli, Rook) | Balanced boxer stance; breathing and weight shift | Standard | Standard |
+| brawler (`*_brawler`, Benny, Rook phase 2) | Lower hands; shoulder roll | Swagger with more twist | Standard |
+| heavy (`*_heavy`, Duke, Otto) | Wide, low stance; slow heaving breath | Slow and rolling: hip sway and roll, short stride | Wide forearm block |
+| flanker (`*_flanker`, Jett) | Bouncy low crouch on the toes | Light-footed: long, high stride on the balls of the feet | Leans back |
+| blocker (`*_blocker`, Price) | Tight high guard | Guard stays up | Full shell |
+| weapon (`*_weapon`, Rhea, Sabine) | Weapon cocked over the shoulder; tap | Weapon held low and ready | Horizontal weapon block |
+| thrower (`*_thrower`, Lou) | Tosses an object in the near hand | Item held at chest | Standard |
+
+  Bosses get a signature idle and victory:
+  - Duke: chain swings, fist pounds; double-biceps flex.
+  - Otto: gorilla crouch; fist into palm.
+  - Sgt. Mott (`grays_heavy`): neck crack; salute.
+  - Jett: beckoning bounce; points.
+  - Rhea: broom planted like a staff, hand on hip; broom shouldered.
+  - Lou: hop-and-toss; laughs with hands on hips.
+  - Sabine: baton taps her palm; hands behind back.
+  - Rook: adjusts his glove; straightens his collar.
+  - Rook phase 2: predatory crouch; roar.
+- **Proportions:** `TYPE_SCALE` in `rig.py` sets crown heights without hair:
+  - normal and slim 94 tx; tall 104;
+  - heavy 106 (Duke 112); big 110 (Otto 114);
+  - kid 80; elder 88.
+
+  Hair and hats add up to about 12 tx (for example Nico's spikes and Duke's mohawk). The JSON `height` is measured
+  *with* hair.
+- **Hands and arms:** limbs taper from the deltoid through the biceps and elbow to the forearm belly and wrist.
+  - Fists are squarish, with a knuckle ridge, finger grooves and a thumb wrap.
+  - Open hands have a palm, finger grooves and a thumb.
+  - Sleeves have cuffs, roll bands, an elbow crease and wrinkles.
+- **Biscuit** (`dog.py`): a quadruped in the same ink and cel pipeline. It has a diagonal-gait walk with
+  distance-planted paws, a wagging tail, a lifting ear, an opening jaw, a collar and tag. Anims: `idle` 4, `walk` 8
+  (stride 20), `sit` 2, `bark` 3, plus `run` as an alias of walk.
 - **Animation** (`poses.py`):
   - **Attacks:** an explicit key pose per frame, in the order anticipation → contact → follow-through → recovery.
     Punches rotate the shoulders *and* hips and lift the rear heel. Kicks lean back as a counterweight with the arms
@@ -61,9 +100,9 @@ locomotion cycle: the maximum world-x drift of a planted foot between frames, in
 This is clean, consistent vector-style illustration, not hand-painted art:
 - Anatomy is simplified: tapered limbs and mitten hands. Fists and open hands are the only hand shapes.
 - Cloth folds are a few authored crease lines, not simulated drapery.
-- Every character in a body type shares the same pose set, so characters differ through silhouette, outfit,
-  personality face and colour rather than unique motion.
+- Attacks are shared by all fighters. Only idle, walk, run and guard (by style) and the boss idle and victory
+  poses differ.
 - Faces are expressive at 1:1 (eyes are about 5×7 tx) but have no painterly shading.
 - Hair styles outside the refined set (spiky, spikes_up, mohawk, mohawk_low, beehive, short, long) reuse the v1
   head-shape tables, so they are simpler.
-- Biscuit the dog (a quadruped) is not covered by this generator yet.
+- Biscuit is simpler than the humanoids: one coat material, no face expressions beyond blink and bark.

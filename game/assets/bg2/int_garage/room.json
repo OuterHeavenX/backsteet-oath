@@ -1,0 +1,83 @@
+{
+ "room": "int_garage",
+ "width": 640,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_boxes.png",
+   "x": 600.0,
+   "y": 384.0,
+   "parallax": 1.2,
+   "fade": true
+  },
+  {
+   "file": "fg_tube.png",
+   "x": 192.0,
+   "y": 30.0,
+   "parallax": 1.15,
+   "fade": false
+  },
+  {
+   "file": "fg_tube.png",
+   "x": 480.0,
+   "y": 30.0,
+   "parallax": 1.15,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#fff4e8",
+ "rim": {
+  "color": "#ffd8a8",
+  "dir": [
+   0.3,
+   1.0
+  ],
+  "strength": 0.3
+ },
+ "glows": [
+  {
+   "x": 110,
+   "y": 13,
+   "r": 41.4,
+   "color": "#e8fff8",
+   "energy": 0.4,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 320,
+   "y": 13,
+   "r": 41.4,
+   "color": "#e8fff8",
+   "energy": 0.4,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 530,
+   "y": 13,
+   "r": 41.4,
+   "color": "#e8fff8",
+   "energy": 0.4,
+   "flicker": "fluor",
+   "front": false
+  }
+ ],
+ "ambient": [],
+ "reflect": []
+}

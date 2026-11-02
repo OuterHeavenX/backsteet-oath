@@ -7,7 +7,7 @@ from raster import Canvas, C, mix, shade, light, ink_of, value_noise, rng_of
 import kit
 from kit import M, MAJOR, DETAIL, window, door, awning, cornice, parapet, brick_wall, drainpipe, cable, \
     neon_text, painted_text, poster, tag, string_lights
-from room import FACADE_BOTTOM as FB, H, light_pool, sun_rim, weeds
+from room import FACADE_BOTTOM as FB, H, INT_WALL_BOTTOM as WB, light_pool, sun_rim, weeds
 from common import facade, FACADES, shop_building, door_x, lantern, bunting, big_door, gable, wall, stone_wall, \
     storefront, shop_door
 from grounds2 import canal_water

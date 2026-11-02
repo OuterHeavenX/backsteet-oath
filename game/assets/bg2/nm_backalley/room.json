@@ -1,0 +1,149 @@
+{
+ "room": "nm_backalley",
+ "width": 640,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_boxes.png",
+   "x": 600.0,
+   "y": 384.0,
+   "parallax": 1.28,
+   "fade": true
+  },
+  {
+   "file": "fg_blade.png",
+   "x": 192.0,
+   "y": 120.0,
+   "parallax": 1.15,
+   "fade": false
+  },
+  {
+   "file": "fg_cables.png",
+   "x": 480.0,
+   "y": 56.0,
+   "parallax": 1.1,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#b8a8e8",
+ "rim": {
+  "color": "#ff5ab0",
+  "dir": [
+   0.6,
+   0.6
+  ],
+  "strength": 0.55
+ },
+ "glows": [
+  {
+   "x": 571,
+   "y": 152,
+   "r": 30,
+   "color": "#ff4ab0",
+   "energy": 0.5,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 60,
+   "y": 146,
+   "r": 30,
+   "color": "#4ae0ff",
+   "energy": 0.5,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 460,
+   "y": 146,
+   "r": 30,
+   "color": "#ff4ab0",
+   "energy": 0.5,
+   "flicker": "neon",
+   "front": false
+  }
+ ],
+ "ambient": [
+  {
+   "type": "steam",
+   "x": 120.0,
+   "y": 208.0,
+   "rate": 0.6
+  },
+  {
+   "type": "drip",
+   "x": 400.0,
+   "y": 60.0,
+   "rate": 0.4
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    130.6,
+    262.6,
+    45.2,
+    6.0
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    9.3,
+    269.9,
+    42.5,
+    8.4
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    569.3,
+    264.9,
+    38.7,
+    5.4
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    422.7,
+    260.5,
+    39.9,
+    7.8
+   ],
+   "alpha": 0.22
+  },
+  {
+   "rect": [
+    0.0,
+    251.0,
+    640.0,
+    93.0
+   ],
+   "alpha": 0.16
+  }
+ ],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.3
+  ],
+  "alpha": 0.06
+ }
+}

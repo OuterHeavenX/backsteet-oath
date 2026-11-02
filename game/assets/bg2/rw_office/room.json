@@ -1,0 +1,76 @@
+{
+ "room": "rw_office",
+ "width": 960,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_tube.png",
+   "x": 560.0,
+   "y": 30.0,
+   "parallax": 1.15,
+   "fade": false
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#d0f0e0",
+ "rim": {
+  "color": "#c8ffe0",
+  "dir": [
+   0.2,
+   1.0
+  ],
+  "strength": 0.4
+ },
+ "glows": [
+  {
+   "x": 120,
+   "y": 16,
+   "r": 50,
+   "color": "#e8fff0",
+   "energy": 0.42,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 420,
+   "y": 16,
+   "r": 50,
+   "color": "#e8fff0",
+   "energy": 0.42,
+   "flicker": "fluor",
+   "front": false
+  },
+  {
+   "x": 720,
+   "y": 16,
+   "r": 50,
+   "color": "#e8fff0",
+   "energy": 0.42,
+   "flicker": "fluor",
+   "front": false
+  }
+ ],
+ "ambient": [],
+ "reflect": [],
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.2
+  ],
+  "alpha": 0.0
+ }
+}

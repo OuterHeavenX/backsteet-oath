@@ -17,6 +17,33 @@ into the images; see THIRD_PARTY_NOTICES.md.
   never writes to it.
 
 ## Built
-- `oq_kettle`: 3200x720 tx base in 2 tile(s), 5 fg, 13 glows, 5 ambient
+- `cm_canalwalk`: 3840x720 tx base in 2 tile(s), 5 fg, 6 glows, 5 ambient
+- `cm_gate`: 3200x720 tx base in 2 tile(s), 4 fg, 9 glows, 1 ambient
+- `cm_pier`: 2880x720 tx base in 3 tile(s), 4 fg, 3 glows, 4 ambient
+- `fr_bridge`: 3520x720 tx base in 2 tile(s), 5 fg, 6 glows, 2 ambient
+- `fr_dockgate`: 2880x720 tx base in 2 tile(s), 4 fg, 5 glows, 2 ambient
+- `fr_pumpstation`: 3840x720 tx base in 2 tile(s), 5 fg, 6 glows, 5 ambient
+- `int_arcade`: 1600x720 tx base in 1 tile(s), 2 fg, 4 glows, 0 ambient
+- `int_bait`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 1 ambient
+- `int_books`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 1 ambient
+- `int_canteen`: 1280x720 tx base in 1 tile(s), 2 fg, 4 glows, 6 ambient
 - `int_diner`: 1280x720 tx base in 1 tile(s), 3 fg, 7 glows, 2 ambient
+- `int_garage`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 0 ambient
+- `int_noodle`: 1280x720 tx base in 1 tile(s), 2 fg, 8 glows, 5 ambient
+- `int_pharmacy`: 1280x720 tx base in 1 tile(s), 2 fg, 4 glows, 0 ambient
+- `int_rec`: 1280x720 tx base in 1 tile(s), 2 fg, 6 glows, 0 ambient
+- `int_switch`: 1600x720 tx base in 1 tile(s), 2 fg, 5 glows, 1 ambient
+- `iy_foundry`: 2880x720 tx base in 2 tile(s), 4 fg, 3 glows, 5 ambient
+- `iy_gate`: 3200x720 tx base in 2 tile(s), 4 fg, 9 glows, 3 ambient
+- `iy_spur`: 3840x720 tx base in 2 tile(s), 5 fg, 10 glows, 5 ambient
+- `nm_arcade`: 3200x720 tx base in 2 tile(s), 4 fg, 28 glows, 1 ambient
+- `nm_backalley`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 2 ambient
+- `nm_marquee`: 3520x720 tx base in 2 tile(s), 5 fg, 16 glows, 0 ambient
+- `nm_rooftops`: 3200x720 tx base in 2 tile(s), 4 fg, 5 glows, 2 ambient
+- `oq_brickrow`: 3520x720 tx base in 2 tile(s), 5 fg, 8 glows, 1 ambient
 - `oq_chainlot`: 2880x720 tx base in 2 tile(s), 4 fg, 13 glows, 6 ambient
+- `oq_kettle`: 3200x720 tx base in 2 tile(s), 5 fg, 13 glows, 5 ambient
+- `rw_dock`: 3200x720 tx base in 2 tile(s), 4 fg, 4 glows, 0 ambient
+- `rw_floor`: 2240x720 tx base in 2 tile(s), 3 fg, 3 glows, 0 ambient
+- `rw_office`: 1920x720 tx base in 1 tile(s), 1 fg, 3 glows, 0 ambient
+- `rw_storage`: 3840x720 tx base in 2 tile(s), 5 fg, 11 glows, 0 ambient
