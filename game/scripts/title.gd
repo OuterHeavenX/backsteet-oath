@@ -7,6 +7,9 @@ var press_label: Label
 var main_box: VBoxContainer
 var started := false
 var blink := 0.0
+var logo: TextureRect
+var layers: Array = []   # [{node: TextureRect, depth: float}]
+var drift_t := 0.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -14,34 +17,44 @@ func _ready() -> void:
 	get_tree().root.theme = UIKit.build_theme()
 	UIKit.apply(self)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var layered := _build_layers()
 	var bg_tex := SpriteLib.tex("res://assets/bg/title_bg.png")
-	if bg_tex:
+	if layered:
+		pass
+	elif bg_tex:
 		var bg := TextureRect.new()
 		bg.texture = bg_tex
 		bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		add_child(bg)
 	else:
 		var cr := ColorRect.new()
 		cr.color = Color(0.16, 0.1, 0.16)
 		cr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		add_child(cr)
-	var logo_tex := SpriteLib.ui("logo")
+	var logo_tex := SpriteLib.ui2("logo")
 	var top := CenterContainer.new()
-	UIKit.place(top, Control.PRESET_CENTER_TOP, -240, 14, 480, 130)
+	UIKit.place(top, Control.PRESET_CENTER_TOP, -240, 10, 480, 134)
 	add_child(top)
 	if logo_tex:
-		var lr := TextureRect.new()
-		lr.texture = logo_tex
-		lr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		top.add_child(lr)
+		logo = TextureRect.new()
+		logo.texture = logo_tex
+		logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		logo.custom_minimum_size = Vector2(440, 132)
+		logo.pivot_offset = Vector2(220, 66)
+		top.add_child(logo)
+		logo.modulate.a = 0.0
+		logo.scale = Vector2(1.12, 1.12)
+		var tw := logo.create_tween()
+		tw.tween_property(logo, "modulate:a", 1.0, 0.6)
+		tw.parallel().tween_property(logo, "scale", Vector2.ONE, 0.7).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	else:
 		var l := UIKit.heading("BACKSTREET OATH")
-		l.add_theme_font_size_override("font_size", 24)
+		l.add_theme_font_size_override("font_size", 28)
 		top.add_child(l)
-	var sub := UIKit.label("Bellwether, 1988", UIKit.CREAM, 0, HORIZONTAL_ALIGNMENT_CENTER)
+	var sub := UIKit.label("BELLWETHER  ·  1988", UIKit.CREAM, 0, HORIZONTAL_ALIGNMENT_CENTER)
 	UIKit.place(sub, Control.PRESET_CENTER_TOP, -100, 146, 200, 10)
 	sub.add_theme_color_override("font_outline_color", UIKit.INK)
 	sub.add_theme_constant_override("outline_size", 4)
@@ -67,9 +80,10 @@ func _ready() -> void:
 		_start()
 
 func _process(delta: float) -> void:
+	_animate_layers(delta)
 	if not started:
 		blink += delta
-		press_label.visible = int(blink * 2.0) % 2 == 0
+		press_label.modulate.a = 0.55 + 0.45 * cos(blink * 3.2)
 		press_label.text = {"touch": "TAP TO START", "gamepad": "PRESS ANY BUTTON"}.get(InputPrompts.kind, "PRESS ANY KEY")
 
 func _input(event: InputEvent) -> void:
@@ -160,3 +174,50 @@ func top_menu() -> Control:
 
 func toast(_m: String) -> void:
 	pass
+
+
+## Parallax title scene from ui2 title layers (sky, far, mid, street, hero). Returns false if the art is missing.
+func _build_layers() -> bool:
+	var names := [["title_sky", 0.0], ["title_far", 0.15], ["title_mid", 0.35], ["title_street", 0.7], ["title_hero", 1.0]]
+	var any := false
+	for n in names:
+		var t := SpriteLib.tex("res://assets/ui2/%s.png" % n[0])
+		if t == null:
+			continue
+		any = true
+		var r := TextureRect.new()
+		r.texture = t
+		r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		r.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		r.offset_left = -16
+		r.offset_right = 16
+		add_child(r)
+		layers.append({"node": r, "depth": float(n[1])})
+	if any:
+		var vig := TextureRect.new()
+		var g := Gradient.new()
+		g.colors = PackedColorArray([Color(0, 0, 0, 0), Color(0.02, 0.01, 0.03, 0.55)])
+		var gt := GradientTexture2D.new()
+		gt.gradient = g
+		gt.fill = GradientTexture2D.FILL_RADIAL
+		gt.fill_from = Vector2(0.5, 0.45)
+		gt.fill_to = Vector2(1.15, 0.45)
+		vig.texture = gt
+		vig.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		vig.stretch_mode = TextureRect.STRETCH_SCALE
+		vig.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vig.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		add_child(vig)
+	return any
+
+func _animate_layers(delta: float) -> void:
+	drift_t += delta
+	for L in layers:
+		var r: TextureRect = L.node
+		var d: float = L.depth
+		r.position.x = -16.0 + sin(drift_t * 0.12) * 12.0 * d
+		r.position.y = cos(drift_t * 0.09) * 2.0 * d
+	if logo and logo.modulate.a >= 1.0:
+		logo.position.y = sin(drift_t * 0.8) * 1.2

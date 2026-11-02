@@ -171,10 +171,13 @@ func _intro(room: Node) -> void:
 		t.facing = -1
 	if not GameState.has_flag("intro_seen"):
 		p.position = Vector2(30, 280)
+		world.hud.show_card("Kettle Street", "Old Quarter  -  Bellwether, 1988", UIKit.MUSTARD)
+		room.focus_camera(470)
 		await room.walk_to(p, Vector2(330, 270), 80.0)
 		if not _valid(room):
 			return
 		await _say("intro_1")
+		room.release_camera()
 		GameState.set_flag("intro_seen")
 	room.set_cutscene(false)
 	if not _valid(room):
@@ -485,9 +488,11 @@ func _switch_fight(room: Node) -> void:
 		await room.walk_to(room.player, gus.position + Vector2(-40, 6), 80.0)
 		room.player.facing = 1
 		gus.facing = -1
+		room.focus_camera(gus.position.x - 20.0)
 	await _say("gus_rescue")
 	if not _valid(room):
 		return
+	room.release_camera()
 	GameState.set_flag("rescued_gus")
 	_note("greyline")
 	_set_stage("foundry")
@@ -699,6 +704,8 @@ func _eli_found(room: Node) -> void:
 	eli.mode = "idle"
 	eli.set_state("idle")
 	eli.facing = -1
+	room.focus_camera(eli.position.x - 20.0)
+	room.impulse(Vector2(0, 1), 1.0)
 	var mara: NPC = room.spawn_npc("mara", "mara", Vector2(30, 300), {"mode": "idle", "talk": false})
 	await room.walk_to(mara, eli.position + Vector2(-20, 24), 110.0)
 	if not _valid(room):
@@ -706,6 +713,7 @@ func _eli_found(room: Node) -> void:
 	await _say("eli_found")
 	if not _valid(room):
 		return
+	room.release_camera()
 	GameState.set_flag("found_eli")
 	_note("eli_truth")
 	_set_stage("rook")
@@ -726,9 +734,7 @@ func _rook_ending(room: Node) -> void:
 	_note("ending")
 	GameState.set_stage("epilogue")
 	await SceneFlow.fade_out(1.0)
-	var overlay := ColorRect.new()
-	overlay.color = Color(0.05, 0.03, 0.07)
-	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var overlay := _ending_backdrop()
 	world.ui_layer.add_child(overlay)
 	world.ui_layer.move_child(overlay, 0)
 	Audio.play_music("ending", 1.0)
@@ -750,6 +756,33 @@ func _rook_ending(room: Node) -> void:
 	credits_return = "world"
 	busy = false
 	SceneFlow.goto("res://scenes/credits.tscn", 1.0)
+
+## The ending cards play over the dusk street from the title art, dimmed and slowly drifting.
+func _ending_backdrop() -> Control:
+	var root := ColorRect.new()
+	root.color = Color(0.05, 0.03, 0.07)
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var i := 0
+	for n in ["title_sky", "title_far", "title_mid", "title_street"]:
+		var t := SpriteLib.tex("res://assets/ui2/%s.png" % n)
+		if t == null:
+			continue
+		var r := TextureRect.new()
+		r.texture = t
+		r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		r.set_anchors_preset(Control.PRESET_FULL_RECT)
+		r.offset_left = -20
+		r.offset_right = 20
+		r.modulate = Color(0.62, 0.55, 0.6)
+		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(r)
+		var tw := r.create_tween().set_loops()
+		tw.tween_property(r, "position:x", -20.0 - 6.0 * i, 9.0).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(r, "position:x", -20.0 + 6.0 * i, 9.0).set_trans(Tween.TRANS_SINE)
+		i += 1
+	return root
 
 # ---------------------------------------------------------------- conversations
 func talk(room: Node, npc: NPC) -> void:

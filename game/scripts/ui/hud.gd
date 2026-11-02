@@ -438,7 +438,10 @@ func _update_cinema(delta: float) -> void:
 		flash_rect.color.a = maxf(0.0, flash_rect.color.a - delta * 2.5)
 
 ## Boss name card: slides in, holds, slides out (about 2.6 s). Purely visual.
-func show_card(title: String, sub: String) -> void:
+var card_accent := UIKit.DANGER
+
+func show_card(title: String, sub: String, accent: Color = UIKit.DANGER) -> void:
+	card_accent = accent
 	card_name = title.to_upper()
 	card_sub = sub
 	card_t = 2.6
@@ -462,7 +465,7 @@ func _draw_card() -> void:
 		Vector2(slide + w * 0.62, y + 22), Vector2(slide - 20, y + 22)])
 	card.draw_colored_polygon(band, Color(0.05, 0.03, 0.07, 0.86 * k))
 	card.draw_colored_polygon(PackedVector2Array([Vector2(slide - 20, y + 22), Vector2(slide + w * 0.62, y + 22),
-		Vector2(slide + w * 0.62 - 1.5, y + 25), Vector2(slide - 20, y + 25)]), Color(UIKit.DANGER, k))
+		Vector2(slide + w * 0.62 - 1.5, y + 25), Vector2(slide - 20, y + 25)]), Color(card_accent, k))
 	var fb := UIKit.font_big
 	var tx := 28.0 + slide + (1.0 - inn) * 40.0
 	card.draw_string_outline(fb, Vector2(tx, y + 4), card_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, 4, Color(0.05, 0.03, 0.07, k))

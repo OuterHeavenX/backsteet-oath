@@ -31,6 +31,7 @@ func _ready() -> void:
 	Story.busy = true   # keep story events from firing inside test rooms
 	test_content()
 	test_assets()
+	test_assets_v2()
 	test_conditions()
 	test_stats()
 	test_food_caps()
@@ -113,6 +114,79 @@ func test_assets() -> void:
 	for s in used_sfx:
 		check(ResourceLoader.exists("res://assets/audio/sfx/%s.ogg" % s), "sfx: " + s)
 	check(ResourceLoader.exists("res://assets/fonts/oath_pixel.ttf"), "pixel font present")
+
+## v2 art must honour docs/visual/ASSET_CONTRACT_V2.md: required anims, valid contact frames, web-safe
+## texture sizes, and prop footprints identical to the gameplay (v1) footprints.
+const FIGHTER_ANIMS := ["idle", "walk", "run", "jump", "land", "punch_a", "punch_b", "punch_c", "kick", "kick_c",
+	"jump_kick", "jump_punch", "run_punch", "dropkick", "guard", "hurt_high", "hurt_low", "hurt_back", "knockdown",
+	"getup", "dizzy", "pickup", "carry", "carry_walk", "throw", "swing", "sweep", "rising_kick", "slam",
+	"victory", "talk", "cower"]
+
+func test_assets_v2() -> void:
+	var dir := "res://assets/sprites/chars/"
+	var n_chars := 0
+	if DirAccess.dir_exists_absolute(dir):
+		for f in DirAccess.get_files_at(dir):
+			if not f.ends_with(".json"):
+				continue
+			var id := f.get_basename()
+			n_chars += 1
+			var meta = JSON.parse_string(FileAccess.get_file_as_string(dir + f))
+			check(typeof(meta) == TYPE_DICTIONARY, "v2 char json parses: " + id)
+			if typeof(meta) != TYPE_DICTIONARY:
+				continue
+			var tex: Texture2D = load(dir + id + ".png")
+			check(tex != null and tex.get_width() <= 2048 and tex.get_height() <= 2048, "v2 atlas <= 2048: " + id)
+			var nf: int = meta.get("frames", []).size()
+			check(nf > 0 and meta.get("hand", []).size() == nf, "v2 hand per frame: " + id)
+			var anims: Dictionary = meta.get("anims", {})
+			var v1 = JSON.parse_string(FileAccess.get_file_as_string("res://assets/sprites/characters/%s.json" % id)) if FileAccess.file_exists("res://assets/sprites/characters/%s.json" % id) else {}
+			var fighter: bool = typeof(v1) == TYPE_DICTIONARY and v1.get("anims", {}).has("punch_a") and anims.has("punch_a")
+			for a in (FIGHTER_ANIMS if fighter else ["idle", "walk", "talk"]):
+				check(anims.has(a), "v2 %s has anim %s" % [id, a])
+			for a in anims:
+				var fr: Array = anims[a].get("frames", [])
+				var ok := not fr.is_empty()
+				for i in fr:
+					ok = ok and int(i) >= 0 and int(i) < nf
+				check(ok, "v2 %s anim %s frames valid" % [id, a])
+				if anims[a].has("contact"):
+					check(int(anims[a].contact) >= 0 and int(anims[a].contact) < fr.size(), "v2 %s %s contact in range" % [id, a])
+			for a in ["punch_a", "punch_b", "kick", "swing"]:
+				if anims.has(a):
+					check(int(anims[a].get("contact", 0)) >= 1, "v2 %s %s has an anticipation frame" % [id, a])
+			for a in ["walk", "run"]:
+				if anims.has(a):
+					check(float(anims[a].get("stride", 0)) > 0.0, "v2 %s %s has stride" % [id, a])
+	var p2 := "res://assets/props2/props.json"
+	if FileAccess.file_exists(p2):
+		var m2 = JSON.parse_string(FileAccess.get_file_as_string(p2))
+		for t in m2:
+			if t.begins_with("_"):
+				continue
+			var v1m: Dictionary = Content.props_meta.get(t, {})
+			check(not v1m.is_empty(), "props2 type exists in v1: " + t)
+			if not v1m.is_empty():
+				check(str(m2[t].get("footprint")) == str(v1m.get("footprint")), "props2 footprint unchanged: " + t)
+	var bdir := "res://assets/bg2/"
+	if DirAccess.dir_exists_absolute(bdir):
+		for r in DirAccess.get_directories_at(bdir):
+			if r.begins_with("_"):
+				continue
+			check(Content.rooms.has(r), "bg2 room exists: " + r)
+			var rm = JSON.parse_string(FileAccess.get_file_as_string(bdir + r + "/room.json"))
+			check(typeof(rm) == TYPE_DICTIONARY, "bg2 room.json parses: " + r)
+			if typeof(rm) != TYPE_DICTIONARY:
+				continue
+			for L in rm.get("layers", []):
+				for f in L.get("files", []):
+					var path := str(f)
+					path = "res://assets/bg2/" + path.substr(3) if path.begins_with("../") else bdir + r + "/" + path
+					var t2: Texture2D = load(path) if ResourceLoader.exists(path) else null
+					check(t2 != null and t2.get_width() <= 2048 and t2.get_height() <= 2048, "bg2 tile ok: " + path)
+			for A in rm.get("ambient", []):
+				check(str(A.get("type", "")) in RoomVisuals.AMBIENT_TYPES, "bg2 ambient type known: %s %s" % [r, A.get("type", "")])
+	log_lines.append("v2 characters checked: %d" % n_chars)
 
 func test_conditions() -> void:
 	GameState.reset_new_game()
@@ -359,6 +433,7 @@ func test_combat_geometry() -> void:
 	var hp1 := e.hp
 	p._check_hits()
 	p._check_hits()
+	if not (hp1 < hp0 and e.hp == hp1): print("DBG hp0=", hp0, " hp1=", hp1, " hp=", e.hp, " st=", e.state, " targets=", p.atk_targets)
 	check(hp1 < hp0 and e.hp == hp1, "an attack instance hits a target only once")
 	# lying targets cannot be hit (no corpse XP farming)
 	e.lying = true

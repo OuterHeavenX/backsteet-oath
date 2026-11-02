@@ -53,6 +53,14 @@ static func impact(room: Node, attacker: Node, target: Actor, d: Dictionary, dir
 		room.spawn_fx("dust_slide" if FX.has_v2("dust_slide") else "dust", target.position + Vector2(-dir * 6, 1), 0.0, null, -1, dir)
 	if target.hp <= 0:
 		room.spawn_fx("ko_burst" if FX.has_v2("ko_burst") else "hit_heavy", p, 0.0)
+	# a quiet material layer under the attack's own sound (levels kept low: not verified by ear)
+	var base_sfx := str(d.get("sfx", ""))
+	if mat == "metal" and not base_sfx.contains("metal"):
+		Audio.sfx("metal_clang", -14.0, 0.12)
+	elif mat == "wood" and heavy:
+		Audio.sfx("crate_fall", -14.0, 0.12)
+	elif heavy and mat in ["fist", "kick"]:
+		Audio.sfx("slam", -15.0, 0.1)
 	var k := 1.6 if heavy else 0.7
 	if mat in ["metal", "stone"]:
 		k += 0.4
