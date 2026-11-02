@@ -1,0 +1,83 @@
+{
+ "bill": {
+  "file": "res://assets/pickups2/bill.png",
+  "frame": [
+   24,
+   16
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "cash_stack": {
+  "file": "res://assets/pickups2/cash_stack.png",
+  "frame": [
+   28,
+   20
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "coin": {
+  "file": "res://assets/pickups2/coin.png",
+  "frame": [
+   16,
+   16
+  ],
+  "frames": 4,
+  "density": 2
+ },
+ "heal_bun": {
+  "file": "res://assets/pickups2/heal_bun.png",
+  "frame": [
+   24,
+   20
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "key": {
+  "file": "res://assets/pickups2/key.png",
+  "frame": [
+   20,
+   12
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "ledger": {
+  "file": "res://assets/pickups2/ledger.png",
+  "frame": [
+   24,
+   20
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "parcel": {
+  "file": "res://assets/pickups2/parcel.png",
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "satchel": {
+  "file": "res://assets/pickups2/satchel.png",
+  "frame": [
+   28,
+   24
+  ],
+  "frames": 1,
+  "density": 2
+ },
+ "toolbox": {
+  "file": "res://assets/pickups2/toolbox.png",
+  "frame": [
+   32,
+   20
+  ],
+  "frames": 1,
+  "density": 2
+ }
+}

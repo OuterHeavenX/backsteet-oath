@@ -1,0 +1,150 @@
+{
+ "room": "int_diner",
+ "width": 640,
+ "density": 2,
+ "layers": [
+  {
+   "name": "base",
+   "files": [
+    "base_0.png"
+   ],
+   "parallax": 1.0,
+   "y": 0,
+   "repeat": false
+  }
+ ],
+ "fg": [
+  {
+   "file": "fg_pendant.png",
+   "x": 150,
+   "y": 52,
+   "parallax": 1.15,
+   "fade": false
+  },
+  {
+   "file": "fg_pendant.png",
+   "x": 520,
+   "y": 52,
+   "parallax": 1.15,
+   "fade": false
+  },
+  {
+   "file": "fg_plant.png",
+   "x": 612,
+   "y": 384,
+   "parallax": 1.2,
+   "fade": true
+  }
+ ],
+ "lightmap": {
+  "file": "light.png",
+  "cell": 8
+ },
+ "ambient_color": "#fff0e4",
+ "rim": {
+  "color": "#ffd8a8",
+  "dir": [
+   0.3,
+   1.0
+  ],
+  "strength": 0.3
+ },
+ "cast_shadow": {
+  "dir": [
+   0.0,
+   0.0
+  ],
+  "alpha": 0.0
+ },
+ "glows": [
+  {
+   "x": 84.0,
+   "y": 78.0,
+   "r": 80,
+   "color": "#ffb080",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 262,
+   "y": 36,
+   "r": 70,
+   "color": "#ff5a9a",
+   "energy": 0.4,
+   "flicker": "neon",
+   "front": false
+  },
+  {
+   "x": 505.0,
+   "y": 83.0,
+   "r": 110,
+   "color": "#ffd090",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 300,
+   "y": 47,
+   "r": 30,
+   "color": "#ffd890",
+   "energy": 0.45,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 380,
+   "y": 47,
+   "r": 30,
+   "color": "#ffd890",
+   "energy": 0.45,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 460,
+   "y": 47,
+   "r": 30,
+   "color": "#ffd890",
+   "energy": 0.45,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 600,
+   "y": 220,
+   "r": 40,
+   "color": "#ff6ab0",
+   "energy": 0.3,
+   "flicker": "neon",
+   "front": false
+  }
+ ],
+ "ambient": [
+  {
+   "type": "steam",
+   "x": 514.0,
+   "y": 68.0,
+   "rate": 0.5
+  },
+  {
+   "type": "dust_motes",
+   "x": 30.0,
+   "y": 54.0,
+   "w": 128,
+   "h": 120
+  }
+ ],
+ "reflect": [
+  {
+   "rect": [
+    0,
+    200,
+    640,
+    160
+   ],
+   "alpha": 0.12
+  }
+ ]
+}

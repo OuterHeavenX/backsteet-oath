@@ -1,0 +1,652 @@
+{
+ "_meta": {
+  "density": 2,
+  "doc": "v2 FX strips at density 2 (draw at scale 0.5). anchor = pivot in tx within a cell; arc_* anchors are the attacker FEET for a 96 tx adult (scale by height/96); effects face RIGHT (mirror for left). additive = meant for additive blend; arc_* are white for engine tinting. See docs/visual/ASSET_CONTRACT_V2.md."
+ },
+ "arc_heavy": {
+  "file": "arc_heavy.png",
+  "cell": [
+   104,
+   128
+  ],
+  "count": 4,
+  "anchor": [
+   40,
+   124
+  ],
+  "fps": 24,
+  "additive": false
+ },
+ "arc_kick": {
+  "file": "arc_kick.png",
+  "cell": [
+   72,
+   80
+  ],
+  "count": 4,
+  "anchor": [
+   16,
+   76
+  ],
+  "fps": 24,
+  "additive": false
+ },
+ "arc_punch": {
+  "file": "arc_punch.png",
+  "cell": [
+   72,
+   80
+  ],
+  "count": 3,
+  "anchor": [
+   8,
+   76
+  ],
+  "fps": 24,
+  "additive": false
+ },
+ "arc_rising": {
+  "file": "arc_rising.png",
+  "cell": [
+   72,
+   136
+  ],
+  "count": 4,
+  "anchor": [
+   24,
+   132
+  ],
+  "fps": 24,
+  "additive": false
+ },
+ "arc_sweep": {
+  "file": "arc_sweep.png",
+  "cell": [
+   136,
+   56
+  ],
+  "count": 4,
+  "anchor": [
+   68,
+   40
+  ],
+  "fps": 24,
+  "additive": false
+ },
+ "arc_swing": {
+  "file": "arc_swing.png",
+  "cell": [
+   96,
+   128
+  ],
+  "count": 4,
+  "anchor": [
+   32,
+   124
+  ],
+  "fps": 24,
+  "additive": false
+ },
+ "bit_metal": {
+  "file": "bit_metal.png",
+  "cell": [
+   12,
+   12
+  ],
+  "count": 4,
+  "anchor": [
+   6,
+   6
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "block": {
+  "file": "block.png",
+  "cell": [
+   64,
+   64
+  ],
+  "count": 4,
+  "anchor": [
+   32,
+   32
+  ],
+  "fps": 28,
+  "additive": false
+ },
+ "charge_glow": {
+  "file": "charge_glow.png",
+  "cell": [
+   64,
+   64
+  ],
+  "count": 4,
+  "anchor": [
+   32,
+   32
+  ],
+  "fps": 12,
+  "additive": true,
+  "loop": true
+ },
+ "chip_wood": {
+  "file": "chip_wood.png",
+  "cell": [
+   16,
+   16
+  ],
+  "count": 4,
+  "anchor": [
+   8,
+   8
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "chunk_stone": {
+  "file": "chunk_stone.png",
+  "cell": [
+   16,
+   16
+  ],
+  "count": 4,
+  "anchor": [
+   8,
+   8
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "coin_sparkle": {
+  "file": "coin_sparkle.png",
+  "cell": [
+   32,
+   32
+  ],
+  "count": 4,
+  "anchor": [
+   16,
+   16
+  ],
+  "fps": 16,
+  "additive": true
+ },
+ "drip": {
+  "file": "drip.png",
+  "cell": [
+   16,
+   32
+  ],
+  "count": 4,
+  "anchor": [
+   8,
+   29
+  ],
+  "fps": 12,
+  "additive": false
+ },
+ "dust_fall": {
+  "file": "dust_fall.png",
+  "cell": [
+   128,
+   40
+  ],
+  "count": 6,
+  "anchor": [
+   64,
+   36
+  ],
+  "fps": 18,
+  "additive": false
+ },
+ "dust_jump": {
+  "file": "dust_jump.png",
+  "cell": [
+   64,
+   28
+  ],
+  "count": 4,
+  "anchor": [
+   32,
+   24
+  ],
+  "fps": 20,
+  "additive": false
+ },
+ "dust_land": {
+  "file": "dust_land.png",
+  "cell": [
+   96,
+   32
+  ],
+  "count": 5,
+  "anchor": [
+   48,
+   30
+  ],
+  "fps": 20,
+  "additive": false
+ },
+ "dust_slide": {
+  "file": "dust_slide.png",
+  "cell": [
+   64,
+   28
+  ],
+  "count": 5,
+  "anchor": [
+   56,
+   26
+  ],
+  "fps": 18,
+  "additive": false
+ },
+ "dust_step": {
+  "file": "dust_step.png",
+  "cell": [
+   32,
+   20
+  ],
+  "count": 4,
+  "anchor": [
+   16,
+   18
+  ],
+  "fps": 16,
+  "additive": false
+ },
+ "exclaim": {
+  "file": "exclaim.png",
+  "cell": [
+   24,
+   32
+  ],
+  "count": 1,
+  "anchor": [
+   12,
+   30
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "glow_soft": {
+  "file": "glow_soft.png",
+  "cell": [
+   256,
+   256
+  ],
+  "count": 1,
+  "anchor": [
+   128,
+   128
+  ],
+  "fps": 1,
+  "additive": true
+ },
+ "glow_streak": {
+  "file": "glow_streak.png",
+  "cell": [
+   256,
+   64
+  ],
+  "count": 1,
+  "anchor": [
+   128,
+   32
+  ],
+  "fps": 1,
+  "additive": true
+ },
+ "hit_glass": {
+  "file": "hit_glass.png",
+  "cell": [
+   80,
+   80
+  ],
+  "count": 5,
+  "anchor": [
+   40,
+   40
+  ],
+  "fps": 28,
+  "additive": false
+ },
+ "hit_heavy": {
+  "file": "hit_heavy.png",
+  "cell": [
+   96,
+   96
+  ],
+  "count": 5,
+  "anchor": [
+   48,
+   48
+  ],
+  "fps": 30,
+  "additive": false
+ },
+ "hit_kick": {
+  "file": "hit_kick.png",
+  "cell": [
+   80,
+   80
+  ],
+  "count": 5,
+  "anchor": [
+   40,
+   40
+  ],
+  "fps": 30,
+  "additive": false
+ },
+ "hit_light": {
+  "file": "hit_light.png",
+  "cell": [
+   64,
+   64
+  ],
+  "count": 4,
+  "anchor": [
+   32,
+   32
+  ],
+  "fps": 30,
+  "additive": false
+ },
+ "hit_metal": {
+  "file": "hit_metal.png",
+  "cell": [
+   80,
+   80
+  ],
+  "count": 5,
+  "anchor": [
+   40,
+   40
+  ],
+  "fps": 30,
+  "additive": false
+ },
+ "hit_soft": {
+  "file": "hit_soft.png",
+  "cell": [
+   64,
+   64
+  ],
+  "count": 4,
+  "anchor": [
+   32,
+   32
+  ],
+  "fps": 24,
+  "additive": false
+ },
+ "hit_stone": {
+  "file": "hit_stone.png",
+  "cell": [
+   80,
+   80
+  ],
+  "count": 5,
+  "anchor": [
+   40,
+   40
+  ],
+  "fps": 28,
+  "additive": false
+ },
+ "hit_wood": {
+  "file": "hit_wood.png",
+  "cell": [
+   80,
+   80
+  ],
+  "count": 5,
+  "anchor": [
+   40,
+   40
+  ],
+  "fps": 28,
+  "additive": false
+ },
+ "ko_burst": {
+  "file": "ko_burst.png",
+  "cell": [
+   160,
+   160
+  ],
+  "count": 6,
+  "anchor": [
+   80,
+   80
+  ],
+  "fps": 24,
+  "additive": false
+ },
+ "levelup_burst": {
+  "file": "levelup_burst.png",
+  "cell": [
+   128,
+   128
+  ],
+  "count": 6,
+  "anchor": [
+   64,
+   112
+  ],
+  "fps": 14,
+  "additive": false
+ },
+ "light_cone": {
+  "file": "light_cone.png",
+  "cell": [
+   128,
+   192
+  ],
+  "count": 1,
+  "anchor": [
+   64,
+   0
+  ],
+  "fps": 1,
+  "additive": true
+ },
+ "perfect_block": {
+  "file": "perfect_block.png",
+  "cell": [
+   96,
+   96
+  ],
+  "count": 5,
+  "anchor": [
+   48,
+   48
+  ],
+  "fps": 28,
+  "additive": false
+ },
+ "question": {
+  "file": "question.png",
+  "cell": [
+   24,
+   32
+  ],
+  "count": 1,
+  "anchor": [
+   12,
+   30
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "rain_splash": {
+  "file": "rain_splash.png",
+  "cell": [
+   24,
+   12
+  ],
+  "count": 4,
+  "anchor": [
+   12,
+   9
+  ],
+  "fps": 20,
+  "additive": false
+ },
+ "scrap_paper": {
+  "file": "scrap_paper.png",
+  "cell": [
+   16,
+   16
+  ],
+  "count": 4,
+  "anchor": [
+   8,
+   8
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "shadow_soft": {
+  "file": "shadow_soft.png",
+  "cell": [
+   128,
+   48
+  ],
+  "count": 1,
+  "anchor": [
+   64,
+   24
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "shard_glass": {
+  "file": "shard_glass.png",
+  "cell": [
+   16,
+   16
+  ],
+  "count": 4,
+  "anchor": [
+   8,
+   8
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "shockwave": {
+  "file": "shockwave.png",
+  "cell": [
+   144,
+   40
+  ],
+  "count": 4,
+  "anchor": [
+   72,
+   22
+  ],
+  "fps": 20,
+  "additive": false
+ },
+ "smoke_puff": {
+  "file": "smoke_puff.png",
+  "cell": [
+   48,
+   48
+  ],
+  "count": 6,
+  "anchor": [
+   24,
+   40
+  ],
+  "fps": 12,
+  "additive": false
+ },
+ "spark_streak": {
+  "file": "spark_streak.png",
+  "cell": [
+   24,
+   8
+  ],
+  "count": 4,
+  "anchor": [
+   12,
+   4
+  ],
+  "fps": 1,
+  "additive": true
+ },
+ "splash": {
+  "file": "splash.png",
+  "cell": [
+   64,
+   48
+  ],
+  "count": 5,
+  "anchor": [
+   32,
+   44
+  ],
+  "fps": 20,
+  "additive": false
+ },
+ "stars_dizzy": {
+  "file": "stars_dizzy.png",
+  "cell": [
+   64,
+   32
+  ],
+  "count": 4,
+  "anchor": [
+   32,
+   20
+  ],
+  "fps": 8,
+  "additive": false,
+  "loop": true
+ },
+ "steam_puff": {
+  "file": "steam_puff.png",
+  "cell": [
+   48,
+   64
+  ],
+  "count": 6,
+  "anchor": [
+   24,
+   60
+  ],
+  "fps": 12,
+  "additive": false
+ },
+ "sweat": {
+  "file": "sweat.png",
+  "cell": [
+   16,
+   16
+  ],
+  "count": 1,
+  "anchor": [
+   8,
+   8
+  ],
+  "fps": 1,
+  "additive": false
+ },
+ "target_shadow": {
+  "file": "target_shadow.png",
+  "cell": [
+   64,
+   20
+  ],
+  "count": 1,
+  "anchor": [
+   32,
+   10
+  ],
+  "fps": 1,
+  "additive": false
+ }
+}

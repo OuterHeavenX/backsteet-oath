@@ -1,0 +1,170 @@
+{
+ "bat": {
+  "file": "res://assets/weapons2/bat.png",
+  "grip": [
+   14,
+   6
+  ],
+  "tip": [
+   57,
+   6
+  ],
+  "density": 2
+ },
+ "baton": {
+  "file": "res://assets/weapons2/baton.png",
+  "grip": [
+   9,
+   5
+  ],
+  "tip": [
+   34,
+   5
+  ],
+  "density": 2
+ },
+ "belt": {
+  "file": "res://assets/weapons2/belt.png",
+  "grip": [
+   5,
+   5
+  ],
+  "tip": [
+   54,
+   5
+  ],
+  "density": 2
+ },
+ "bottle": {
+  "file": "res://assets/weapons2/bottle.png",
+  "grip": [
+   5,
+   6
+  ],
+  "tip": [
+   22,
+   6
+  ],
+  "density": 2
+ },
+ "brick": {
+  "file": "res://assets/weapons2/brick.png",
+  "grip": [
+   9,
+   7
+  ],
+  "tip": [
+   18,
+   7
+  ],
+  "density": 2
+ },
+ "broom": {
+  "file": "res://assets/weapons2/broom.png",
+  "grip": [
+   10,
+   8
+  ],
+  "tip": [
+   76,
+   8
+  ],
+  "density": 2
+ },
+ "chain": {
+  "file": "res://assets/weapons2/chain.png",
+  "grip": [
+   5,
+   6
+  ],
+  "tip": [
+   77,
+   6
+  ],
+  "density": 2
+ },
+ "fish": {
+  "file": "res://assets/weapons2/fish.png",
+  "grip": [
+   6,
+   8
+  ],
+  "tip": [
+   30,
+   8
+  ],
+  "density": 2
+ },
+ "newspaper": {
+  "file": "res://assets/weapons2/newspaper.png",
+  "grip": [
+   7,
+   6
+  ],
+  "tip": [
+   34,
+   6
+  ],
+  "density": 2
+ },
+ "pipe": {
+  "file": "res://assets/weapons2/pipe.png",
+  "grip": [
+   9,
+   5
+  ],
+  "tip": [
+   61,
+   5
+  ],
+  "density": 2
+ },
+ "road_sign": {
+  "file": "res://assets/weapons2/road_sign.png",
+  "grip": [
+   10,
+   14
+  ],
+  "tip": [
+   86,
+   14
+  ],
+  "density": 2
+ },
+ "spatula": {
+  "file": "res://assets/weapons2/spatula.png",
+  "grip": [
+   8,
+   7
+  ],
+  "tip": [
+   34,
+   7
+  ],
+  "density": 2
+ },
+ "tire": {
+  "file": "res://assets/weapons2/tire.png",
+  "grip": [
+   18,
+   18
+  ],
+  "tip": [
+   33,
+   18
+  ],
+  "density": 2
+ },
+ "wrench": {
+  "file": "res://assets/weapons2/wrench.png",
+  "grip": [
+   9,
+   7
+  ],
+  "tip": [
+   30,
+   7
+  ],
+  "density": 2
+ }
+}

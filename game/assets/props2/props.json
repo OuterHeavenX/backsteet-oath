@@ -1,0 +1,218 @@
+{
+ "bench": {
+  "anchor": [
+   21,
+   22
+  ],
+  "footprint": [
+   38,
+   6
+  ],
+  "density": 2,
+  "file": "res://assets/props2/bench.png"
+ },
+ "booth_seat": {
+  "anchor": [
+   33,
+   38
+  ],
+  "footprint": [
+   62,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/booth_seat.png"
+ },
+ "bus_stop": {
+  "anchor": [
+   31,
+   79
+  ],
+  "footprint": [
+   48,
+   6
+  ],
+  "density": 2,
+  "file": "res://assets/props2/bus_stop.png"
+ },
+ "car_wreck": {
+  "anchor": [
+   50,
+   39
+  ],
+  "footprint": [
+   90,
+   18
+  ],
+  "density": 2,
+  "file": "res://assets/props2/car_wreck.png"
+ },
+ "counter_diner": {
+  "anchor": [
+   81,
+   41
+  ],
+  "footprint": [
+   160,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/counter_diner.png"
+ },
+ "crate": {
+  "anchor": [
+   12,
+   25
+  ],
+  "footprint": [
+   22,
+   10
+  ],
+  "density": 2,
+  "file": "res://assets/props2/crate.png"
+ },
+ "dumpster": {
+  "anchor": [
+   27,
+   39
+  ],
+  "footprint": [
+   46,
+   14
+  ],
+  "density": 2,
+  "file": "res://assets/props2/dumpster.png"
+ },
+ "hydrant": {
+  "anchor": [
+   9,
+   23
+  ],
+  "footprint": [
+   10,
+   4
+  ],
+  "density": 2,
+  "file": "res://assets/props2/hydrant.png"
+ },
+ "jukebox": {
+  "anchor": [
+   16,
+   45
+  ],
+  "footprint": [
+   28,
+   10
+  ],
+  "density": 2,
+  "file": "res://assets/props2/jukebox.png"
+ },
+ "lamp_post": {
+  "anchor": [
+   7,
+   80
+  ],
+  "footprint": [
+   6,
+   4
+  ],
+  "density": 2,
+  "file": "res://assets/props2/lamp_post.png"
+ },
+ "mailbox": {
+  "anchor": [
+   9,
+   29
+  ],
+  "footprint": [
+   16,
+   6
+  ],
+  "density": 2,
+  "file": "res://assets/props2/mailbox.png"
+ },
+ "newsbox": {
+  "anchor": [
+   8,
+   27
+  ],
+  "footprint": [
+   12,
+   6
+  ],
+  "density": 2,
+  "file": "res://assets/props2/newsbox.png"
+ },
+ "oil_drum": {
+  "anchor": [
+   8,
+   25
+  ],
+  "footprint": [
+   14,
+   6
+  ],
+  "density": 2,
+  "file": "res://assets/props2/oil_drum.png"
+ },
+ "pallet": {
+  "anchor": [
+   17,
+   16
+  ],
+  "footprint": [
+   30,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/pallet.png"
+ },
+ "stool": {
+  "anchor": [
+   8,
+   24
+  ],
+  "footprint": [
+   8,
+   4
+  ],
+  "density": 2,
+  "file": "res://assets/props2/stool.png"
+ },
+ "tire_stack": {
+  "anchor": [
+   12,
+   31
+  ],
+  "footprint": [
+   20,
+   8
+  ],
+  "density": 2,
+  "file": "res://assets/props2/tire_stack.png"
+ },
+ "traffic_cone": {
+  "anchor": [
+   8,
+   17
+  ],
+  "footprint": [
+   0,
+   0
+  ],
+  "density": 2,
+  "file": "res://assets/props2/traffic_cone.png"
+ },
+ "trash_can": {
+  "anchor": [
+   9,
+   26
+  ],
+  "footprint": [
+   14,
+   6
+  ],
+  "density": 2,
+  "file": "res://assets/props2/trash_can.png"
+ }
+}

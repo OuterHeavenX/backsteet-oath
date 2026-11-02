@@ -1,0 +1,372 @@
+{
+ "_meta": {
+  "density": 2,
+  "doc": "margins are 9-slice insets in TEXELS [left, top, right, bottom] of the 2x image; draw at scale 0.5 so a 12 tx margin is 6 u on screen."
+ },
+ "bar_fill_boss": {
+  "file": "bar_fill_boss.png",
+  "size": [
+   16,
+   12
+  ],
+  "note": "Tile/stretch horizontally; vertical gradient.",
+  "margins": [
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ "bar_fill_guard": {
+  "file": "bar_fill_guard.png",
+  "size": [
+   16,
+   12
+  ],
+  "note": "Tile/stretch horizontally; vertical gradient.",
+  "margins": [
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ "bar_fill_hp": {
+  "file": "bar_fill_hp.png",
+  "size": [
+   16,
+   12
+  ],
+  "note": "Tile/stretch horizontally; vertical gradient.",
+  "margins": [
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ "bar_fill_lag": {
+  "file": "bar_fill_lag.png",
+  "size": [
+   16,
+   12
+  ],
+  "note": "Tile/stretch horizontally; vertical gradient.",
+  "margins": [
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ "bar_fill_xp": {
+  "file": "bar_fill_xp.png",
+  "size": [
+   16,
+   12
+  ],
+  "note": "Tile/stretch horizontally; vertical gradient.",
+  "margins": [
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ "bar_frame": {
+  "file": "bar_frame.png",
+  "size": [
+   24,
+   20
+  ],
+  "margins": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "note": "Fill area inset = 4 tx on every side."
+ },
+ "boss_bar_frame": {
+  "file": "boss_bar_frame.png",
+  "size": [
+   48,
+   32
+  ],
+  "margins": [
+   16,
+   12,
+   16,
+   12
+  ],
+  "note": "Fill area inset = 6 tx."
+ },
+ "boss_card": {
+  "file": "boss_card.png",
+  "size": [
+   720,
+   160
+  ],
+  "note": "Boss name card. Text area x 110..640, y 36..124 (tx). Slides in from the left.",
+  "text_rect": [
+   110,
+   36,
+   530,
+   88
+  ]
+ },
+ "button": {
+  "file": "button.png",
+  "size": [
+   48,
+   32
+  ],
+  "margins": [
+   12,
+   12,
+   12,
+   14
+  ]
+ },
+ "button_disabled": {
+  "file": "button_disabled.png",
+  "size": [
+   48,
+   32
+  ],
+  "margins": [
+   12,
+   12,
+   12,
+   14
+  ]
+ },
+ "button_focus": {
+  "file": "button_focus.png",
+  "size": [
+   48,
+   32
+  ],
+  "margins": [
+   12,
+   12,
+   12,
+   14
+  ]
+ },
+ "button_pressed": {
+  "file": "button_pressed.png",
+  "size": [
+   48,
+   32
+  ],
+  "margins": [
+   12,
+   12,
+   12,
+   14
+  ]
+ },
+ "cursor": {
+  "file": "cursor.png",
+  "size": [
+   24,
+   24
+  ],
+  "note": "Points right; hotspot (21, 12)."
+ },
+ "dialog_box": {
+  "file": "dialog_box.png",
+  "size": [
+   64,
+   64
+  ],
+  "margins": [
+   20,
+   20,
+   20,
+   20
+  ]
+ },
+ "hud_badge": {
+  "file": "hud_badge.png",
+  "size": [
+   64,
+   64
+  ],
+  "note": "Round brass badge; centre disc radius 22 tx for level number or mini portrait."
+ },
+ "hud_frame": {
+  "file": "hud_frame.png",
+  "size": [
+   64,
+   48
+  ],
+  "margins": [
+   18,
+   16,
+   18,
+   16
+  ],
+  "note": "HUD plate (cut corner top-left / bottom-right)."
+ },
+ "icon": {
+  "file": "icon.png",
+  "size": [
+   256,
+   256
+  ],
+  "note": "App icon 256."
+ },
+ "icon_64": {
+  "file": "icon_64.png",
+  "size": [
+   64,
+   64
+  ],
+  "note": "App icon 64 (rendered at 64, not downscaled)."
+ },
+ "logo": {
+  "file": "logo.png",
+  "size": [
+   1100,
+   330
+  ],
+  "note": "Title logo (Bungee, OFL). Draw at scale 0.5 => 550x165 u.",
+  "bbox": [
+   53,
+   28,
+   1053,
+   312
+  ]
+ },
+ "logo_small": {
+  "file": "logo_small.png",
+  "size": [
+   550,
+   165
+  ],
+  "note": "Half-size logo for menus/credits (downscaled from logo.png)."
+ },
+ "name_tag": {
+  "file": "name_tag.png",
+  "size": [
+   48,
+   24
+  ],
+  "margins": [
+   12,
+   8,
+   12,
+   8
+  ],
+  "note": "Speaker name plate; dark text (#120c18) reads on it."
+ },
+ "panel": {
+  "file": "panel.png",
+  "size": [
+   48,
+   48
+  ],
+  "margins": [
+   14,
+   14,
+   14,
+   14
+  ]
+ },
+ "panel_light": {
+  "file": "panel_light.png",
+  "size": [
+   48,
+   48
+  ],
+  "margins": [
+   14,
+   14,
+   14,
+   14
+  ]
+ },
+ "portrait_frame": {
+  "file": "portrait_frame.png",
+  "size": [
+   208,
+   208
+  ],
+  "margins": [
+   24,
+   24,
+   24,
+   24
+  ],
+  "note": "Frame over a 192x192 portrait placed at (8, 8)."
+ },
+ "title_far": {
+  "file": "title_far.png",
+  "size": [
+   1600,
+   720
+  ],
+  "note": "Transparent top; bottom-anchored. Suggested parallax 0.12.",
+  "anchor": "bottom",
+  "parallax": 0.12
+ },
+ "title_hero": {
+  "file": "title_hero.png",
+  "size": [
+   480,
+   640
+  ],
+  "note": "Backlit hero (Nico) silhouette, feet at (250, 628) tx. Suggested parallax 0.8; place bottom-aligned left or right of the menu.",
+  "anchor": "bottom",
+  "feet": [
+   250,
+   628
+  ],
+  "parallax": 0.8
+ },
+ "title_mid": {
+  "file": "title_mid.png",
+  "size": [
+   1600,
+   720
+  ],
+  "note": "Transparent top; bottom-anchored. Suggested parallax 0.35.",
+  "anchor": "bottom",
+  "parallax": 0.35
+ },
+ "title_sky": {
+  "file": "title_sky.png",
+  "size": [
+   1600,
+   960
+  ],
+  "note": "Opaque. 1600x960 tx; the 720 frame is the BOTTOM 720 rows (horizon y=470 in frame). Suggested parallax 0.02 + slow cloud drift.",
+  "anchor": "bottom",
+  "parallax": 0.02
+ },
+ "title_street": {
+  "file": "title_street.png",
+  "size": [
+   1600,
+   720
+  ],
+  "note": "Foreground street, bottom-anchored. Suggested parallax 0.7. Player-facing ground at y=600..720 tx.",
+  "anchor": "bottom",
+  "parallax": 0.7
+ },
+ "tooltip": {
+  "file": "tooltip.png",
+  "size": [
+   32,
+   32
+  ],
+  "margins": [
+   10,
+   10,
+   10,
+   10
+  ]
+ }
+}
