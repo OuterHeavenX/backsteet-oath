@@ -111,6 +111,7 @@ func _load_room(id: String, spawn: String, first: bool = false) -> void:
 	if room:
 		room.queue_free()
 		room = null
+	SpriteLib.clear_room_cache()
 	if not Content.rooms.has(id):
 		id = "oq_kettle"
 		spawn = "west"

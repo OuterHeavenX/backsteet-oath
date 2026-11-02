@@ -28,7 +28,7 @@ func setup(r: Node, k: String, pos: Vector2, pop: float = 0.0) -> void:
 	vz = pop * 10.0 if pop > 0.0 else 0.0
 	shadow = Sprite2D.new()
 	shadow.texture = Actor._shadow_tex()
-	shadow.scale = Vector2(0.5, 0.5)
+	shadow.scale = Vector2(0.5, 0.5) * Actor._shadow_scale
 	add_child(shadow)
 	spr = Sprite2D.new()
 	add_child(spr)
@@ -42,7 +42,9 @@ func setup(r: Node, k: String, pos: Vector2, pop: float = 0.0) -> void:
 			var art := key_id if Content.pickup_meta.has(key_id) else "parcel"
 			_set_pickup_art(art)
 		"weapon":
-			spr.texture = SpriteLib.weapon(weapon_id)
+			var wi := SpriteLib.weapon_info(weapon_id)
+			spr.texture = wi.texture
+			spr.scale = Vector2(wi.scale, wi.scale)
 			if not Content.weapon(weapon_id).get("carry", false):
 				spr.rotation = 0.0
 			spr.offset = Vector2(0, -spr.texture.get_height() / 2.0)
@@ -54,6 +56,7 @@ func _set_pickup_art(pid: String) -> void:
 	if anim_frames > 1:
 		spr.hframes = anim_frames
 	spr.offset = Vector2(0, -float(info.frame.y) / 2.0)
+	spr.scale = Vector2(info.scale, info.scale)
 
 func tick() -> void:
 	if collected:

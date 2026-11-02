@@ -115,9 +115,7 @@ func become_phase_two() -> void:
 	invuln = 40
 
 func setup_visual_swap(id: String) -> void:
-	var s := SpriteLib.character(id)
-	sheet = s
-	body.texture = s.texture
+	apply_sheet(SpriteLib.character(id))
 	char_id = id
 
 func notice_attack(attacker: Actor) -> void:

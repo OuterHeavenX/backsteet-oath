@@ -44,6 +44,8 @@ var deadzone := 0.25
 var fullscreen := false
 var touch_controls := "auto"     # auto / on / off
 var show_hints := true
+var effects := "full"            # "full" or "reduced" (fewer particles, no cast shadows/reflections/ambient)
+var cinematic_bars := true
 var bindings: Dictionary = {}    # action -> {"keys": [...], "pad": [...]}
 
 func _ready() -> void:
@@ -191,6 +193,9 @@ func load_settings() -> void:
 	var tc: String = str(cfg.get_value("input", "touch", touch_controls))
 	touch_controls = tc if tc in ["auto", "on", "off"] else "auto"
 	show_hints = bool(cfg.get_value("game", "hints", show_hints))
+	var fx_q: String = str(cfg.get_value("display", "effects", effects))
+	effects = fx_q if fx_q in ["full", "reduced"] else "full"
+	cinematic_bars = bool(cfg.get_value("display", "cinematic_bars", cinematic_bars))
 	var saved_b = cfg.get_value("input", "bindings", {})
 	if typeof(saved_b) == TYPE_DICTIONARY:
 		for a in saved_b:
@@ -217,6 +222,8 @@ func save_settings() -> void:
 	cfg.set_value("input", "touch", touch_controls)
 	cfg.set_value("input", "bindings", bindings)
 	cfg.set_value("display", "fullscreen", fullscreen)
+	cfg.set_value("display", "effects", effects)
+	cfg.set_value("display", "cinematic_bars", cinematic_bars)
 	cfg.save(PATH)
 	changed.emit()
 
@@ -235,6 +242,9 @@ func set_fullscreen(on: bool) -> void:
 	else:
 		apply_display()
 	save_settings()
+
+func effects_full() -> bool:
+	return effects == "full"
 
 func incoming_damage_mult() -> float:
 	return 0.6 if difficulty == "relaxed" else 1.0

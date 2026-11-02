@@ -32,7 +32,7 @@ window/size/viewport_width=640
 window/size/viewport_height=360
 window/size/window_width_override=1280
 window/size/window_height_override=720
-window/stretch/mode="viewport"
+window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [input_devices]
@@ -47,9 +47,9 @@ common/physics_ticks_per_second=60
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=0
-2d/snap/snap_2d_transforms_to_pixel=true
-2d/snap/snap_2d_vertices_to_pixel=true
+textures/canvas_textures/default_texture_filter=2
+2d/snap/snap_2d_transforms_to_pixel=false
+2d/snap/snap_2d_vertices_to_pixel=false
 environment/defaults/default_clear_color=Color(0.101961, 0.0705882, 0.12549, 1)
 
 [debug]
@@ -70,3 +70,9 @@ gdscript/warnings/unsafe_cast=0
 gdscript/warnings/unsafe_call_argument=0
 gdscript/warnings/confusable_local_declaration=0
 gdscript/warnings/shadowed_global_identifier=0
+
+[importer_defaults]
+
+texture={
+"mipmaps/generate": true
+}

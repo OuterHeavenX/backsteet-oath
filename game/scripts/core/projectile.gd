@@ -45,10 +45,12 @@ func setup(r: Node, owner_a: Actor, id: String, from: Vector2, hz: float, dir: i
 		vx = dir * 210.0
 	shadow = Sprite2D.new()
 	shadow.texture = Actor._shadow_tex()
-	shadow.scale = Vector2(0.6, 0.6)
+	shadow.scale = Vector2(0.6, 0.6) * Actor._shadow_scale
 	add_child(shadow)
 	spr = Sprite2D.new()
-	spr.texture = SpriteLib.weapon(id)
+	var wi := SpriteLib.weapon_info(id)
+	spr.texture = wi.texture
+	spr.scale = Vector2(wi.scale, wi.scale)
 	spr.flip_h = dir < 0
 	add_child(spr)
 

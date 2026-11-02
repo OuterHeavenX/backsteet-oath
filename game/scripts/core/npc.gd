@@ -92,13 +92,13 @@ func think() -> void:
 
 func _anim_for_state() -> Array:
 	if mode == "cower" and state in ["idle", "walk"]:
-		return ["cower", -1]
+		return ["cower", "loop", 0]
 	if npc_id == "biscuit":
 		if state == "walk":
-			return ["walk", -1]
+			return ["walk", "stride", 0]
 		if bark_t > 0 and bark_t < 20:
-			return ["bark", 0]
-		return ["idle", -1]
+			return ["bark", "fixed", 0]
+		return ["idle", "loop", 0]
 	return super._anim_for_state()
 
 func on_defeated() -> void:

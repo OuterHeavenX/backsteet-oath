@@ -30,6 +30,10 @@ var parallax: Sprite2D
 var world_node: Node2D
 var fx_root: Node2D
 var overlay: Node2D
+var vis: RoomVisuals
+var glow_back: Node2D
+var glow_front: Node2D
+var fg_root: Node2D
 var camera: Camera2D
 var cam_x := 320.0
 var shake_amt := 0.0
@@ -95,7 +99,22 @@ func _build_visuals() -> void:
 	bg_root = Node2D.new()
 	bg_root.z_index = -20
 	add_child(bg_root)
-	if not interior:
+	vis = RoomVisuals.new()
+	add_child(vis)
+	if RoomVisuals.has_v2(room_id):
+		glow_back = Node2D.new()
+		glow_back.z_index = -15
+		add_child(glow_back)
+		glow_front = Node2D.new()
+		glow_front.z_index = 46
+		add_child(glow_front)
+		fg_root = Node2D.new()
+		fg_root.z_index = 45
+		add_child(fg_root)
+		vis.build(self, bg_root, glow_back, glow_front, fg_root)
+	if vis.v2:
+		pass
+	elif not interior:
 		var ptex := SpriteLib.tex("res://assets/bg/parallax_%s.png" % district)
 		if ptex == null:
 			ptex = _placeholder_parallax()
@@ -105,11 +124,12 @@ func _build_visuals() -> void:
 		parallax.region_enabled = true
 		parallax.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 		bg_root.add_child(parallax)
-	var btex := SpriteLib.tex("res://assets/bg/%s.png" % room_id)
-	var bg := Sprite2D.new()
-	bg.texture = btex if btex else _placeholder_bg()
-	bg.centered = false
-	bg_root.add_child(bg)
+	if not vis.v2:
+		var btex := SpriteLib.tex("res://assets/bg/%s.png" % room_id)
+		var bg := Sprite2D.new()
+		bg.texture = btex if btex else _placeholder_bg()
+		bg.centered = false
+		bg_root.add_child(bg)
 	world_node = Node2D.new()
 	world_node.y_sort_enabled = true
 	add_child(world_node)
@@ -159,6 +179,28 @@ func prop_tint() -> Color:
 func actor_tint() -> Color:
 	return Color.WHITE.lerp(prop_tint(), 0.45)
 
+## Light multiplier for an actor or prop standing at p (v2 lightmap, or the v1 district tint).
+func light_at(p: Vector2) -> Color:
+	if vis and vis.v2:
+		return vis.light_at(p)
+	return actor_tint()
+
+func rim_at(p: Vector2) -> Dictionary:
+	if vis and vis.v2:
+		return vis.rim_at(p)
+	return {"color": Color.WHITE, "dir": Vector2(-1, 0), "strength": 0.0}
+
+func reflect_at(p: Vector2) -> float:
+	return vis.reflect_at(p) if vis and vis.v2 else 0.0
+
+var cast_shadow: Dictionary:
+	get:
+		return vis.cast_shadow if vis and vis.v2 else {}
+
+func _process(dt: float) -> void:
+	if vis and vis.v2:
+		vis.update(cam_left(), view_width(), actors, dt)
+
 func _build_props() -> void:
 	var contents: Dictionary = enc.get("prop_contents", {})
 	var list: Array = data.get("props", [])
@@ -179,7 +221,7 @@ func _build_props() -> void:
 		var prop := Prop.new()
 		world_node.add_child(prop)
 		prop.setup(self, p.type, Vector2(float(p.x), float(p.y)), i, c)
-		prop.modulate = prop_tint()
+		prop.modulate = light_at(prop.position) if vis.v2 else prop_tint()
 		props.append(prop)
 
 func _build_pickups() -> void:
@@ -229,7 +271,7 @@ func _spawn_facing(spawn: String) -> int:
 func add_actor(a: Actor) -> void:
 	a.room = self
 	world_node.add_child(a)
-	a.modulate = actor_tint()
+	a.modulate = Color.WHITE
 	actors.append(a)
 
 func remove_actor(a: Actor) -> void:
@@ -533,7 +575,7 @@ func _update_camera(snap: bool) -> void:
 	else:
 		shake_amt = 0.0
 	var cy: float = world.camera_center_y() if world and world.has_method("camera_center_y") else VIEW_H * 0.5
-	camera.position = Vector2(round(cam_x + off.x), round(cy + off.y))
+	camera.position = Vector2(cam_x + off.x, cy + off.y)
 
 # ---------------------------------------------------------------- collision
 func move_actor(a: Actor, d: Vector2) -> Vector2:

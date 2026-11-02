@@ -11,7 +11,29 @@ enum { TEAM_PLAYER, TEAM_ENEMY, TEAM_NEUTRAL }
 
 const GRAVITY := 900.0
 const DT := 1.0 / 60.0
-const FLASH_SHADER := "shader_type canvas_item;\nuniform vec4 flash_color : source_color = vec4(1.0);\nuniform float flash_amount = 0.0;\nvoid fragment() {\n\tCOLOR.rgb = mix(COLOR.rgb, flash_color.rgb, flash_amount);\n}\n"
+## Actor shader: room light tint, rim light from the nearest light (edge-detected from alpha), hit flash.
+const FLASH_SHADER := """shader_type canvas_item;
+uniform vec4 flash_color : source_color = vec4(1.0);
+uniform float flash_amount = 0.0;
+uniform vec3 light_tint = vec3(1.0);
+uniform vec4 rim_color : source_color = vec4(1.0, 0.8, 0.6, 1.0);
+uniform vec2 rim_dir = vec2(-1.0, -0.3);
+uniform float rim_strength = 0.0;
+void fragment() {
+	vec4 c = COLOR;
+	float a2 = texture(TEXTURE, UV + rim_dir * TEXTURE_PIXEL_SIZE * 3.0).a;
+	float rim = c.a * (1.0 - a2) * rim_strength;
+	vec3 col = c.rgb * light_tint + rim_color.rgb * rim;
+	COLOR = vec4(mix(col, flash_color.rgb, flash_amount), c.a);
+}
+"""
+const SHADOW_SHADER := """shader_type canvas_item;
+uniform float alpha = 0.25;
+void fragment() {
+	COLOR = vec4(0.04, 0.02, 0.08, COLOR.a * alpha);
+}
+"""
+static var _shadow_shader: Shader
 static var _shader: Shader
 
 var room: Node                      # Room (untyped to avoid a class cycle)
@@ -85,6 +107,16 @@ var flash := 0.0
 var flash_color := Color.WHITE
 var mat: ShaderMaterial
 var fx_marker: Node2D
+var cast: Sprite2D          # directional cast shadow (outdoor rooms)
+var refl: Sprite2D          # wet-ground reflection
+var cur_frame := 0          # global atlas frame
+var loop_t := 0.0           # frames elapsed in time-driven loops
+var cycle := 0.0            # cycles elapsed in stride-driven loops
+var last_pos := Vector2.ZERO
+var land_t := 0
+var hurt_kind := "hurt_high"
+var vis_facing := 1
+var light_tint := Color(1, 1, 1)
 
 func setup_visual(id: String) -> void:
 	char_id = id
@@ -92,16 +124,32 @@ func setup_visual(id: String) -> void:
 	shadow = Sprite2D.new()
 	shadow.texture = _shadow_tex()
 	shadow.modulate = Color(1, 1, 1, 0.9)
+	shadow.z_index = -10
+	_shadow_base = _shadow_scale
 	add_child(shadow)
+	if _shadow_shader == null:
+		_shadow_shader = Shader.new()
+		_shadow_shader.code = SHADOW_SHADER
+	cast = Sprite2D.new()
+	cast.centered = false
+	cast.region_enabled = true
+	cast.z_index = -11
+	cast.visible = false
+	var cm := ShaderMaterial.new()
+	cm.shader = _shadow_shader
+	cast.material = cm
+	add_child(cast)
+	refl = Sprite2D.new()
+	refl.centered = false
+	refl.region_enabled = true
+	refl.z_index = -12
+	refl.visible = false
+	add_child(refl)
 	visual = Node2D.new()
 	add_child(visual)
 	body = Sprite2D.new()
-	body.texture = sheet.texture
 	body.centered = false
-	var cell: Vector2i = sheet.cell
-	body.hframes = int(sheet.columns)
-	body.vframes = maxi(1, int(sheet.texture.get_height() / cell.y)) if sheet.texture else 8
-	body.offset = -sheet.anchor
+	body.region_enabled = true
 	visual.add_child(body)
 	weapon_spr = Sprite2D.new()
 	weapon_spr.centered = false
@@ -117,12 +165,74 @@ func setup_visual(id: String) -> void:
 	fx_marker = Node2D.new()
 	fx_marker.position = Vector2(0, -height - 8)
 	visual.add_child(fx_marker)
+	apply_sheet(sheet)
+	last_pos = position
+
+## Swaps the character art (used for boss phase changes) without touching gameplay state.
+func apply_sheet(s: Dictionary) -> void:
+	sheet = s
+	body.texture = s.texture
+	cast.texture = s.texture
+	refl.texture = s.texture
+	var sc := float(s.get("scale", 1.0))
+	body.scale = Vector2(sc, sc)
+	refl.scale = Vector2(sc, -sc)
+	_set_frame(cur_frame)
+
+func _set_frame(f: int) -> void:
+	var rects: Array = sheet.get("rects", [])
+	if rects.is_empty():
+		return
+	cur_frame = clampi(f, 0, rects.size() - 1)
+	var r: Rect2 = rects[cur_frame]
+	var o: Vector2 = sheet.offs[cur_frame]
+	body.region_rect = r
+	body.offset = o
+	cast.region_rect = r
+	cast.offset = o
+	refl.region_rect = r
+	refl.offset = o
+
+var _shadow_base := 1.0
+
+## Room lighting: lightmap tint at the feet, rim light from the nearest glow, cast shadow and reflection.
+func _update_lighting() -> void:
+	if room == null or not room.has_method("light_at"):
+		return
+	var lt: Color = room.light_at(position)
+	light_tint = lt
+	mat.set_shader_parameter("light_tint", Vector3(lt.r, lt.g, lt.b))
+	var rim: Dictionary = room.rim_at(position + Vector2(0, -height * 0.6 - z))
+	var d: Vector2 = rim.dir
+	mat.set_shader_parameter("rim_color", rim.color)
+	mat.set_shader_parameter("rim_dir", Vector2(-d.x * float(vis_facing), -d.y).normalized())
+	mat.set_shader_parameter("rim_strength", float(rim.strength) if Settings.effects_full() else float(rim.strength) * 0.6)
+	var sc := float(sheet.get("scale", 1.0))
+	var cs: Dictionary = room.cast_shadow
+	var show_cast: bool = not cs.is_empty() and state != "removed" and Settings.effects_full()
+	cast.visible = show_cast
+	if show_cast:
+		var cd: Vector2 = cs.dir
+		cast.transform = Transform2D(Vector2(sc * float(vis_facing), 0.0), Vector2(-cd.x * sc, cd.y * sc), Vector2(0, 0))
+		(cast.material as ShaderMaterial).set_shader_parameter("alpha", float(cs.alpha) * clampf(1.0 - z / 80.0, 0.0, 1.0))
+	var ra: float = room.reflect_at(position)
+	refl.visible = ra > 0.0 and state != "removed"
+	if refl.visible:
+		refl.scale = Vector2(sc * float(vis_facing), -sc)
+		refl.position = Vector2(0, z)
+		refl.modulate = Color(lt.r * 0.8, lt.g * 0.85, lt.b * 0.95, ra)
 
 static var _shadow_cache: Texture2D
+static var _shadow_scale := 1.0
 static func _shadow_tex() -> Texture2D:
 	if _shadow_cache:
 		return _shadow_cache
-	var t := SpriteLib.tex("res://assets/fx/shadow.png")
+	var t := SpriteLib.tex("res://assets/fx2/shadow_soft.png")
+	if t:
+		_shadow_scale = 30.0 / (t.get_width() * 0.5)
+		_shadow_cache = t
+		return t
+	t = SpriteLib.tex("res://assets/fx/shadow.png")
 	if t == null:
 		var img := Image.create(24, 8, false, Image.FORMAT_RGBA8)
 		for y in 8:
@@ -246,6 +356,7 @@ func _on_land() -> void:
 	z = 0.0
 	vz = 0.0
 	air_attack_used = false
+	land_t = 8
 	if room:
 		room.spawn_fx("land_dust", Vector2(position.x, position.y + 1), 0.0)
 		Audio.sfx("land", -8.0)
@@ -636,6 +747,9 @@ func take_damage_and_react(attacker: Actor, d: Dictionary, raw: float, dir: int,
 	var knock: bool = d.get("knockdown", false) or hp <= 0 or combo_hits >= combo_limit or state == "dizzy" or is_airborne()
 	if is_boss and not hp <= 0 and not d.get("knockdown", false):
 		knock = combo_hits >= combo_limit
+	var from_back := dir != 0 and facing == dir
+	var low_anim: String = str(attacker.atk.get("anim", "")) if attacker and attacker.state == "attack" else ""
+	hurt_kind = "hurt_back" if from_back else ("hurt_low" if low_anim in ["kick", "kick_c", "sweep", "run_punch", "slam"] else "hurt_high")
 	facing = -dir if dir != 0 else facing
 	if knock:
 		combo_hits = 0
@@ -648,7 +762,7 @@ func take_damage_and_react(attacker: Actor, d: Dictionary, raw: float, dir: int,
 		z = maxf(z, 0.5)
 	else:
 		set_state("hurt")
-		hurt_low = randf() < 0.4
+		hurt_low = hurt_kind == "hurt_low"
 		hitstun = int(d.get("hitstun", 18))
 		if force_stagger:
 			hitstun = maxi(hitstun, 28)
@@ -671,20 +785,26 @@ func is_carrying_heavy() -> bool:
 
 func hand_point(carry: bool = false) -> Vector2:
 	var hand: Array = sheet.get("hand", [])
-	var frame := body.frame if body else 0
+	var frame := cur_frame
 	if carry:
-		var c: Array = sheet.anims.get("carry", [40, 2])
-		frame = int(c[0])
+		var cd := SpriteLib.anim_def(sheet, "carry")
+		if cd.frames.size() > 0:
+			frame = int(cd.frames[0])
 	if frame < hand.size():
-		var h: Array = hand[frame]
-		return Vector2(float(h[0]) - sheet.anchor.x, float(h[1]) - sheet.anchor.y)
+		return hand[frame][0]
 	return Vector2(10, -30) if not carry else Vector2(0, -48)
 
 func hand_angle() -> float:
 	var hand: Array = sheet.get("hand", [])
-	if body and body.frame < hand.size():
-		return float(hand[body.frame][2])
+	if cur_frame < hand.size():
+		return float(hand[cur_frame][1])
 	return 0.0
+
+func hand_front() -> bool:
+	var hand: Array = sheet.get("hand", [])
+	if sheet.get("v2", false) and cur_frame < hand.size():
+		return int(hand[cur_frame][2]) == 1
+	return state == "attack"
 
 func equip_weapon(id: String, durability: int = -1) -> void:
 	held = id
@@ -694,7 +814,10 @@ func equip_weapon(id: String, durability: int = -1) -> void:
 		up = GameState.weapon_upgrade_for_family(w.get("family", ""))
 	held_max = int(round(float(w.get("durability", 10)) * (1.0 + float(up.dur))))
 	held_dur = durability if durability > 0 else held_max
-	weapon_spr.texture = SpriteLib.weapon(id)
+	var wi := SpriteLib.weapon_info(id)
+	weapon_spr.texture = wi.texture
+	weapon_spr.scale = Vector2(wi.scale, wi.scale)
+	weapon_spr.set_meta("grip", wi.grip)
 	weapon_spr.visible = true
 	Audio.sfx("pickup", -4.0)
 
@@ -734,107 +857,147 @@ func play_anim(name: String) -> void:
 		anim_t = 0
 
 func _anim_for_state() -> Array:
-	# returns [anim_name, frame_index_within_anim]
+	# returns [anim_name, mode, value]; mode: "loop" (time), "stride" (distance), "fixed" (index), "progress" (0..1)
 	if scripted_anim != "":
-		return [scripted_anim, -1]
+		return [scripted_anim, "loop", 0]
 	match state:
 		"idle":
 			if carried_actor or is_carrying_heavy():
-				return ["carry", 0]
-			return ["idle", -1]
+				return ["carry", "loop", 0]
+			if land_t > 0 and SpriteLib.anim_def(sheet, "land").frames.size() > 0 and sheet.anims.has("land"):
+				return ["land", "progress", 1.0 - land_t / 8.0]
+			return ["idle", "loop", 0]
 		"walk":
 			if carried_actor or is_carrying_heavy():
-				return ["carry", -1]
-			return ["walk", -1]
+				return ["carry_walk", "stride", 0]
+			return ["walk", "stride", 0]
 		"run":
-			return ["run", -1]
+			return ["run", "stride", 0]
 		"carry":
-			return ["carry", 0 if vel.length() < 4 else -1]
+			return ["carry_walk", "stride", 0] if vel.length() >= 4 else ["carry", "loop", 0]
 		"jump":
-			return ["jump", 0 if vz > 0 else 1]
+			var jn: int = SpriteLib.anim_def(sheet, "jump").frames.size()
+			if jn >= 3:
+				return ["jump", "fixed", (0 if state_t < 4 else 1) if vz > 0 else 2]
+			return ["jump", "fixed", 0 if vz > 0 else 1]
 		"attack":
-			return [atk.get("anim", "punch_a"), _attack_frame()]
+			return [atk.get("anim", "punch_a"), "fixed", _attack_frame()]
 		"guard":
-			return ["guard", 0]
+			return ["guard", "fixed", 0 if state_t < 3 else 1]
 		"hurt":
-			return ["hurt", 1 if hurt_low else 0]
+			return [hurt_kind, "progress", float(state_t) / float(maxi(hitstun, 1))]
 		"knockdown":
 			if lying:
-				return ["knockdown", 2]
-			return ["knockdown", 0 if vz > 0 else 1]
+				return ["knockdown", "fixed", _kd_index(2 if state_t < 4 else (3 if state_t < 10 else 4))]
+			return ["knockdown", "fixed", _kd_index(0 if vz > 0 else 1)]
 		"getup":
-			return ["getup", 0 if state_t < 9 else 1]
+			return ["getup", "progress", state_t / 18.0]
 		"dizzy":
-			return ["dizzy", -1]
+			return ["dizzy", "loop", 0]
 		"pickup":
-			return ["pickup", 0]
+			return ["pickup", "progress", state_t / 10.0]
 		"throw":
-			return ["throw", 0 if state_t < 5 else 1]
+			var td := SpriteLib.anim_def(sheet, "throw")
+			var c := clampi(int(td.contact), 0, td.frames.size() - 1)
+			var n: int = td.frames.size()
+			return ["throw", "fixed", mini(n - 1, c + int(state_t / 14.0 * float(n - c)))]
 		"carried", "thrown":
-			return ["knockdown", 0]
+			return ["knockdown", "fixed", _kd_index(1)]
 		"dead":
-			return ["knockdown", 2]
+			return ["knockdown", "fixed", _kd_index(4)]
 		"victory":
-			return ["victory", -1]
+			return ["victory", "loop", 0]
 		"talk":
-			return ["talk", -1]
+			return ["talk", "loop", 0]
 		"cower":
-			return ["cower", -1]
-	return ["idle", -1]
+			return ["cower", "loop", 0]
+	return ["idle", "loop", 0]
 
+## Maps a knockdown phase (0 launch, 1 airborne, 2 impact, 3 bounce, 4 lying) onto the sheet's frame count.
+func _kd_index(phase: int) -> int:
+	var n: int = SpriteLib.anim_def(sheet, "knockdown").frames.size()
+	if n >= 5:
+		return phase
+	if n == 3:
+		return [0, 1, 2, 2, 2][phase]
+	return mini(phase, n - 1)
+
+## Attack frames follow the tick phases: startup -> anticipation frames, active -> contact frame(s),
+## recovery -> follow-through frames. Only the drawing changes; hit timing comes from the attack data.
 func _attack_frame() -> int:
-	var a: Array = sheet.anims.get(atk.get("anim", "punch_a"), [0, 1])
-	var count := int(a[1])
-	var ph := attack_phase()
-	if atk.get("hits", 1) > 1 and ph == 1:
-		return int(atk_t / 3) % maxi(count, 1)
-	if count <= 1:
+	var ad := SpriteLib.anim_def(sheet, atk.get("anim", "punch_a"))
+	var n: int = ad.frames.size()
+	if n <= 1:
 		return 0
-	if count == 2:
-		return 0 if ph == 0 else 1
-	return clampi(ph, 0, count - 1)
-
-func _anim_speed(name: String) -> int:
-	match name:
-		"idle": return 30
-		"walk": return 8
-		"run": return 5
-		"dizzy": return 12
-		"talk": return 14
-		"victory": return 16
-		"cower": return 6
-		"carry": return 9
-	return 8
+	var c := clampi(int(ad.contact), 0, n - 1)
+	var s_: int = int(atk.get("startup", 4))
+	var a_: int = int(atk.get("active", 3))
+	var r_: int = maxi(1, _recovery_ticks())
+	var ph := attack_phase()
+	if ph == 0:
+		if c == 0:
+			return 0
+		return clampi(int(float(atk_t) / float(maxi(s_, 1)) * float(c)), 0, c - 1)
+	if ph == 1:
+		if atk.get("hits", 1) > 1 and n - c > 1:
+			return c + (int(atk_t / 3) % 2)
+		return c
+	var rem := n - 1 - c
+	if rem <= 0:
+		return c
+	var tr := atk_t - s_ - a_
+	return c + 1 + clampi(int(float(tr) / float(r_) * float(rem)), 0, rem - 1)
 
 func _update_visual() -> void:
 	if body == null:
 		return
 	var pair := _anim_for_state()
 	var name: String = pair[0]
-	var fixed: int = pair[1]
-	var a: Array = sheet.anims.get(name, sheet.anims.get("idle", [0, 1]))
+	var mode: String = pair[1]
+	var ad := SpriteLib.anim_def(sheet, name)
+	var frames: PackedInt32Array = ad.frames
+	var n := maxi(1, frames.size())
 	if name != anim:
 		anim = name
-		anim_t = 0
+		loop_t = 0.0
+		cycle = 0.0
 		anim_frame = 0
-	var count := maxi(1, int(a[1]))
-	if fixed >= 0:
-		anim_frame = mini(fixed, count - 1)
-	else:
-		anim_t += 1
-		if anim_t >= _anim_speed(name):
-			anim_t = 0
-			anim_frame = (anim_frame + 1) % count
-	body.frame = clampi(int(a[0]) + anim_frame, 0, body.hframes * body.vframes - 1)
-	visual.position = Vector2(0, -round(z))
-	visual.scale.x = float(facing)
-	# shadow shrinks with height
+	var moved := (position - last_pos).length()
+	last_pos = position
+	if moved > 40.0:
+		moved = 0.0
+	match mode:
+		"fixed":
+			anim_frame = clampi(int(pair[2]), 0, n - 1)
+		"progress":
+			anim_frame = clampi(int(float(pair[2]) * n), 0, n - 1)
+		"stride":
+			var stride := float(ad.get("stride", 0.0))
+			if stride > 0.0 and moved > 0.05:
+				cycle += moved / stride
+			else:
+				cycle += float(ad.get("fps", 10.0)) / 60.0 / float(n)
+			anim_frame = int(fposmod(cycle, 1.0) * n) % n
+		_:
+			loop_t += float(ad.get("fps", 8.0)) / 60.0
+			anim_frame = int(loop_t) % n if ad.get("loop", true) else mini(int(loop_t), n - 1)
+	_set_frame(int(frames[anim_frame]) if frames.size() > 0 else 0)
+	if land_t > 0:
+		land_t -= 1
+	vis_facing = facing
+	if state == "hurt" and hurt_kind == "hurt_back" and sheet.anims.has("hurt_back"):
+		vis_facing = -facing
+	visual.position = Vector2(0, -z)
+	visual.scale.x = float(vis_facing)
+	# contact shadow shrinks with height
 	var s := clampf(1.0 - z / 140.0, 0.45, 1.0)
-	shadow.scale = Vector2(s, s) * (1.25 if height > 50 else 1.0)
+	shadow.scale = Vector2(s, s) * (1.25 if height > 50 else 1.0) * _shadow_base
 	shadow.visible = state != "removed"
+	_update_lighting()
 	# weapon attachment
 	if held != "" and weapon_spr.visible:
 		var hp_pt := hand_point()
+		var grip: Vector2 = weapon_spr.get_meta("grip", Vector2(3, 3))
 		if is_carrying_heavy():
 			hp_pt = hand_point(true)
 			var tex := weapon_spr.texture
@@ -844,9 +1007,9 @@ func _update_visual() -> void:
 			weapon_spr.z_index = 1
 		else:
 			weapon_spr.position = hp_pt
-			weapon_spr.offset = -SpriteLib.weapon_grip(held)
+			weapon_spr.offset = -grip
 			weapon_spr.rotation = deg_to_rad(hand_angle())
-			weapon_spr.z_index = 0 if state == "attack" else -1
+			weapon_spr.z_index = 0 if hand_front() else -1
 	# flash / telegraph tint
 	if flash > 0.0:
 		flash = maxf(0.0, flash - 0.12)

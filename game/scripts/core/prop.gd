@@ -31,14 +31,18 @@ func setup(r: Node, t: String, pos: Vector2, idx: int, cont: Dictionary) -> void
 	position = pos
 	contents = cont
 	var meta: Dictionary = Content.props_meta.get(t, {})
-	var tex := SpriteLib.prop(t)
+	var info := SpriteLib.prop_info(t)
+	var tex: Texture2D = info.texture
+	var sc := float(info.scale)
 	spr = Sprite2D.new()
 	spr.texture = tex
 	spr.centered = false
-	var anchor: Array = meta.get("anchor", [tex.get_width() / 2.0, tex.get_height()])
-	spr.offset = -Vector2(float(anchor[0]), float(anchor[1]))
+	spr.scale = Vector2(sc, sc)
+	var anchor: Array = info.anchor
+	spr.offset = -Vector2(float(anchor[0]), float(anchor[1])) / sc
 	add_child(spr)
-	var fp: Array = meta.get("footprint", [tex.get_width() - 4, 8])
+	# Collision always comes from the v1 gameplay footprint (art upgrades must not move it).
+	var fp: Array = meta.get("footprint", [tex.get_width() * sc - 4, 8])
 	footprint = Vector2(float(fp[0]), float(fp[1]))
 	if t.begins_with("counter") or t == "workbench":
 		footprint.y = maxf(footprint.y, position.y - float(room.walk_top) + 2.0)
@@ -61,7 +65,7 @@ func ground_rect() -> Rect2:
 	return Rect2(position.x - footprint.x / 2.0, position.y - footprint.y, footprint.x, footprint.y)
 
 func cur_height() -> float:
-	return float(spr.texture.get_height()) if spr and spr.texture else 24.0
+	return float(spr.texture.get_height()) * spr.scale.y if spr and spr.texture else 24.0
 
 func is_hittable() -> bool:
 	return breakable and not broken
