@@ -154,6 +154,8 @@ def render_frame(args):
     ox, oy = cv.origin_tx()
     a = np.asarray(img)[..., 3]
     ys, xs = np.nonzero(a > 0)
+    if xs.min() <= 0 or ys.min() <= 0 or xs.max() >= img.width - 1:
+        print('WARNING clipped frame', cid, name, idx, file=sys.stderr)
     x_0, x_1 = max(xs.min() - 1, 0), min(xs.max() + 2, img.width)
     y_0, y_1 = max(ys.min() - 1, 0), min(ys.max() + 2, img.height)
     crop = img.crop((x_0, y_0, x_1, y_1))

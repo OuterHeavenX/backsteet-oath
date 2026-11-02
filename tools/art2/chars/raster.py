@@ -187,6 +187,7 @@ class Canvas:
         self.col = np.zeros((self.H, self.W, 3), np.float32)
         self.a = np.zeros((self.H, self.W), np.float32)
         self.tx = SS          # ss pixels per output texel
+        self.line_scale = 1.0
 
     # coordinates
     def P(self, p):
@@ -373,7 +374,7 @@ class Group:
         P = cv.PP(pts)
         if closed:
             P = P + [P[0]]
-        dr.line(P, fill=255, width=max(1, int(round(w_tx * SS))), joint='curve')
+        dr.line(P, fill=255, width=max(1, int(round(w_tx * SS * cv.line_scale))), joint='curve')
         m = np.asarray(img, np.float32) / 255.0
         if clip_to_group:
             m = m * (self.img_a > 0.5)
@@ -405,7 +406,7 @@ class Group:
             cv.col[occ] = cv.col[occ] * f
         col = self.img_col.copy()
         if self.inner_line and below.any():
-            w = max(1, int(round(self.line_tx * SS)))
+            w = max(1, int(round(self.line_tx * SS * cv.line_scale)))
             er = _erode(solid, w)
             ring = (solid > 0.5) & (er < 0.5) & below
             ink = np.array(self.ink if self.ink is not None else INK, np.float32) / 255.0

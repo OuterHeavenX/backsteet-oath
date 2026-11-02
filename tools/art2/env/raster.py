@@ -347,9 +347,10 @@ class Canvas:
         hh = m.shape[0]
         ys = (np.arange(hh, dtype=np.float32) + y0 + self.oy) / self.D
         t = np.clip((ys - y) / max(1e-6, h), 0, 1)
-        rgb = _ramp(stops, t)
-        rgb = np.broadcast_to(rgb[:, None, :], (hh, m.shape[1], 3))
-        self.paint(mk, (255, 255, 255, 255), a, mode, rgb=rgb, em=em)
+        rgba = _ramp(stops, t)
+        rgb = np.broadcast_to(rgba[:, None, :3], (hh, m.shape[1], 3))
+        mm = m * rgba[:, None, 3]
+        self.paint((x0, y0, mm), (255, 255, 255, 255), a, mode, rgb=rgb, em=em)
         return mk
 
     def hgrad(self, x, y, w, h, stops, a=1.0, mode='over', mk=None, em=None):
@@ -359,9 +360,10 @@ class Canvas:
         ww = m.shape[1]
         xs = (np.arange(ww, dtype=np.float32) + x0 + self.ox) / self.D
         t = np.clip((xs - x) / max(1e-6, w), 0, 1)
-        rgb = _ramp(stops, t)
-        rgb = np.broadcast_to(rgb[None, :, :], (m.shape[0], ww, 3))
-        self.paint(mk, (255, 255, 255, 255), a, mode, rgb=rgb, em=em)
+        rgba = _ramp(stops, t)
+        rgb = np.broadcast_to(rgba[None, :, :3], (m.shape[0], ww, 3))
+        mm = m * rgba[None, :, 3]
+        self.paint((x0, y0, mm), (255, 255, 255, 255), a, mode, rgb=rgb, em=em)
         return mk
 
     def radial(self, cx, cy, rx, ry, col, a=1.0, mode='addfree', falloff=2.0, core=0.0, em=None):
@@ -493,9 +495,9 @@ def _ramp(stops, t):
     else:
         st = [(i / max(1, len(stops) - 1), s) for i, s in enumerate(stops)]
     ts = np.array([s[0] for s in st], np.float32)
-    cs = np.array([s[1][:3] for s in st], np.float32) / 255.0
-    out = np.zeros(t.shape + (3,), np.float32)
-    for ch in range(3):
+    cs = np.array([tuple(s[1][:3]) + ((s[1][3] if len(s[1]) > 3 else 255),) for s in st], np.float32) / 255.0
+    out = np.zeros(t.shape + (4,), np.float32)
+    for ch in range(4):
         out[..., ch] = np.interp(t, ts, cs[:, ch])
     return out
 

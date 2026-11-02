@@ -43,7 +43,7 @@ D = 2
 GROUNDS = {
     'street': roommod.g_street,
     'lot': roommod.g_lot,
-    'checker_floor': lambda R, x, w: roommod.g_checker(R, x, w),
+    'checker_floor': lambda R, x, w: roommod.g_checker(R, x, w, c1='#ded3c2', c2='#bdb0b0'),
 }
 
 # Static props get a baked long dusk shadow on the ground (movable/breakable ones do not).
@@ -123,7 +123,7 @@ def extras_int_diner(R):
         oq.doormat(R, south['x0'], south['x1'])
     # polished floor: faint reflections of the wall lights
     for lx in (300, 380, 460):
-        R.cv.vgrad(lx - 6, 200, 12, 50, [C('#fff0c0', 70), C('#fff0c0', 0)], mode='add')
+        R.cv.radial(lx, 214, 9, 22, C('#fff0c0'), a=0.10, mode='add', falloff=1.5)
     R.reflect.append({"rect": [0, 200, 640, 160], "alpha": 0.12})
 
 
@@ -366,6 +366,7 @@ def mid_chainlot():
 
 
 ROOM_MID = {'oq_chainlot': [('mid', mid_chainlot, 0.6, 80)]}
+ROOM_DISTRICT_LAYERS = {'oq_chainlot': ['sky', 'far']}
 
 
 # ----------------------------------------------------------------------------- build
@@ -414,7 +415,10 @@ def write_room(R, img, out_root):
     base_files = roommod.save_tiles(img, d, 'base')
     layers = []
     if not R.interior:
+        only = ROOM_DISTRICT_LAYERS.get(R.id)
         for name, par, y in DISTRICT_LAYERS.get(R.district, []):
+            if only and name not in only:
+                continue
             layers.append({"name": name, "files": [f'../_district/{R.district}_{name}.png'], "parallax": par,
                            "y": y, "repeat": True})
     for name, fn, par, y in ROOM_MID.get(R.id, []):
@@ -430,6 +434,9 @@ def write_room(R, img, out_root):
             fg.append({"file": f'{name}.png', "x": x, "y": y, "parallax": par, "fade": fade})
     lm = roommod.build_lightmap(R, 8)
     lm.save(os.path.join(d, 'light.png'))
+    if R.interior:
+        for rf in R.reflect:
+            rf["alpha"] = min(0.12, rf["alpha"])
     js = {
         "room": R.id, "width": R.W, "density": D,
         "layers": layers,
@@ -437,11 +444,14 @@ def write_room(R, img, out_root):
         "lightmap": {"file": "light.png", "cell": 8},
         "ambient_color": R.ambient_color,
         "rim": R.rim,
-        "cast_shadow": R.cast_shadow,
         "glows": R.glows,
         "ambient": R.ambient,
         "reflect": R.reflect,
     }
+    if not R.interior:
+        js["cast_shadow"] = R.cast_shadow
+    for k, v in R.extra_layers.items():
+        pass
     with open(os.path.join(d, 'room.json'), 'w') as f:
         json.dump(js, f, indent=1)
     return js

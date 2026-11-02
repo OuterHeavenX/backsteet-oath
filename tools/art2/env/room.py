@@ -122,14 +122,6 @@ def asphalt(R, x, w, y0=STREET_TOP, y1=CURB_Y, base='#5c5464', lane=True, lane_y
     cv.paint((x0, yy0, (n2 - 0.55).clip(0, 1) * 0.16 * mm), m.l, mode='atop')
     cv.paint((x0, yy0, (0.45 - n2).clip(0, 1) * 0.16 * mm), m.d, mode='atop')
     rs = R.rng('asph', x, seed)
-    # repair patches (irregular, low contrast, faint edge)
-    for _ in range(max(1, int(w / 300))):
-        px, py = rs.uniform(x, x + w - 50), rs.uniform(y0 + 8, y1 - 24)
-        pw, ph = rs.uniform(26, 60), rs.uniform(8, 16)
-        pts = [(px + rs.uniform(-2, 2), py + rs.uniform(-1, 1)), (px + pw + rs.uniform(-2, 2), py + rs.uniform(-1, 1)),
-               (px + pw + rs.uniform(-3, 3), py + ph + rs.uniform(-1, 1)), (px + rs.uniform(-3, 3), py + ph + rs.uniform(-1, 1))]
-        cv.fill_poly(pts, shade(m.b, 0.2), a=0.13, mode='atop')
-        cv.fill_poly(pts, None, ink=m.d, iw=DETAIL, a=0.10, mode='atop')
     # cracks
     for _ in range(max(1, int(w / 140))):
         cx, cy = rs.uniform(x, x + w), rs.uniform(y0 + 4, y1 - 4)
@@ -268,8 +260,8 @@ def g_lot(R, x, w, base='#7e766c'):
     for _ in range(int(w / 400) + 1):
         tx, ty = rs.uniform(x, x + w - 120), rs.uniform(y0 + 30, y1 - 20)
         pts = [(tx + k * 6, ty + math.sin(k * 0.35) * 4) for k in range(20)]
-        cv.line(pts, 2.2, C('#3a3036'), a=0.18, mode='atop')
-        cv.line([(px, py + 6) for px, py in pts], 2.2, C('#3a3036'), a=0.18, mode='atop')
+        cv.line(pts, 2.2, C('#3a3036'), a=0.10, mode='atop')
+        cv.line([(px, py + 6) for px, py in pts], 2.2, C('#3a3036'), a=0.10, mode='atop')
     for _ in range(int(w / 25)):
         lx, ly = rs.uniform(x, x + w), rs.uniform(y0 + 4, y1 - 3)
         c = rs.choice([C('#c8b8a0'), C('#8a6a4a'), C('#6a8a5a'), C('#b8a070')])

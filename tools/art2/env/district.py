@@ -113,7 +113,8 @@ def far(dist, seed=2):
     base = 216
     c0, c1 = C(P['far'][0]), C(P['far'][1])
     # two depth rows: back row lighter (haze, downtown towers), front row slightly darker
-    for row, (col, hmin, hmax) in enumerate(((mix(c0, c1, 0.55), 110, 196), (c0, 80, 150))):
+    hz = C(P['haze'])
+    for row, (col, hmin, hmax) in enumerate(((mix(c1, hz, 0.25), 110, 196), (mix(c0, c1, 0.3), 80, 150))):
         x = -40
         while x < TILE_U + 40:
             w = rs.uniform(16, 46)
@@ -123,7 +124,7 @@ def far(dist, seed=2):
                 deco = 'spire'
             def one(xx, w=w, h=h, col=col, deco=deco, s=rs.random()):
                 r2 = rng_of('b', dist, xx // 1, s)
-                _building_sil(cv, xx, base, w, h, col, r2, P['far_win'], win_p=0.10 if row else 0.06,
+                _building_sil(cv, xx, base, w, h, col, r2, P['far_win'], win_p=0.07 if row else 0.03,
                               deco=deco, rim=C(P['rim']) if row else None)
             if 0 <= x < TILE_U:
                 _wrap_draw(one, x)
@@ -171,11 +172,11 @@ def mid(dist, seed=3):
 
 DIST = {
     'old_quarter': dict(
-        sky=[(0.0, C('#4a3670')), (0.10, C('#8a4c78')), (0.20, C('#d06c6e')), (0.30, C('#f29662')),
-             (0.42, C('#ffc27a')), (1.0, C('#ffd8a0'))],
+        sky=[(0.0, C('#3c4472')), (0.06, C('#6e5a80')), (0.12, C('#d0866a')), (0.20, C('#f4a460')),
+             (0.32, C('#ffc87a')), (1.0, C('#ffdca0'))],
         sun=(300, 96, 15, '#ffe8b0'),
-        cloud_top='#6a4a7a', cloud_low='#a85a78', cloud_lit='#ffb07a',
-        far=('#7a4e78', '#c27a86'), far_win='#ffd890', haze='#f4a07a', rim='#ffb890',
-        mid='#56365a', mid_win='#ffcf80',
+        cloud_top='#7a6478', cloud_low='#c47c6a', cloud_lit='#ffbc7a',
+        far=('#8a5a6a', '#d89080'), far_win='#ffd890', haze='#f4a87a', rim='#ffb890',
+        mid='#5a3a48', mid_win='#ffcf80',
     ),
 }

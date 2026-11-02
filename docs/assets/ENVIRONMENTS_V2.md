@@ -17,5 +17,6 @@ into the images; see THIRD_PARTY_NOTICES.md.
   never writes to it.
 
 ## Built
-- `oq_chainlot`: 2880x720 tx base in 2 tile(s), 4 fg, 13 glows, 6 ambient
+- `oq_kettle`: 3200x720 tx base in 2 tile(s), 5 fg, 13 glows, 5 ambient
 - `int_diner`: 1280x720 tx base in 1 tile(s), 3 fg, 7 glows, 2 ambient
+- `oq_chainlot`: 2880x720 tx base in 2 tile(s), 4 fg, 13 glows, 6 ambient

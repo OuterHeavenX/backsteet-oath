@@ -173,6 +173,7 @@ class Frame:
         self.sec = sec or {}
         self.portrait = portrait
         self.R = s.b['R']
+        self.portrait_expr_override = {}
 
     # ------------------------------------------------------------------ head-local transform
     def H(self, p):
@@ -494,15 +495,17 @@ class Frame:
         if back:
             pts = [add(waist, mul(fwdp, -top_w)), add(waist, mul(fwdp, top_w * 0.4)),
                    (s.hip[0] + 1.0 + dx * 0.4, kn_y + 0.3), (s.hip[0] - hw - 0.8 + dx, kn_y + dy * 0.2)]
-            m = g.mask(polys=[catmull(pts, closed=True, steps=3)])
+            m = g.mask(polys=[pts])
             g.fill(m, self._far(L.dress, True), shade=0.8, hi=0.0)
             g.commit()
             return
         pts = [add(waist, mul(fwdp, -top_w - 0.3)), add(waist, mul(fwdp, top_w + 0.3)),
-               (s.hip[0] + hw + 0.6 + dx * 0.6, kn_y - 0.2 + dy * 0.3),
-               (s.hip[0] + 1.0 + dx * 0.8, kn_y + 0.9),
-               (s.hip[0] - hw * 0.6 + dx, kn_y + 0.6 + dy * 0.3)]
-        m = g.mask(polys=[catmull(pts, closed=True, steps=4)])
+               add(s.hip, mul(fwdp, hw * 0.95)),
+               (s.hip[0] + hw + 0.9 + dx * 0.6, kn_y - 0.3 + dy * 0.3),
+               (s.hip[0] + 1.0 + dx * 0.8, kn_y + 0.5),
+               (s.hip[0] - hw * 0.8 + dx, kn_y + 0.3 + dy * 0.3),
+               add(s.hip, mul(fwdp, -hw * 0.95))]
+        m = g.mask(polys=[pts])
         g.fill(m, L.dress, shade=1.0, hi=0.35)
         # folds
         for k in (-0.3, 0.25):
@@ -874,7 +877,7 @@ class Frame:
         cx, cy = c
         kind = e['eye']
         ink = (34, 22, 36)
-        lw = 1.15 if not self.portrait else 2.2
+        lw = 1.15
         if kind in ('closed',):
             g.line(self.HP([(cx - rx, cy + 0.02), (cx, cy + ry * 0.35), (cx + rx, cy + 0.02)]), lw, ink)
             if L.lashes:
@@ -963,8 +966,8 @@ class Frame:
         L = self.L
         tip = [(0.92, 0.26), (1.06, 0.46), (0.93, 0.53)]
         g.fill(g.mask(polys=[self.HP(tip)]), L.skin, shade=0.0, hi=0.0)
-        g.line(self.HP([(0.92, 0.3), (1.04, 0.47), (0.92, 0.52)]), 0.8 if not self.portrait else 1.6, L.skin.shadow, 1.0)
-        g.line(self.HP([(0.80, 0.50), (0.88, 0.53)]), 0.7 if not self.portrait else 1.3, lerp_c(L.skin.shadow, (60, 30, 40), 0.3), 0.9)
+        g.line(self.HP([(0.92, 0.3), (1.04, 0.47), (0.92, 0.52)]), 0.8, L.skin.shadow, 1.0)
+        g.line(self.HP([(0.80, 0.50), (0.88, 0.53)]), 0.7, lerp_c(L.skin.shadow, (60, 30, 40), 0.3), 0.9)
 
     def mouth(self, g, e):
         L = self.L
@@ -972,7 +975,7 @@ class Frame:
         cx, cy = 0.64, 0.73
         w = 0.20
         lip = lerp_c(L.skin.shadow, MOUTH_DARK, 0.55)
-        lw = 0.95 if not self.portrait else 1.8
+        lw = 0.95
         if k == 'line':
             g.line(self.HP([(cx - w, cy), (cx + w * 0.8, cy - 0.01)]), lw, lip)
         elif k == 'firm':
@@ -1026,11 +1029,11 @@ class Frame:
         L = self.L
         mk = L.spec.get('marks', ())
         if 'scar' in mk:
-            g.line(self.HP([(0.18, -0.30), (0.42, 0.05), (0.50, 0.32)]), 0.9 if not self.portrait else 1.6,
+            g.line(self.HP([(0.18, -0.30), (0.42, 0.05), (0.50, 0.32)]), 0.9,
                    lerp_c(L.skin.light, (255, 220, 220), 0.4), 1.0)
         if 'freckles' in mk:
             for (x, y) in ((0.42, 0.45), (0.55, 0.42), (0.48, 0.52), (0.84, 0.44), (0.9, 0.5)):
-                g.dot(*self.H((x, y)), 0.12 * self.R / 7.0 * (1 if not self.portrait else 1), L.skin.shadow, 0.9)
+                g.dot(*self.H((x, y)), 0.12 * self.R / 7.0 * (1), L.skin.shadow, 0.9)
         if 'smudge' in mk:
             g.shade_region(g.mask(polys=[self.H_ell(0.6, 0.5, 0.14, 0.06, -10)]), (90, 70, 70), 0.5)
         if 'soot' in mk:
@@ -1117,7 +1120,7 @@ class Frame:
         d = self.drag_local('hair', 1.0)
         custom = CUSTOM_FRONT.get(st)
         hm = L.hair
-        shaved = Mat(lerp_c(L.skin.base, hm.base, 0.42), lerp_c(L.skin.shadow, hm.shadow, 0.42), L.skin.light)
+        shaved = Mat(lerp_c(L.skin.base, hm.shadow, 0.30), lerp_c(L.skin.shadow, hm.shadow, 0.45), lerp_c(L.skin.light, hm.base, 0.2))
         # face zone: hair (non 'face' shapes) cannot cover it
         fz = g.mask(polys=[self.HP([(-0.30, hl), (2.0, hl - 0.12), (2.0, 2.0), (-0.30, 2.0)])])
         if custom is not None:
@@ -1151,7 +1154,7 @@ class Frame:
             # per-sub-shape inner separation lines (spikes / curls)
             for m, o, pts in main:
                 if o.get('sub'):
-                    g.line(self.HP(pts[:max(2, len(pts) - 1)]), 0.7 if not self.portrait else 1.3, hm.shadow, 0.8)
+                    g.line(self.HP(pts[:max(2, len(pts) - 1)]), 0.7, hm.shadow, 0.8)
             # shine band
             sh_pts = self.HP(ellipse_pts(0.15, -0.72, 0.42, 0.12, -0.35, n=18))
             g.paint_flat(g.mask(polys=[sh_pts]) * (allm > 0.5), hm.light, 0.85)
@@ -1174,7 +1177,7 @@ class Frame:
             cy = sum(p[1] for p in P_) / n
             i = n // 3
             a = P_[i]
-            g.line([lerp((cx, cy), a, 0.2), lerp((cx, cy), a, 0.75)], 0.6 if not self.portrait else 1.1,
+            g.line([lerp((cx, cy), a, 0.2), lerp((cx, cy), a, 0.75)], 0.6,
                    hm.shadow, 0.55)
 
     def headband(self):

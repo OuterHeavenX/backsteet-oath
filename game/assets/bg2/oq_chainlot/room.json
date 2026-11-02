@@ -22,15 +22,6 @@
    "repeat": true
   },
   {
-   "name": "mid",
-   "files": [
-    "../_district/old_quarter_mid.png"
-   ],
-   "parallax": 0.5,
-   "y": 0,
-   "repeat": true
-  },
-  {
    "name": "room_mid",
    "files": [
     "mid_0.png"

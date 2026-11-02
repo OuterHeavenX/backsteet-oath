@@ -11,7 +11,7 @@ from rig import P, solve, body_for, NORMAL
 
 GUARD = dict(hip=(-0.3, -16.9), lean=6.0, twist=0.1, hn=(7.4, -28.6), hf=(12.2, -33.2),
              fn=(5.6, 0.0), ff=(-5.2, 0.0), toe_f=8.0, expr='fight', tilt=-3.0, wang=-58.0)
-RELAX = dict(hip=(0.0, -17.6), lean=3.0, twist=0.15, tilt=0.0, hn=(3.6, -19.6), hf=(-0.8, -20.4),
+RELAX = dict(hip=(0.0, -17.6), lean=3.0, twist=0.15, tilt=0.0, hn=(3.2, -16.9), hf=(-0.4, -17.5),
              hand_n='relax', hand_f='relax', fn=(3.4, 0.0), ff=(-3.0, 0.0), toe_f=0.0, expr='normal',
              eb_n='back', eb_f='back', wang=70.0)
 
@@ -94,7 +94,7 @@ def cycle(n, stride, beta, lift, lean, arms, expr, run=False, base=None, carry=F
             kw.update(hn=(1.5 + 7.5 * s_n, -25.5 - 3.5 * s_n), hf=(1.0 + 7.0 * s_f, -26.0 - 3.5 * s_f),
                       twist=0.32 * s_f, ptwist=-0.3 * s_f, lean=lean, eb_n='down', eb_f='down')
         elif civ:
-            kw.update(hn=(2.2 + 4.2 * s_n, -19.4 + 0.6 * abs(s_n)), hf=(-0.2 + 3.8 * s_f, -20.0 + 0.5 * abs(s_f)),
+            kw.update(hn=(2.4 + 4.6 * s_n, -17.2 - 0.9 * abs(s_n)), hf=(0.2 + 4.2 * s_f, -17.8 - 0.8 * abs(s_f)),
                       hand_n='relax', hand_f='relax', twist=0.18 * s_f, ptwist=-0.2 * s_f, lean=lean,
                       eb_n='back', eb_f='back')
         else:
@@ -398,7 +398,7 @@ def civilian_anims():
     for i in range(6):
         th = 2 * math.pi * i / 6
         fr.append(Rx(hip=(0.15 * math.sin(th), -17.6 + 0.3 * math.sin(th)), lean=3.0 + 0.5 * math.sin(th - 0.4),
-                     hn=(3.6, -19.6 + 0.35 * math.sin(th - 0.7)), hf=(-0.8, -20.4 + 0.3 * math.sin(th - 0.9)),
+                     hn=(3.2, -16.9 + 0.35 * math.sin(th - 0.7)), hf=(-0.4, -17.5 + 0.3 * math.sin(th - 0.9)),
                      tilt=0.6 * math.sin(th - 1.1), blink=(i == 3)))
     A['idle'] = dict(frames=fr, fps=7, loop=True, vel=[(0, 0.3 * math.cos(2 * math.pi * i / 6)) for i in range(6)])
     fr, v = cycle(8, 34.0, 0.62, 2.6, 3.0, None, 'normal', civ=True, base=RELAX)
@@ -409,10 +409,10 @@ def civilian_anims():
     A['cower'] = dict(frames=cower_frames(), fps=10, loop=True, vel=[(0.5, 0), (-0.5, 0), (0.3, 0)])
     A['victory'] = dict(frames=[
         Rx(expr='smile'),
-        Rx(hn=(2.0, -49.0), hf=(5.4, -48.0), hand_n='open', hand_f='open', eb_n='back', eb_f='fwd', expr='happy',
-           hip=(0, -18.0), tilt=-6, near_arm_back=True),
-        Rx(hn=(2.4, -50.0), hf=(5.8, -49.0), hand_n='open', hand_f='open', eb_n='back', eb_f='fwd', expr='happy',
-           hip=(0, -17.6), tilt=-6, near_arm_back=True),
+        Rx(hn=(10.0, -43.0), hf=(-6.0, -42.0), hand_n='open', hand_f='open', eb_n='down', eb_f='down', expr='happy',
+           hip=(0, -18.0), tilt=-6),
+        Rx(hn=(10.6, -44.0), hf=(-6.4, -43.0), hand_n='open', hand_f='open', eb_n='down', eb_f='down', expr='happy',
+           hip=(0, -17.6), tilt=-6),
         Rx(expr='grin', hn=(6.0, -24.0), hand_n='open', eb_n='down'),
     ], fps=8, loop=False, vel=[(0, 0), (0, -2), (0, 1), (0, 0)])
     for k in ('hurt_high', 'hurt_low', 'hurt_back', 'knockdown', 'getup', 'dizzy', 'jump', 'land', 'pickup',

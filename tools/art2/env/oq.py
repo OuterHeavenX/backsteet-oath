@@ -836,7 +836,7 @@ def f_diner_interior(R, x0, w, f):
     cv.rect(wx + ww_ / 2 - 1, wy, 2, wh, C('#c8ccd8'), ink=C('#3a3a48'), iw=DETAIL)
     cv.fill_poly([(wx + 10, wy), (wx + 30, wy), (wx, wy + 40), (wx - 6, wy + 40)], C('#ffffff'), a=0.15, mode='atop')
     lay = cv.layer(wx, wy, ww_, wh)
-    lay.text('LUCKY SPOON', 'sign', 9, wx + ww_ / 2, wy + 20, C('#e84a5a'), 'mm', tracking=0.5)
+    lay.text('LUCKY SPOON', 'sign', 7, wx + ww_ * 0.72, wy + 56, C('#e84a5a'), 'mm', tracking=0.5)
     lay.px[...] = lay.px[:, ::-1]
     cv.merge(lay, a=0.75)
     # venetian blind half drawn on the left pane
@@ -908,11 +908,22 @@ def f_diner_interior(R, x0, w, f):
     cv.ellipse(kx + kw - 14, ky + kh - 6, 3, 2, C('#e0c060'), ink=C('#5a4010'), iw=0.4)   # order bell
     R.glow(kx + kw / 2, ky + kh / 2, 110, '#ffd090', 0.25, 'none')
     R.ambient.append({"type": "steam", "x": float(kx + 104), "y": float(ky + 16), "rate": 0.5})
-    # back counter: coffee urns, cake dome, milkshake mixer, cups
-    by = 160
-    cv.rect(x0 + 160, by, 400, WB - by, C('#d8d8e0'), ink=C('#3a3a48'), iw=MAJOR)
-    cv.vgrad(x0 + 160, by, 400, WB - by, [C('#f0f2f8'), C('#b8bcc8'), C('#8a8e9a')], mode='atop', a=0.8)
-    cv.rect(x0 + 160, by, 400, 2, C('#ffffff'), mode='atop')
+    # back counter: stainless cabinets with the coffee station, cake dome, pie case, register, mixer
+    by = 172
+    bc = M(C('#c4c8d2'))
+    cv.rect(x0 + 160, by, 400, WB - by, bc.b, ink=bc.i, iw=MAJOR)
+    cv.rect(x0 + 160, by, 400, 2.2, C('#f4f6fa'), ink=bc.i, iw=DETAIL)
+    xx = x0 + 160
+    k = 0
+    while xx < x0 + 556:
+        pw = 25
+        cv.rect(xx + 2, by + 4, pw - 4, WB - by - 7, bc.s if k % 2 else bc.b, ink=bc.d, iw=DETAIL)
+        cv.hgrad(xx + 2, by + 4, pw - 4, WB - by - 7, [C('#ffffff', 90), C('#ffffff', 0), C('#000000', 0),
+                                                         C('#1a1220', 40)], mode='atop')
+        cv.rect(xx + pw / 2 - 3, by + 7, 6, 1.2, C('#eef0f6'), ink=bc.d, iw=0.3)
+        xx += pw
+        k += 1
+    cv.rect(x0 + 160, WB - 3, 400, 3, C('#2a2430'))
     # shelf above with cups
     cv.rect(x0 + 170, 120, 140, 2.5, C('#c8ccd8'), ink=C('#3a3a48'), iw=DETAIL)
     for k in range(14):
@@ -928,22 +939,24 @@ def f_diner_interior(R, x0, w, f):
     cv.ellipse(x0 + 268, by - 3, 9, 4, C('#e8a060'))
     cv.ellipse(x0 + 268, by - 6, 8, 3, C('#f4e8d0'))
     cv.rect(x0 + 268 - 14, by - 1, 28, 1.5, C('#c8ccd8'))
-    # milkshake mixer
     mx = x0 + 520
     cv.rect(mx - 6, by - 26, 12, 26, C('#5ad0c8'), ink=C('#1a3a3a'), iw=DETAIL)
     cv.rect(mx - 6, by - 26, 12, 3, C('#a8f0e8'), mode='atop')
     cv.rect(mx - 3, by - 14, 6, 10, C('#d8dce4'), ink=C('#3a3a48'), iw=0.4)
-    # pie case
     cv.rect(x0 + 330, by - 22, 46, 22, C('#e8f4ff'), ink=C('#6a7888'), iw=0.6, a=0.55)
     for k in range(3):
         cv.ellipse(x0 + 340 + k * 13, by - 6, 5, 2, C('#e8a04a'), ink=C('#6a3a10'), iw=0.4)
         cv.ellipse(x0 + 340 + k * 13, by - 15, 5, 2, C('#c83a4a') if k == 1 else C('#e8c86a'), ink=C('#6a3a10'),
                    iw=0.4)
     cv.rect(x0 + 330, by - 11, 46, 0.8, C('#c8ccd8'))
-    # register
     cv.rect(x0 + 410, by - 14, 18, 14, C('#5a5a64'), ink=C('#1a1220'), iw=DETAIL)
     cv.rect(x0 + 412, by - 18, 14, 5, C('#2a2a34'), ink=C('#1a1220'), iw=DETAIL)
     cv.rect(x0 + 414, by - 17, 10, 3, C('#7aff9a'), em=1.0, a=0.8)
+    # toaster + napkin stack + menu stand to break the run
+    cv.rect(x0 + 458, by - 9, 14, 9, C('#d8dce4'), ink=C('#3a3a48'), iw=DETAIL)
+    cv.rect(x0 + 460, by - 10, 4, 1.4, C('#2a2430'))
+    cv.rect(x0 + 466, by - 10, 4, 1.4, C('#2a2430'))
+    cv.rect(x0 + 484, by - 6, 10, 6, C('#f4f0e8'), ink=C('#8a8070'), iw=0.4)
     # pendant lamps (in the base; foreground copies are separate fg sprites)
     for lx in (x0 + 300, x0 + 380, x0 + 460):
         cv.rect(lx - 0.4, 10, 0.8, 30, C('#2a2430'))
