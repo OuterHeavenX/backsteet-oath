@@ -1,4 +1,4 @@
-08085e54bb5bafcd726a841de3a7fdc3a8651758d755bf6513872b98bddb5d77  backstreet-oath-v1.0.0-rc3-web.zip
-fd1498be8c38473d4514f669f7ecdc42a79c22769bc96f4c1acd5d2749bac806  backstreet-oath-v1.0.0-rc3-linux-x86_64.zip
-3940c8d96407f9b139d4c64e2550a8f930a889cbbd4fb91aa2fb3e46cea7f4dc  backstreet-oath-v1.0.0-rc3-windows-x86_64.zip
-ec474e1510593849fbd6743a427ea3cf9f847de8a9e7a5cc031c8d108223f0d7  backstreet-oath-v1.0.0-rc3-source.zip
+981f22002bc5fc74f03148d28f264ad7ea3c12f3a9a724cfd7b23abf103c5b5c  backstreet-oath-v1.0.0-rc4-web.zip
+2fa3a3b2815994e127f0fa87e91218b5d1de8086a01fb3704603c56639dfb4c6  backstreet-oath-v1.0.0-rc4-linux-x86_64.zip
+7fdd2632ca13a2d1e1d0503df36d8eb4d1475e8a8b4bb31694c764f1f81fb652  backstreet-oath-v1.0.0-rc4-windows-x86_64.zip
+d45451f598e4757e282ffa35436e9dfbd3e9f54028c820649aad60d2be607a04  backstreet-oath-v1.0.0-rc4-source.zip
