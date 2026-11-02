@@ -85,6 +85,8 @@ neutral, happy, angry, surprised, sad. The ids are the same as v1.
   district `sky`/`far` layers show through. Interiors are opaque and have no parallax layers.
 - District layers live in `game/assets/bg2/_district/` and are shared by every room in that district. A layer with
   `repeat: true` tiles horizontally.
+- Any layer or `fg` entry may carry `"requires"` and/or `"unless"` (a `GameState.check` condition) to show art only in
+  certain story states (for example, the Pier Square drawbridge lowered after `boss_pikes`).
 - `fg` holds foreground framing sprites (posts, railings, hanging signs, cables, fence ends). `x` is the sprite's
   centre and `y` its bottom edge, both in u at parallax 1.0 (the engine offsets them for parallax). They must stay
   near the bottom or side edges and never cover more than 40% of the walk band's height. `fade: true` lets the engine

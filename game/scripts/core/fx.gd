@@ -38,7 +38,7 @@ static func make_strip(id: String) -> FX:
 		f.frame_ticks = maxi(1, int(round(60.0 / maxf(float(v2.fps), 1.0))))
 		if v2.additive:
 			f.spr.material = RoomVisuals.add_material()
-		if id in ["stars", "stars_dizzy", "charge_glow"]:
+		if v2.loop or id in ["stars", "stars_dizzy", "charge_glow"]:
 			f.loop = true
 		return f
 	var info := SpriteLib.fx(id)

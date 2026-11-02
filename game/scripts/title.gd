@@ -35,15 +35,15 @@ func _ready() -> void:
 		add_child(cr)
 	var logo_tex := SpriteLib.ui2("logo")
 	var top := CenterContainer.new()
-	UIKit.place(top, Control.PRESET_CENTER_TOP, -240, 10, 480, 134)
+	UIKit.place(top, Control.PRESET_CENTER_TOP, -200, 8, 400, 120)
 	add_child(top)
 	if logo_tex:
 		logo = TextureRect.new()
 		logo.texture = logo_tex
 		logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		logo.custom_minimum_size = Vector2(440, 132)
-		logo.pivot_offset = Vector2(220, 66)
+		logo.custom_minimum_size = Vector2(400, 120)
+		logo.pivot_offset = Vector2(200, 60)
 		top.add_child(logo)
 		logo.modulate.a = 0.0
 		logo.scale = Vector2(1.12, 1.12)
@@ -55,7 +55,7 @@ func _ready() -> void:
 		l.add_theme_font_size_override("font_size", 28)
 		top.add_child(l)
 	var sub := UIKit.label("BELLWETHER  ·  1988", UIKit.CREAM, 0, HORIZONTAL_ALIGNMENT_CENTER)
-	UIKit.place(sub, Control.PRESET_CENTER_TOP, -100, 146, 200, 10)
+	UIKit.place(sub, Control.PRESET_CENTER_TOP, -100, 126, 200, 12)
 	sub.add_theme_color_override("font_outline_color", UIKit.INK)
 	sub.add_theme_constant_override("outline_size", 4)
 	add_child(sub)
@@ -70,7 +70,7 @@ func _ready() -> void:
 	ver.add_theme_constant_override("outline_size", 3)
 	add_child(ver)
 	main_box = UIKit.vbox(3)
-	UIKit.place(main_box, Control.PRESET_CENTER_BOTTOM, -90, -176, 180, 170)
+	UIKit.place(main_box, Control.PRESET_BOTTOM_LEFT, 34, -192, 176, 170)
 	main_box.visible = false
 	add_child(main_box)
 	menu_layer = CanvasLayer.new()
@@ -176,34 +176,37 @@ func toast(_m: String) -> void:
 	pass
 
 
-## Parallax title scene from ui2 title layers (sky, far, mid, street, hero). Returns false if the art is missing.
+## Parallax title scene from the ui2 title layers. Each layer is drawn at density 2 (half its texel size),
+## bottom-anchored and centred, and drifts by its own parallax factor. Returns false if the art is missing.
 func _build_layers() -> bool:
-	var names := [["title_sky", 0.0], ["title_far", 0.15], ["title_mid", 0.35], ["title_street", 0.7], ["title_hero", 1.0]]
+	var meta := SpriteLib.ui2_meta()
 	var any := false
-	for n in names:
-		var t := SpriteLib.tex("res://assets/ui2/%s.png" % n[0])
+	for n in ["title_sky", "title_far", "title_mid", "title_street", "title_hero"]:
+		var t := SpriteLib.ui2_half(n)
 		if t == null:
 			continue
 		any = true
+		var m: Dictionary = meta.get(n, {})
 		var r := TextureRect.new()
 		r.texture = t
-		r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		r.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		r.offset_left = -16
-		r.offset_right = 16
+		var hs := 0.7 if n == "title_hero" else 1.0
+		r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		r.stretch_mode = TextureRect.STRETCH_SCALE
+		r.size = t.get_size() * hs
 		add_child(r)
-		layers.append({"node": r, "depth": float(n[1])})
+		var feet: Array = m.get("feet", [])
+		layers.append({"node": r, "depth": float(m.get("parallax", 0.3)), "hero": n == "title_hero",
+			"feet": Vector2(float(feet[0]), float(feet[1])) / 2.0 * hs if feet.size() == 2 else Vector2.ZERO})
 	if any:
 		var vig := TextureRect.new()
 		var g := Gradient.new()
-		g.colors = PackedColorArray([Color(0, 0, 0, 0), Color(0.02, 0.01, 0.03, 0.55)])
+		g.colors = PackedColorArray([Color(0, 0, 0, 0), Color(0.02, 0.01, 0.03, 0.5)])
 		var gt := GradientTexture2D.new()
 		gt.gradient = g
 		gt.fill = GradientTexture2D.FILL_RADIAL
-		gt.fill_from = Vector2(0.5, 0.45)
-		gt.fill_to = Vector2(1.15, 0.45)
+		gt.fill_from = Vector2(0.45, 0.4)
+		gt.fill_to = Vector2(1.2, 0.4)
 		vig.texture = gt
 		vig.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		vig.stretch_mode = TextureRect.STRETCH_SCALE
@@ -214,10 +217,15 @@ func _build_layers() -> bool:
 
 func _animate_layers(delta: float) -> void:
 	drift_t += delta
+	var vs := get_viewport_rect().size
 	for L in layers:
 		var r: TextureRect = L.node
 		var d: float = L.depth
-		r.position.x = -16.0 + sin(drift_t * 0.12) * 12.0 * d
-		r.position.y = cos(drift_t * 0.09) * 2.0 * d
+		var sway := sin(drift_t * 0.11) * 14.0 * d
+		if L.hero:
+			var feet: Vector2 = L.feet
+			r.position = Vector2(vs.x * 0.8 - feet.x + sway, vs.y - 6.0 - feet.y)
+		else:
+			r.position = Vector2((vs.x - r.size.x) * 0.5 + sway, vs.y - r.size.y)
 	if logo and logo.modulate.a >= 1.0:
 		logo.position.y = sin(drift_t * 0.8) * 1.2

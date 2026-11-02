@@ -188,6 +188,90 @@
    20
   ]
  },
+ "gp_a": {
+  "file": "gp_a.png",
+  "size": [
+   24,
+   24
+  ]
+ },
+ "gp_b": {
+  "file": "gp_b.png",
+  "size": [
+   24,
+   24
+  ]
+ },
+ "gp_dpad": {
+  "file": "gp_dpad.png",
+  "size": [
+   24,
+   24
+  ]
+ },
+ "gp_lb": {
+  "file": "gp_lb.png",
+  "size": [
+   32,
+   20
+  ]
+ },
+ "gp_lstick": {
+  "file": "gp_lstick.png",
+  "size": [
+   24,
+   24
+  ]
+ },
+ "gp_lt": {
+  "file": "gp_lt.png",
+  "size": [
+   32,
+   20
+  ]
+ },
+ "gp_rb": {
+  "file": "gp_rb.png",
+  "size": [
+   32,
+   20
+  ]
+ },
+ "gp_rt": {
+  "file": "gp_rt.png",
+  "size": [
+   32,
+   20
+  ]
+ },
+ "gp_select": {
+  "file": "gp_select.png",
+  "size": [
+   24,
+   20
+  ]
+ },
+ "gp_start": {
+  "file": "gp_start.png",
+  "size": [
+   24,
+   20
+  ]
+ },
+ "gp_x": {
+  "file": "gp_x.png",
+  "size": [
+   24,
+   24
+  ]
+ },
+ "gp_y": {
+  "file": "gp_y.png",
+  "size": [
+   24,
+   24
+  ]
+ },
  "hud_badge": {
   "file": "hud_badge.png",
   "size": [
@@ -226,6 +310,20 @@
   ],
   "note": "App icon 64 (rendered at 64, not downscaled)."
  },
+ "key_cap": {
+  "file": "key_cap.png",
+  "size": [
+   24,
+   24
+  ],
+  "margins": [
+   8,
+   7,
+   8,
+   9
+  ],
+  "note": "Keyboard key; draw the key label in #120c18 centred on the top face (bottom 4 tx is the key side)."
+ },
  "logo": {
   "file": "logo.png",
   "size": [
@@ -247,6 +345,14 @@
    165
   ],
   "note": "Half-size logo for menus/credits (downscaled from logo.png)."
+ },
+ "map": {
+  "file": "map.png",
+  "size": [
+   960,
+   520
+  ],
+  "note": "District map (2x of v1 480x260). District dot coordinates are in ui2/map.json (texels of this image)."
  },
  "name_tag": {
   "file": "name_tag.png",
@@ -302,6 +408,13 @@
   ],
   "note": "Frame over a 192x192 portrait placed at (8, 8)."
  },
+ "rotate_device": {
+  "file": "rotate_device.png",
+  "size": [
+   128,
+   128
+  ]
+ },
  "title_far": {
   "file": "title_far.png",
   "size": [
@@ -318,10 +431,10 @@
    480,
    640
   ],
-  "note": "Backlit hero (Nico) silhouette, feet at (250, 628) tx. Suggested parallax 0.8; place bottom-aligned left or right of the menu.",
+  "note": "Backlit Nico seen from behind (facing the sunset), feet at (258, 628) tx. Suggested parallax 0.8; place bottom-aligned beside the menu.",
   "anchor": "bottom",
   "feet": [
-   250,
+   258,
    628
   ],
   "parallax": 0.8
@@ -368,5 +481,125 @@
    10,
    10
   ]
+ },
+ "touch_btn_grab": {
+  "file": "touch_btn_grab.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_grab_bare": {
+  "file": "touch_btn_grab_bare.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_guard": {
+  "file": "touch_btn_guard.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_guard_bare": {
+  "file": "touch_btn_guard_bare.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_jump": {
+  "file": "touch_btn_jump.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_jump_bare": {
+  "file": "touch_btn_jump_bare.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_kick": {
+  "file": "touch_btn_kick.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_kick_bare": {
+  "file": "touch_btn_kick_bare.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_pause": {
+  "file": "touch_btn_pause.png",
+  "size": [
+   64,
+   64
+  ]
+ },
+ "touch_btn_punch": {
+  "file": "touch_btn_punch.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_punch_bare": {
+  "file": "touch_btn_punch_bare.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_run": {
+  "file": "touch_btn_run.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_run_bare": {
+  "file": "touch_btn_run_bare.png",
+  "size": [
+   112,
+   112
+  ]
+ },
+ "touch_btn_status": {
+  "file": "touch_btn_status.png",
+  "size": [
+   64,
+   64
+  ]
+ },
+ "touch_stick_base": {
+  "file": "touch_stick_base.png",
+  "size": [
+   192,
+   192
+  ]
+ },
+ "touch_stick_knob": {
+  "file": "touch_stick_knob.png",
+  "size": [
+   80,
+   80
+  ]
+ },
+ "wipe": {
+  "file": "wipe.png",
+  "size": [
+   640,
+   360
+  ],
+  "note": "Transition mask (opaque greyscale). In a shader, cover where value < progress (0..1); stripes slide in alternately. Stretch to the viewport."
  }
 }

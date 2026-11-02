@@ -42,6 +42,8 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 	var dens := float(meta.get("density", 2))
 	var sc := 1.0 / dens
 	for L in meta.get("layers", []):
+		if not _visible_by_state(L):
+			continue
 		var node := Node2D.new()
 		bg_root.add_child(node)
 		var par := float(L.get("parallax", 1.0))
@@ -66,6 +68,8 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 			node.add_child(s)
 		layers.append(entry)
 	for F in meta.get("fg", []):
+		if not _visible_by_state(F):
+			continue
 		var tex2 := SpriteLib.tex(_path(str(F.get("file", ""))))
 		if tex2 == null:
 			continue
@@ -118,6 +122,14 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 	if Settings.effects_full():
 		for A in meta.get("ambient", []):
 			_make_ambient(A, glow_back, glow_front)
+	return true
+
+## Optional story-state gating for layers/fg sprites ("requires" / "unless" use GameState.check syntax).
+func _visible_by_state(e: Dictionary) -> bool:
+	if e.has("requires") and not GameState.check(e.requires):
+		return false
+	if e.has("unless") and GameState.check(e.unless):
+		return false
 	return true
 
 func _path(f: String) -> String:

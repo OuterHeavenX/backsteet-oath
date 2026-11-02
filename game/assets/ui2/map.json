@@ -1,0 +1,30 @@
+{
+ "_meta": {
+  "density": 2,
+  "doc": "District dot positions in texels of ui2/map.png (v1 coordinates x2)."
+ },
+ "old_quarter": [
+  140,
+  224
+ ],
+ "canal_market": [
+  296,
+  300
+ ],
+ "ironworks": [
+  452,
+  196
+ ],
+ "neon_mile": [
+  600,
+  264
+ ],
+ "floodgate": [
+  732,
+  336
+ ],
+ "warehouse": [
+  860,
+  408
+ ]
+}

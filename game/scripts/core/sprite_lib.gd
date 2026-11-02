@@ -149,12 +149,52 @@ static func icon(id: String) -> Texture2D:
 		t = _placeholder_box("icon_" + id, Vector2i(16, 16), Color(0.94, 0.75, 0.25))
 	return t
 
+## UI texture by v1 name: the v2 (density 2) art when present, reporting v1-equivalent size, else the v1 file.
 static func ui(id: String) -> Texture2D:
-	return tex("res://assets/ui/%s.png" % id)
+	var h := ui2_half(id)
+	return h if h else tex("res://assets/ui/%s.png" % id)
 
 static func ui2(id: String) -> Texture2D:
 	var t := tex("res://assets/ui2/%s.png" % id)
 	return t if t else tex("res://assets/ui/%s.png" % id)
+
+## A density-2 UI texture that reports half its pixel size, so 9-slices, TextureRects and draw calls render it at
+## 1 world unit = 2 texels (full detail at 720p) without any per-node scaling.
+static func ui2_half(id: String) -> Texture2D:
+	var key := "half:" + id
+	if _tex.has(key):
+		return _tex[key]
+	var t := tex("res://assets/ui2/%s.png" % id)
+	var out: Texture2D = null
+	if t:
+		var img := t.get_image()
+		if img:
+			if img.is_compressed():
+				img.decompress()
+			var it := ImageTexture.create_from_image(img)
+			it.set_size_override(Vector2i(maxi(1, img.get_width() / 2), maxi(1, img.get_height() / 2)))
+			out = it
+	_tex[key] = out
+	return out
+
+## StyleBoxTexture for a ui2 9-slice (margins from ui.json, halved to world units), or null if missing.
+static func ui2_box(id: String, content: float = 6.0) -> StyleBoxTexture:
+	var t := ui2_half(id)
+	var m: Dictionary = ui2_meta().get(id, {})
+	if t == null or m.is_empty():
+		return null
+	var mg: Array = m.get("margins", [12, 12, 12, 12])
+	var sb := StyleBoxTexture.new()
+	sb.texture = t
+	sb.texture_margin_left = float(mg[0]) / 2.0
+	sb.texture_margin_top = float(mg[1]) / 2.0
+	sb.texture_margin_right = float(mg[2]) / 2.0
+	sb.texture_margin_bottom = float(mg[3]) / 2.0
+	sb.content_margin_left = maxf(content, float(mg[0]) / 2.0)
+	sb.content_margin_right = maxf(content, float(mg[2]) / 2.0)
+	sb.content_margin_top = maxf(content * 0.8, float(mg[1]) / 2.0 - 1.0)
+	sb.content_margin_bottom = maxf(content * 0.8, float(mg[3]) / 2.0 - 1.0)
+	return sb
 
 static func ui2_meta() -> Dictionary:
 	var m = _read_json("res://assets/ui2/ui.json")
@@ -251,7 +291,8 @@ static func fx2(id: String) -> Dictionary:
 	var c: Array = e.get("cell", [t.get_width(), t.get_height()])
 	var an: Array = e.get("anchor", [float(c[0]) / 2.0, float(c[1]) / 2.0])
 	return {"texture": t, "cell": Vector2(c[0], c[1]), "count": int(e.get("count", 1)), "anchor": Vector2(an[0], an[1]),
-		"fps": float(e.get("fps", 24)), "additive": bool(e.get("additive", false)), "scale": 1.0 / float(e.get("density", 2))}
+		"fps": float(e.get("fps", 24)), "additive": bool(e.get("additive", false)), "scale": 1.0 / float(e.get("density", 2)),
+		"loop": bool(e.get("loop", false))}
 
 static func pickup(id: String) -> Dictionary:
 	var m2 = _read_json("res://assets/pickups2/pickups.json")

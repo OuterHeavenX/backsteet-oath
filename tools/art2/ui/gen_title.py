@@ -399,21 +399,22 @@ def street():
 
 # ------------------------------------------------------------------ hero (backlit silhouette)
 def hero():
+    """Nico seen from behind, facing the sunset over the city: backlit, so he reads as a dark
+    silhouette edged in warm light, with no face (silhouettes stay clean and readable). Jacket
+    slung over his right shoulder, taped left fist, headband tails in the wind."""
     Wd, H = 480, 640
     L = Layer(Wd, H, ss=2)
-    parts = []
     skin = hx('#d89a6a')
+    tee = hx('#e8dcc0')
     jacket = hx('#2e3a5e')
-    shirt = hx('#e8dcc0')
     jeans = hx('#3a4a78')
-    shoe = hx('#e8e4dc')
     tape = hx('#f0ece0')
     band = hx('#e03a2c')
     hair = hx('#2a1c24')
-    DK = 0.34   # backlight darkening
+    DK = 0.30
 
-    def dark(c, k=DK, tint=hx('#3a1e4a')):
-        return mix(tuple(int(v * k) for v in c), tint, 0.35)
+    def dark(c, k=DK):
+        return mix(tuple(int(v * k) for v in c), hx('#2a1438'), 0.4)
 
     allm = np.zeros((L.H, L.W), np.float32)
 
@@ -421,109 +422,115 @@ def hero():
         nonlocal allm
         col = dark(c, k)
         if contour:
-            L.fill(np.clip(L.dil(m, 1.6) - m, 0, 1), INKT)
+            L.fill(np.clip(L.dil(m, 1.4) - m, 0, 1), INKT)
         L.fill(m, col)
-        # faint cel split: lower-left in deeper shadow
-        L.fill(np.clip(m - L.shift(m, 4, -3), 0, 1), mix(col, (0, 0, 0), 0.35))
+        L.fill(np.clip(m - L.shift(m, 5, -2), 0, 1), mix(col, (0, 0, 0), 0.3))
         allm = np.maximum(allm, m)
         return m
 
-    def limb(p0, p1, p2, w0, w1, w2):
+    def limb(p0, p1, p2, w0, w1, w2, n=30):
         pts_l, pts_r = [], []
-        path = bez(p0, p1, p2, n=30)
+        path = bez(p0, p1, p2, n=n)
         for i, (x, y) in enumerate(path):
-            t = i / 30
+            t = i / n
             w = (w0 + (w1 - w0) * t * 2) if t < 0.5 else (w1 + (w2 - w1) * (t - 0.5) * 2)
-            if i < 30:
-                dx, dy = path[i + 1][0] - x, path[i + 1][1] - y
-            n = math.hypot(dx, dy) or 1
-            nx, ny = -dy / n, dx / n
+            j = min(i, n - 1)
+            dx, dy = path[j + 1][0] - path[j][0], path[j + 1][1] - path[j][1]
+            nn = math.hypot(dx, dy) or 1
+            nx, ny = -dy / nn, dx / nn
             pts_l.append((x + nx * w / 2, y + ny * w / 2))
             pts_r.append((x - nx * w / 2, y - ny * w / 2))
         return np.clip(L.poly(pts_l + pts_r[::-1]) + L.circle(*p0, w0 / 2) + L.circle(*p2, w2 / 2), 0, 1)
 
-    # headband tails (behind)
-    tail1 = L.poly(bez((196, 104), (140, 70), (70, 96)) + bez((70, 96), (64, 104), (78, 108)) + bez((78, 108), (140, 92), (198, 116)))
-    tail2 = L.poly(bez((198, 110), (150, 118), (96, 150)) + bez((96, 150), (96, 160), (108, 158)) + bez((108, 158), (160, 132), (200, 120)))
-    part(np.clip(tail1 + tail2, 0, 1), band, k=0.62)
-    # legs
-    legL = limb((210, 372), (186, 480), (178, 590), 70, 58, 46)
-    legR = limb((276, 372), (300, 480), (316, 590), 70, 58, 46)
-    part(legL, jeans)
+    # headband tails (behind everything, blowing left)
+    t1 = L.poly(bez((236, 104), (170, 96), (96, 128)) + bez((96, 128), (88, 138), (102, 140)) + bez((102, 140), (170, 112), (238, 114)))
+    t2 = L.poly(bez((236, 110), (186, 130), (130, 176)) + bez((130, 176), (128, 188), (142, 186)) + bez((142, 186), (190, 140), (240, 118)))
+    part(np.clip(t1 + t2, 0, 1), band, k=0.62)
+    # legs: weight on the left leg, right leg relaxed
+    legL = limb((212, 360), (206, 478), (202, 588), 68, 56, 44)
+    legR = limb((274, 360), (300, 474), (314, 584), 66, 54, 42)
     part(legR, jeans)
-    # shoes
-    shL = L.poly([(146, 584), (204, 584), (210, 612), (204, 630), (132, 630), (130, 612)])
-    shR = L.poly([(292, 584), (348, 584), (366, 612), (368, 630), (290, 630), (288, 612)])
-    part(shL, shoe, k=0.55)
-    part(shR, shoe, k=0.55)
-    # torso / jacket
-    torso = L.poly([(158, 200), (330, 200), (316, 300), (312, 392), (176, 392), (170, 300)])
-    part(torso, jacket)
-    tee = L.poly([(222, 206), (266, 206), (272, 392), (216, 392)])
-    part(tee, shirt, k=0.42)
-    collarL = L.poly([(196, 196), (226, 204), (214, 268), (186, 226)])
-    collarR = L.poly([(292, 196), (262, 204), (274, 268), (302, 226)])
-    part(collarL, jacket, k=0.4)
-    part(collarR, jacket, k=0.4)
-    # arms
-    armL = limb((168, 214), (132, 300), (146, 392), 58, 48, 42)
-    armR = limb((322, 214), (358, 300), (344, 392), 58, 48, 42)
-    part(armL, jacket)
-    part(armR, jacket)
-    # fists with tape
-    for fx, fy, s in ((148, 412, 1), (342, 412, -1)):
-        fist = L.rect(fx - 24, fy - 24, fx + 24, fy + 26, r=12)
-        part(fist, skin, k=0.45)
-        wrap = L.rect(fx - 24, fy - 30, fx + 24, fy - 8, r=6) * L.dil(fist, 2)
-        part(wrap, tape, k=0.55)
-        for k in range(3):
-            L.fill(L.rect(fx - 22, fy + 2 + k * 7, fx + 22, fy + 3 + k * 7) * fist, INKT, 0.5)
-    # neck + head
-    neck = L.rect(226, 160, 264, 210, r=8)
-    part(neck, skin, k=0.42)
-    head = L.ellipse(246, 120, 46, 54)
-    part(head, skin, k=0.42)
-    ear = L.ellipse(290, 128, 9, 14)
-    part(ear, skin, k=0.42)
-    # spiky hair
-    spikes = [(196, 116), (186, 84), (170, 70), (202, 66), (198, 40), (226, 52), (240, 22), (256, 50), (282, 30),
-              (284, 62), (312, 60), (298, 84), (304, 104), (292, 96), (262, 80), (230, 84), (206, 100)]
-    hm = L.poly(spikes)
-    part(np.clip(hm, 0, 1), hair, k=0.8)
-    # headband across forehead
-    hb = L.poly(bez((198, 98), (246, 84), (296, 96)) + [(298, 112)] + bez((296, 112), (246, 100), (200, 116)))
+    part(legL, jeans)
+    L.fill(L.stroke(bez((214, 440), (220, 470), (210, 500)), 1.4) * legL, INKT, 0.7)
+    L.fill(L.stroke(bez((294, 450), (288, 476), (300, 498)), 1.4) * legR, INKT, 0.7)
+    # sneakers (heels toward the camera)
+    for (x, y, w) in ((202, 600, 50), (316, 598, 48)):
+        sh = L.poly(bez((x - w / 2, y + 22), (x - w / 2 - 2, y - 14), (x, y - 16)) + bez((x, y - 16), (x + w / 2 + 2, y - 14), (x + w / 2, y + 22)))
+        part(sh, hx('#c83a2e'), k=0.55)
+        so = L.rect(x - w / 2 - 2, y + 16, x + w / 2 + 2, y + 28, r=5)
+        part(so, hx('#e8e4dc'), k=0.6)
+    # torso (t-shirt back)
+    torso = L.poly(bez((158, 196), (150, 300), (186, 372)) + [(298, 372)] + bez((298, 372), (330, 300), (324, 196))
+                   + bez((324, 196), (240, 180), (158, 196)))
+    part(torso, tee, k=0.25)
+    belt = L.poly([(184, 362), (300, 362), (300, 378), (184, 378)])
+    part(belt, hx('#3a2a24'), k=0.5)
+    L.fill(L.stroke(bez((240, 196), (238, 280), (242, 360)), 1.6) * torso, INKT, 0.55)
+    for (p0, p1, p2) in (((190, 230), (206, 270), (196, 320)), ((290, 236), (276, 280), (286, 330))):
+        L.fill(L.stroke(bez(p0, p1, p2), 1.4) * torso, INKT, 0.5)
+    # left arm hanging, taped fist
+    armL = limb((168, 206), (140, 300), (160, 388), 50, 40, 34)
+    part(armL, skin, k=0.38)
+    sleeve = limb((168, 206), (160, 232), (152, 256), 56, 54, 50)
+    part(sleeve, tee, k=0.25)
+    fist = np.clip(L.ellipse(162, 410, 20, 22) + L.rect(144, 398, 182, 428, r=9), 0, 1)
+    part(fist, skin, k=0.42)
+    wrap = L.rect(142, 384, 182, 404, r=7) * L.dil(fist, 3)
+    part(np.clip(wrap + L.rect(144, 408, 182, 420, r=5) * fist, 0, 1), tape, k=0.6)
+    # draped jacket hanging down the back from the right hand
+    drape = L.poly(bez((292, 168), (338, 176), (352, 230)) + bez((352, 230), (362, 300), (346, 352)) + [(330, 344), (300, 350)]
+                   + bez((300, 350), (286, 290), (296, 236)) + [(286, 190)])
+    part(drape, jacket, k=0.32)
+    L.fill(L.stroke(bez((318, 200), (326, 270), (318, 340)), 1.6) * drape, INKT, 0.6)
+    L.fill(L.stroke(bez((300, 240), (338, 250), (346, 300)), 1.2) * drape, INKT, 0.45)
+    # right arm raised: upper arm out, forearm back to the shoulder holding the collar
+    upper = limb((318, 206), (346, 182), (360, 146), 50, 44, 38)
+    part(upper, skin, k=0.38)
+    sleeveR = limb((318, 206), (330, 196), (338, 186), 56, 54, 52)
+    part(sleeveR, tee, k=0.25)
+    fore = limb((360, 146), (334, 140), (304, 160), 36, 34, 32)
+    part(fore, skin, k=0.38)
+    hand = L.ellipse(298, 166, 16, 14)
+    part(hand, skin, k=0.42)
+    collar = L.poly([(284, 160), (312, 154), (318, 176), (290, 182)])
+    part(collar, jacket, k=0.34)
+    # neck + head (back view) + spiky hair
+    neck = L.rect(220, 140, 260, 192, r=10)
+    part(neck, skin, k=0.38)
+    head = L.ellipse(240, 108, 40, 48)
+    part(head, skin, k=0.38)
+    for ex in (199, 281):
+        part(L.ellipse(ex, 116, 8, 13), skin, k=0.38)
+    spikes = [(196, 132), (184, 104), (166, 92), (190, 80), (176, 54), (206, 60), (210, 30), (232, 50), (246, 18),
+              (258, 48), (284, 32), (280, 62), (310, 60), (292, 86), (312, 102), (286, 110), (284, 132), (240, 140)]
+    part(L.poly(spikes), hair, k=0.85)
+    hb = L.poly(bez((198, 98), (240, 88), (282, 98)) + [(284, 114)] + bez((284, 114), (240, 104), (196, 114)))
     part(hb, band, k=0.62)
-    knot = L.ellipse(200, 108, 10, 9)
-    part(knot, band, k=0.55)
-    # face suggestion: brow + jaw shadow (backlit, minimal)
-    L.fill(L.stroke(bez((252, 118), (266, 114), (280, 120)), 2.4), INKT, 0.8)
-    L.fill(L.stroke(bez((210, 150), (240, 172), (276, 152)), 1.6), INKT, 0.35)
-    eye = L.ellipse(268, 128, 4, 2.4)
-    L.fill(eye, hx('#ffd8a8'), 0.85)
-    # rim lights: warm sun from the right/top, cool neon from the left
-    warm = np.clip(allm - L.shift(allm, -4, 3), 0, 1)
-    L.fill(warm, hx('#ffb27a'), 0.95)
-    L.fill(np.clip(allm - L.shift(allm, -1.6, 1.2), 0, 1), hx('#fff0c8'), 0.9)
-    cool = np.clip(allm - L.shift(allm, 3, 0), 0, 1)
-    L.fill(cool, hx('#7a8aff'), 0.55)
-    # outer ink contour
-    L.outline(3.0, INKT, mask=allm)
-    # ground contact shadow
-    sh = L.blur(L.ellipse(250, 628, 150, 12), 4)
-    L.under(sh, hx('#0e0a14'), 0.75)
-    gen_ui.reg('title_hero', L.image(), note='Backlit hero (Nico) silhouette, feet at (250, 628) tx. Suggested parallax '
-               '0.8; place bottom-aligned left or right of the menu.', anchor='bottom', feet=[250, 628], parallax=0.8)
+    part(L.ellipse(240, 104, 11, 10), band, k=0.55)
+    # backlight: an all-round warm rim, stronger on the sun side, plus a soft halo outside
+    halo = L.blur(L.dil(allm, 3), 6)
+    rim_all = np.clip(allm - L.ero(allm, 2.2), 0, 1)
+    sun_side = np.clip(allm - L.shift(allm, -5, 3), 0, 1)
+    top_side = np.clip(allm - L.shift(allm, 0, 4), 0, 1)
+    L.fill(np.clip(rim_all * 0.7 + sun_side + top_side * 0.8, 0, 1), hx('#ffb27a'), 0.95)
+    L.fill(np.clip(allm - L.shift(allm, -2, 1.2), 0, 1), hx('#fff0c8'), 0.9)
+    L.fill(np.clip(allm - L.shift(allm, 3, 0), 0, 1), hx('#8a7aff'), 0.35)
+    L.outline(2.6, INKT, mask=allm)
+    L.under(halo, hx('#ffb27a'), 0.35)
+    sh = L.blur(L.ellipse(258, 628, 150, 11), 4)
+    L.under(sh, hx('#0e0a14'), 0.7)
+    gen_ui.reg('title_hero', L.image(), note='Backlit Nico seen from behind (facing the sunset), feet at (258, 628) tx. '
+               'Suggested parallax 0.8; place bottom-aligned beside the menu.', anchor='bottom', feet=[258, 628],
+               parallax=0.8)
 
 
-def main():
-    sky()
-    far()
-    mid()
-    street()
-    hero()
+def main(which=None):
+    for fn in (sky, far, mid, street, hero):
+        if not which or fn.__name__ in which:
+            fn()
     gen_ui.write_meta()
     print('title layers done')
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

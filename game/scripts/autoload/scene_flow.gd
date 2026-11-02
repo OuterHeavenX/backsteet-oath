@@ -4,6 +4,15 @@ extends Node
 var _layer: CanvasLayer
 var _rect: ColorRect
 var busy := false
+const WIPE_SHADER := """shader_type canvas_item;
+uniform sampler2D mask : filter_linear;
+void fragment() {
+	float p = COLOR.a;
+	float m = texture(mask, UV).r;
+	float a = smoothstep(m - 0.12, m, p * 1.12);
+	COLOR = vec4(COLOR.rgb, a);
+}
+"""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -15,6 +24,15 @@ func _ready() -> void:
 	_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_layer.add_child(_rect)
+	# Patterned wipe: the fade alpha drives a reveal threshold over a greyscale mask (ui2/wipe.png).
+	var mask := SpriteLib.tex("res://assets/ui2/wipe.png")
+	if mask:
+		var sh := Shader.new()
+		sh.code = WIPE_SHADER
+		var m := ShaderMaterial.new()
+		m.shader = sh
+		m.set_shader_parameter("mask", mask)
+		_rect.material = m
 
 func fade_out(t: float = 0.3) -> void:
 	_rect.mouse_filter = Control.MOUSE_FILTER_STOP

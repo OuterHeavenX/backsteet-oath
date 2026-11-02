@@ -76,13 +76,6 @@ static func arc(room: Node, a: Actor) -> void:
 		arc_name = "arc_heavy"
 	if not FX.has_v2(arc_name):
 		return
-	var y := -a.height * 0.62
-	if anim in ["sweep"]:
-		y = -8.0
-	elif anim in ["kick", "kick_c", "dropkick"]:
-		y = -a.height * 0.45
-	elif anim == "rising_kick":
-		y = -a.height * 0.7
 	var col := Color(1.0, 0.97, 0.9, 0.8)
 	if a.team == Actor.TEAM_ENEMY:
 		col = Color(1.0, 0.82, 0.78, 0.65)
@@ -92,5 +85,8 @@ static func arc(room: Node, a: Actor) -> void:
 	var f := FX.make_strip(arc_name)
 	f.modulate = col
 	a.visual.add_child(f)
-	f.position = Vector2(14.0, y)
+	# arc anchors are the attacker's feet for a 48 u adult; scale for heavies and kids
+	var k := clampf(a.height / 48.0, 0.8, 1.3)
+	f.scale = Vector2(k, k)
+	f.position = Vector2.ZERO
 	f.z_index = 1

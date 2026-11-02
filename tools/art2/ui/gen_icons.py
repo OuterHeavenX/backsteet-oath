@@ -40,10 +40,19 @@ def new():
     return Item(S, S, ss=6)
 
 
+KEY = hx('#e8dcc4')
+
+
+def keyline(L, a=0.32):
+    """Faint light rim outside the ink contour so dark items stay legible on the dark UI panels."""
+    L.under(L.dil(L.a, 1.0), KEY, a)
+
+
 def fin(it, post=None):
     it.L.outline(2.0, INK)
     if post:
         post(it.L)
+    keyline(it.L)
     return it.L.image()
 
 
@@ -453,13 +462,16 @@ def _():
 def _():
     it = new()
     L = it.L
-    shell = L.poly(bez((3, 22), (3, 6), (16, 6)) + bez((16, 6), (29, 6), (29, 22)) + bez((29, 22), (16, 15), (3, 22)))
-    fill = L.poly(bez((5, 17), (16, 7), (27, 17)) + bez((27, 17), (16, 13), (5, 17)))
+    shell = L.poly(bez((3, 24), (3, 10), (16, 10)) + bez((16, 10), (29, 10), (29, 24)) + bez((29, 24), (16, 19), (3, 24)))
+    it.part(shell, hx('#f0c45a'))
+    fill = L.poly(bez((5, 14), (16, 2), (27, 14)) + bez((27, 14), (16, 12), (5, 14)))
     it.part(fill, hx('#e8a050'))
-    cab = L.poly([(6, 16), (9, 11), (13, 12), (16, 9), (20, 11), (24, 10), (26, 15), (16, 13.5)])
+    cab = L.poly([(6, 14), (9, 8), (13, 9), (16, 6), (20, 8), (24, 7.5), (26, 13), (16, 12)])
     it.part(cab, hx('#8ad05a'))
-    L.fill(L.stroke([(8, 14), (12, 12.5), (16, 12), (20, 12.5), (24, 13.6)], 0.9), hx('#fff2e0'))
-    it.part(np.clip(shell - L.dil(fill, 0.5) * (L.coords()[1] < 16), 0, 1), hx('#f0c45a'))
+    L.fill(L.stroke([(8, 11.5), (12, 10), (16, 9.5), (20, 10), (24, 11.2)], 0.9), hx('#fff2e0'))
+    front = L.poly(bez((3, 24), (3, 13), (16, 12.5)) + bez((16, 12.5), (29, 13), (29, 24)) + bez((29, 24), (16, 19), (3, 24))) \
+        * (L.coords()[1] > 13).astype(np.float32)
+    it.part(np.clip(front, 0, 1), hx('#f0c45a'))
     return fin(it)
 
 
@@ -611,7 +623,12 @@ def from_pickup(name, scale=1.0):
         im = im.crop((0, 0, im.size[0] // n, im.size[1]))
     out = Image.new('RGBA', (S, S), (0, 0, 0, 0))
     out.alpha_composite(im, ((S - im.size[0]) // 2, (S - im.size[1]) // 2 + 1))
-    return out
+    L = Layer(S, S, ss=4)
+    a = np.asarray(out, np.float32) / 255.0
+    L.c = np.kron(a[..., :3] * a[..., 3:4], np.ones((4, 4, 1), np.float32))
+    L.a = np.kron(a[..., 3], np.ones((4, 4), np.float32))
+    keyline(L)
+    return L.image()
 
 
 @icon('satchel')
@@ -800,13 +817,15 @@ def _():
 def _():
     it = new()
     L = it.L
-    roll = np.clip(L.ellipse(12, 15, 8, 9) + L.rect(12, 6, 18, 24), 0, 1)
-    it.part(roll, hx('#e83a2e'))
-    end = L.ellipse(18, 15, 4, 9)
-    it.part(end, hx('#c82a22'))
-    L.fill(L.stroke(ell_pts(18, 15, 2, 5.5, a0=-100, a1=200, n=20), 0.6), hx('#8a1a14'))
-    tail = L.poly([(5, 21), (14, 22), (26, 27), (24, 29.5), (12, 25), (4, 24)])
+    tail = L.poly([(6, 20), (14, 21), (27, 27.5), (25.5, 30), (12, 25), (4, 23)])
     it.part(tail, hx('#e83a2e'))
+    roll = np.clip(L.rect(6, 7, 21, 21) + L.ellipse(6, 14, 3.4, 7), 0, 1)
+    it.part(roll, hx('#e83a2e'))
+    for x in (10, 14, 18):
+        L.fill(L.stroke([(x, 7.5), (x - 1, 20.5)], 0.6) * roll, hx('#a81e18'))
+    end = L.ellipse(21, 14, 3.6, 7)
+    it.part(end, hx('#f05a4a'))
+    L.fill(L.ellipse(21, 14, 1.4, 3), hx('#8a1a14'))
     st = L.poly(star_pts(24, 8, 5, 2.2, 5))
     it.part(st, hx('#ffd23a'))
     return fin(it)
@@ -917,11 +936,11 @@ for _k in MAN_COL:
 def weapon_icon(wid):
     def fn():
         im = Image.open(os.path.join(ASSETS, 'weapons2', wid + '.png')).convert('RGBA')
-        ang = 0 if wid in ('tire', 'brick') else 38
+        ang = 0 if wid in ('tire', 'brick') else 45
         r = im.rotate(ang, resample=Image.BICUBIC, expand=True)
         bb = r.getbbox()
         r = r.crop(bb)
-        sc = min(27.0 / r.size[0], 27.0 / r.size[1], 1.0)
+        sc = min(29.0 / r.size[0], 29.0 / r.size[1], 1.0)
         nw, nh = max(1, round(r.size[0] * sc)), max(1, round(r.size[1] * sc))
         r = r.resize((nw, nh), Image.LANCZOS)
         out = Image.new('RGBA', (S, S), (0, 0, 0, 0))
@@ -936,6 +955,12 @@ def weapon_icon(wid):
         k = np.clip(ring - arr[..., 3], 0, 1)
         rgb = arr[..., :3] * arr[..., 3:4] + ink * k[..., None]
         al = np.clip(arr[..., 3] + k, 0, 1)
+        # keyline (same as the drawn icons)
+        ring2 = dilate(np.kron(al, np.ones((4, 4), np.float32)), 1.0 * 4).reshape(S, 4, S, 4).mean(axis=(1, 3))
+        k2 = np.clip(ring2 - al, 0, 1) * 0.32
+        keyc = np.array(KEY, np.float32) / 255.0
+        rgb = rgb + keyc * k2[..., None]
+        al = np.clip(al + k2, 0, 1)
         rgb = np.where(al[..., None] > 0, rgb / np.maximum(al[..., None], 1e-4), 0)
         return Image.fromarray(np.dstack([rgb * 255, al * 255]).round().astype(np.uint8), 'RGBA')
     return fn
@@ -1267,9 +1292,13 @@ REG['quest_done'] = quest_icon('done')
 def _():
     it = new()
     L = it.L
-    plate(it, cy=20, rx=13, ry=8)
-    fk = np.clip(L.poly(rot_pts([(15, 4), (17, 4), (17, 28), (15, 28)], -35, 16, 16)), 0, 1)
-    kn = np.clip(L.poly(rot_pts([(15, 4), (18, 4), (17.5, 28), (15, 28)], 35, 16, 16)), 0, 1)
+    pl = L.circle(16, 17, 10)
+    it.part(pl, hx('#eef2f4'))
+    L.fill(L.circle(16, 17, 6.5), hx('#d0d8e0'))
+    L.fill(L.circle(15, 16, 4), hx('#e8a050'))
+    fk = np.clip(L.rect(3.2, 12, 5.8, 29, r=1) + L.rect(1.8, 3, 7.2, 12.5, r=1.2), 0, 1)
+    fk = np.clip(fk - L.rect(3.3, 3, 3.9, 9.5) - L.rect(5.1, 3, 5.7, 9.5), 0, 1)
+    kn = np.clip(L.rect(26.2, 15, 28.8, 29, r=1) + L.poly([(26.2, 16), (26.2, 3), (30, 8), (29, 16)]), 0, 1)
     it.part(fk, hx('#c8ccd8'))
     it.part(kn, hx('#c8ccd8'))
     return fin(it)

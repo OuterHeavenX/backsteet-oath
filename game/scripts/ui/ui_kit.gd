@@ -58,13 +58,17 @@ static func build_theme() -> Theme:
 	if f:
 		t.default_font = f
 	t.default_font_size = base_size()
-	var panel := _panel_box(PANEL_BG, EDGE, 1)
-	panel.shadow_color = Color(0, 0, 0, 0.35)
-	panel.shadow_size = 4
-	panel.shadow_offset = Vector2(0, 2)
+	var pflat := _panel_box(PANEL_BG, EDGE, 1)
+	var panel: StyleBox = pflat
+	pflat.shadow_color = Color(0, 0, 0, 0.35)
+	pflat.shadow_size = 4
+	pflat.shadow_offset = Vector2(0, 2)
+	var tex_panel := SpriteLib.ui2_box("panel", 8.0)
+	if tex_panel:
+		panel = tex_panel
 	t.set_stylebox("panel", "PanelContainer", panel)
 	t.set_stylebox("panel", "Panel", panel)
-	var bn := _panel_box(Color(0.17, 0.125, 0.2, 0.92), Color(0.55, 0.45, 0.42, 0.55), 1)
+	var bn := _panel_box(Color(0.14, 0.1, 0.19, 0.94), Color(0.78, 0.6, 0.32, 0.45), 1)
 	var bf := _panel_box(MUSTARD, Color(1.0, 0.9, 0.6), 1)
 	var bp := _panel_box(Color(0.85, 0.6, 0.15), Color(1.0, 0.9, 0.6), 1)
 	var bd := _panel_box(Color(0.12, 0.1, 0.13, 0.85), Color(0.3, 0.27, 0.3, 0.5), 1)

@@ -29,6 +29,7 @@ var hbox: HBoxContainer
 var portrait_spacer: Control
 var portrait_left := true
 var talk_t := 0.0
+var frame_over: TextureRect
 
 func _init() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -51,7 +52,8 @@ func _ready() -> void:
 	ps.content_margin_left = 10
 	ps.content_margin_right = 10
 	ps.content_margin_top = 8
-	panel.add_theme_stylebox_override("panel", ps)
+	var tbox := SpriteLib.ui2_box("dialog_box", 10.0)
+	panel.add_theme_stylebox_override("panel", tbox if tbox else ps)
 	panel.grow_vertical = Control.GROW_DIRECTION_BEGIN   # extra lines/choices grow upward, never into the control deck
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.gui_input.connect(_on_panel_input)
@@ -60,7 +62,7 @@ func _ready() -> void:
 	panel.add_child(hbox)
 	var h := hbox
 	portrait_spacer = Control.new()
-	portrait_spacer.custom_minimum_size = Vector2(96, 0)
+	portrait_spacer.custom_minimum_size = Vector2(102, 0)
 	h.add_child(portrait_spacer)
 	# The bust breaks out of the top of the panel (drawn above it, positioned every frame).
 	portrait_frame = PanelContainer.new()
@@ -72,8 +74,21 @@ func _ready() -> void:
 	pf.anti_aliasing = true
 	pf.shadow_color = Color(0, 0, 0, 0.45)
 	pf.shadow_size = 5
-	portrait_frame.add_theme_stylebox_override("panel", pf)
-	portrait_frame.size = Vector2(98, 98)
+	var tframe := SpriteLib.ui2_half("portrait_frame")
+	if tframe:
+		# 104 u brass frame; the 96 u bust sits 4 u inside and the frame art draws over it
+		var bg := StyleBoxFlat.new()
+		bg.bg_color = Color(0.13, 0.09, 0.16, 0.96)
+		bg.set_corner_radius_all(3)
+		bg.content_margin_left = 4; bg.content_margin_top = 4; bg.content_margin_right = 4; bg.content_margin_bottom = 4
+		portrait_frame.add_theme_stylebox_override("panel", bg)
+		frame_over = TextureRect.new()
+		frame_over.texture = tframe
+		frame_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame_over.size = Vector2(104, 104)
+	else:
+		portrait_frame.add_theme_stylebox_override("panel", pf)
+	portrait_frame.size = Vector2(104, 104) if tframe else Vector2(98, 98)
 	portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(portrait_frame)
 	portrait = TextureRect.new()
@@ -82,6 +97,8 @@ func _ready() -> void:
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	portrait.pivot_offset = Vector2(48, 96)
 	portrait_frame.add_child(portrait)
+	if frame_over:
+		add_child(frame_over)
 	var v := UIKit.vbox(2)
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	h.add_child(v)
@@ -207,8 +224,13 @@ func _process(delta: float) -> void:
 	if not active:
 		return
 	if portrait_frame.visible:
-		var px := panel.position.x + 10.0 if portrait_left else panel.position.x + panel.size.x - 108.0
-		portrait_frame.position = Vector2(px, panel.position.y + panel.size.y - 104.0)
+		var fw := portrait_frame.size.x
+		var px := panel.position.x + 8.0 if portrait_left else panel.position.x + panel.size.x - fw - 8.0
+		portrait_frame.position = Vector2(px, panel.position.y + panel.size.y - fw - 8.0)
+		if frame_over:
+			frame_over.position = portrait_frame.position
+	if frame_over:
+		frame_over.visible = portrait_frame.visible
 		# a gentle bob while the line types out
 		talk_t += delta
 		var typing := shown < full_text.length() and not choosing
