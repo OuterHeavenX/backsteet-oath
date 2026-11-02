@@ -23,6 +23,9 @@ func _ready() -> void:
 			GameState.stage = st
 		GameState.room = room_id
 		GameState.spawn = OS.get_environment("SHOT_SPAWN") if OS.get_environment("SHOT_SPAWN") != "" else "west"
+	if OS.get_environment("SHOT_NG") != "":
+		GameState.ng_cycle = int(OS.get_environment("SHOT_NG"))
+		GameState.new_game_plus = true
 	var w = load("res://scenes/world.tscn").instantiate()
 	get_tree().root.add_child.call_deferred(w)
 	await get_tree().create_timer(1.2).timeout
@@ -61,6 +64,10 @@ func _ready() -> void:
 				w.hud.levelup.visible = false
 			"weapon":
 				w.room.player.equip_weapon(parts[1])
+			"bosshp":
+				for b in w.room.boss_actors:
+					if is_instance_valid(b):
+						b.hp = int(b.max_hp * float(parts[1]))
 			"tp":
 				w.room.player.position = Vector2(float(parts[1]), float(parts[2]))
 			"menu":
