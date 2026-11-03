@@ -1,4 +1,0 @@
-b0d17f6f15153cbedd779d711d62a230d99384f1fa33597c51e564b835d45bd1  backstreet-oath-v1.2.0-rc1-web.zip
-bddaff2904de8f4eb55f4fc387d28dcbce6c3ea5f1332381f2cc6232ab9364e3  backstreet-oath-v1.2.0-rc1-linux-x86_64.zip
-30ca50338db507876613f1dc0ac209345006be619915a2f0b5f93a4cbc3f5318  backstreet-oath-v1.2.0-rc1-windows-x86_64.zip
-7b96a2192769ba673634f353a8527cdfac7d54f24bad791b5ed944667b902045  backstreet-oath-v1.2.0-rc1-source.zip
