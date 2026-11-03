@@ -37,6 +37,9 @@ def brick_wall(cv, x, y, w, h, base, seed, bw=8.0, bh=3.5, var=0.07, mortar=None
     rs = np.random.default_rng(abs(hash(('brick', seed))) % (2 ** 32))
     lut = rs.random((512, 512)).astype(np.float32)
     acc = rs.random((512, 512)).astype(np.float32)
+    hue = rs.random((512, 512)).astype(np.float32)
+    chip = rs.random((512, 512)).astype(np.float32)
+    spk = rs.random((256, 256)).astype(np.float32)
     D = cv.D
     nz = None
 
@@ -49,11 +52,19 @@ def brick_wall(cv, x, y, w, h, base, seed, bw=8.0, bh=3.5, var=0.07, mortar=None
         fy = (Y - y) - row * bh
         r = lut[row % 512, col % 512]
         a = acc[row % 512, col % 512]
+        hv = (hue[row % 512, col % 512] - 0.5) * 2
+        cp = chip[row % 512, col % 512]
         v = (r - 0.5) * 2 * (var * (0.5 if calm else 1.0))
         base_rgb = np.array(m.b[:3], np.float32) / 255
         lt_rgb = np.array(m.l[:3], np.float32) / 255
         sh_rgb = np.array(m.s[:3], np.float32) / 255
         out = base_rgb[None, None, :] * (1 + v[..., None])
+        # per-brick hue drift (warmer / cooler firing) and a fine fired-clay speckle, both low contrast
+        hk = (0.5 if calm else 1.0) * 0.035
+        out = out * (1 + hv[..., None] * np.array([hk, hk * 0.15, -hk], np.float32))
+        tx = np.floor(X * D).astype(np.int64) % 256
+        ty = np.floor(Y * D).astype(np.int64) % 256
+        out = out * (1 + (spk[ty, tx][..., None] - 0.5) * (0.035 if calm else 0.05))
         # occasional accent bricks (darker, burnt)
         if accent > 0:
             sel = (a < accent)[..., None]
@@ -63,10 +74,20 @@ def brick_wall(cv, x, y, w, h, base, seed, bw=8.0, bh=3.5, var=0.07, mortar=None
         bot = (fy > bh - 1.0)[..., None]
         out = np.where(top, out * 0.6 + lt_rgb * 0.4, out)
         out = np.where(bot, out * 0.55 + sh_rgb * 0.45, out)
-        # mortar
-        mor = ((fy > bh - 0.5) | (fx < 0.5))[..., None]
+        # chipped arrises: a few bricks lose a corner, showing recessed mortar shadow
+        cs = 0.6 + (cp * 7 % 1) * 0.7
+        sel_c = cp < (0.05 if calm else 0.10)
+        corner = (cp * 13 % 1) < 0.5
+        near = np.where(corner, (fx < cs + 0.5) & (fy < cs * 0.8), (fx > bw - cs) & (fy > bh - 0.5 - cs * 0.8))
+        chipm = (sel_c & near)[..., None]
+        ms_rgb = np.array(mort_s[:3], np.float32) / 255
+        out = np.where(chipm, ms_rgb * 0.7 + out * 0.3, out)
+        # mortar: recessed, so it sits in the brick's shadow (darker under each course, lit on the head joints)
+        mor_bed = (fy > bh - 0.5)[..., None]
+        mor_head = (fx < 0.5)[..., None]
         mc = np.array(mort[:3], np.float32) / 255
-        out = np.where(mor, mc * 0.75 + out * 0.25, out)
+        out = np.where(mor_head, (mc * 0.62 + ms_rgb * 0.18) + out * 0.2, out)
+        out = np.where(mor_bed, (mc * 0.5 + ms_rgb * 0.32) + out * 0.18, out)
         return np.clip(out, 0, 1)
     cv.texture(mk, fn, mode='atop')
     # broad low-frequency weathering + soot toward the ground
@@ -105,7 +126,7 @@ def Y_of(cv, y0, hh):
     return (np.arange(hh, dtype=np.float32) + y0 + cv.oy + 0.5) / cv.D
 
 
-def stucco(cv, x, y, w, h, base, seed, soot=0.3, cracks=2):
+def stucco(cv, x, y, w, h, base, seed, soot=0.3, cracks=2, peel=True):
     m = M(base)
     mk = cv.rect(x, y, w, h, m.b)
     x0, y0, mm = mk
@@ -113,6 +134,14 @@ def stucco(cv, x, y, w, h, base, seed, soot=0.3, cracks=2):
     n = value_noise(ww, hh, 10 * cv.D, seed, octaves=2)
     cv.paint((x0, y0, ((n - 0.5) * 0.10).clip(0, 1) * mm), m.l, mode='atop')
     cv.paint((x0, y0, ((0.5 - n) * 0.12).clip(0, 1) * mm), m.s, mode='atop')
+    # mottling at two scales + grain (each well under 6 % luminance)
+    n2 = value_noise(ww, hh, 3.5 * cv.D, seed + 11, octaves=2)
+    cv.paint((x0, y0, ((n2 - 0.5) * 2).clip(0, 1) * mm), m.l, a=0.10, mode='atop')
+    cv.paint((x0, y0, ((0.5 - n2) * 2).clip(0, 1) * mm), m.s, a=0.10, mode='atop')
+    micro_speckle(cv, x, y, w, h, seed, amt=0.035)
+    patch_repairs(cv, x, y, w, h, base, seed)
+    if peel:
+        peel_paint(cv, x, y, w, h, base, seed)
     weather(cv, x, y, w, h, seed, soot=soot)
     rs = rng_of('crk', seed)
     for _ in range(cracks):
@@ -129,18 +158,24 @@ def stucco(cv, x, y, w, h, base, seed, soot=0.3, cracks=2):
 def concrete_panel(cv, x, y, w, h, base, seed, panel=32.0, soot=0.35, ties=True):
     """Poured concrete with form-panel seams and tie holes."""
     m = M(base)
-    mk = stucco(cv, x, y, w, h, base, seed, soot=soot, cracks=1)
+    mk = stucco(cv, x, y, w, h, base, seed, soot=soot, cracks=1, peel=False)
     xx = x + panel
     while xx < x + w - 2:
         cv.rect(xx, y, 0.5, h, m.s, mode='atop')
         cv.rect(xx + 0.5, y, 0.5, h, m.l, a=0.6, mode='atop')
+        # lime/water bleed along the form seams
+        stain_streaks(cv, xx - 1.5, y, 3, seed + int(xx), length=(h * 0.15, h * 0.45), n=1, a=0.08)
         xx += panel
     if ties:
+        rs = rng_of('ties', seed)
         yy = y + 8
         while yy < y + h - 4:
             xx = x + panel / 4
             while xx < x + w:
                 cv.ellipse(xx, yy, 0.8, 0.8, m.d, a=0.6, mode='atop')
+                if rs.random() < 0.3:          # rust bleeding from the tie rods
+                    stain_streaks(cv, xx - 0.6, yy + 0.6, 1.2, int(xx * 7 + yy), length=(3, 9), n=1, a=0.14,
+                                  col='#6a3a24', light_frac=0.0)
                 xx += panel / 2
             yy += 14
     return mk
@@ -174,6 +209,21 @@ def corrugated(cv, x, y, w, h, base, seed, pitch=4.0, rust=0.3):
             vert = np.clip(1 - (ys - y) / ln, 0, 1) ** 0.8
             al += 0.45 * prof[None, :] * vert[:, None]
         cv.paint((x0, y0, np.clip(al, 0, 0.55) * mm), C('#8a4422'), mode='atop')
+    brushed_metal(cv, x, y, w, h, base, seed, a=0.10)
+    # fastener rows at the sheet laps, rust blooming from the sheet edges and around the screws
+    lap = 48.0
+    rv = []
+    yy = y + lap
+    while yy < y + h - 4:
+        cv.rect(x, yy - 0.3, w, 0.6, M(base).d, a=0.35, mode='atop')
+        xx = x + pitch * 0.5
+        while xx < x + w:
+            rv.append((xx, yy + 1.2))
+            xx += pitch * 2
+        yy += lap
+    for (rx, ry) in rv:
+        cv.ellipse(rx, ry, 0.45, 0.45, M(base).h, a=0.7, mode='atop')
+    rust_bloom(cv, x, y, w, h, seed, a=0.30 * (0.5 + rust), edge=5.0, rivets=rv[::3])
     weather(cv, x, y, w, h, seed + 7, soot=0.3, streak=False)
     return mk
 
@@ -194,6 +244,7 @@ def planks_h(cv, x, y, w, h, base, seed, ph=5.0):
             cv.rect(xx, yy, 0.5, ph, m.d, a=0.8, mode='atop')
             xx += rs.uniform(30, 60)
         yy += ph
+    wood_grain(cv, x, y, w, h, base, seed, a=0.14)
     weather(cv, x, y, w, h, seed, soot=0.25, streak=False)
     return mk
 
@@ -713,3 +764,215 @@ def graffiti_piece(cv, x, y, w, h, word, fill1, fill2, outline='#1a1220', shadow
         dx = rs.uniform(x + 3, x + w - 3)
         lay.line([(dx, y + h * 0.75), (dx, y + h * 0.75 + rs.uniform(3, 9))], 0.7, C(fill2), mode='over')
     cv.merge(lay)
+
+
+# ----------------------------------------------------------------------------- realism helpers (v2.1)
+# Per-room light context, set by realism.begin_room(): `dir` is the cast-shadow direction (world units, x right /
+# y down), `alpha` its strength, `clip` the current facade span (world u) and `sky` the colour reflected by glass.
+LIGHT = {'dir': (0.6, 0.22), 'alpha': 0.22, 'interior': False, 'clip': None, 'sky': '#8a7aa0', 'wet': False}
+
+
+def log(cv, rec):
+    """Record life/realism data (window rects, sign rects, deferred shadows) for the room being drawn."""
+    if getattr(cv, 'log', None) is None:
+        return
+    rec.setdefault('clip', LIGHT.get('clip'))
+    cv.log.append(rec)
+
+
+def _grid(cv, x, y, w, h):
+    """Texel region of a world rect: (x0, y0, mask, X, Y) with X/Y world-unit coordinate grids."""
+    x0, y0, m = cv.rect_mask(x, y, w, h)
+    hh, ww = m.shape
+    X = (np.arange(ww, dtype=np.float32) + x0 + cv.ox + 0.5) / cv.D
+    Y = (np.arange(hh, dtype=np.float32) + y0 + cv.oy + 0.5) / cv.D
+    return x0, y0, m, X[None, :], Y[:, None]
+
+
+def wall_shadow_offset(depth):
+    """Offset (u) of the shadow a wall-mounted object `depth` u proud of the wall throws onto it."""
+    if LIGHT.get('interior'):
+        return 0.0, depth * 0.8
+    dx, dy = LIGHT['dir']
+    return dx * depth, (0.55 + abs(dy) * 1.6) * depth
+
+
+def defer_shadow(cv, pts, a=0.3, soft=1.2):
+    """Queue a soft cast shadow polygon; realism.post_room applies it once everything is drawn."""
+    log(cv, {'type': 'shadow', 'poly': [(float(px), float(py)) for px, py in pts], 'a': float(a), 'soft': soft})
+
+
+def proud_shadow(cv, x, y, w, h, depth, a=0.28, soft=1.0):
+    """Shadow of a box (x, y, w, h) standing `depth` u proud of the wall, following the room light."""
+    if LIGHT.get('alpha', 0) <= 0.01 and not LIGHT.get('interior'):
+        a *= 0.5
+        ox, oy = 0.0, depth * 0.6
+    else:
+        ox, oy = wall_shadow_offset(depth)
+    pts = [(x, y + h), (x + w, y + h), (x + w + ox, y + h + oy), (x + ox, y + h + oy)]
+    if ox > 0:
+        pts = [(x + w, y), (x + w + ox, y + oy), (x + w + ox, y + h + oy), (x + ox, y + h + oy), (x, y + h),
+               (x + w, y + h)]
+    elif ox < 0:
+        pts = [(x, y), (x + ox, y + oy), (x + ox, y + h + oy), (x + w + ox, y + h + oy), (x + w, y + h), (x, y + h)]
+    defer_shadow(cv, pts, a=a, soft=soft)
+
+
+def ao_under(cv, x, y, w, h=5.0, a=0.22, col='#1a1028'):
+    """Ambient occlusion: soft quadratic falloff below a ledge spanning x..x+w (feathered ends)."""
+    x0, y0, m, X, Y = _grid(cv, x - 1.5, y, w + 3, h)
+    t = np.clip((Y - y) / max(h, 1e-3), 0, 1)
+    ends = np.clip((X - (x - 1.5)) / 2.0, 0, 1) * np.clip(((x + w + 1.5) - X) / 2.0, 0, 1)
+    cv.paint((x0, y0, (m * ((1 - t) ** 2) * ends).astype(np.float32)), C(col), a=a, mode='atop')
+
+
+def stain_streaks(cv, x, y, w, seed, length=(6.0, 22.0), n=None, a=0.16, col='#2a1e2e', light_frac=0.25,
+                  light_col='#e8e0d0'):
+    """Water stains running down from a ledge at y: irregular soft streaks with tapering tails."""
+    rs = rng_of('stain', seed, round(x, 1), round(y, 1))
+    n = n if n is not None else max(1, int(w / 9) + (1 if rs.random() < 0.5 else 0))
+    Lmax = length[1]
+    x0, y0, m, X, Y = _grid(cv, x - 2, y, w + 4, Lmax)
+    dark = np.zeros(np.broadcast(X, Y).shape, np.float32)
+    lite = np.zeros_like(dark)
+    for _ in range(n):
+        cx = rs.uniform(x + 0.5, x + w - 0.5)
+        wd = rs.uniform(0.5, 2.0)
+        L = rs.uniform(*length)
+        ph = rs.uniform(0, 6.3)
+        amp = rs.uniform(0.6, 1.0)
+        t = np.clip((Y - y) / L, 0, 1)
+        xc = cx + 0.35 * np.sin(Y * 0.55 + ph) * t
+        prof = np.exp(-((X - xc) / (wd * (1 - 0.45 * t))) ** 2)
+        tail = (1 - t) ** 1.3 * (Y >= y)
+        if rs.random() < light_frac:
+            lite = np.maximum(lite, prof * tail * amp)
+        else:
+            dark = np.maximum(dark, prof * tail * amp)
+    # a faint wash right under the ledge
+    wash = np.clip(1 - (Y - y) / 2.5, 0, 1) * ((X >= x) & (X <= x + w))
+    dark = np.maximum(dark, wash * 0.5)
+    cv.paint((x0, y0, (dark * m).astype(np.float32)), C(col), a=a, mode='atop')
+    if lite.any():
+        cv.paint((x0, y0, (lite * m).astype(np.float32)), C(light_col), a=a * 0.55, mode='atop')
+
+
+def soot_above(cv, x, y, w, h=22.0, a=0.28, seed=0, col='#1c1420'):
+    """Soot plume blackening the wall above a vent/flue mouth spanning x..x+w at y (rises and spreads)."""
+    cx = x + w / 2
+    spread = w * 0.5 + h * 0.35
+    x0, y0, m, X, Y = _grid(cv, cx - spread - 2, y - h, 2 * spread + 4, h + 1)
+    t = np.clip((y - Y) / h, 0, 1)
+    half = w * 0.5 + t * h * 0.35
+    prof = np.exp(-((X - cx) / np.maximum(half, 0.5)) ** 2)
+    hh, ww = m.shape
+    nz = value_noise(ww, hh, 3 * cv.D, abs(hash(('soot', seed, round(x), round(y)))) % 99991, 2)
+    al = prof * (1 - t) ** 1.2 * (0.55 + 0.9 * nz) * (Y <= y)
+    cv.paint((x0, y0, (np.clip(al, 0, 1) * m).astype(np.float32)), C(col), a=a, mode='atop')
+
+
+def peel_paint(cv, x, y, w, h, base, seed, n=None, under=None):
+    """Peeling paint: irregular flakes showing the older coat beneath, with a lit lip and a dark curl edge."""
+    rs = rng_of('peel', seed, round(x), round(y))
+    m = M(base)
+    under = under or mix(shade(m.b, 0.5), C('#9a9282'), 0.45)
+    n = n if n is not None else max(0, int(w * h / 5200) + (1 if rs.random() < 0.6 else 0))
+    for _ in range(n):
+        pw, ph = rs.uniform(5, 14), rs.uniform(3, 9)
+        px_, py_ = rs.uniform(x + 2, x + w - pw - 2), rs.uniform(y + 4, y + h - ph - 4)
+        x0, y0, mm, X, Y = _grid(cv, px_, py_, pw, ph)
+        hh, ww = mm.shape
+        if hh < 3 or ww < 3:
+            continue
+        nz = value_noise(ww, hh, 2.0 * cv.D, rs.randint(0, 99999), 2)
+        d = np.sqrt(((X - (px_ + pw / 2)) / (pw / 2)) ** 2 + ((Y - (py_ + ph / 2)) / (ph / 2)) ** 2)
+        flake = np.clip((0.95 - d - (nz - 0.5) * 0.9) * 6, 0, 1) * mm
+        if flake.max() <= 0:
+            continue
+        cv.paint((x0, y0, flake.astype(np.float32)), under, a=0.85, mode='atop')
+        # lip: shifted mask difference (light on the top edge, curl shadow below)
+        up = np.zeros_like(flake)
+        up[1:] = flake[:-1]
+        dn = np.zeros_like(flake)
+        dn[:-1] = flake[1:]
+        cv.paint((x0, y0, np.clip(dn - flake, 0, 1).astype(np.float32)), m.h, a=0.55, mode='atop')
+        cv.paint((x0, y0, np.clip(up - flake, 0, 1).astype(np.float32)), m.d, a=0.5, mode='atop')
+
+
+def patch_repairs(cv, x, y, w, h, base, seed, n=None):
+    """Patched render/concrete: soft rectangles of a slightly different mix with a faint seam."""
+    rs = rng_of('patch', seed, round(x), round(y))
+    m = M(base)
+    n = n if n is not None else max(1, int(w * h / 4200))
+    for _ in range(n):
+        pw, ph = rs.uniform(8, 26), rs.uniform(5, 16)
+        px_, py_ = rs.uniform(x, x + max(1, w - pw)), rs.uniform(y + 2, y + max(3, h - ph))
+        tone_c = m.l if rs.random() < 0.5 else m.s
+        cv.rect(px_, py_, pw, ph, tone_c, a=rs.uniform(0.18, 0.32), mode='atop')
+        for sx, sy, sw, sh in ((px_, py_, pw, 0.5), (px_, py_ + ph - 0.5, pw, 0.5), (px_, py_, 0.5, ph),
+                               (px_ + pw - 0.5, py_, 0.5, ph)):
+            cv.rect(sx, sy, sw, sh, m.d, a=0.16, mode='atop')
+
+
+def wood_grain(cv, x, y, w, h, base, seed, a=0.16, along='x'):
+    """Fine wood grain: wavy dark lines along the board plus occasional knots (low contrast)."""
+    m = M(base)
+    x0, y0, mm, X, Y = _grid(cv, x, y, w, h)
+    hh, ww = mm.shape
+    nz = value_noise(ww, hh, 4 * cv.D, abs(hash(('grain', seed))) % 99991, 2)
+    if along == 'x':
+        g = np.sin(Y * 3.1 + nz * 7.0 + np.sin(X * 0.08) * 1.5)
+    else:
+        g = np.sin(X * 3.1 + nz * 7.0 + np.sin(Y * 0.08) * 1.5)
+    lines = np.clip((g - 0.72) / 0.28, 0, 1)
+    cv.paint((x0, y0, (lines * mm).astype(np.float32)), m.d, a=a, mode='atop')
+    cv.paint((x0, y0, (np.clip((nz - 0.55) * 2.5, 0, 1) * mm).astype(np.float32)), m.l, a=a * 0.5, mode='atop')
+    rs = rng_of('knot', seed)
+    for _ in range(int(w * h / 900)):
+        kx, ky = rs.uniform(x + 2, x + w - 2), rs.uniform(y + 1, y + h - 1)
+        cv.ellipse(kx, ky, rs.uniform(0.6, 1.2), 0.5, m.d, a=a * 2.2, mode='atop')
+
+
+def brushed_metal(cv, x, y, w, h, base, seed, a=0.10, vertical=True):
+    """Brushed/rolled sheet streaks: long thin value streaks along the rolling direction."""
+    m = M(base)
+    x0, y0, mm, X, Y = _grid(cv, x, y, w, h)
+    hh, ww = mm.shape
+    r = np.random.default_rng(abs(hash(('brush', seed))) % (2 ** 32))
+    if vertical:
+        s = r.random(ww).astype(np.float32)
+        s = np.convolve(s, np.ones(3) / 3, mode='same')[None, :]
+        s = s * (0.7 + 0.3 * value_noise(ww, hh, 18 * cv.D, int(r.integers(99999)), 1))
+    else:
+        s = r.random(hh).astype(np.float32)
+        s = np.convolve(s, np.ones(3) / 3, mode='same')[:, None]
+        s = s * (0.7 + 0.3 * value_noise(ww, hh, 18 * cv.D, int(r.integers(99999)), 1))
+    cv.paint((x0, y0, (np.clip(s - 0.55, 0, 1) * 2 * mm).astype(np.float32)), m.l, a=a, mode='atop')
+    cv.paint((x0, y0, (np.clip(0.45 - s, 0, 1) * 2 * mm).astype(np.float32)), m.s, a=a, mode='atop')
+
+
+def rust_bloom(cv, x, y, w, h, seed, a=0.35, edge=4.0, rivets=None, col='#8a4626'):
+    """Rust blooming from sheet edges (top/bottom/sides) and around rivet heads, broken up by noise."""
+    x0, y0, mm, X, Y = _grid(cv, x, y, w, h)
+    hh, ww = mm.shape
+    nz = value_noise(ww, hh, 2.2 * cv.D, abs(hash(('rust', seed))) % 99991, 3)
+    de = np.minimum(np.minimum(Y - y, (y + h) - Y), np.minimum(X - x, (x + w) - X))
+    al = np.clip(1 - de / edge, 0, 1) ** 1.5 * np.clip((nz - 0.38) * 2.6, 0, 1)
+    if rivets:
+        for (rx, ry) in rivets:
+            d = np.sqrt((X - rx) ** 2 + ((Y - ry) * 1.2) ** 2)
+            al = np.maximum(al, np.clip(1 - d / 1.8, 0, 1) * np.clip((nz - 0.3) * 2.2, 0, 1))
+            tail = np.exp(-((X - rx) / 0.6) ** 2) * np.clip(1 - (Y - ry) / 7.0, 0, 1) * (Y > ry)
+            al = np.maximum(al, tail * 0.45)
+    cv.paint((x0, y0, (np.clip(al, 0, 1) * mm).astype(np.float32)), C(col), a=a, mode='atop')
+    cv.paint((x0, y0, (np.clip(al - 0.6, 0, 1) * mm).astype(np.float32)), C('#c8743a'), a=a * 0.6, mode='atop')
+
+
+def micro_speckle(cv, x, y, w, h, seed, amt=0.045):
+    """Very fine, low-contrast value speckle (aggregate / plaster grain), centred on zero."""
+    x0, y0, mm, X, Y = _grid(cv, x, y, w, h)
+    hh, ww = mm.shape
+    nz = value_noise(ww, hh, 1.1 * cv.D, abs(hash(('speck', seed))) % 99991, 1)
+    cv.paint((x0, y0, (np.clip(nz - 0.5, 0, 1) * 2 * mm).astype(np.float32)), C('#fff4e4'), a=amt * 0.6,
+             mode='atop')
+    cv.paint((x0, y0, (np.clip(0.5 - nz, 0, 1) * 2 * mm).astype(np.float32)), C('#1a1024'), a=amt, mode='atop')

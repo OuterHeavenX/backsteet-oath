@@ -20,6 +20,11 @@ import time
 import numpy as np
 from PIL import Image, ImageDraw
 
+# str hashes seed many generators (hash((R.id, x))): pin the hash salt so every build is byte-identical.
+if os.environ.get('PYTHONHASHSEED') != '0':
+    os.environ['PYTHONHASHSEED'] = '0'
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 

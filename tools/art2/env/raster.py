@@ -170,6 +170,7 @@ class Canvas:
         self.clipx = None
         self.em = None          # optional emission mask (texels that ignore lighting grades)
         self.em_level = 0.0     # default emission written by 'over' paints
+        self.log = None         # optional shared list: kit primitives record windows/signs/shadows here (life data)
 
     def enable_em(self):
         self.em = np.zeros((self.H, self.W), np.float32)
@@ -187,6 +188,7 @@ class Canvas:
             c = Canvas(w_u, h_u, self.D, x_u, y_u)
         if self.em is not None:
             c.enable_em()
+        c.log = self.log
         return c
 
     def _bbox_mask(self, P, draw_fn):
