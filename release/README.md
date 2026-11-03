@@ -3,7 +3,7 @@
 Built with Godot 4.7.2-stable.
 
 ## 1.2.0-rc1: a longer game (recommended)
-Built from branch `claude/visual-upgrade`. Adds the Underline chapter (3 rooms, the Moles, boss Ruth Kowal), Benny's nine-bout ladder, four side jobs and New Game+ on top of the 1.1 visual upgrade, Show FPS and the run summary card. the rc4 audio fix. See `docs/visual/UPGRADE_REPORT.md` on that branch.
+Built from branch `claude/visual-upgrade`. Adds the Underline chapter (3 rooms, the Moles, boss Ruth Kowal), Benny's nine-bout ladder, four side jobs and New Game+ on top of the 1.1 visual upgrade, Show FPS, the run summary card and the rc4 audio fix. See `docs/visual/UPGRADE_REPORT.md` on that branch.
 
 | File | What |
 |---|---|
