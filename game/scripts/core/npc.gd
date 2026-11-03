@@ -3,7 +3,11 @@ extends Actor
 ## Neighbors, shopkeepers, followers (Biscuit the dog, escorted Mr. Hollis) and the ally Jett.
 
 var npc_id := ""
-var mode := "idle"           # idle, wander, follow, cower, behind_counter
+var mode := "idle"           # idle, wander, follow, cower, behind_counter, pass (ambient passer-by)
+var pass_dir := 1
+var pass_fade := 1.0
+var pass_last_x := 0.0
+var pass_stuck := 0
 var talkable := true
 var shop := ""
 var home := Vector2.ZERO
@@ -85,6 +89,25 @@ func think() -> void:
 				if bark_t <= 0:
 					bark_t = randi_range(240, 600)
 					Audio.sfx("dog_bark", -8.0)
+		"pass":
+			# ambient passer-by: strolls across, hurries off when a fight starts, leaves off-screen
+			var hurry: bool = room != null and room.combat_active()
+			var sp := walk_speed * (2.6 if hurry else 0.8)
+			vel = vel.move_toward(Vector2(pass_dir * sp, 0), 300 * DT)
+			facing = pass_dir
+			# blocked by a prop (hydrant, bench...): sidestep toward the street, then carry on
+			pass_stuck = pass_stuck + 1 if absf(position.x - pass_last_x) < 0.15 else 0
+			pass_last_x = position.x
+			if pass_stuck > 12 and room:
+				position.y = clampf(position.y + 14.0, room.walk_top + 2.0, room.walk_bot - 2.0)
+				pass_stuck = 0
+			if room:
+				var at_edge: bool = (pass_dir > 0 and position.x >= room.width - 14.0 - half_w) or (pass_dir < 0 and position.x <= 14.0 + half_w)
+				if at_edge or (not room.on_screen(self, 40) and ((pass_dir > 0 and position.x > room.cam_right()) or (pass_dir < 0 and position.x < room.cam_left()))):
+					pass_fade -= DT * 2.0
+					modulate.a = maxf(pass_fade, 0.0)
+					if pass_fade <= 0.0:
+						room.remove_npc(self)
 		"cower":
 			vel = vel.move_toward(Vector2.ZERO, 400 * DT)
 			if room and not room.combat_active() and state_t > 120:

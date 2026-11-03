@@ -109,6 +109,58 @@ neutral, happy, angry, surprised, sad. The ids are the same as v1.
 - Props are **not** painted into the base. The playable band must stay calm and readable: low-contrast ground
   texture, with no high-contrast patterns under the fighters.
 
+## 2b. Life and realism (v2.1, all fields optional) — added to `room.json`
+Positions are world units at parallax 1.0 unless an entry has its own `parallax`. Sprites are density 2. Shared
+sprites live in `game/assets/bg2/_life/`; room-specific ones live in the room folder.
+```json
+"clouds": {"files": ["../_life/cloud_a.png"], "count": 5, "y": [8, 90], "speed": [3, 8], "parallax": 0.08, "tint": "#ffe8d8", "alpha": 0.85},
+"haze":   {"color": "#c48a72", "far": 0.30, "mid": 0.12},
+"grade":  {"lift": "#0a0812", "gain": "#fff2e2", "saturation": 1.04, "contrast": 1.06, "vignette": 0.22},
+"life": [
+  {"type": "window", "rect": [x, y, w, h], "kind": "home", "lit": true},
+  {"type": "pedestrians", "y": 212, "parallax": 0.6, "scale": 0.55, "x": [0, 1600], "rate": 0.25},
+  {"type": "traffic", "y": 196, "parallax": 0.55, "files": ["../_life/car_a.png"], "rate": 0.08, "lights": true},
+  {"type": "train", "y": 120, "parallax": 0.3, "file": "../_life/train_el.png", "interval": [25, 45]},
+  {"type": "pigeons", "x": 420, "y": 300, "count": 4},
+  {"type": "birds", "y": [20, 80], "rate": 0.05},
+  {"type": "sway", "file": "flag_a.png", "x": 512, "y": 120, "pivot": [10, 0], "amp": 4.0, "speed": 1.2, "front": false},
+  {"type": "water", "rect": [760, 214, 400, 38], "speed": 12, "tint": "#9fd8e0", "alpha": 0.35},
+  {"type": "shaft", "x": 300, "y": 0, "w": 90, "h": 260, "angle": 12, "color": "#ffd9a0", "energy": 0.18},
+  {"type": "sign", "rect": [x, y, w, h], "pattern": "chase", "color": "#ff4fa8"}
+]
+```
+- **`clouds`**: sprites drift slowly across the sky band at their parallax (exterior rooms only). Each cloud takes
+  a random speed within `speed` (u/s) and a random `y` within the range.
+- **`haze`**: atmospheric perspective. The engine blends the layers named `far` and `mid` toward `color` by those
+  amounts.
+- **`grade`**: per-room colour grade applied as a final screen pass (Effects: Full only), with lift (shadows) and
+  gain (highlights) colours. Keep it subtle: saturation 0.9–1.1, contrast 0.95–1.1, vignette ≤ 0.3.
+- **`life`** entries, by type:
+  - `window`: a glazed window rect *as painted in the base art*. The engine overlays an interior that changes over
+    time: lights switching on and off, a silhouette crossing, or TV flicker for `kind: "tv"`. Kinds are `home`,
+    `shop`, `office` and `tv`. List 4–12 per exterior room, choosing windows whose glass is plain (not covered by
+    signs).
+  - `pedestrians`: distant townsfolk walking along a background lane at `y` (their feet) and `parallax`, scaled by
+    `scale` and hazed. Only where a far sidewalk or opposite bank is actually painted.
+  - `traffic`: vehicles crossing a far road lane. `files` are side views facing right; the engine mirrors them for
+    the other direction. `lights: true` adds headlight and tail-light glows.
+  - `train`: an elevated or rail train crossing occasionally, every `interval` seconds.
+  - `pigeons`: a small flock idling on the ground or a ledge. They scatter when the player comes within 60 u.
+  - `birds`: distant birds crossing the sky.
+  - `sway`: a sprite that swings about `pivot` (tx inside the sprite): flags, banners, laundry, hanging signs,
+    bunting. It is drawn behind actors unless `front`.
+  - `water`: an animated ripple surface over painted water (canal, puddle sheets, flooded floor).
+  - `shaft`: a soft additive light shaft (god rays) with drifting dust motes.
+  - `sign`: animated neon tubing over a painted sign. Patterns are `chase` (lights run along it), `blink` (on and off
+    in sequence) and `buzz` (occasional stutter).
+- **Shared `_life` sprites:**
+  - `cloud_*.png`;
+  - `car_*.png` (side views facing right, about 120–150 u long, wheels on the bottom edge);
+  - `train_el.png` (two coupled cars, about 400 u);
+  - `pigeon.png`, an 8-frame strip of 32×24 tx cells (idle 0–1, peck 2–3, fly 4–7), with its anchor at the feet;
+  - `bird.png`, a 4-frame flap strip of 24×16 tx cells;
+  - `silhouette.png`, a 6-frame walk strip of 48×96 tx cells: a dark person silhouette seen through glass.
+
 ## 3. Props — `game/assets/props2/<type>.png` + `props2/props.json`
 `props.json` holds the **same keys and the same `anchor`/`footprint` numbers as v1 `props/props.json`**, in
 **world units**. The new file adds `"density": 2` per entry. The PNG is drawn at 2× (anchor tx = anchor u × 2). Draw

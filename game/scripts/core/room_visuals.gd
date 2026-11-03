@@ -25,6 +25,7 @@ var darkness := 1.0          # scene light multiplier (boss "lights out"); 1 = n
 var _dark_target := 1.0
 var _dark_speed := 1.0
 var bg_root_ref: Node2D
+var life: RoomLife
 var fg_root_ref: Node2D
 static var _add_mat: CanvasItemMaterial
 
@@ -55,7 +56,7 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 		bg_root.add_child(node)
 		var par := float(L.get("parallax", 1.0))
 		var rep := bool(L.get("repeat", false))
-		var entry := {"node": node, "parallax": par, "repeat": rep, "spr": null, "w_tx": 0.0, "y": float(L.get("y", 0))}
+		var entry := {"node": node, "parallax": par, "repeat": rep, "spr": null, "w_tx": 0.0, "y": float(L.get("y", 0)), "name": str(L.get("name", ""))}
 		var x_tx := 0.0
 		for f in L.get("files", []):
 			var tex := SpriteLib.tex(_path(str(f)))
@@ -129,6 +130,9 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 	if Settings.effects_full():
 		for A in meta.get("ambient", []):
 			_make_ambient(A, glow_back, glow_front)
+	life = RoomLife.new()
+	room.add_child(life)
+	life.build(self, meta, bg_root, fg_root)
 	return true
 
 ## Optional story-state gating for layers/fg sprites ("requires" / "unless" use GameState.check syntax).
@@ -167,6 +171,8 @@ func update(cam_left: float, view_w: float, actors: Array, dt: float) -> void:
 	if not v2:
 		return
 	t += dt
+	if life:
+		life.update(cam_left, view_w, dt)
 	if darkness != _dark_target:
 		darkness = move_toward(darkness, _dark_target, dt / maxf(_dark_speed, 0.01))
 		var m := Color(darkness, darkness, darkness * 1.05)

@@ -1,0 +1,138 @@
+{
+ "haze": {
+  "color": "#c48a72",
+  "far": 0.3,
+  "mid": 0.12
+ },
+ "grade": {
+  "lift": "#0a0812",
+  "gain": "#fff2e2",
+  "saturation": 1.04,
+  "contrast": 1.06,
+  "vignette": 0.22
+ },
+ "clouds": {
+  "files": [
+   "res://tests/fixtures/life/cloud.png"
+  ],
+  "count": 5,
+  "y": [
+   10,
+   70
+  ],
+  "speed": [
+   6,
+   12
+  ],
+  "parallax": 0.08,
+  "tint": "#ffe0d0",
+  "alpha": 0.8
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    300,
+    110,
+    40,
+    40
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    360,
+    110,
+    40,
+    40
+   ],
+   "kind": "tv",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    420,
+    110,
+    40,
+    40
+   ],
+   "kind": "office",
+   "lit": false
+  },
+  {
+   "type": "traffic",
+   "y": 214,
+   "parallax": 0.6,
+   "files": [
+    "res://tests/fixtures/life/car.png"
+   ],
+   "rate": 0.6,
+   "lights": true
+  },
+  {
+   "type": "pedestrians",
+   "y": 216,
+   "parallax": 0.62,
+   "scale": 0.55,
+   "x": [
+    0,
+    1600
+   ],
+   "rate": 0.8
+  },
+  {
+   "type": "sway",
+   "file": "res://tests/fixtures/life/flag.png",
+   "x": 600,
+   "y": 120,
+   "pivot": [
+    2,
+    0
+   ],
+   "amp": 6,
+   "speed": 1.6
+  },
+  {
+   "type": "water",
+   "rect": [
+    300,
+    300,
+    300,
+    40
+   ],
+   "speed": 14,
+   "tint": "#bfe6f0",
+   "alpha": 0.45
+  },
+  {
+   "type": "shaft",
+   "x": 700,
+   "y": 0,
+   "w": 120,
+   "h": 260,
+   "angle": 14,
+   "color": "#ffd9a0",
+   "energy": 0.2
+  },
+  {
+   "type": "sign",
+   "rect": [
+    560,
+    60,
+    280,
+    30
+   ],
+   "pattern": "chase",
+   "color": "#ffd070"
+  },
+  {
+   "type": "pigeons",
+   "x": 520,
+   "y": 300,
+   "count": 4
+  }
+ ]
+}

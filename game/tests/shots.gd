@@ -64,6 +64,15 @@ func _ready() -> void:
 				w.hud.levelup.visible = false
 			"weapon":
 				w.room.player.equip_weapon(parts[1])
+			"life":
+				# test harness: rebuild the room's background life from a fixture JSON (tests/fixtures/life/)
+				var lm = JSON.parse_string(FileAccess.get_file_as_string(parts[1] if parts[1].begins_with("res://") else "res://tests/fixtures/life/" + parts[1]))
+				var v = w.room.vis
+				if v.life:
+					v.life.queue_free()
+				v.life = RoomLife.new()
+				w.room.add_child(v.life)
+				v.life.build(v, lm, w.room.bg_root, w.room.fg_root)
 			"bosshp":
 				for b in w.room.boss_actors:
 					if is_instance_valid(b):
