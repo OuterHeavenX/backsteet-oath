@@ -48,6 +48,9 @@ def container(cv, x, yb, w, h, col, label=None, doors=True, seed=0):
             cv.rect(x + w - 24 + k * 6, yb - h + 3, 0.7, h - 6, C('#2a2a30'))
     if label:
         cv.text(label, 'cond', h * 0.26, x + (w - 26) / 2, yb - h / 2, light(m.b, 1.8), 'mm', tracking=0.8)
+    kit.brushed_metal(cv, x, yb - h, w, h, m.b, seed, a=0.08)
+    kit.rust_bloom(cv, x, yb - h, w, h, seed, a=0.32, edge=3.0,
+                   rivets=[(x + w - 24 + k * 6, yb - h + 4) for k in range(4)] if doors else None)
     kit.weather(cv, x, yb - h, w, h, seed, soot=0.25, streak=True)
 
 
@@ -108,6 +111,12 @@ def f_pump_station(R, x0, w, f):
         cv.ellipse(px + 60, FB - 38, 8, 20, C('#5a6a70'), ink=C('#0e1418'), iw=MAJOR)
         cv.ellipse(px + 60, FB - 38, 5, 14, C('#141c20'))
         cv.hgrad(px, FB - 58, 60, 40, [C('#ffffff', 60), C('#ffffff', 0)], mode='atop')
+        kit.brushed_metal(cv, px, FB - 58, 60, 40, C('#4a5a60'), 3210 + k, a=0.14, vertical=False)
+        kit.rust_bloom(cv, px, FB - 58, 60, 40, 3220 + k, a=0.4, edge=4.0,
+                       rivets=[(px + 6 + j * 12, FB - 55) for j in range(5)])
+        kit.proud_shadow(cv, px, FB - 58, 60, 40, 8.0, a=0.38)
+        kit.stain_streaks(cv, px + 52, FB - 18, 14, 3230 + k, length=(6, 16), n=3, a=0.35, col='#5a3a24',
+                          light_frac=0.0)
     cv.ellipse(x0 + w / 2, FB - 40, 12, 12, None, ink=C('#c83a2a'), iw=2.0)
     for a in np.linspace(0, math.pi, 4):
         cv.line([(x0 + w / 2 - math.cos(a) * 12, FB - 40 - math.sin(a) * 12),
@@ -253,6 +262,7 @@ def f_loading_bay(R, x0, w, f):
             for j in range(3):
                 cv.rect(dxk + 10 + j * 30, FB - 60, 22, 26, C('#8a6a48'), ink=C('#201810'), iw=DETAIL, em=0.5)
             R.glow(dxk + 50, FB - 60, 60, '#c8ffe0', 0.3, 'fluor')
+            kit.log(cv, {'type': 'window', 'rect': [dxk + 2.0, FB - 90.0, 96.0, 58.0], 'lit': True, 'kind': 'shop'})
         else:
             big_door(cv, dxk, FB - 28, 100, 64, '#8a9496', kind='roller', seed=dxk)
         cv.rect(dxk - 6, FB - 28, 112, 28, C('#4a4e50'), ink=C('#0e1014'), iw=MAJOR)
@@ -353,6 +363,9 @@ def f_office_wall(R, x0, w, f):
         cv.rect(gx, yy + 1.4, gw, 0.6, C('#6a6e66'))
         yy += 2.6
     cv.rect(gx + 8, 120, gw - 16, 3, C('#7a7e76'))
+    for k in range(4):
+        kit.log(cv, {'type': 'window', 'rect': [round(gx + gw * k / 4 + 3, 1), 112.0, round(gw / 4 - 6, 1), 80.0],
+                     'lit': False, 'kind': 'office'})
     cv.rect(gx + 150, 140, 40, 60, C('#3a3e3a'), ink=C('#0a0c0a'), iw=DETAIL)    # chair silhouette
     cv.rect(gx + 2, FB - 70, 30, 14, C('#e8e4d8'), ink=C('#1e2228'), iw=DETAIL)
     cv.text(f.get('sign', 'HOLDING'), 'cond', 6, gx + 17, FB - 63, C('#c8302a'), 'mm')

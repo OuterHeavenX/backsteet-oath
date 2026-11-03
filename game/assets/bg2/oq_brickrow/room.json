@@ -180,5 +180,378 @@
    0.22
   ],
   "alpha": 0.22
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 5,
+  "y": [
+   8,
+   62
+  ],
+  "speed": [
+   2.5,
+   6
+  ],
+  "parallax": 0.08,
+  "tint": "#ffd6c0",
+  "alpha": 0.85
+ },
+ "haze": {
+  "color": "#f4a87a",
+  "far": 0.06,
+  "mid": 0.03
+ },
+ "grade": {
+  "lift": "#120a14",
+  "gain": "#fff0dc",
+  "saturation": 1.04,
+  "contrast": 1.05,
+  "vignette": 0.2
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    22.5,
+    100,
+    14,
+    26
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    216.5,
+    64,
+    14,
+    26
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    326.0,
+    60,
+    14,
+    26
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    454.0,
+    52,
+    14,
+    26
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    813.5,
+    60,
+    14,
+    26
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    911.5,
+    96,
+    14,
+    26
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    1081.3,
+    68,
+    14,
+    22
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    1260.0,
+    70,
+    16,
+    30
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1326.0,
+    70,
+    16,
+    30
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    1524.0,
+    70,
+    16,
+    30
+   ],
+   "kind": "tv",
+   "lit": true
+  },
+  {
+   "type": "pigeons",
+   "x": 80.0,
+   "y": 229.3,
+   "count": 4
+  },
+  {
+   "type": "pigeons",
+   "x": 783.0,
+   "y": 233.3,
+   "count": 4
+  },
+  {
+   "type": "birds",
+   "y": [
+    14,
+    70
+   ],
+   "rate": 0.06
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_sheet_e8c860.png",
+   "x": 52.8,
+   "y": 91.3,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 2.2,
+   "speed": 1.18,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_shirt_c85a4a.png",
+   "x": 67.4,
+   "y": 93.8,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 3.2,
+   "speed": 1.1,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_sock_e8e0d0.png",
+   "x": 82.0,
+   "y": 95.3,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 5.0,
+   "speed": 1.05,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_shirt_e8c860.png",
+   "x": 96.6,
+   "y": 96.0,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 3.2,
+   "speed": 0.9,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_shirt_e8c860.png",
+   "x": 111.2,
+   "y": 95.8,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 3.2,
+   "speed": 1.37,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_sock_e8c860.png",
+   "x": 125.8,
+   "y": 94.8,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 5.0,
+   "speed": 1.29,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_shirt_5a8ac8.png",
+   "x": 140.4,
+   "y": 92.8,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 3.2,
+   "speed": 1.19,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_sock_e8e0d0.png",
+   "x": 853.4,
+   "y": 95.3,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 5.0,
+   "speed": 1.06,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_sheet_5a8ac8.png",
+   "x": 868.4,
+   "y": 97.8,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 2.2,
+   "speed": 1.35,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_shirt_e8c860.png",
+   "x": 883.4,
+   "y": 99.3,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 3.2,
+   "speed": 1.39,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_sheet_f0f0f0.png",
+   "x": 898.4,
+   "y": 100.0,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 2.2,
+   "speed": 1.01,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_shirt_e8e0d0.png",
+   "x": 913.4,
+   "y": 99.8,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 3.2,
+   "speed": 0.94,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_sheet_e8e0d0.png",
+   "x": 928.4,
+   "y": 98.8,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 2.2,
+   "speed": 1.24,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_laundry_shirt_e8e0d0.png",
+   "x": 943.4,
+   "y": 96.8,
+   "pivot": [
+    14.0,
+    4.0
+   ],
+   "amp": 3.2,
+   "speed": 1.22,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_sign_rooms.png",
+   "x": 363.5,
+   "y": 152.6,
+   "pivot": [
+    26.0,
+    1.0
+   ],
+   "amp": 2.2,
+   "speed": 1.1,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_sign_round.png",
+   "x": 1096.5,
+   "y": 148.6,
+   "pivot": [
+    18.0,
+    1.0
+   ],
+   "amp": 2.2,
+   "speed": 1.1,
+   "front": false
+  }
+ ]
 }

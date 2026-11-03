@@ -158,5 +158,40 @@
    ],
    "alpha": 0.08
   }
+ ],
+ "haze": {
+  "color": "#f0e0b0",
+  "far": 0.06,
+  "mid": 0.03
+ },
+ "grade": {
+  "lift": "#06100f",
+  "gain": "#fff3d8",
+  "saturation": 1.05,
+  "contrast": 1.04,
+  "vignette": 0.16
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    31,
+    61,
+    48,
+    48
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "shaft",
+   "x": 55.0,
+   "y": 61,
+   "w": 60.0,
+   "h": 257,
+   "angle": -8.0,
+   "color": "#fff0c8",
+   "energy": 0.14
+  }
  ]
 }

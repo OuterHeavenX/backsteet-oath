@@ -20,6 +20,11 @@ import time
 import numpy as np
 from PIL import Image, ImageDraw
 
+# str hashes seed many generators (hash((R.id, x))): pin the hash salt so every build is byte-identical.
+if os.environ.get('PYTHONHASHSEED') != '0':
+    os.environ['PYTHONHASHSEED'] = '0'
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
@@ -35,6 +40,8 @@ import common                                                              # noq
 import grounds2                                                            # noqa: E402
 import oq2, canal, interiors                                               # noqa: E402,F401
 import fg2                                                                 # noqa: E402
+import realism                                                             # noqa: E402
+import life                                                                # noqa: E402
 for _mod in ('iron', 'neon', 'flood', 'ware', 'props3', 'under'):
     try:
         __import__(_mod)
@@ -79,7 +86,7 @@ DCONF = {
                                  ground_far=(0.9, 0.9, 0.96), ground_near=(0.8, 0.82, 0.92)),
                       ambient=('#d8e0f0', 0.84), rim={"color": "#ff9a50", "dir": [-1.0, 0.2], "strength": 0.5},
                       cast={"dir": [-0.5, 0.2], "alpha": 0.12}),
-    'neon_mile': dict(grade=dict(top=(0.6, 0.58, 0.82), mid=(0.56, 0.54, 0.78), base=(0.5, 0.48, 0.72),
+    'neon_mile': dict(grade=dict(top=(0.58, 0.56, 0.8), mid=(0.58, 0.56, 0.8), base=(0.6, 0.58, 0.82),
                                  ground_far=(0.74, 0.7, 0.86), ground_near=(0.64, 0.6, 0.8)),
                       ambient=('#b8a8e8', 0.76), rim={"color": "#ff5ab0", "dir": [0.6, 0.6], "strength": 0.55},
                       cast={"dir": [0.0, 0.3], "alpha": 0.06}),
@@ -462,7 +469,6 @@ def mid_chainlot():
         cv.rect(xx, base - 52, 70, 0.8, C(P['rim']), a=0.6)
         cv.ellipse(xx + 10, base - 35.5, 3, 1.6, C('#2a1a2a'))
         cv.ellipse(xx + 60, base - 35.5, 3, 1.6, C('#2a1a2a'))
-    district._wrap_draw(car, 380)
     # telephone poles + wires
     for i in range(5):
         px = 60 + i * 205
@@ -522,6 +528,7 @@ def build_room(rid, rooms, enc, props_meta):
         R.ambient_color, R.ambient_level = dc['ambient']
         R.rim = dict(dc['rim'])
         R.cast_shadow = dict(dc['cast'])
+    realism.begin_room(R)
     t0 = time.time()
     for g in data.get('ground', []):
         fn = GROUNDS.get(g['style'])
@@ -536,8 +543,10 @@ def build_room(rid, rooms, enc, props_meta):
         if fn is None:
             raise SystemExit(f'[{rid}] facade kind {f["kind"]} not implemented in v2 yet')
         R.cv.clipx = (int(f['x'] * D), int((f['x'] + f['w']) * D))
+        kit.LIGHT['clip'] = (f['x'], f['x'] + f['w'])
         fn(R, f['x'], f['w'], f)
         R.cv.clipx = None
+        kit.LIGHT['clip'] = None
     for d in data.get('doors', []):
         if d['id'] not in R.drawn_doors and not any(f['x'] <= d['x'] < f['x'] + f['w'] and f['kind'] in SELF_DOORS
                                                     for f in data.get('facades', [])):
@@ -550,6 +559,13 @@ def build_room(rid, rooms, enc, props_meta):
     elif data.get('exits', {}).get('south'):
         s = data['exits']['south']
         exterior_south(R, s['x0'], s['x1'])
+    life.room_extras(R)
+    R.lamps = []
+    for p in data.get('props', []):
+        if p['type'] in LIGHT_PROPS and not R.interior:
+            dx_, hy_, r_, col_, en_, fl_, pool_ = LIGHT_PROPS[p['type']]
+            R.lamps.append((p['x'] + dx_, p['y'] - hy_, p['y'], col_))
+    realism.post_room(R)
     if R.interior:
         ic = ICONF.get(rid, ((1.0, 0.97, 0.92), (0.86, 0.82, 0.86)))
         roommod.grade_interior(R, ic[0], ic[1])
@@ -576,9 +592,12 @@ def write_room(R, img, out_root):
                 continue
             layers.append({"name": name, "files": [f'../_district/{R.district}_{name}.png'], "parallax": par,
                            "y": y, "repeat": True})
-    for name, fn, par, y in ROOM_MID.get(R.id, []):
+    haze_c = life.HAZE.get(R.district, life.HAZE['old_quarter'])['color']
+    for name, fn, par, y in ROOM_MID.get(R.id, []) + life.ROOM_LAYERS.get(R.id, []):
         cv = fn()
-        files = roommod.save_tiles(cv.to_image(), d, name)
+        im = realism.atmos(cv.to_image(), haze_c, amount=round(0.28 * (1 - par), 3), desat=round(0.2 * (1 - par), 3),
+                           sigma=round(max(0.0, 1.5 * (1 - par) - 0.1), 2), lift_ink=0.3)
+        files = roommod.save_tiles(im, d, name)
         layers.append({"name": f'room_{name}', "files": files, "parallax": par, "y": y, "repeat": True})
     layers.append({"name": "base", "files": base_files, "parallax": 1.0, "y": 0, "repeat": False})
     fg = []
@@ -627,6 +646,7 @@ def write_room(R, img, out_root):
     }
     if not R.interior:
         js["cast_shadow"] = R.cast_shadow
+    js.update(life.assemble(R, js, d))
 
     with open(os.path.join(d, 'room.json'), 'w') as f:
         json.dump(js, f, indent=1, default=lambda o: o.item() if hasattr(o, 'item') else str(o))
@@ -639,6 +659,11 @@ def write_district(dist, out_root):
     for name, fn in (('sky', district.sky), ('far', district.far), ('mid', district.mid)):
         cv = fn(dist)
         im = cv.to_image(opaque=(name == 'sky'))
+        hz = district.DIST[dist]['haze']
+        if name == 'far':          # atmospheric perspective: hazier, desaturated, defocused (~1.2 tx Gaussian)
+            im = realism.atmos(im, hz, amount=0.27, desat=0.26, sigma=1.2, lift_ink=0.6)
+        elif name == 'mid':
+            im = realism.atmos(im, hz, amount=0.13, desat=0.12, sigma=0.6, lift_ink=0.45)
         im.save(os.path.join(d, f'{dist}_{name}.png'), optimize=True)
         print(f'  district {dist}_{name}: {im.size}')
 
@@ -804,6 +829,53 @@ def write_ledger(built):
         '  dark alleys), encoded as value/204 = multiplier and clamped to 140..240 in the playable band.',
         '- Geometry comes from `game/data/rooms.json`: facade spans, doors, exits, props, walk band. The generator',
         '  never writes to it.',
+        '- Builds are byte-identical: the entry point pins `PYTHONHASHSEED=0` (several seeds hash strings).',
+        '',
+        '## Realism pass (v2.1, `realism.py` + kit primitives)',
+        '- Materials: per-brick hue/value drift, fired-clay speckle, chipped arrises and recessed (shadowed) mortar;',
+        '  render/concrete mottling, soft patch repairs, tie-rod rust bleed and seam stains; wood grain on planks,',
+        '  clapboard and floors; brushed streaks plus rust bloom at sheet edges, laps and rivets on corrugated metal',
+        '  and containers. A multiplicative room-wide mottling stays under ~3 % luminance (a third of that in the walk',
+        '  band, where high-frequency contrast is measured unchanged).',
+        '- Weathering: water stains under sills, cornices and copings, soot above vents and flues, peeling paint on',
+        '  painted render and clapboard, a grime gradient over the bottom 20 u of every wall, sparse weeds in the',
+        '  wall/pavement crack and at the kerb.',
+        '- Ambient occlusion under ledges, sills, door heads and cornices, along the wall/ground contact and in the',
+        '  inner corners between buildings (interiors: toward the side walls).',
+        '- Baked light: warm spill from lit windows/signs onto the pavement or floor (with matching lightmap',
+        '  sources), a soft bounce halo around emissive texels, faint pools consistent with the engine glows, and',
+        '  soft cast shadows from awnings, sign boxes, AC units, pipes and fire escapes along the room light',
+        '  direction.',
+        '- Glass: dark panes reflect the district sky and an opposite skyline with a diagonal sheen over faint room',
+        '  depth; lit panes show a room box (ceiling, side walls, floor, lamp hot-spot) behind the furniture;',
+        '  reveals carry a shadow on the head/left and a light catch on the sill/right.',
+        '- Wet ground (Floodgate, Neon Mile, puddles everywhere): mirrored vertical colour smears of signs and lit',
+        '  glass, broken by streaks and ripple gaps, plus a few specular streaks.',
+        '- District layers: skies are banded gradients without painted clouds or birds (those are engine sprites now;',
+        '  the rain/smog districts keep a low-contrast overcast deck); far/mid layers are pre-blurred (Gaussian',
+        '  1.2 / 0.6 tx, wrapping so tiles stay seamless), blended toward the haze colour, desaturated and drawn',
+        '  with thinner, lighter outlines (room.json haze is kept low because of this).',
+        '- Second pass (v2.1b): every facade carries a light gradient from roofline to wall base that follows the',
+        '  light source (sun/sky-lit from above by day, street-lit from below on Neon Mile, overhead in the',
+        '  Underline/warehouse); multiplicative light pools around lit windows, signs, engine glows, lamp posts and',
+        '  ceiling lights (down-cones), with surfaces away from any light falling off at night/indoors; 25-35 % AO',
+        '  under cornices, sills, awnings and in inner corners, darker door/window reveals and mortar; a splashed',
+        '  grime band at street level; torn, faded posters; varied window dressing (half-drawn curtains, blinds,',
+        '  nets, plants, TV glow); large near-white glass compressed to <= ~0.8 value for the engine bloom; wet',
+        '  roads get coloured vertical streaks under every light (longer for higher sources); irregular puddles',
+        '  that only pick up nearby light; low-frequency walk-band wear (stains, patches, tyre tracks, ~+-5 %).',
+        '',
+        '## Life data and sprites (v2.1, `life.py`)',
+        '- `game/assets/bg2/_life/`: `cloud_a..e` (near-white, tinted by the engine), `car_a` sedan, `car_b` bakery',
+        '  van, `car_c` taxi, `car_d` pickup (136-148 u, facing right, wheels on the bottom edge), `train_el` (two',
+        '  coupled el cars, 400 u, lit windows), `pigeon` (8 x 32x24 tx: idle, peck, fly; anchor at the feet), `bird`',
+        '  (4 x 24x16 tx flap), `silhouette` (6 x 48x96 tx soft walk cycle).',
+        '- Room folders: `sway_*.png` (bunting pennants, laundry, hanging signs, flags, windsock) removed from the',
+        '  base so the engine can swing them; `road_0` / `rail_0` / `el_0` room layers carry the painted lanes for',
+        '  traffic, pedestrians and trains (oq_chainlot, fr_bridge, nm_rooftops; the canal promenade and the works',
+        '  railway are painted into the canal_market / ironworks mid layers).',
+        '- `room.json` gains `clouds`, `haze`, `grade` and a `life` list (windows matched to painted glass, lanes,',
+        '  pigeons, birds, sway, water, shafts, neon sign animation), per docs/visual/ASSET_CONTRACT_V2.md section 2b.',
         '',
         '## Built',
     ]
@@ -836,6 +908,7 @@ def main():
     if not a.no_district:
         for dd in dists:
             write_district(dd, OUT_BG)
+        life.write_shared(OUT_BG)
     if not a.no_props:
         types = {p['type'] for r in ids for p in rooms[r].get('props', [])}
         write_props(types, v1meta)
@@ -843,8 +916,12 @@ def main():
     for rid in ids:
         R, img = build_room(rid, rooms, enc, v1meta)
         js = write_room(R, img, OUT_BG)
-        built.append((rid, f'{img.width}x{img.height} tx base in {len(js["layers"][-1]["files"])} tile(s), '
-                           f'{len(js["fg"])} fg, {len(js["glows"])} glows, {len(js["ambient"])} ambient'))
+        base_l = [L for L in js['layers'] if L['name'] == 'base'][0]
+        from collections import Counter
+        lc = Counter(e['type'] for e in js.get('life', []))
+        life_s = ', '.join(f'{v} {k}' for k, v in sorted(lc.items())) or 'none'
+        built.append((rid, f'{img.width}x{img.height} tx base in {len(base_l["files"])} tile(s), '
+                           f'{len(js["fg"])} fg, {len(js["glows"])} glows, {len(js["ambient"])} ambient; life: {life_s}'))
         if a.preview:
             os.makedirs(a.preview, exist_ok=True)
             preview(rid, js, a.preview)

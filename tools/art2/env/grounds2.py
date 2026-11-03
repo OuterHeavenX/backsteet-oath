@@ -103,6 +103,7 @@ def planks(R, x, w, y0, y1, base, seed, h0=5.0, h1=10.0, joint_every=(40, 90), g
                 for ny in (y0 + 3, y1 - 3):
                     cv.ellipse(xx + bw / 2, ny, 0.35, 0.3, shade(m.b, 1.2), a=0.7, mode='atop')
             xx += bw
+    kit.wood_grain(cv, x, y0, w, y1 - y0, m.b, seed, a=0.07, along='y' if across else 'x')
     _noise_tone(R, mk, 22, seed + 3, 0.05, 0.10, m)
     return mk
 
@@ -235,6 +236,9 @@ def canal_water(R, x, y, w, h, seed=0, deep='#1e4a5a', mid='#2e7a84', light_c='#
     cv.paint((x0, y0, dk * mm * 0.35), C(deep), mode='atop')
     if sky:
         cv.vgrad(x, y, w, min(h, 12), [C(sky, 120), C(sky, 0)], mode='atop')
+    if hasattr(R, 'water'):
+        R.water.append({"rect": [round(x, 1), round(y, 1), round(w, 1), round(h, 1)], "kind": "canal",
+                        "tint": light_c})
     return mk
 
 

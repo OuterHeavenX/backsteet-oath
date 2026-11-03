@@ -72,5 +72,63 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "haze": {
+  "color": "#3e5450",
+  "far": 0.06,
+  "mid": 0.03
+ },
+ "grade": {
+  "lift": "#0a110c",
+  "gain": "#ecfff0",
+  "saturation": 0.94,
+  "contrast": 1.04,
+  "vignette": 0.22
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    363.0,
+    112.0,
+    84.0,
+    80.0
+   ],
+   "kind": "office",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    453.0,
+    112.0,
+    84.0,
+    80.0
+   ],
+   "kind": "office",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    543.0,
+    112.0,
+    84.0,
+    80.0
+   ],
+   "kind": "office",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    633.0,
+    112.0,
+    84.0,
+    80.0
+   ],
+   "kind": "office",
+   "lit": false
+  }
+ ]
 }

@@ -60,6 +60,9 @@ def f_theater_marquee(R, x0, w, f):
     for k in range(10):
         for side in (bx + 2.5, bx + 29.5):
             cv.ellipse(side, top + 10 + k * 10, 0.9, 0.9, C('#fff0a0'), em=1.0)
+    for side in (bx + 2.5, bx + 29.5):
+        kit.log(cv, {'type': 'sign', 'rect': [round(side - 1.5, 1), top + 8.5, 3.0, 93.0], 'color': '#fff0a0',
+                     'pattern': 'blink'})
     R.glow(bx + 16, top + 60, 60, '#f8e040', 0.55, 'neon')
     # marquee canopy with bulbs + letter board
     my = 128
@@ -73,6 +76,9 @@ def f_theater_marquee(R, x0, w, f):
         on = (k % 4) != 2
         cv.ellipse(bxk, my + 1.5, 1.0, 1.0, C('#fff0a0') if on else C('#8a6a30'), em=1.0 if on else 0.0)
         cv.ellipse(bxk, my + 28, 1.0, 1.0, C('#fff0a0') if (k % 4) != 0 else C('#8a6a30'), em=1.0)
+    for by in (my + 0.2, my + 26.7):
+        kit.log(cv, {'type': 'sign', 'rect': [round(x0 + 10.5, 1), round(by, 1), round(w - 21, 1), 2.6],
+                     'color': '#fff0a0', 'pattern': 'chase'})
     R.glow(x0 + w / 2, my + 14, w * 0.6, '#ffe8a0', 0.45, 'neon')
     R.glow(x0 + w / 2, my + 40, w * 0.6, '#ffd890', 0.12, 'none', front=True)
     # entrance doors + poster cases + ticket booth
@@ -123,6 +129,7 @@ def f_arcade_front(R, x0, w, f):
     top = 36
     wall(cv, 'stucco', x0, top, w, FB - top, '#2a2040', seed=1801, soot=0.2)
     cv.rect(x0, top, w, 4, C('#4ae0ff'), em=1.0)
+    kit.log(cv, {'type': 'sign', 'rect': [x0, top, w, 4.0], 'color': '#4ae0ff', 'pattern': 'chase'})
     R.glow(x0 + w / 2, top + 2, w * 0.5, '#4ae0ff', 0.35, 'neon')
     # big starburst sign
     cx, cy = x0 + w / 2, top + 40
@@ -154,6 +161,7 @@ def f_arcade_front(R, x0, w, f):
     door(cv, dx - 12, FB, 24, 50, C('#2a1a3a'), lit=True, seed=1802, frame='#4ae0ff', step=False, transom=False)
     for k, c in enumerate(('#ff4ab0', '#4ae0ff')):
         cv.rect(x0 + 10, gy0 - 8 + k * 3, w - 20, 1.2, C(c), em=1.0)
+    kit.log(cv, {'type': 'sign', 'rect': [x0 + 10, gy0 - 8.5, w - 20, 5.4], 'color': '#ff4ab0', 'pattern': 'chase'})
     tag(cv, x0 + 20, FB - 12, 'JETT', C('#4ae0ff'), size=6, seed=7)
     light_pool(R, cx, FB + 10, w * 0.5, 14, '#c070ff', a=0.3)
     R.light(cx, FB + 16, w * 0.6, 40, '#d080ff', 0.3)
@@ -199,6 +207,11 @@ def f_alley_walls(R, x0, w, f):
     # start line + chequered flags
     for k in range(10):
         cv.rect(x0 + 180 + k * 28, 46, 14, 6, C('#1a1420') if k % 2 else C('#f4f0e8'))
+    # back windows of the flats and the kitchen that share the alley (lives behind the glass)
+    for (wx, wy, lit, gl) in ((x0 + 36, 6, True, kit.WARM_GLASS), (x0 + 588, 8, False, None),
+                              (x0 + 92, 158, True, kit.TV_GLASS), (x0 + 500, 158, True, kit.WARM_GLASS)):
+        window(cv, wx, wy, 14, 22, lit=lit, seed=int(wx * 3 + wy), frame='#8a7a78', glass=gl,
+               interior='tv' if gl is kit.TV_GLASS else None, curtains=False if wy > 100 else None)
     string_lights(cv, x0, 70, x0 + w, 66, sag=18, step=8, seed=9, cols=[C(c) for c in NEONS[:4]])
     graffiti_piece(cv, x0 + 20, 90, 150, 50, 'MO', '#f8e040', '#ff4ab0', seed=21)
     graffiti_piece(cv, x0 + 470, 100, 150, 46, 'CATS', '#8aff8a', '#4ae0ff', seed=22)

@@ -47,6 +47,7 @@ var show_hints := true
 var effects := "full"            # "full" or "reduced" (fewer particles, no cast shadows/reflections/ambient)
 var cinematic_bars := true
 var show_fps := false
+var post_fx := true                # colour grade + bloom screen pass (off by default on touch browsers)
 var bindings: Dictionary = {}    # action -> {"keys": [...], "pad": [...]}
 
 func _ready() -> void:
@@ -177,6 +178,7 @@ func pad_buttons(action: String) -> Array:
 
 # ---------------------------------------------------------------- persistence
 func load_settings() -> void:
+	post_fx = _default_post_fx()
 	var cfg := ConfigFile.new()
 	if cfg.load(PATH) != OK:
 		return
@@ -198,6 +200,7 @@ func load_settings() -> void:
 	effects = fx_q if fx_q in ["full", "reduced"] else "full"
 	cinematic_bars = bool(cfg.get_value("display", "cinematic_bars", cinematic_bars))
 	show_fps = bool(cfg.get_value("display", "show_fps", show_fps))
+	post_fx = bool(cfg.get_value("display", "post_fx", _default_post_fx()))
 	var saved_b = cfg.get_value("input", "bindings", {})
 	if typeof(saved_b) == TYPE_DICTIONARY:
 		for a in saved_b:
@@ -227,6 +230,7 @@ func save_settings() -> void:
 	cfg.set_value("display", "effects", effects)
 	cfg.set_value("display", "cinematic_bars", cinematic_bars)
 	cfg.set_value("display", "show_fps", show_fps)
+	cfg.set_value("display", "post_fx", post_fx)
 	cfg.save(PATH)
 	changed.emit()
 
@@ -245,6 +249,10 @@ func set_fullscreen(on: bool) -> void:
 	else:
 		apply_display()
 	save_settings()
+
+## Phones and tablets in a browser start without the full-screen grade/bloom pass (fill-rate heavy on mobile GPUs).
+func _default_post_fx() -> bool:
+	return not (OS.has_feature("web") and DisplayServer.is_touchscreen_available())
 
 func effects_full() -> bool:
 	return effects == "full"

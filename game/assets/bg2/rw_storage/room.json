@@ -183,5 +183,69 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "haze": {
+  "color": "#3e5450",
+  "far": 0.06,
+  "mid": 0.03
+ },
+ "grade": {
+  "lift": "#0a110c",
+  "gain": "#ecfff0",
+  "saturation": 0.94,
+  "contrast": 1.04,
+  "vignette": 0.22
+ },
+ "life": [
+  {
+   "type": "shaft",
+   "x": 140.0,
+   "y": 16.0,
+   "w": 90.0,
+   "h": 260.0,
+   "angle": -6.0,
+   "color": "#cfe8e0",
+   "energy": 0.1
+  },
+  {
+   "type": "shaft",
+   "x": 460.0,
+   "y": 16.0,
+   "w": 90.0,
+   "h": 260.0,
+   "angle": -6.0,
+   "color": "#cfe8e0",
+   "energy": 0.1
+  },
+  {
+   "type": "shaft",
+   "x": 780.0,
+   "y": 16.0,
+   "w": 90.0,
+   "h": 260.0,
+   "angle": -6.0,
+   "color": "#cfe8e0",
+   "energy": 0.1
+  },
+  {
+   "type": "shaft",
+   "x": 1340.0,
+   "y": 16.0,
+   "w": 90.0,
+   "h": 260.0,
+   "angle": -6.0,
+   "color": "#cfe8e0",
+   "energy": 0.1
+  },
+  {
+   "type": "shaft",
+   "x": 1660.0,
+   "y": 16.0,
+   "w": 90.0,
+   "h": 260.0,
+   "angle": -6.0,
+   "color": "#cfe8e0",
+   "energy": 0.1
+  }
+ ]
 }

@@ -55,6 +55,7 @@ def tile_wall(cv, x, y, w, h, base=TILE, seed=0, tw=8.0, th=4.0, grime=0.45):
 def mosaic_band(R, x, y, w, h, text, seed=0):
     """'KESSLER ST' station-name mosaic with a border key pattern."""
     cv = R.cv
+    kit.proud_shadow(cv, x, y, w, h, 3.0, a=0.38)
     cv.rect(x, y, w, h, C('#2e5a52'), ink=C('#0e1a18'), iw=MAJOR)
     rs = rng_of('mos', seed)
     # border tesserae
@@ -83,6 +84,7 @@ def mosaic_band(R, x, y, w, h, text, seed=0):
 
 def retro_ad(R, x, y, w, h, kind, seed=0):
     cv = R.cv
+    kit.proud_shadow(cv, x, y, w, h, 3.0, a=0.38)
     cv.rect(x - 2, y - 2, w + 4, h + 4, C('#5a5e5a'), ink=C('#141814'), iw=MAJOR)
     if kind == 'air':
         cv.vgrad(x, y, w, h, [C('#f0a040'), C('#e86a4a'), C('#8a3a6a')])
@@ -235,6 +237,7 @@ def f_subway_platform(R, x0, w, f):
     bx = x0 + 640
     for cx in (bx + 8, bx + 72):
         cv.line([(cx, 43), (cx, 56)], 0.5, C('#6a6a6a'))
+    kit.proud_shadow(cv, bx, 56, 80, 22, 4.0, a=0.4)
     cv.rect(bx, 56, 80, 22, C('#e8e0c8'), ink=C('#1a1a14'), iw=MAJOR)
     cv.text('CLOSED', 'sign', 9, bx + 40, 64, C('#c8302a'), 'mm')
     cv.text('BY ORDER  -  1971', 'cond', 4, bx + 40, 73, C('#2a2a24'), 'mm')

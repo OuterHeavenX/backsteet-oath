@@ -147,6 +147,42 @@
    "front": true
   },
   {
+   "x": 212.9,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 660.5,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1072.5,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1479.4,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
    "x": 1340,
    "y": 142,
    "r": 44,
@@ -367,5 +403,107 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "haze": {
+  "color": "#3a504a",
+  "far": 0.06,
+  "mid": 0.03
+ },
+ "grade": {
+  "lift": "#06110c",
+  "gain": "#e4fff0",
+  "saturation": 0.92,
+  "contrast": 1.05,
+  "vignette": 0.28
+ },
+ "life": [
+  {
+   "type": "water",
+   "rect": [
+    71.1,
+    244.7,
+    27.4,
+    3.5
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    994.2,
+    289.9,
+    43.6,
+    5.3
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    91.8,
+    300.5,
+    30.9,
+    4.2
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    1206.0,
+    303.3,
+    27.7,
+    4.1
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "shaft",
+   "x": 212.9,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": 5.1,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  },
+  {
+   "type": "shaft",
+   "x": 660.5,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": -7.3,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  },
+  {
+   "type": "shaft",
+   "x": 1072.5,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": -3.9,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  },
+  {
+   "type": "shaft",
+   "x": 1479.4,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": 2.6,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  }
+ ]
 }

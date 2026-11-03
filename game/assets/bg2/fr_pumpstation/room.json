@@ -313,5 +313,198 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 7,
+  "y": [
+   4,
+   56
+  ],
+  "speed": [
+   5,
+   11
+  ],
+  "parallax": 0.08,
+  "tint": "#748890",
+  "alpha": 0.9
+ },
+ "haze": {
+  "color": "#7a9494",
+  "far": 0.06,
+  "mid": 0.03
+ },
+ "grade": {
+  "lift": "#081211",
+  "gain": "#e9f8f4",
+  "saturation": 0.92,
+  "contrast": 1.03,
+  "vignette": 0.24
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    26.0,
+    70,
+    22,
+    46
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    133.5,
+    70,
+    22,
+    46
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    241.0,
+    70,
+    22,
+    46
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    348.5,
+    70,
+    22,
+    46
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    456.0,
+    70,
+    22,
+    46
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    516,
+    128,
+    104,
+    78
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    660,
+    128,
+    104,
+    78
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "pigeons",
+   "x": 1227.0,
+   "y": 232.1,
+   "count": 4
+  },
+  {
+   "type": "pigeons",
+   "x": 154.0,
+   "y": 228.9,
+   "count": 4
+  },
+  {
+   "type": "birds",
+   "y": [
+    14,
+    70
+   ],
+   "rate": 0.04
+  },
+  {
+   "type": "sway",
+   "file": "sway_flag_flood.png",
+   "x": 492.6,
+   "y": 6.5,
+   "pivot": [
+    1.0,
+    1.0
+   ],
+   "amp": 6.0,
+   "speed": 2.0,
+   "front": false
+  },
+  {
+   "type": "water",
+   "rect": [
+    1716.0,
+    333.3,
+    30.4,
+    6.0
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    111.0,
+    298.8,
+    29.1,
+    6.5
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    1835.1,
+    302.5,
+    41.6,
+    6.7
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    1398.1,
+    256.2,
+    47.4,
+    5.5
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  }
+ ]
 }

@@ -147,6 +147,42 @@
    "energy": 0.55,
    "flicker": "flame",
    "front": false
+  },
+  {
+   "x": 235.0,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 619.0,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1067.0,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 1515.0,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
   }
  ],
  "ambient": [
@@ -278,5 +314,120 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "haze": {
+  "color": "#3a504a",
+  "far": 0.06,
+  "mid": 0.03
+ },
+ "grade": {
+  "lift": "#06110c",
+  "gain": "#e4fff0",
+  "saturation": 0.92,
+  "contrast": 1.05,
+  "vignette": 0.28
+ },
+ "life": [
+  {
+   "type": "sway",
+   "file": "sway_sign_trains.png",
+   "x": 1480.0,
+   "y": 46.5,
+   "pivot": [
+    44,
+    1.0
+   ],
+   "amp": 1.2,
+   "speed": 0.7,
+   "front": false
+  },
+  {
+   "type": "water",
+   "rect": [
+    1012.7,
+    287.2,
+    29.6,
+    4.5
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    448.6,
+    286.8,
+    27.2,
+    5.0
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    842.2,
+    287.8,
+    30.8,
+    4.2
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    509.2,
+    270.6,
+    34.0,
+    4.8
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "shaft",
+   "x": 235.0,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": 2.2,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  },
+  {
+   "type": "shaft",
+   "x": 619.0,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": -6.0,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  },
+  {
+   "type": "shaft",
+   "x": 1067.0,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": 6.3,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  },
+  {
+   "type": "shaft",
+   "x": 1515.0,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": -7.8,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  }
+ ]
 }

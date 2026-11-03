@@ -15,38 +15,86 @@ into the images; see THIRD_PARTY_NOTICES.md.
   dark alleys), encoded as value/204 = multiplier and clamped to 140..240 in the playable band.
 - Geometry comes from `game/data/rooms.json`: facade spans, doors, exits, props, walk band. The generator
   never writes to it.
+- Builds are byte-identical: the entry point pins `PYTHONHASHSEED=0` (several seeds hash strings).
+
+## Realism pass (v2.1, `realism.py` + kit primitives)
+- Materials: per-brick hue/value drift, fired-clay speckle, chipped arrises and recessed (shadowed) mortar;
+  render/concrete mottling, soft patch repairs, tie-rod rust bleed and seam stains; wood grain on planks,
+  clapboard and floors; brushed streaks plus rust bloom at sheet edges, laps and rivets on corrugated metal
+  and containers. A multiplicative room-wide mottling stays under ~3 % luminance (a third of that in the walk
+  band, where high-frequency contrast is measured unchanged).
+- Weathering: water stains under sills, cornices and copings, soot above vents and flues, peeling paint on
+  painted render and clapboard, a grime gradient over the bottom 20 u of every wall, sparse weeds in the
+  wall/pavement crack and at the kerb.
+- Ambient occlusion under ledges, sills, door heads and cornices, along the wall/ground contact and in the
+  inner corners between buildings (interiors: toward the side walls).
+- Baked light: warm spill from lit windows/signs onto the pavement or floor (with matching lightmap
+  sources), a soft bounce halo around emissive texels, faint pools consistent with the engine glows, and
+  soft cast shadows from awnings, sign boxes, AC units, pipes and fire escapes along the room light
+  direction.
+- Glass: dark panes reflect the district sky and an opposite skyline with a diagonal sheen over faint room
+  depth; lit panes show a room box (ceiling, side walls, floor, lamp hot-spot) behind the furniture;
+  reveals carry a shadow on the head/left and a light catch on the sill/right.
+- Wet ground (Floodgate, Neon Mile, puddles everywhere): mirrored vertical colour smears of signs and lit
+  glass, broken by streaks and ripple gaps, plus a few specular streaks.
+- District layers: skies are banded gradients without painted clouds or birds (those are engine sprites now;
+  the rain/smog districts keep a low-contrast overcast deck); far/mid layers are pre-blurred (Gaussian
+  1.2 / 0.6 tx, wrapping so tiles stay seamless), blended toward the haze colour, desaturated and drawn
+  with thinner, lighter outlines (room.json haze is kept low because of this).
+- Second pass (v2.1b): every facade carries a light gradient from roofline to wall base that follows the
+  light source (sun/sky-lit from above by day, street-lit from below on Neon Mile, overhead in the
+  Underline/warehouse); multiplicative light pools around lit windows, signs, engine glows, lamp posts and
+  ceiling lights (down-cones), with surfaces away from any light falling off at night/indoors; 25-35 % AO
+  under cornices, sills, awnings and in inner corners, darker door/window reveals and mortar; a splashed
+  grime band at street level; torn, faded posters; varied window dressing (half-drawn curtains, blinds,
+  nets, plants, TV glow); large near-white glass compressed to <= ~0.8 value for the engine bloom; wet
+  roads get coloured vertical streaks under every light (longer for higher sources); irregular puddles
+  that only pick up nearby light; low-frequency walk-band wear (stains, patches, tyre tracks, ~+-5 %).
+
+## Life data and sprites (v2.1, `life.py`)
+- `game/assets/bg2/_life/`: `cloud_a..e` (near-white, tinted by the engine), `car_a` sedan, `car_b` bakery
+  van, `car_c` taxi, `car_d` pickup (136-148 u, facing right, wheels on the bottom edge), `train_el` (two
+  coupled el cars, 400 u, lit windows), `pigeon` (8 x 32x24 tx: idle, peck, fly; anchor at the feet), `bird`
+  (4 x 24x16 tx flap), `silhouette` (6 x 48x96 tx soft walk cycle).
+- Room folders: `sway_*.png` (bunting pennants, laundry, hanging signs, flags, windsock) removed from the
+  base so the engine can swing them; `road_0` / `rail_0` / `el_0` room layers carry the painted lanes for
+  traffic, pedestrians and trains (oq_chainlot, fr_bridge, nm_rooftops; the canal promenade and the works
+  railway are painted into the canal_market / ironworks mid layers).
+- `room.json` gains `clouds`, `haze`, `grade` and a `life` list (windows matched to painted glass, lanes,
+  pigeons, birds, sway, water, shafts, neon sign animation), per docs/visual/ASSET_CONTRACT_V2.md section 2b.
 
 ## Built
-- `cm_canalwalk`: 3840x720 tx base in 2 tile(s), 5 fg, 6 glows, 5 ambient
-- `cm_gate`: 3200x720 tx base in 2 tile(s), 4 fg, 9 glows, 1 ambient
-- `cm_pier`: 2880x720 tx base in 3 tile(s), 4 fg, 3 glows, 4 ambient
-- `fr_bridge`: 3520x720 tx base in 2 tile(s), 5 fg, 6 glows, 2 ambient
-- `fr_dockgate`: 2880x720 tx base in 2 tile(s), 4 fg, 5 glows, 2 ambient
-- `fr_pumpstation`: 3840x720 tx base in 2 tile(s), 5 fg, 6 glows, 5 ambient
-- `int_arcade`: 1600x720 tx base in 1 tile(s), 2 fg, 4 glows, 0 ambient
-- `int_bait`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 1 ambient
-- `int_books`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 1 ambient
-- `int_canteen`: 1280x720 tx base in 1 tile(s), 2 fg, 4 glows, 6 ambient
-- `int_diner`: 1280x720 tx base in 1 tile(s), 3 fg, 7 glows, 2 ambient
-- `int_garage`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 0 ambient
-- `int_noodle`: 1280x720 tx base in 1 tile(s), 2 fg, 8 glows, 5 ambient
-- `int_pharmacy`: 1280x720 tx base in 1 tile(s), 2 fg, 4 glows, 0 ambient
-- `int_rec`: 1280x720 tx base in 1 tile(s), 2 fg, 6 glows, 0 ambient
-- `int_switch`: 1600x720 tx base in 1 tile(s), 2 fg, 5 glows, 1 ambient
-- `iy_foundry`: 2880x720 tx base in 2 tile(s), 4 fg, 3 glows, 5 ambient
-- `iy_gate`: 3200x720 tx base in 2 tile(s), 4 fg, 9 glows, 3 ambient
-- `iy_spur`: 3840x720 tx base in 2 tile(s), 5 fg, 10 glows, 5 ambient
-- `nm_arcade`: 3200x720 tx base in 2 tile(s), 4 fg, 28 glows, 1 ambient
-- `nm_backalley`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 2 ambient
-- `nm_marquee`: 3520x720 tx base in 2 tile(s), 5 fg, 16 glows, 0 ambient
-- `nm_rooftops`: 3200x720 tx base in 2 tile(s), 4 fg, 5 glows, 2 ambient
-- `oq_brickrow`: 3520x720 tx base in 2 tile(s), 5 fg, 8 glows, 1 ambient
-- `oq_chainlot`: 2880x720 tx base in 2 tile(s), 4 fg, 13 glows, 6 ambient
-- `oq_kettle`: 3200x720 tx base in 2 tile(s), 5 fg, 13 glows, 5 ambient
-- `rw_dock`: 3200x720 tx base in 2 tile(s), 4 fg, 4 glows, 0 ambient
-- `rw_floor`: 2240x720 tx base in 2 tile(s), 3 fg, 3 glows, 0 ambient
-- `rw_office`: 1920x720 tx base in 1 tile(s), 1 fg, 3 glows, 0 ambient
-- `rw_storage`: 3840x720 tx base in 2 tile(s), 5 fg, 11 glows, 0 ambient
-- `ul_station`: 3200x720 tx base in 2 tile(s), 4 fg, 10 glows, 9 ambient
-- `ul_tunnel`: 3840x720 tx base in 2 tile(s), 5 fg, 11 glows, 17 ambient
-- `ul_vault`: 2240x720 tx base in 2 tile(s), 5 fg, 10 glows, 6 ambient
+- `cm_canalwalk`: 3840x720 tx base in 2 tile(s), 5 fg, 6 glows, 5 ambient; life: 1 birds, 1 pedestrians, 2 pigeons, 11 sway, 5 water
+- `cm_gate`: 3200x720 tx base in 2 tile(s), 4 fg, 9 glows, 1 ambient; life: 1 birds, 2 pigeons, 47 sway, 6 window
+- `cm_pier`: 2880x720 tx base in 2 tile(s), 4 fg, 3 glows, 4 ambient; life: 1 birds, 2 pigeons, 1 sway, 2 water, 5 window
+- `fr_bridge`: 3520x720 tx base in 2 tile(s), 5 fg, 6 glows, 2 ambient; life: 1 birds, 2 pigeons, 1 train, 5 water
+- `fr_dockgate`: 2880x720 tx base in 2 tile(s), 4 fg, 5 glows, 2 ambient; life: 1 birds, 2 pigeons, 4 water
+- `fr_pumpstation`: 3840x720 tx base in 2 tile(s), 5 fg, 6 glows, 5 ambient; life: 1 birds, 2 pigeons, 1 sway, 4 water, 7 window
+- `game/assets/bg2/_life/`: `cloud_a..e` (near-white, tinted by the engine), `car_a` sedan, `car_b` bakery
+- `int_arcade`: 1600x720 tx base in 1 tile(s), 2 fg, 4 glows, 0 ambient; life: 4 sign, 1 window
+- `int_bait`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 1 ambient; life: 1 shaft, 1 window
+- `int_books`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 1 ambient; life: 1 shaft, 1 window
+- `int_canteen`: 1280x720 tx base in 1 tile(s), 2 fg, 4 glows, 6 ambient; life: 1 shaft, 1 window
+- `int_diner`: 1280x720 tx base in 1 tile(s), 3 fg, 7 glows, 2 ambient; life: 1 shaft, 1 sign, 1 window
+- `int_garage`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 0 ambient; life: 1 shaft, 1 window
+- `int_noodle`: 1280x720 tx base in 1 tile(s), 2 fg, 8 glows, 5 ambient; life: 1 shaft, 1 window
+- `int_pharmacy`: 1280x720 tx base in 1 tile(s), 2 fg, 4 glows, 0 ambient; life: 1 sign, 1 window
+- `int_rec`: 1280x720 tx base in 1 tile(s), 2 fg, 6 glows, 0 ambient; life: 3 shaft, 3 window
+- `int_switch`: 1600x720 tx base in 1 tile(s), 2 fg, 5 glows, 1 ambient; life: 1 shaft, 1 window
+- `iy_foundry`: 2880x720 tx base in 2 tile(s), 4 fg, 3 glows, 5 ambient; life: 4 shaft
+- `iy_gate`: 3200x720 tx base in 2 tile(s), 4 fg, 9 glows, 3 ambient; life: 1 birds, 2 pigeons, 1 sway, 1 train, 7 window
+- `iy_spur`: 3840x720 tx base in 2 tile(s), 5 fg, 10 glows, 5 ambient; life: 1 birds, 2 pigeons, 1 train, 11 window
+- `nm_arcade`: 3200x720 tx base in 2 tile(s), 4 fg, 28 glows, 1 ambient; life: 8 sign, 4 water, 8 window
+- `nm_backalley`: 1280x720 tx base in 1 tile(s), 3 fg, 3 glows, 2 ambient; life: 1 sign, 4 water, 4 window
+- `nm_marquee`: 3520x720 tx base in 2 tile(s), 5 fg, 16 glows, 0 ambient; life: 9 sign, 4 water, 9 window
+- `nm_rooftops`: 3200x720 tx base in 2 tile(s), 4 fg, 5 glows, 2 ambient; life: 1 sign, 1 train, 3 water
+- `oq_brickrow`: 3520x720 tx base in 2 tile(s), 5 fg, 8 glows, 1 ambient; life: 1 birds, 2 pigeons, 16 sway, 10 window
+- `oq_chainlot`: 2880x720 tx base in 2 tile(s), 4 fg, 13 glows, 6 ambient; life: 1 birds, 1 pedestrians, 2 pigeons, 1 traffic, 1 train, 2 water, 1 window
+- `oq_kettle`: 3200x720 tx base in 2 tile(s), 5 fg, 13 glows, 5 ambient; life: 1 birds, 2 pigeons, 3 sign, 8 sway, 2 water, 12 window
+- `rw_dock`: 3200x720 tx base in 2 tile(s), 4 fg, 4 glows, 0 ambient; life: 4 window
+- `rw_floor`: 2240x720 tx base in 2 tile(s), 3 fg, 3 glows, 0 ambient; life: 4 shaft
+- `rw_office`: 1920x720 tx base in 1 tile(s), 1 fg, 3 glows, 0 ambient; life: 4 window
+- `rw_storage`: 3840x720 tx base in 2 tile(s), 5 fg, 11 glows, 0 ambient; life: 5 shaft
+- `ul_station`: 3200x720 tx base in 2 tile(s), 4 fg, 14 glows, 9 ambient; life: 4 shaft, 1 sway, 4 water
+- `ul_tunnel`: 3840x720 tx base in 2 tile(s), 5 fg, 15 glows, 17 ambient; life: 4 shaft, 4 water
+- `ul_vault`: 2240x720 tx base in 2 tile(s), 5 fg, 12 glows, 6 ambient; life: 2 shaft, 4 water

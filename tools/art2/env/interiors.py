@@ -129,6 +129,8 @@ def wall_window(R, x, y, w, h, round_=False, view='street', blinds=False):
             cv.rect(x, yy + 1.2, w, 0.4, C('#8a8070'))
             yy += 2
     col = {'street': '#ffb080', 'canal': '#e8f0d8', 'night': '#c070ff', 'rain': '#a8c8d0', 'yard': '#d8d0c0'}[view]
+    kit.log(cv, {'type': 'window', 'rect': [round(x + 1, 1), round(y + 1, 1), round(w - 2, 1), round(h - 2, 1)],
+                 'lit': True, 'kind': 'shop', 'interior_window': True})
     R.glow(x + w / 2, y + h / 2, max(w, h) * 0.8, col, 0.22, 'none')
     R.light(x + w / 2, 250, w * 1.2, 60, col, 0.08)
 
@@ -260,6 +262,10 @@ def f_garage_interior(R, x0, w, f):
     cv.vgrad(x0 + 450, 68, 130, 10, [C('#f8c890'), C('#e88a6a')], em=1.0)
     for k in range(1, 5):
         cv.rect(x0 + 450 + k * 26, 68, 1.2, 10, C('#7a7a80'))
+    kit.log(cv, {'type': 'window', 'rect': [x0 + 451, 68.5, 128.0, 9.0], 'lit': True, 'kind': 'shop'})
+    if hasattr(R, 'shafts'):
+        R.shafts.append({"x": x0 + 515.0, "y": 70.0, "w": 150.0, "h": 220.0, "angle": 10.0, "color": "#ffd0a0",
+                         "energy": 0.12})
     # car on a lift (the garage's current job)
     lift = M(C('#c8302a'))
     cv.rect(x0 + 170, 110, 6, 86, lift.b, ink=lift.i, iw=MAJOR)
@@ -406,9 +412,11 @@ def f_arcade_interior(R, x0, w, f):
     for k, c in enumerate(('#4ae0ff', '#ff4ab0', '#f8e040')):
         cv.rect(x0, 150 + k * 4, w, 1.2, C(c), em=1.0)
         R.glow(x0 + w / 2, 152 + k * 4, w * 0.6, c, 0.12, 'neon')
+        kit.log(cv, {'type': 'sign', 'rect': [x0, 149.6 + k * 4, w, 2.0], 'color': c, 'pattern': 'chase'})
     # high score board
     cv.rect(x0 + 300, 70, 120, 60, C('#0e0a18'), ink=C('#4a3a6a'), iw=MAJOR)
     cv.text('HIGH SCORES', 'cond', 5, x0 + 360, 78, C('#f8e040'), 'mm', em=1.0)
+    kit.log(cv, {'type': 'window', 'rect': [x0 + 302.0, 72.0, 116.0, 56.0], 'lit': True, 'kind': 'tv'})
     for k, (n, s) in enumerate((('JET', '98450'), ('NICO', '87200'), ('MO', '66310'), ('???', '50000'))):
         cv.text(n, 'cond', 4.4, x0 + 312, 90 + k * 9, C('#4ae0ff'), 'lm', em=1.0)
         cv.text(s, 'cond', 4.4, x0 + 408, 90 + k * 9, C('#ff8ad0'), 'rm', em=1.0)
@@ -440,6 +448,17 @@ def f_pharmacy_interior(R, x0, w, f):
     for (dx, dy, ww, hh) in ((-4, -12, 8, 24), (-12, -4, 24, 8)):
         cv.rect(cx + dx, cy + dy, ww, hh, C('#3aff8a'), ink=C('#0a3a1a'), iw=DETAIL, em=1.0)
     R.glow(cx, cy, 40, '#3aff8a', 0.55, 'neon')
+    kit.log(cv, {'type': 'sign', 'rect': [cx - 12, cy - 12, 24.0, 24.0], 'color': '#3aff8a', 'pattern': 'buzz'})
+    # security monitor on a wall bracket (TV flicker in the engine)
+    mx, my = x0 + 203, 44
+    cv.rect(mx + 10, my - 8, 2, 8, C('#4a5458'))
+    cv.rect(mx - 2, my - 1.5, 28, 22, C('#3a4044'), ink=C('#0e1214'), iw=MAJOR)
+    cv.vgrad(mx, my, 24, 18, [C('#a8d8c8'), C('#5a8a80'), C('#2a4a44')], em=1.0)
+    for k in range(6):
+        cv.rect(mx, my + 1 + k * 3, 24, 0.5, C('#1a2a28'), a=0.35, em=1.0)
+    cv.text('CAM 2', 'cond', 2.6, mx + 4, my + 3, C('#e8fff0'), 'lm', em=1.0)
+    kit.proud_shadow(cv, mx - 2, my - 1.5, 28, 22, 4.0, a=0.25)
+    kit.log(cv, {'type': 'window', 'rect': [mx + 0.5, my + 0.5, 23.0, 17.0], 'lit': True, 'kind': 'tv'})
     cv.rect(x0 + 240, 70, 160, 18, C('#2a6a5a'), ink=C('#0e2a24'), iw=MAJOR)
     painted_text(cv, "ROSA'S PHARMACY", x0 + 320, 79.5, 8, C('#f4f8f0'), shadow=False)
     cv.rect(x0 + 260, 100, 120, 14, C('#f4f8f8'), ink=C('#3a4448'), iw=DETAIL)

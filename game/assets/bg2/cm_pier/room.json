@@ -218,5 +218,152 @@
    0.2
   ],
   "alpha": 0.24
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 6,
+  "y": [
+   6,
+   70
+  ],
+  "speed": [
+   3,
+   8
+  ],
+  "parallax": 0.08,
+  "tint": "#ffffff",
+  "alpha": 0.92
+ },
+ "haze": {
+  "color": "#f0e0b0",
+  "far": 0.06,
+  "mid": 0.03
+ },
+ "grade": {
+  "lift": "#06100f",
+  "gain": "#fff3d8",
+  "saturation": 1.05,
+  "contrast": 1.04,
+  "vignette": 0.16
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    1116,
+    64,
+    13,
+    22
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1122,
+    124,
+    14,
+    22
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    1132,
+    64,
+    13,
+    22
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1148,
+    64,
+    13,
+    22
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1164,
+    64,
+    13,
+    22
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "pigeons",
+   "x": 1042.0,
+   "y": 226.9,
+   "count": 4
+  },
+  {
+   "type": "pigeons",
+   "x": 413.0,
+   "y": 227.4,
+   "count": 4
+  },
+  {
+   "type": "birds",
+   "y": [
+    14,
+    70
+   ],
+   "rate": 0.06
+  },
+  {
+   "type": "sway",
+   "file": "sway_sign_fish.png",
+   "x": 499.5,
+   "y": 156.6,
+   "pivot": [
+    26.0,
+    1.0
+   ],
+   "amp": 2.2,
+   "speed": 1.1,
+   "front": false
+  },
+  {
+   "type": "water",
+   "rect": [
+    500,
+    128,
+    600,
+    86
+   ],
+   "speed": 12,
+   "tint": "#bfeee8",
+   "alpha": 0.32
+  },
+  {
+   "type": "water",
+   "rect": [
+    1180,
+    120,
+    260,
+    94
+   ],
+   "speed": 12,
+   "tint": "#bfeee8",
+   "alpha": 0.32
+  }
+ ]
 }

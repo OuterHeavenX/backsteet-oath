@@ -25,6 +25,8 @@ def furnace_window(R, x, y, w, h, heat=1.0):
     for k in range(1, 4):
         cv.rect(x + w * k / 4 - 0.4, y, 0.8, h, C('#2a1e20'), em=0.0)
     cv.rect(x, y + h * 0.5, w, 0.8, C('#2a1e20'))
+    kit.log(cv, {'type': 'window', 'rect': [round(x + 1, 1), round(y + w / 2 + 2, 1), round(w - 2, 1),
+                                            round(h - w / 2 - 4, 1)], 'lit': True, 'kind': 'office'})
 
 
 def hazard(cv, x, y, w, h, a=1.0):
@@ -65,7 +67,7 @@ def f_yard_gate(R, x0, w, f):
     hut_x = x0 + w / 2 + 24
     wall(cv, 'concrete', hut_x, 150, 52, FB - 150, '#8a8a84', seed=31)
     cv.rect(hut_x - 3, 144, 58, 7, C('#3a4452'), ink=C('#0e1014'), iw=MAJOR)
-    window(cv, hut_x + 8, 160, 36, 20, lit=True, seed=4, frame='#9a9a94', interior='person', curtains=False,
+    window(cv, hut_x + 8, 160, 36, 20, lit=True, seed=4, frame='#9a9a94', interior='person', curtains=False, life='office',
            kind='grid')
     poster(cv, hut_x + 14, 186, 14, 18, seed=hash((R.id, 'sold')) % 999, kind='evict')
     cv.text('GREYLINE', 'cond', 2.8, hut_x + 21, 202, C('#5a6a7a'), 'mm')
@@ -100,7 +102,7 @@ def f_rail_shed(R, x0, w, f):
     R.glow(bx + bw / 2, FB - 30, 60, '#ff9a40', 0.4, 'flame')
     painted_text(cv, 'SHED 3', x0 + 50, top + 20, 8, C('#e8dcc0'), shadow=False, fade=0.35, seed=3)
     for k in range(2):
-        window(cv, x0 + 30 + k * (w - 90), top + 40, 26, 30, lit=k == 1, seed=33 + k, frame='#8a8e96', kind='grid',
+        window(cv, x0 + 30 + k * (w - 90), top + 40, 26, 30, lit=k == 1, seed=33 + k, frame='#8a8e96', kind='grid', life='office',
                glass=[C('#ffd890'), C('#ff9a50'), C('#c85a2a')])
     tag(cv, x0 + w - 70, FB - 20, 'YARD', C('#f0c040'), size=6, seed=4)
     R.light(bx + bw / 2, FB + 10, 70, 30, '#ff9040', 0.16)
@@ -184,7 +186,7 @@ def f_canteen(R, x0, w, f):
     for k, wx in enumerate((x0 + 20, x0 + w - 80)):
         if abs(wx + 30 - dx) < 40:
             continue
-        window(cv, wx, top + 34, 60, 34, lit=True, seed=1100 + k, frame='#d8d0c0', kind='grid', interior='person',
+        window(cv, wx, top + 34, 60, 34, lit=True, seed=1100 + k, frame='#d8d0c0', kind='grid', interior='person', life='office',
                curtains=False)
     shop_door(R, dx, 24, 56, '#2a5a3a')
     cv.rect(x0 + w - 24, top - 22, 10, 14, C('#7a8494'), ink=C('#141820'), iw=DETAIL)
@@ -205,7 +207,7 @@ def f_switch_house(R, x0, w, f):
     # glazed operating floor upstairs
     cv.rect(hx - 4, top, hw + 8, 44, C('#c8c0b0'), ink=C('#1e1418'), iw=MAJOR)
     for k in range(6):
-        window(cv, hx + 2 + k * 23, top + 6, 20, 30, lit=True, seed=1200 + k, frame='#c8c0b0', sill=False,
+        window(cv, hx + 2 + k * 23, top + 6, 20, 30, lit=True, seed=1200 + k, frame='#c8c0b0', sill=False, life='office',
                lintel=False, interior='blank', curtains=False, mull=False)
     cv.rect(hx + 10, top + 26, hw - 20, 10, C('#3a3036'), em=0.6)
     for k in range(14):

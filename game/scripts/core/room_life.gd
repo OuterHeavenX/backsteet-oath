@@ -13,17 +13,22 @@ void fragment() {
 }
 """
 const GRADE_SHADER := """shader_type canvas_item;
-uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
 uniform vec3 lift = vec3(0.0);
 uniform vec3 gain = vec3(1.0);
 uniform float saturation = 1.0;
 uniform float contrast = 1.0;
 uniform float vignette = 0.2;
 uniform float grain = 0.012;
+uniform float bloom = 0.35;
+uniform float threshold = 0.8;
 uniform float t = 0.0;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 void fragment() {
 	vec3 c = texture(screen_tex, SCREEN_UV).rgb;
+	// restrained bloom: only the brightest lights (neon, lamps, lit glass) bleed softly
+	vec3 b = textureLod(screen_tex, SCREEN_UV, 2.5).rgb * 0.5 + textureLod(screen_tex, SCREEN_UV, 4.0).rgb * 0.5;
+	c += min(max(b - threshold, 0.0) * bloom * 1.8, vec3(0.18));
 	c = (c - 0.5) * contrast + 0.5;
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation);
@@ -53,6 +58,7 @@ void fragment() {
 """
 const SIGN_SHADER := """shader_type canvas_item;
 render_mode blend_add;
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
 uniform vec4 col : source_color = vec4(1.0, 0.3, 0.7, 1.0);
 uniform float t = 0.0;
 uniform int pattern = 0;
@@ -60,15 +66,18 @@ uniform float energy = 0.55;
 void fragment() {
 	float k = 0.0;
 	if (pattern == 0) {
-		float band = fract(UV.x * 1.0 - t * 0.6);
-		k = smoothstep(0.0, 0.08, band) * smoothstep(0.24, 0.1, band);
+		float band = fract(UV.x - t * 0.6);
+		k = 0.25 + 0.75 * smoothstep(0.0, 0.1, band) * smoothstep(0.32, 0.12, band);
 	} else if (pattern == 1) {
-		k = step(0.5, fract(t * 0.9 + floor(UV.x * 5.0) * 0.17));
+		k = step(0.45, fract(t * 0.9 + floor(UV.x * 5.0) * 0.17));
 	} else {
-		k = 0.4 + 0.6 * step(0.12, fract(sin(floor(t * 14.0)) * 43758.5));
+		k = 0.5 + 0.5 * step(0.12, fract(sin(floor(t * 14.0)) * 43758.5));
 	}
-	float edge = smoothstep(0.0, 0.15, UV.y) * smoothstep(1.0, 0.85, UV.y);
-	COLOR = vec4(col.rgb, k * energy * edge);
+	vec3 s = texture(screen_tex, SCREEN_UV).rgb;
+	float bright = max(s.r, max(s.g, s.b));
+	float sat = bright - min(s.r, min(s.g, s.b));
+	float tube = smoothstep(0.55, 0.85, bright) * smoothstep(0.12, 0.35, sat + (bright - 0.8) * 2.0);
+	COLOR = vec4(mix(s, col.rgb, 0.35) * tube * k * energy, 1.0);
 }
 """
 
@@ -85,6 +94,7 @@ var pigeons: Array = []        # [{node, birds:[{spr, vel, flying, home}], x, y,
 var shafts: Array = []         # [{spr, base}]
 var grade_rect: ColorRect
 var base_front: Node2D         # drawn above the base layer (parallax 1), still behind actors
+var sign_root: Node2D
 var pass_timer := 4.0
 var passers: Array = []
 const PASS_DISTRICTS := ["old_quarter", "canal_market", "neon_mile", "ironworks"]
@@ -122,7 +132,7 @@ func build(v: RoomVisuals, m: Dictionary, bg_root: Node2D, fg_root: Node2D) -> v
 			"pigeons": _make_pigeons(e)
 			"pedestrians", "traffic", "train", "birds":
 				if full: _make_lane(e, bg_root)
-	if meta.has("grade") and full:
+	if meta.has("grade") and full and Settings.post_fx:
 		_make_grade(meta.grade)
 
 # ------------------------------------------------------------------ atmosphere
@@ -162,6 +172,7 @@ func _make_grade(g: Dictionary) -> void:
 	mat.set_shader_parameter("saturation", clampf(float(g.get("saturation", 1.0)), 0.8, 1.2))
 	mat.set_shader_parameter("contrast", clampf(float(g.get("contrast", 1.0)), 0.9, 1.15))
 	mat.set_shader_parameter("vignette", clampf(float(g.get("vignette", 0.2)), 0.0, 0.35))
+	mat.set_shader_parameter("bloom", clampf(float(g.get("bloom", 0.35)), 0.0, 0.6) * (1.0 if Settings.flash > 0.0 else 0.5))
 	grade_rect.material = mat
 	layer.add_child(grade_rect)
 	shaders_t.append(mat)
@@ -253,9 +264,10 @@ func _spawn_lane_item(lane: Dictionary, cam_left: float, view_w: float) -> void:
 			s2.position = Vector2(x - dir * tex.get_width() * 0.25, float(e.get("y", 196)))
 			lane.node.add_child(s2)
 			if e.get("lights", false):
-				var w := tex.get_width() * 0.5
-				_attach_glow(s2, Vector2(w * 0.46, -tex.get_height() * 0.28), 26.0, Color(1.0, 0.92, 0.7), 0.5)
-				_attach_glow(s2, Vector2(-w * 0.47, -tex.get_height() * 0.3), 14.0, Color(1.0, 0.2, 0.15), 0.45)
+				var tw := float(tex.get_width())
+				var th := float(tex.get_height())
+				_attach_glow(s2, Vector2(tw * 0.46, -th * 0.35), 26.0, Color(1.0, 0.92, 0.7), 0.5)
+				_attach_glow(s2, Vector2(-tw * 0.47, -th * 0.37), 14.0, Color(1.0, 0.2, 0.15), 0.45)
 			lane.items.append({"spr": s2, "v": randf_range(60.0, 110.0) * dir, "kind": "car"})
 		"train":
 			var tex2 := SpriteLib.tex(vis._path(str(e.get("file", ""))))
@@ -265,8 +277,9 @@ func _spawn_lane_item(lane: Dictionary, cam_left: float, view_w: float) -> void:
 			s3.texture = tex2
 			s3.centered = false
 			s3.offset = Vector2(-tex2.get_width() / 2.0, -tex2.get_height())
-			s3.scale = Vector2(0.5 * dir, 0.5)
-			s3.position = Vector2(x - dir * tex2.get_width() * 0.25, float(e.get("y", 120)))
+			var tk := 0.5 * float(e.get("scale", 1.0))
+			s3.scale = Vector2(tk * dir, tk)
+			s3.position = Vector2(x - dir * tex2.get_width() * tk * 0.5, float(e.get("y", 120)))
 			lane.node.add_child(s3)
 			lane.items.append({"spr": s3, "v": 130.0 * dir, "kind": "train"})
 		"birds":
@@ -292,7 +305,7 @@ func _attach_glow(parent: Node2D, pos: Vector2, r: float, col: Color, en: float)
 		return
 	g.texture = tex
 	g.material = RoomVisuals.add_material()
-	g.position = pos / parent.scale.abs()
+	g.position = pos   # local texel space of the parent sprite
 	g.scale = Vector2.ONE * (2.0 * r / tex.get_width()) / parent.scale.abs()
 	g.modulate = Color(col.r, col.g, col.b, en)
 	parent.add_child(g)
@@ -407,6 +420,14 @@ func _make_water(e: Dictionary) -> void:
 	shaders_t.append(mat)
 
 func _make_sign(e: Dictionary) -> void:
+	if not full:
+		return
+	if sign_root == null:
+		sign_root = Node2D.new()
+		base_front.add_child(sign_root)
+		var bb := BackBufferCopy.new()
+		bb.copy_mode = BackBufferCopy.COPY_MODE_VIEWPORT
+		sign_root.add_child(bb)
 	var r: Array = e.get("rect", [0, 0, 0, 0])
 	var c := ColorRect.new()
 	c.position = Vector2(float(r[0]), float(r[1]))
@@ -418,7 +439,7 @@ func _make_sign(e: Dictionary) -> void:
 	mat.set_shader_parameter("pattern", {"chase": 0, "blink": 1, "buzz": 2}.get(str(e.get("pattern", "chase")), 0))
 	mat.set_shader_parameter("energy", 0.55 if Settings.flash > 0.0 else 0.3)
 	c.material = mat
-	base_front.add_child(c)
+	sign_root.add_child(c)
 	shaders_t.append(mat)
 
 func _make_shaft(e: Dictionary) -> void:

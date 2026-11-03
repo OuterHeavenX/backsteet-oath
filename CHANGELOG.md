@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.3.0-rc1 (2026-11-03): living, more real backgrounds
+- **Streets that move:**
+  - **Sky:** clouds drift.
+  - **Windows:** lights switch on and off, silhouettes cross behind curtains, and TVs flicker.
+  - **Passersby:** townsfolk stroll along the sidewalk when the street is quiet, and hurry off when a fight starts.
+  - **Pigeons and birds:** pigeons scatter as you walk up, and birds cross the sky.
+  - **Cloth and signs:** laundry, bunting, flags and hanging signs sway. Neon signs chase, blink and buzz.
+  - **Traffic:** distant cars with headlights, and trains on the rail and elevated lines.
+  - **Water and light:** canal water and puddles ripple, and light shafts with drifting dust come through
+    windows, skylights and grates.
+- **More real-looking art** in all 33 rooms (the inked style is kept):
+  - **Lighting:** facades get light gradients and light pools, with soft shadows in corners, under ledges and in
+    doorways.
+  - **Surfaces:** brick, concrete, wood and metal texture, plus grime, water stains, soot, peeling paint and torn
+    posters.
+  - **Glass:** varied window interiors (blinds, curtains, plants, lamps) behind glass with reflections.
+  - **Wet streets:** coloured light streaks on wet roads in the rain and night districts.
+  - **Distance:** far layers are softly blurred and hazed for depth.
+- **Camera finish:** a subtle per-room colour grade and vignette, plus a restrained glow on the brightest lights.
+  This can be turned off in **Settings → Colour grade & bloom**, and is off by default in browsers on phones and
+  tablets.
+- **Effects: Reduced** turns off the expensive parts: the grade, traffic, distant pedestrians, trains, birds,
+  light shafts and sign animation.
+
 ## 1.2.0-rc1 (2026-11-02): a longer game
 - **New story chapter, "The Underline"** (Act III opener, on the main path):
   - Mara works out that Greyline moves its cargo under the river. The Neon Mile rooftops' fire escape drops into

@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 
-from raster import Canvas, C, mix, shade, light, value_noise, rng_of, blur
+from raster import Canvas, C, mix, shade, light, value_noise, rng_of, blur, _ramp
 
 TILE_U = 1024
 
@@ -14,10 +14,41 @@ def _wrap_draw(fn, x, *a, **k):
         fn(x + dx, *a, **k)
 
 
+def _wrap_noise(ww, hh, cell, seed, stretch=1.0, octaves=2):
+    """Value noise that tiles horizontally (cross-faded seam), optionally stretched along x."""
+    nw = max(8, int(ww / stretch))
+    ov = max(4, nw // 6)
+    n = value_noise(nw + ov, hh, cell, seed, octaves)
+    out = n[:, :nw].copy()
+    wgt = np.linspace(0, 1, ov, dtype=np.float32)[None, :]
+    out[:, :ov] = n[:, nw:nw + ov] * (1 - wgt) + n[:, :ov] * wgt
+    if stretch != 1.0:
+        from PIL import Image
+        im = Image.fromarray(np.concatenate([out, out[:, :2]], axis=1), 'F').resize((ww + int(2 * stretch), hh),
+                                                                                   Image.BICUBIC)
+        out = np.asarray(im, np.float32)[:, :ww]
+    return out
+
+
+def _banded_sky(cv, stops, n=15, amt=0.4):
+    """Sky gradient with subtle stylised banding: soft steps blended into the smooth ramp."""
+    ys = (np.arange(cv.H, dtype=np.float32) + 0.5) / cv.D
+    t = np.clip(ys / 360.0, 0, 1)
+    f = t * n - np.floor(t * n)
+    s = np.clip((f - 0.78) / 0.22, 0, 1)
+    s = s * s * (3 - 2 * s)
+    tb = (np.floor(t * n) + s) / n
+    rgba = _ramp(stops, t * (1 - amt) + tb * amt)
+    cv.px[..., :3] = rgba[:, None, :3]
+    cv.px[..., 3] = 1.0
+
+
 def sky(dist, seed=1):
+    """Sky gradient (banded), stars, sun/moon. Clouds and birds are separate engine sprites now (_life/), so the
+    painted sky carries no clouds -- except an overcast deck texture for the rain district."""
     P = DIST[dist]
     cv = Canvas(TILE_U, 360)
-    cv.vgrad(0, 0, TILE_U, 360, P['sky'])
+    _banded_sky(cv, P['sky'])
     rs = rng_of('sky', dist, seed)
     # faint stars near the top
     for _ in range(8):
@@ -35,45 +66,23 @@ def sky(dist, seed=1):
             cv.ellipse(sx + dx, sy, sr, sr, mix(C(sc), C('#ffffff'), 0.5))
             for k in range(3):
                 cv.rect(sx + dx - sr, sy + sr * (0.15 + k * 0.28), sr * 2, 0.9 + k * 0.5, C('#f49a62'), mode='atop')
-    # cloud streaks: cel-shaded, lit from below
-    for i in range(P.get('clouds', 14)):
-        cy = rs.uniform(10, 110)
-        cx = rs.uniform(0, TILE_U)
-        cw = rs.uniform(60, 190) * P.get('cloud_scale', 1.0)
-        ch = rs.uniform(3, 8) * P.get('cloud_scale', 1.0)
-        t = cy / 110
-        top_c = mix(C(P['cloud_top']), C(P['cloud_low']), t * 0.6)
-        under = C(P['cloud_lit'])
-        def one(x, cy=cy, cw=cw, ch=ch, top_c=top_c, under=under, i=i):
-            pts = []
-            n = 14
-            for k in range(n + 1):
-                u = k / n
-                bump = math.sin(u * math.pi) * ch * (0.8 + 0.4 * math.sin(u * 9 + i))
-                pts.append((x + u * cw, cy - bump))
-            for k in range(n, -1, -1):
-                u = k / n
-                pts.append((x + u * cw, cy + ch * 0.25 * math.sin(u * math.pi)))
-            mk = cv.poly_mask(pts)
-            cv.paint(mk, top_c, a=0.9)
-            # lit underside band
-            x0, y0, m = mk
-            Y = (np.arange(m.shape[0], dtype=np.float32) + y0 + 0.5) / cv.D
-            band = np.clip((Y - (cy - ch * 0.35)) / (ch * 0.5), 0, 1)[:, None]
-            cv.paint((x0, y0, m * band), under, a=0.9)
-            cv.paint((x0, y0, m * np.clip(band * 2 - 1.2, 0, 1)), mix(under, C('#ffffff'), 0.4), a=0.6)
-        _wrap_draw(one, cx)
-    # birds
-    for _ in range(P.get('birds', 8)):
-        bx, by = rs.uniform(0, TILE_U), rs.uniform(40, 140)
-        cv.line([(bx - 2, by - 0.8), (bx, by), (bx + 2, by - 0.8)], 0.4, C(P['far'][0]), a=0.8)
+    # overcast deck (rain / smog): long, low-contrast horizontal streaks, darker toward the top
+    oc = P.get('overcast', 0.0)
+    if oc > 0:
+        n1 = _wrap_noise(cv.W, cv.H, 5 * cv.D, abs(hash(('oc', dist))) % 9999, stretch=9.0, octaves=3)
+        ys = (np.arange(cv.H, dtype=np.float32) + 0.5) / cv.D
+        fade = np.clip(1 - ys / 200.0, 0, 1)[:, None]
+        dk = np.clip((0.55 - n1) * 2.4, 0, 1) * fade * oc
+        lt = np.clip((n1 - 0.6) * 2.4, 0, 1) * fade * oc * 0.6
+        cv.paint((0, 0, np.clip(dk, 0, 1).astype(np.float32)), shade(C(P['cloud_top']), 0.5), a=0.8)
+        cv.paint((0, 0, np.clip(lt, 0, 1).astype(np.float32)), C(P['cloud_lit']), a=0.65)
     return cv
 
 
 def _building_sil(cv, x, base_y, w, h, col, rs, lit_col, win_p=0.12, detail=True, ink=None, rim=None, deco=None):
     top = base_y - h
     pts = [(x, base_y), (x, top), (x + w, top), (x + w, base_y)]
-    cv.fill_poly(pts, col, ink=ink, iw=0.5 if ink else 0)
+    cv.fill_poly(pts, col, ink=ink, iw=0.4 if ink else 0)
     if rim:
         cv.rect(x, top, w, 0.8, rim, a=0.55)
         cv.rect(x, top, 0.8, h, rim, a=0.35)
@@ -156,7 +165,7 @@ def mid(dist, seed=3):
     rs = rng_of('mid', dist, seed)
     base = 224
     col = C(P['mid'])
-    ink = shade(col, 1.5)
+    ink = shade(col, 0.75)
     x = -30
     while x < TILE_U + 30:
         w = rs.uniform(30, 80)
@@ -230,7 +239,7 @@ def mid_canal_houses(dist, P, seed):
     """Canal: colourful gabled canal houses on the far quay; quay edge at y=152 (canvas y=0)."""
     cv = Canvas(TILE_U, 156)
     rs = rng_of('canalh', dist, seed)
-    base = 152
+    base = 139
     x = -20
     while x < TILE_U + 20:
         w = rs.uniform(22, 38)
@@ -239,7 +248,7 @@ def mid_canal_houses(dist, P, seed):
         kind = rs.choice(['step', 'bell', 'point', 'point', 'flat'])
         def one(xx, w=w, h=h, col=col, kind=kind, s=rs.random()):
             r2 = rng_of('ch', int(xx), s)
-            m_ink = shade(col, 1.6)
+            m_ink = shade(col, 0.95)
             top = base - h
             if kind == 'point':
                 pts = [(xx, base), (xx, top), (xx + w / 2, top - w * 0.45), (xx + w, top), (xx + w, base)]
@@ -252,7 +261,7 @@ def mid_canal_houses(dist, P, seed):
                                                   for a in np.linspace(math.pi, 0, 10)] + [(xx + w, top), (xx + w, base)]
             else:
                 pts = [(xx, base), (xx, top), (xx + w, top), (xx + w, base)]
-            cv.fill_poly(pts, col, ink=m_ink, iw=0.5)
+            cv.fill_poly(pts, col, ink=m_ink, iw=0.4)
             cv.rect(xx, top, 1.0, h, C(P['rim']), a=0.5)
             # windows: 3-4 floors
             nf = int(h / 18)
@@ -262,21 +271,30 @@ def mid_canal_houses(dist, P, seed):
                     wx = xx + (w - nc * 4.5) / (nc + 1) * (c + 1) + 4.5 * c
                     wy = top + 6 + f * 18
                     lit = r2.random() < 0.2
-                    cv.rect(wx, wy, 4.5, 8, C('#fff0c0') if lit else shade(col, 1.2), ink=m_ink, iw=0.3)
+                    cv.rect(wx, wy, 4.5, 8, C('#fff0c0') if lit else shade(col, 1.2), ink=m_ink, iw=0.25)
                     cv.rect(wx - 0.5, wy + 8, 5.5, 0.8, C('#f4f0e8'))
             if r2.random() < 0.5:
                 cv.rect(xx + w / 2 - 3, base - 12, 6, 12, shade(col, 1.5), ink=m_ink, iw=0.3)
         if 0 <= x < TILE_U:
             _wrap_draw(one, x)
         x += w + rs.uniform(0, 2)
-    # far quay edge + moored boats + bunting
-    cv.rect(0, base - 1, TILE_U, 4, C('#a89a88'))
-    cv.rect(0, base - 1, TILE_U, 0.8, C('#e8dcc8'))
+    # far quay: a paved promenade in front of the houses (pedestrian lane), its stone edge, moored boats
+    cv.rect(0, base, TILE_U, 10, C('#b8ab98'))
+    cv.rect(0, base, TILE_U, 1.2, shade(C('#b8ab98'), 0.6))
+    for k in range(64):
+        cv.rect(k * 16, base + 1, 0.4, 9, shade(C('#b8ab98'), 0.35), a=0.5)
+    for k in range(12):                        # lamp posts and benches along the promenade
+        def lp(xx):
+            cv.rect(xx, base - 16, 0.7, 24, C('#3a4a4a'))
+            cv.ellipse(xx + 0.35, base - 16.5, 1.4, 1.1, C('#fff0c0'))
+        _wrap_draw(lp, k * 86 + 30)
+    cv.rect(0, base + 10, TILE_U, 4, C('#a89a88'))
+    cv.rect(0, base + 10, TILE_U, 0.8, C('#e8dcc8'))
     for k in range(6):
         def bt(xx, c=rs.choice(['#c83a3a', '#2e6a5a', '#f4f0e8', '#3a5a9a'])):
-            cv.fill_poly([(xx, base + 3), (xx + 20, base + 3), (xx + 17, base + 6), (xx + 3, base + 6)], C(c))
+            cv.fill_poly([(xx, base + 14), (xx + 20, base + 14), (xx + 17, base + 16.5), (xx + 3, base + 16.5)], C(c))
         _wrap_draw(bt, rs.uniform(0, TILE_U))
-    cv.vgrad(0, 40, TILE_U, 116, [C(P['haze'], 0), C(P['haze'], 70)], mode='atop')
+    cv.vgrad(0, 30, TILE_U, 126, [C(P['haze'], 0), C(P['haze'], 70)], mode='atop')
     return cv
 
 
@@ -325,7 +343,7 @@ def mid_sheds(dist, P, seed):
     rs = rng_of('sheds', dist, seed)
     base = 216
     col = C(P['mid'])
-    ink = shade(col, 1.5)
+    ink = shade(col, 0.8)
     x = -20
     while x < TILE_U:
         w = rs.uniform(60, 140)
@@ -333,7 +351,7 @@ def mid_sheds(dist, P, seed):
         def shed(xx, w=w, h=h, s=rs.random()):
             r2 = rng_of('sh', int(xx), s)
             cv.fill_poly([(xx, base), (xx, base - h), (xx + w / 2, base - h - 16), (xx + w, base - h), (xx + w, base)], col,
-                         ink=ink, iw=0.5)
+                         ink=ink, iw=0.4)
             cv.line([(xx, base - h), (xx + w / 2, base - h - 16)], 0.8, C(P['rim']), a=0.6)
             for k in range(int(w / 6)):
                 cv.rect(xx + k * 6, base - h, 0.5, h, shade(col, 0.4), a=0.6)
@@ -347,6 +365,20 @@ def mid_sheds(dist, P, seed):
         cv.rect(0, y, TILE_U, 2.4, mix(col, C('#8a9aaa'), 0.3))
     for k in range(20):
         cv.rect(k * 52 + 10, base - 76, 2, 76, shade(col, 0.3))
+    # works railway on a low ballast embankment (the engine runs trains here: y = 200, parallax 0.5)
+    emb = mix(col, C('#6a6058'), 0.35)
+    cv.fill_poly([(-5, base), (-5, base - 13), (TILE_U + 5, base - 13), (TILE_U + 5, base)], emb)
+    cv.rect(-5, base - 13, TILE_U + 10, 1.0, light(emb, 0.8), a=0.7)
+    for k in range(int(TILE_U / 3) + 1):
+        cv.rect(k * 3, base - 16, 1.6, 2.4, shade(emb, 0.9))
+    cv.rect(-5, base - 16.6, TILE_U + 10, 0.9, C('#8a8e96'))
+    cv.rect(-5, base - 16.6, TILE_U + 10, 0.35, C(P['rim']), a=0.6)
+    for k in range(9):                       # catenary-less signal posts
+        def sig(xx):
+            cv.rect(xx, base - 40, 0.8, 26, shade(col, 0.4))
+            cv.rect(xx - 1.2, base - 41, 3.2, 4, shade(col, 0.6))
+            cv.ellipse(xx + 0.4, base - 39.5, 0.7, 0.7, C('#ff5a3a'))
+        _wrap_draw(sig, k * 118 + 40)
     cv.vgrad(0, base - 50, TILE_U, 50, [C(P['haze'], 0), C(P['haze'], 90)], mode='atop')
     return cv
 
@@ -394,7 +426,7 @@ def mid_night_roofs(dist, P, seed):
     rs = rng_of('nroof', dist, seed)
     base = 224
     col = C(P['mid'])
-    ink = shade(col, 1.5)
+    ink = shade(col, 0.8)
     x = -30
     while x < TILE_U + 30:
         w = rs.uniform(30, 80)
@@ -465,7 +497,7 @@ def mid_containers(dist, P, seed):
             for j in range(n):
                 c = mix(C(r2.choice(P['container_cols'])), C(P['mid']), 0.55)
                 y = base - (j + 1) * 22
-                cv.rect(xx, y, w, 22, c, ink=shade(c, 1.4), iw=0.5)
+                cv.rect(xx, y, w, 22, c, ink=shade(c, 0.8), iw=0.4)
                 for k in range(1, 12):
                     cv.rect(xx + k * 5, y + 1, 0.5, 20, shade(c, 0.5))
                 cv.rect(xx, y, w, 0.8, C(P['rim']), a=0.5)
@@ -499,7 +531,7 @@ DIST.update({
     'ironworks': dict(
         sky=[(0.0, C('#3a4660')), (0.16, C('#56667e')), (0.32, C('#8494a6')), (0.44, C('#c2a68c')),
              (0.52, C('#e49a66')), (1.0, C('#f0a870'))],
-        sun=None, clouds=18, cloud_scale=1.4,
+        sun=None, clouds=18, cloud_scale=1.4, overcast=0.35,
         cloud_top='#5a6478', cloud_low='#8a8a98', cloud_lit='#e8a070',
         far=('#3e4658', '#6a7486'), far_win='#ffb060', haze='#b8987e', rim='#ffb070', far_style='industry',
         smoke='#8a8e9a', mid='#38404e', mid_win='#ffa850', mid_style='sheds',
@@ -515,7 +547,7 @@ DIST.update({
     ),
     'floodgate': dict(
         sky=[(0.0, C('#24323c')), (0.25, C('#384c56')), (0.45, C('#56707a')), (1.0, C('#768e92'))],
-        sun=None, clouds=26, cloud_scale=1.8, birds=2,
+        sun=None, clouds=26, cloud_scale=1.8, birds=2, overcast=1.5,
         cloud_top='#2e3c46', cloud_low='#46585e', cloud_lit='#6a8086',
         far=('#34464e', '#55686e'), far_win='#e8d890', haze='#7a9494', rim='#a8d8e0', far_style='port',
         container_cols=['#a84a3a', '#3a6a8a', '#c89a3a', '#4a7a5a', '#8a8a8a'],
