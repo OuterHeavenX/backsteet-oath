@@ -1,4 +1,4 @@
-# Known Issues & Limitations (1.2.0-rc1)
+# Known Issues & Limitations (1.3.0-rc1)
 
 No known blocker or major bugs remain in the main campaign or on the tested platforms. The automated campaign
 run, feature tests, quest tests and unit tests all pass on the visual-upgrade build.
@@ -11,6 +11,10 @@ run, feature tests, quest tests and unit tests all pass on the visual-upgrade bu
   28–47 FPS for 1.1.0 against 117–140 FPS for rc4 (see docs/visual/UPGRADE_REPORT.md). The new art renders at
   window resolution, so it needs about 4× the pixel fill of rc3. Real GPUs are expected to hold 60 FPS, but nobody
   has measured that, including on a Steam Deck. *Effects: Reduced* is the fallback for slow devices.
+- **Living backgrounds cost (1.3):** measured on a GPU-less VM with software rendering at 1280×720 on Kettle Street:
+  1.2.0-rc1 about 22 FPS; 1.3 with all effects about 12 FPS; with "Colour grade & bloom" off about 17 FPS; with
+  Effects: Reduced about 20 FPS. The full-screen grade and bloom pass is most of the extra cost. It should be
+  cheap on a real GPU, but that is unmeasured, which is why it is off by default on touch browsers.
 - **Not tested on physical devices:** Steam Deck hardware, iPhone/Safari, Android phones and real gamepads. Desktop
   Chromium (software WebGL) and mobile emulation were tested; real devices may behave differently.
 - **Windows build** is exported but was not launched (no Windows machine available).

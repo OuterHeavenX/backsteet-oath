@@ -21,14 +21,14 @@ uniform float contrast = 1.0;
 uniform float vignette = 0.2;
 uniform float grain = 0.012;
 uniform float bloom = 0.35;
-uniform float threshold = 0.68;
+uniform float threshold = 0.8;
 uniform float t = 0.0;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 void fragment() {
 	vec3 c = texture(screen_tex, SCREEN_UV).rgb;
 	// restrained bloom: only the brightest lights (neon, lamps, lit glass) bleed softly
 	vec3 b = textureLod(screen_tex, SCREEN_UV, 2.5).rgb * 0.5 + textureLod(screen_tex, SCREEN_UV, 4.0).rgb * 0.5;
-	c += max(b - threshold, 0.0) * bloom * 2.6;
+	c += min(max(b - threshold, 0.0) * bloom * 1.8, vec3(0.18));
 	c = (c - 0.5) * contrast + 0.5;
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation);

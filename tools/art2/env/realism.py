@@ -27,7 +27,7 @@ from room import FACADE_BOTTOM as FB, INT_WALL_BOTTOM as WB, H, CURB_Y
 SKY_REFLECT = {'old_quarter': '#c88a8a', 'canal_market': '#a8c8d8', 'ironworks': '#8a94a8', 'neon_mile': '#5a3a7a',
                'floodgate': '#7a9098', 'warehouse': '#3a5050', 'underline': '#3a504a'}
 # wet ground reflections: strength of the mirrored smear (0 = dry)
-WET = {'floodgate': 0.34, 'neon_mile': 0.26, 'underline': 0.12, 'warehouse': 0.06}
+WET = {'floodgate': 0.36, 'neon_mile': 0.42, 'underline': 0.12, 'warehouse': 0.06}
 WEEDY = {'old_quarter', 'canal_market', 'ironworks', 'floodgate'}
 NO_SKY = {'iy_foundry', 'rw_storage', 'rw_office', 'rw_floor', 'nm_backalley', 'ul_station', 'ul_tunnel', 'ul_vault'}
 
@@ -113,6 +113,25 @@ def apply_shadows(R):
         cv.px[sy0:sy1, sx0:sx1, :3] *= k[..., None]
 
 
+LIGHT_MODE = {'old_quarter': 'sun', 'canal_market': 'sun', 'ironworks': 'sun', 'floodgate': 'sky',
+              'neon_mile': 'street', 'warehouse': 'overhead', 'underline': 'overhead'}
+ROADS = {'street', 'wet_road', 'neon_asphalt'}
+
+
+def _aniso_noise(W, H, cx, cy, seed):
+    """Value noise with feature size cx x cy texels (stretched along y when cy > cx)."""
+    from PIL import Image
+    hs = max(4, int(H * cx / cy))
+    n = value_noise(W, hs, cx, seed, 2)
+    return np.asarray(Image.fromarray(n, 'F').resize((W, H), Image.BICUBIC), np.float32)
+
+
+def _tint(col):
+    c = np.array(C(col)[:3] if isinstance(col, str) else col[:3], np.float32) / 255.0
+    c = c / max(1e-3, c.max())
+    return c * 0.65 + 0.35
+
+
 def post_room(R):
     cv = R.cv
     D = cv.D
@@ -125,180 +144,303 @@ def post_room(R):
     Bt = int(B * D)
     ys = (np.arange(Ht, dtype=np.float32) + 0.5) / D
     xs = (np.arange(Wt, dtype=np.float32) + 0.5) / D
+    walk0, walk1 = R.walk
+    rs = rng_of('post', R.id)
     check_windows(R)
     apply_shadows(R)
+    ne = 1 - em
+    # painted canal/river water is not a wall: keep it out of the facade gradient, grime and weeds
+    water = np.zeros((Ht, Wt), np.float32)
+    wcols = []
+    for wr in R.water:
+        if wr.get('kind') != 'canal':
+            continue
+        x, y, w, h = wr['rect']
+        water[max(0, int(y * D)):int((y + h) * D), max(0, int(x * D)):int((x + w) * D)] = 1.0
+        wcols.append((x, x + w))
+    dry = 1 - water
+
+    # --- facade light gradient, per column from the roofline to the wall base, matching the light source
+    if not R.interior:
+        opq = alpha > 0.5
+        top_t = np.where(opq[:Bt].any(0), opq[:Bt].argmax(0), Bt).astype(np.float32)
+        top_u = top_t / D
+        span = np.maximum(B - top_u, 30.0)[None, :]
+        t = np.clip((ys[:, None] - top_u[None, :]) / span, 0, 1)
+        mode = LIGHT_MODE.get(R.district, 'sun')
+        if mode == 'sun':
+            f = 1.10 - 0.22 * t
+        elif mode == 'sky':
+            f = 1.08 - 0.17 * t
+        elif mode == 'street':
+            f = 0.82 + 0.32 * t ** 1.5
+        else:
+            f = 1.08 - 0.18 * t
+        wall = (ys < B)[:, None]
+        px[..., :3] *= np.where(wall, 1 + (f - 1) * ne * dry, 1.0)[..., None]
 
     # --- material micro-texture: multiplicative, low contrast, calmer in the walk band
     n2 = value_noise(Wt, Ht, 6.0 * D, seed + 1, 2)
     n3 = value_noise(Wt, Ht, 24.0 * D, seed + 2, 2)
     mod = (n2 - 0.5) * 0.015 + (n3 - 0.5) * 0.05
-    walk0, walk1 = R.walk
     band = ((ys >= walk0 - 2) & (ys <= walk1 + 2)).astype(np.float32)[:, None]
-    k = (1 - 0.68 * band) * (1 - em)
-    px[..., :3] *= (1 + mod * k)[..., None]
+    px[..., :3] *= (1 + mod * (1 - 0.68 * band) * ne)[..., None]
 
-    # --- grime gradient over the bottom 20 u of the walls + contact AO on both sides of the base line
-    g0 = B - 20
-    t = np.clip((ys - g0) / 20.0, 0, 1) * (ys < B)
-    grime = (t ** 1.5)[:, None] * (0.13 + 0.12 * n2) + (np.clip(1 - (B - ys) / 3.0, 0, 1) * (ys < B))[:, None] * 0.12
-    below = (np.clip(1 - (ys - B) / 5.0, 0, 1) * (ys >= B))[:, None] * 0.09
-    px[..., :3] *= (1 - (grime + below) * (1 - em))[..., None]
+    # --- walk band / floor: low-frequency wear only (stains, patched asphalt, tyre tracks), about +-5 %
+    g_rows = slice(Bt, min(Ht, int(CURB_Y * D)) if not R.interior else Ht)
+    gh = (g_rows.stop - g_rows.start)
+    if gh > 0:
+        nL = value_noise(Wt, gh, 34 * D, seed + 11, 2)
+        lf = 1 + (nL - 0.5) * (0.10 if not R.interior else 0.06)
+        styles = {g['style'] for g in R.data.get('ground', [])}
+        if not R.interior:
+            yy = ys[g_rows][:, None]
+            for _ in range(int(R.W / 260) + 1):                    # patched / resurfaced rectangles
+                pw, ph = rs.uniform(30, 90), rs.uniform(8, 22)
+                px0, py0 = rs.uniform(0, R.W - pw), rs.uniform(B + 6, CURB_Y - ph - 2)
+                mk = np.clip(1 - np.maximum(np.abs(xs[None, :] - (px0 + pw / 2)) - pw / 2,
+                                            np.abs(yy - (py0 + ph / 2)) - ph / 2) / 3.0, 0, 1)
+                lf = lf * (1 + mk * rs.choice([-0.045, 0.035]))
+            if styles & ROADS:
+                tn = value_noise(Wt, 1, 60 * D, seed + 12, 2)[0]
+                for _ in range(2):                                  # tyre tracks along the lanes
+                    ty = rs.uniform(262, CURB_Y - 18)
+                    for dy in (0.0, 9.0):
+                        prof = np.exp(-((yy - ty - dy) / 1.8) ** 2)
+                        lf = lf * (1 - 0.05 * prof * np.clip((tn[None, :] - 0.3) * 2, 0, 1))
+        px[g_rows, :, :3] *= (1 + (lf - 1) * ne[g_rows])[..., None]
 
-    # --- inner-corner AO where two buildings meet (vertical soft seams)
+    # --- grime band at street level (splashed, irregular top) + contact AO either side of the base line
+    nx = value_noise(Wt, 1, 9 * D, seed + 3, 2)[0]
+    gtop = B - 24 + (nx - 0.5) * 10
+    tg = np.clip((ys[:, None] - gtop[None, :]) / (B - gtop[None, :]), 0, 1) * (ys < B)[:, None]
+    sn = _aniso_noise(Wt, Ht, 2.0 * D, 9 * D, seed + 4)
+    grime = tg ** 1.3 * (0.16 + 0.14 * sn) + (np.clip(1 - (B - ys) / 3.0, 0, 1) * (ys < B))[:, None] * 0.14
+    below = (np.clip(1 - (ys - B) / 6.0, 0, 1) * (ys >= B))[:, None] * 0.14
+    px[..., :3] *= (1 - (grime + below) * ne * dry)[..., None]
+
+    # --- inner-corner AO where two buildings meet (exterior) / toward the side walls (interior)
     if not R.interior:
         edges = set()
-        for f in R.data.get('facades', []):
-            edges.add(round(f['x'], 1))
-            edges.add(round(f['x'] + f['w'], 1))
+        for f_ in R.data.get('facades', []):
+            edges.add(round(f_['x'], 1))
+            edges.add(round(f_['x'] + f_['w'], 1))
         edges = [e for e in edges if 2 < e < R.W - 2]
         if edges:
             prof = np.zeros(Wt, np.float32)
             for e in edges:
-                prof = np.maximum(prof, np.exp(-np.abs(xs - e) / 3.0))
-            wall = (ys < B)[:, None] * (alpha > 0.5)
-            px[..., :3] *= (1 - 0.2 * prof[None, :] * wall * (1 - em))[..., None]
+                prof = np.maximum(prof, np.exp(-np.abs(xs - e) / 4.0))
+            wallm = (ys < B)[:, None] * (alpha > 0.5)
+            px[..., :3] *= (1 - 0.32 * prof[None, :] * wallm * ne)[..., None]
     else:
-        # interior: soft occlusion toward the side walls and in the wall/ceiling corner
-        side = np.exp(-xs / 26.0) + np.exp(-(R.W - xs) / 26.0)
+        side = np.exp(-xs / 30.0) + np.exp(-(R.W - xs) / 30.0)
         wallm = (ys < B)[:, None].astype(np.float32)
-        px[..., :3] *= (1 - 0.16 * np.clip(side, 0, 1)[None, :] * wallm * (1 - em))[..., None]
+        px[..., :3] *= (1 - 0.24 * np.clip(side, 0, 1)[None, :] * wallm * ne)[..., None]
+        top = np.clip(1 - ys / 40.0, 0, 1)[:, None] ** 1.5
+        px[..., :3] *= (1 - 0.18 * top * ne)[..., None]
 
-    # --- baked light from emissive texels: sidewalk/floor spill + bounce halo on nearby surfaces
+    # --- baked light: spill onto pavement/floor (additive) ...
     E = px[..., :3] * em[..., None]
-    span = 150 if R.interior else 90
-    s0 = max(0, int((B - span) * D))
+    span_ = 150 if R.interior else 90
+    s0 = max(0, int((B - span_) * D))
     src = E[s0:Bt]
     if src.shape[0] > 0:
         wgt = np.linspace(0.35, 1.0, src.shape[0], dtype=np.float32)[:, None, None]
         S = (src * wgt).sum(0) / max(1, src.shape[0])
         S_near = _blur_axis(S, 4 * D, 0)
         S_far = _blur_axis(S, 16 * D, 0)
-        L = 60.0 if R.interior else 46.0
-        g_rows = np.arange(Bt, min(Ht, int((B + L) * D)))
-        if len(g_rows):
-            tt = ((g_rows + 0.5) / D - B) / L
-            f = ((1 - tt) ** 2) * np.clip(((g_rows + 0.5) / D - B) / 1.5, 0, 1)
-            ks = 0.5 if R.interior else 0.66
-            for i, r in enumerate(g_rows):
+        L = 60.0 if R.interior else 50.0
+        rows = np.arange(Bt, min(Ht, int((B + L) * D)))
+        if len(rows):
+            tt = ((rows + 0.5) / D - B) / L
+            fs = ((1 - tt) ** 2) * np.clip(((rows + 0.5) / D - B) / 1.5, 0, 1)
+            ks = 0.6 if R.interior else 0.8
+            for i, r in enumerate(rows):
                 Sy = S_near * (1 - tt[i]) + S_far * tt[i]
-                px[r, :, :3] += ks * f[i] * Sy * alpha[r][:, None] * (1 - em[r])[:, None]
-            # matching lightmap sources so actors standing in the spill are lit by it too
-            step = 32
-            for xu in range(16, R.W, step):
+                px[r, :, :3] += ks * fs[i] * Sy * alpha[r][:, None] * ne[r][:, None]
+            for xu in range(16, R.W, 32):
                 c = S_far[min(Wt - 1, int(xu * D))]
                 lum = float(c.mean())
                 if lum > 0.05:
                     col = np.clip(c / max(1e-3, c.max()), 0, 1)
                     R.light(xu, B + 12, 34, 22, (int(col[0] * 255), int(col[1] * 255), int(col[2] * 255), 255),
-                            min(0.10, lum * 0.35))
-    G = blur(E, 7 * D, passes=2)
-    sh = int(3 * D)
-    G[sh:] = G[:-sh].copy()
-    G[:sh] = 0
-    px[..., :3] += 0.15 * G * (alpha * (1 - em))[..., None]
-
-    # --- faint baked pools consistent with the engine glows (the engine adds the bright part)
+                            min(0.12, lum * 0.4))
+    # ... and multiplicative light pools on every lit surface around windows, signs, glows and lamps
+    G1 = blur(E, 4 * D, passes=2)
+    G2 = blur(E, 15 * D, passes=2)
+    pool = np.minimum(1.1 * G1 + 2.2 * G2, 0.42)
+    hz = Ht
     for g in list(R.glows):
         if g.get('front'):
             continue
-        gx, gy, r = g['x'], g['y'], g['r']
-        col = C(g['color'])
         en = float(g.get('energy', 0.5))
-        if gy < B - 2:
-            cv.radial(gx, gy + r * 0.15, r * 0.85, r * 0.95, col, a=0.06 * en, mode='add', falloff=1.8)
-            if gy > B - 140:
-                cv.radial(gx, B + 9, r * 0.75, max(4.0, r * 0.2), col, a=0.09 * en, mode='add', falloff=1.6)
+        down = g.get('flicker') in ('none', 'fluor', 'flame') and g['y'] < B - 40 and \
+            (R.interior or R.district in ('underline', 'warehouse'))
+        if down:            # ceiling light: a cone of light washing down the wall below it
+            gx, gy, rx_, ry_ = g['x'], g['y'] + g['r'] * 1.4, g['r'] * 1.5, g['r'] * 2.6
+        else:
+            gx, gy, rx_, ry_ = g['x'], g['y'], g['r'] * 1.25, g['r'] * 1.25
+        x0, x1 = max(0, int((gx - rx_) * D)), min(Wt, int((gx + rx_) * D) + 1)
+        y0, y1 = max(0, int((gy - ry_) * D)), min(hz, int((gy + ry_) * D) + 1)
+        if x1 <= x0 or y1 <= y0:
+            continue
+        d = np.sqrt(((xs[None, x0:x1] - gx) / rx_) ** 2 + ((ys[y0:y1, None] - gy) / ry_) ** 2)
+        k = np.clip(1 - d, 0, 1) ** (1.6 if down else 2.0) * (min(0.55, 1.3 * en) if down else min(0.5, 0.8 * en))
+        pool[y0:y1, x0:x1] += k[..., None] * _tint(g['color'])[None, None, :] * 0.8
+    for (hx, hy, gy_, col) in getattr(R, 'lamps', []):
+        for (cx_, cy_, rx_, ry_, a_) in ((hx, hy + 6, 58.0, 62.0, 0.30), (hx, gy_ + 4, 46.0, 15.0, 0.26)):
+            x0, x1 = max(0, int((cx_ - rx_) * D)), min(Wt, int((cx_ + rx_) * D) + 1)
+            y0, y1 = max(0, int((cy_ - ry_) * D)), min(hz, int((cy_ + ry_) * D) + 1)
+            if x1 <= x0 or y1 <= y0:
+                continue
+            d = np.sqrt(((xs[None, x0:x1] - cx_) / rx_) ** 2 + ((ys[y0:y1, None] - cy_) / ry_) ** 2)
+            pool[y0:y1, x0:x1] += (np.clip(1 - d, 0, 1) ** 1.8 * a_)[..., None] * _tint(col)[None, None, :]
+    pool = np.minimum(pool, 0.6)
+    v_ = np.clip(px[..., :3].max(axis=2) / np.maximum(alpha, 1e-3), 0, 1.5)
+    mult = 1 + pool * (alpha * ne * np.clip(1 - 0.9 * np.minimum(v_, 1) ** 1.5, 0, 1))[..., None]
+    lim = np.maximum(1.0, 0.86 / np.maximum(v_, 1e-3))[..., None]       # never push a surface past ~0.86
+    mult = np.minimum(mult, lim)
+    # night / indoor: light is local, so surfaces away from every source fall off (relative light pools)
+    mode = 'interior' if R.interior else LIGHT_MODE.get(R.district, 'sun')
+    dk = {'interior': 0.16, 'overhead': 0.2, 'street': 0.16, 'sky': 0.06}.get(mode, 0.0)
+    if dk > 0:
+        P = np.clip(pool.mean(axis=2) / 0.22, 0, 1)
+        P = blur(P, 3 * D, passes=1)
+        fall = 1 - dk * (1 - P) * (alpha * ne)
+        if not R.interior:
+            fall = np.where((ys < B)[:, None], fall, 1 - (1 - fall) * 0.6)
+        mult = mult * fall[..., None]
+    px[..., :3] *= mult
 
-    # --- wet ground: mirrored vertical smears of signs and lights + specular streaks
+    # --- wet ground: coloured vertical reflection streaks under every light, longer for higher sources
     wet = WET.get(R.district, 0.0) if not R.interior else 0.0
+    if R.district in ('underline', 'warehouse'):
+        wet = 0.0
     wmask = np.zeros((Ht, Wt), np.float32)
     if wet > 0:
         wn = value_noise(Wt, Ht, 30 * D, seed + 5, 2)
-        wmask[Bt:] = (0.55 + 0.45 * np.clip((wn[Bt:] - 0.3) * 2, 0, 1))
+        wmask[Bt:] = 0.6 + 0.4 * np.clip((wn[Bt:] - 0.3) * 2, 0, 1)
     for (x0, y0, m) in R.puddles:
         h, w = m.shape
         sx0, sy0 = max(0, x0), max(0, y0)
         sx1, sy1 = min(Wt, x0 + w), min(Ht, y0 + h)
         if sx1 > sx0 and sy1 > sy0:
             wmask[sy0:sy1, sx0:sx1] = np.maximum(wmask[sy0:sy1, sx0:sx1],
-                                                 1.7 * m[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0])
+                                                 2.0 * m[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0])
     if wmask.max() > 0:
-        lum = px[..., :3].mean(axis=2)
-        bright = np.clip((lum - 0.62) / 0.3, 0, 1) * alpha * 0.55
-        srcw = px[:Bt, :, :3] * np.maximum(em[:Bt], bright[:Bt])[..., None]
-        Hg = min(Ht - Bt, Bt)
-        idx = Bt - 1 - (np.arange(Hg) * 0.9).astype(np.int64)
-        idx = np.clip(idx, 0, Bt - 1)
-        Rf = srcw[idx]
-        Rf = _blur_axis(Rf, 7 * D, 0)
-        Rf = _blur_axis(Rf, 1.2 * D, 1)
-        sn = value_noise(Wt, 1, 1.6 * D, seed + 6, 1)[0]
-        sn2 = value_noise(Wt, 1, 7.0 * D, seed + 7, 1)[0]
-        streak = np.clip(0.15 + 1.1 * (sn - 0.35) + 0.5 * (sn2 - 0.5), 0, 1)
-        d = (np.arange(Hg) + 0.5) / D
-        fall = np.clip(1 - d / 78.0, 0, 1) ** 1.8
-        # ripple breaks: thin horizontal gaps so the smear reads as wet tarmac, not a painted block
-        rip = 0.75 + 0.25 * np.sin(d * 2.1 + np.sin(d * 0.37) * 2.0)
-        fall = fall * rip
-        amt = max(wet, 0.30)
-        reg = px[Bt:Bt + Hg, :, :3]
-        inband = ((Bt + np.arange(Hg) + 0.5) / D >= walk0).astype(np.float32)[:, None]
-        k = (amt * fall[:, None] * streak[None, :] * wmask[Bt:Bt + Hg] * alpha[Bt:Bt + Hg] * (1 - em[Bt:Bt + Hg])
-             * (1 - 0.3 * inband))
-        Rf = np.minimum(Rf, 0.85)
-        reg += Rf * k[..., None]
-        px[Bt:Bt + Hg, :, :3] = reg
+        Hg = Ht - Bt
+        d = (np.arange(Hg, dtype=np.float32) + 0.5) / D
+        acc = np.zeros((Hg, Wt, 3), np.float32)
+        for (ya, yb, Ls, gain) in ((B - 60, B, 100.0, 0.55), (B - 150, B - 60, 150.0, 0.9), (0, B - 150, 200.0, 1.2)):
+            a_, b_ = max(0, int(ya * D)), max(0, int(yb * D))
+            if b_ <= a_:
+                continue
+            colr = E[a_:b_].mean(0) * gain
+            colr = _blur_axis(colr, 2.2 * D, 0)
+            prof = np.exp(-d / (Ls * 0.55)) * np.clip(d / 3.0, 0, 1)
+            acc += prof[:, None, None] * colr[None, :, :]
+        for g in R.glows:
+            if g.get('front') or g['y'] >= B - 2:
+                continue
+            Ls = (B - g['y']) * 0.9 + 40
+            sig = max(3.0, g['r'] * 0.12)
+            gx_ = np.exp(-((xs - g['x']) / sig) ** 2)
+            prof = np.exp(-d / (Ls * 0.55)) * np.clip(d / 3.0, 0, 1)
+            acc += (prof[:, None] * gx_[None, :])[..., None] * (_tint(g['color']) * 0.35 * float(g['energy']))
+        for (hx, hy, gy_, col) in getattr(R, 'lamps', []):
+            gx_ = np.exp(-((xs - hx) / 5.0) ** 2)
+            dd = ys[Bt:] - gy_
+            prof = np.exp(-np.clip(dd, 0, None) / 70.0) * np.clip(dd / 2.0, 0, 1)
+            acc += (prof[:, None] * gx_[None, :])[..., None] * (_tint(col) * 0.9)
+        acc = np.minimum(acc, 0.6)
+        nb = _aniso_noise(Wt, Hg, 3.2 * D, 22 * D, seed + 6)
+        streak = np.clip(0.5 + 0.9 * (nb - 0.45), 0.25, 1)
+        rip = (0.88 + 0.12 * np.sin(d * 1.6 + np.sin(d * 0.41) * 2.0))[:, None]
+        inband = (((Bt + np.arange(Hg) + 0.5) / D) >= walk0).astype(np.float32)[:, None]
+        amt = max(wet, 0.35)
+        k = amt * streak * rip * wmask[Bt:] * alpha[Bt:] * ne[Bt:] * (1 - 0.15 * inband)
+        px[Bt:, :, :3] += acc * k[..., None]
     if wet > 0:
-        rs = rng_of('spec', R.id)
         skyc = C(kit.LIGHT.get('sky', '#8a9aa8'))
         for _ in range(int(R.W / 40)):
             sx, sy = rs.uniform(0, R.W), rs.uniform(B + 8, CURB_Y - 3)
             ln = rs.uniform(6, 26)
-            inband = walk0 <= sy <= walk1
-            cv.rect(sx, sy, ln, 0.5, mix(skyc, C('#ffffff'), 0.5), a=(0.09 if inband else 0.14) * (wet / 0.3),
+            inb = walk0 <= sy <= walk1
+            cv.rect(sx, sy, ln, 0.5, mix(skyc, C('#ffffff'), 0.5), a=(0.09 if inb else 0.14) * (wet / 0.3),
                     mode='add')
 
     # --- sparse weeds in the crack between wall and pavement
     if not R.interior and R.district in WEEDY and R.id not in NO_SKY:
-        rs = rng_of('weeds', R.id)
-        doors = [d['x'] for d in R.data.get('doors', [])]
+        wr = rng_of('weeds', R.id)
+        doors = [d_['x'] for d_ in R.data.get('doors', [])]
         props = [p['x'] for p in R.data.get('props', [])]
-        x = rs.uniform(10, 50)
+        x = wr.uniform(10, 50)
         while x < R.W - 10:
-            if all(abs(x - d) > 16 for d in doors) and all(abs(x - p) > 10 for p in props):
-                yy = B + 0.6
-                if alpha[min(Ht - 1, int(yy * D)), min(Wt - 1, int(x * D))] > 0.9:
-                    roommod.weeds(R, x, yy, rs.randint(2, 4), seed=int(x * 7), col='#566e38')
-            x += rs.uniform(40, 120)
-        x = rs.uniform(30, 90)
+            if all(abs(x - d_) > 16 for d_ in doors) and all(abs(x - p) > 10 for p in props) and \
+                    not any(a0 - 4 <= x <= a1 + 4 for a0, a1 in wcols):
+                yy_ = B + 0.6
+                if alpha[min(Ht - 1, int(yy_ * D)), min(Wt - 1, int(x * D))] > 0.9:
+                    roommod.weeds(R, x, yy_, wr.randint(2, 4), seed=int(x * 7), col='#566e38')
+            x += wr.uniform(40, 120)
+        x = wr.uniform(30, 90)
         while x < R.W - 10:
-            roommod.weeds(R, x, CURB_Y + 0.4, rs.randint(1, 3), seed=int(x * 11 + 3), col='#4e6634')
-            x += rs.uniform(90, 220)
+            if not any(a0 - 4 <= x <= a1 + 4 for a0, a1 in wcols):
+                roommod.weeds(R, x, CURB_Y + 0.4, wr.randint(1, 3), seed=int(x * 11 + 3), col='#4e6634')
+            x += wr.uniform(90, 220)
+
+    # --- large glass stays at or below ~0.8 value (the engine blooms > 0.7); small sources keep their punch
+    v = px[..., :3].max(axis=2)
+    brt = em * np.clip((px[..., :3].min(axis=2) - 0.55) / 0.2, 0, 1)      # near-white glass, not coloured light
+    A = blur(brt, 4 * D, passes=2)
+    cap = 0.8 + 0.2 * np.clip((0.65 - A) / 0.4, 0, 1)
+    knee = cap - 0.08
+    v2 = np.where(v > knee, knee + (v - knee) * (cap - knee) / np.maximum(1.0 - knee, 1e-3), v)
+    sc = np.where(v > 1e-4, v2 / np.maximum(v, 1e-4), 1.0)
+    sc = 1 + (sc - 1) * np.clip(em * 1.5, 0, 1)
+    px[..., :3] *= sc[..., None]
 
 
 # ----------------------------------------------------------------------------- district layers
-def atmos(img, haze, amount, desat, soften=0.0, lift_ink=0.0):
-    """Atmospheric perspective for a parallax layer (straight-alpha PIL image -> new image): blend toward the
-    haze colour, desaturate, optionally soften and lift dark outlines toward the local colour."""
+def _gauss1d(a, sigma, axis, wrap):
+    r = int(math.ceil(sigma * 3))
+    k = np.exp(-0.5 * (np.arange(-r, r + 1) / sigma) ** 2).astype(np.float32)
+    k /= k.sum()
+    pad = [(0, 0)] * a.ndim
+    pad[axis] = (r, r)
+    p = np.pad(a, pad, mode='wrap' if wrap else 'edge')
+    out = np.zeros_like(a)
+    n = a.shape[axis]
+    for i, kv in enumerate(k):
+        out += kv * np.take(p, np.arange(i, i + n), axis=axis)
+    return out
+
+
+def atmos(img, haze, amount, desat, sigma=0.0, lift_ink=0.0, soften=0.0):
+    """Atmospheric perspective for a repeating parallax layer (straight-alpha PIL image -> new image): lift dark
+    outlines toward the local colour, defocus with a Gaussian of `sigma` tx (wrapping horizontally so the tile
+    stays seamless), desaturate and blend toward the haze colour."""
     from PIL import Image
     a = np.asarray(img.convert('RGBA'), np.float32) / 255.0
     rgb = a[..., :3]
     al = a[..., 3:4]
-    if soften > 0 or lift_ink > 0:
+    if lift_ink > 0:
         pm = rgb * al
         bp = blur(pm, 1.0, passes=1)
         ba = blur(al[..., 0], 1.0, passes=1)[..., None]
         loc = np.where(ba > 1e-3, bp / np.maximum(ba, 1e-3), rgb)
-        if lift_ink > 0:
-            lum = rgb.mean(axis=2, keepdims=True)
-            llum = loc.mean(axis=2, keepdims=True)
-            ink = np.clip((llum - lum - 0.04) * 6, 0, 1)
-            rgb = rgb + (loc - rgb) * ink * lift_ink
-        if soften > 0:
-            rgb = rgb * (1 - soften) + loc * soften
+        lum = rgb.mean(axis=2, keepdims=True)
+        llum = loc.mean(axis=2, keepdims=True)
+        ink = np.clip((llum - lum - 0.04) * 6, 0, 1)
+        rgb = rgb + (loc - rgb) * ink * lift_ink
+    if sigma > 0.05:
+        pm = np.concatenate([rgb * al, al], axis=2)
+        pm = _gauss1d(pm, sigma, 1, True)
+        pm = _gauss1d(pm, sigma, 0, False)
+        al = pm[..., 3:4]
+        rgb = np.where(al > 1e-4, pm[..., :3] / np.maximum(al, 1e-4), 0)
     hz = np.array(C(haze)[:3], np.float32) / 255.0
     lum = (rgb * np.array([0.3, 0.59, 0.11], np.float32)).sum(axis=2, keepdims=True)
     rgb = rgb + (lum - rgb) * desat
     rgb = rgb * (1 - amount) + hz * amount
-    out = np.concatenate([np.clip(rgb, 0, 1), al], axis=2)
+    out = np.concatenate([np.clip(rgb, 0, 1), np.clip(al, 0, 1)], axis=2)
     return Image.fromarray((out * 255 + 0.5).astype(np.uint8), 'RGBA')

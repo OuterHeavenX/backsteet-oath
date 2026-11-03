@@ -86,7 +86,7 @@ DCONF = {
                                  ground_far=(0.9, 0.9, 0.96), ground_near=(0.8, 0.82, 0.92)),
                       ambient=('#d8e0f0', 0.84), rim={"color": "#ff9a50", "dir": [-1.0, 0.2], "strength": 0.5},
                       cast={"dir": [-0.5, 0.2], "alpha": 0.12}),
-    'neon_mile': dict(grade=dict(top=(0.6, 0.58, 0.82), mid=(0.56, 0.54, 0.78), base=(0.5, 0.48, 0.72),
+    'neon_mile': dict(grade=dict(top=(0.58, 0.56, 0.8), mid=(0.58, 0.56, 0.8), base=(0.6, 0.58, 0.82),
                                  ground_far=(0.74, 0.7, 0.86), ground_near=(0.64, 0.6, 0.8)),
                       ambient=('#b8a8e8', 0.76), rim={"color": "#ff5ab0", "dir": [0.6, 0.6], "strength": 0.55},
                       cast={"dir": [0.0, 0.3], "alpha": 0.06}),
@@ -560,6 +560,11 @@ def build_room(rid, rooms, enc, props_meta):
         s = data['exits']['south']
         exterior_south(R, s['x0'], s['x1'])
     life.room_extras(R)
+    R.lamps = []
+    for p in data.get('props', []):
+        if p['type'] in LIGHT_PROPS and not R.interior:
+            dx_, hy_, r_, col_, en_, fl_, pool_ = LIGHT_PROPS[p['type']]
+            R.lamps.append((p['x'] + dx_, p['y'] - hy_, p['y'], col_))
     realism.post_room(R)
     if R.interior:
         ic = ICONF.get(rid, ((1.0, 0.97, 0.92), (0.86, 0.82, 0.86)))
@@ -590,8 +595,8 @@ def write_room(R, img, out_root):
     haze_c = life.HAZE.get(R.district, life.HAZE['old_quarter'])['color']
     for name, fn, par, y in ROOM_MID.get(R.id, []) + life.ROOM_LAYERS.get(R.id, []):
         cv = fn()
-        im = realism.atmos(cv.to_image(), haze_c, amount=round(0.2 * (1 - par), 3), desat=round(0.15 * (1 - par), 3),
-                           soften=0.12 if par < 0.7 else 0.0, lift_ink=0.3)
+        im = realism.atmos(cv.to_image(), haze_c, amount=round(0.28 * (1 - par), 3), desat=round(0.2 * (1 - par), 3),
+                           sigma=round(max(0.0, 1.5 * (1 - par) - 0.1), 2), lift_ink=0.3)
         files = roommod.save_tiles(im, d, name)
         layers.append({"name": f'room_{name}', "files": files, "parallax": par, "y": y, "repeat": True})
     layers.append({"name": "base", "files": base_files, "parallax": 1.0, "y": 0, "repeat": False})
@@ -655,10 +660,10 @@ def write_district(dist, out_root):
         cv = fn(dist)
         im = cv.to_image(opaque=(name == 'sky'))
         hz = district.DIST[dist]['haze']
-        if name == 'far':          # atmospheric perspective: lighter, desaturated toward the haze, softer edges
-            im = realism.atmos(im, hz, amount=0.16, desat=0.2, soften=0.35, lift_ink=0.6)
+        if name == 'far':          # atmospheric perspective: hazier, desaturated, defocused (~1.2 tx Gaussian)
+            im = realism.atmos(im, hz, amount=0.27, desat=0.26, sigma=1.2, lift_ink=0.6)
         elif name == 'mid':
-            im = realism.atmos(im, hz, amount=0.07, desat=0.09, soften=0.12, lift_ink=0.45)
+            im = realism.atmos(im, hz, amount=0.13, desat=0.12, sigma=0.6, lift_ink=0.45)
         im.save(os.path.join(d, f'{dist}_{name}.png'), optimize=True)
         print(f'  district {dist}_{name}: {im.size}')
 
@@ -847,8 +852,18 @@ def write_ledger(built):
         '- Wet ground (Floodgate, Neon Mile, puddles everywhere): mirrored vertical colour smears of signs and lit',
         '  glass, broken by streaks and ripple gaps, plus a few specular streaks.',
         '- District layers: skies are banded gradients without painted clouds or birds (those are engine sprites now;',
-        '  the rain/smog districts keep a low-contrast overcast deck); far/mid layers are blended toward the haze',
-        '  colour, desaturated, softened and drawn with thinner, lighter outlines.',
+        '  the rain/smog districts keep a low-contrast overcast deck); far/mid layers are pre-blurred (Gaussian',
+        '  1.2 / 0.6 tx, wrapping so tiles stay seamless), blended toward the haze colour, desaturated and drawn',
+        '  with thinner, lighter outlines (room.json haze is kept low because of this).',
+        '- Second pass (v2.1b): every facade carries a light gradient from roofline to wall base that follows the',
+        '  light source (sun/sky-lit from above by day, street-lit from below on Neon Mile, overhead in the',
+        '  Underline/warehouse); multiplicative light pools around lit windows, signs, engine glows, lamp posts and',
+        '  ceiling lights (down-cones), with surfaces away from any light falling off at night/indoors; 25-35 % AO',
+        '  under cornices, sills, awnings and in inner corners, darker door/window reveals and mortar; a splashed',
+        '  grime band at street level; torn, faded posters; varied window dressing (half-drawn curtains, blinds,',
+        '  nets, plants, TV glow); large near-white glass compressed to <= ~0.8 value for the engine bloom; wet',
+        '  roads get coloured vertical streaks under every light (longer for higher sources); irregular puddles',
+        '  that only pick up nearby light; low-frequency walk-band wear (stains, patches, tyre tracks, ~+-5 %).',
         '',
         '## Life data and sprites (v2.1, `life.py`)',
         '- `game/assets/bg2/_life/`: `cloud_a..e` (near-white, tinted by the engine), `car_a` sedan, `car_b` bakery',

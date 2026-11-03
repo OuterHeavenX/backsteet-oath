@@ -185,12 +185,13 @@ def puddle(R, x, y, rx, ry, sky='#c8889a', a=0.38, reflect=True):
         f = np.maximum(f, 1 - np.sqrt(((XX - lx) / lrx) ** 2 + ((YY - ly) / lry) ** 2))
     n = value_noise(ww, hh, 2.5 * cv.D, int(x * 7 + y), 2)
     m2 = np.clip((f - 0.12 - (n - 0.5) * 0.45) * 5.0, 0, 1) * m
-    cv.paint((x0, y0, m2), C('#141018'), a=0.5, mode='atop')
-    cv.paint((x0, y0, m2), mix(C(sky), C('#2a2430'), 0.5), a=min(a, 0.16), mode='atop')
+    cv.paint((x0, y0, m2), C('#141018'), a=0.36, mode='atop')
+    import kit as _kit
+    cv.paint((x0, y0, m2), mix(C(_kit.LIGHT.get('sky', sky)), C('#2a2430'), 0.4), a=0.16, mode='atop')
     # thin lit rim on the far (upper) edge
     up = np.zeros_like(m2)
     up[2:] = m2[:-2]
-    cv.paint((x0, y0, np.clip(m2 - up, 0, 1)), C('#ffe8d0'), a=0.22, mode='atop')
+    cv.paint((x0, y0, np.clip(m2 - up, 0, 1)), C('#ffe8d0'), a=0.3, mode='atop')
     if hasattr(R, 'puddles'):
         R.puddles.append((x0, y0, m2))
         if rx >= 16:

@@ -717,13 +717,13 @@ EXTRAS = {'oq_kettle': ex_oq_kettle, 'oq_brickrow': ex_oq_brickrow, 'cm_gate': e
 
 # ============================================================================ presets
 HAZE = {
-    'old_quarter': {"color": "#f4a87a", "far": 0.14, "mid": 0.06},
-    'canal_market': {"color": "#f0e0b0", "far": 0.12, "mid": 0.05},
-    'ironworks': {"color": "#b8987e", "far": 0.15, "mid": 0.07},
-    'neon_mile': {"color": "#6a2a6a", "far": 0.12, "mid": 0.06},
-    'floodgate': {"color": "#7a9494", "far": 0.18, "mid": 0.08},
-    'warehouse': {"color": "#3e5450", "far": 0.12, "mid": 0.06},
-    'underline': {"color": "#3a504a", "far": 0.12, "mid": 0.06},
+    'old_quarter': {"color": "#f4a87a", "far": 0.06, "mid": 0.03},
+    'canal_market': {"color": "#f0e0b0", "far": 0.06, "mid": 0.03},
+    'ironworks': {"color": "#b8987e", "far": 0.06, "mid": 0.03},
+    'neon_mile': {"color": "#6a2a6a", "far": 0.06, "mid": 0.03},
+    'floodgate': {"color": "#7a9494", "far": 0.06, "mid": 0.03},
+    'warehouse': {"color": "#3e5450", "far": 0.06, "mid": 0.03},
+    'underline': {"color": "#3a504a", "far": 0.06, "mid": 0.03},
 }
 GRADE = {
     'old_quarter': {"lift": "#120a14", "gain": "#fff0dc", "saturation": 1.04, "contrast": 1.05, "vignette": 0.2},

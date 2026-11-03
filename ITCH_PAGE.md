@@ -21,7 +21,7 @@
 | Content note | Cartoon fistfights and improvised-weapon violence (no blood, no guns). Mild peril, arson mentioned in the story. |
 
 ### Embed options (HTML upload)
-- Upload `backstreet-oath-v1.2.0-rc1-web.zip` and tick **"This file will be played in the browser"**.
+- Upload `backstreet-oath-v1.3.0-rc1-web.zip` and tick **"This file will be played in the browser"**.
 - Viewport: **1280 × 720**. Tick **Mobile friendly** (orientation: **Landscape**), **Fullscreen button**.
   Leave **"Automatically start on page load"** off; the game waits for a click or key press to start audio anyway.
 - **SharedArrayBuffer support: leave OFF.** The build is single-threaded and needs no special headers.
@@ -84,9 +84,9 @@ This build was produced in an environment whose network policy **blocks itch.io 
 2. Install butler (https://itch.io/docs/butler/) and log in once: `butler login`.
 3. Push the three channels from the `release/` folder:
    ```bash
-   butler push backstreet-oath-v1.2.0-rc1-web.zip            <your-account>/backstreet-oath:html5 --userversion 1.2.0-rc1
-   butler push backstreet-oath-v1.2.0-rc1-linux-x86_64.zip   <your-account>/backstreet-oath:linux --userversion 1.2.0-rc1
-   butler push backstreet-oath-v1.2.0-rc1-windows-x86_64.zip <your-account>/backstreet-oath:windows --userversion 1.2.0-rc1
+   butler push backstreet-oath-v1.3.0-rc1-web.zip            <your-account>/backstreet-oath:html5 --userversion 1.3.0-rc1
+   butler push backstreet-oath-v1.3.0-rc1-linux-x86_64.zip   <your-account>/backstreet-oath:linux --userversion 1.3.0-rc1
+   butler push backstreet-oath-v1.3.0-rc1-windows-x86_64.zip <your-account>/backstreet-oath:windows --userversion 1.3.0-rc1
    butler status <your-account>/backstreet-oath
    ```
 4. On the page's Edit screen: mark the `html5` upload "played in the browser", set the viewport to 1280×720, and

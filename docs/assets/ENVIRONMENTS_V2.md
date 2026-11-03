@@ -38,8 +38,18 @@ into the images; see THIRD_PARTY_NOTICES.md.
 - Wet ground (Floodgate, Neon Mile, puddles everywhere): mirrored vertical colour smears of signs and lit
   glass, broken by streaks and ripple gaps, plus a few specular streaks.
 - District layers: skies are banded gradients without painted clouds or birds (those are engine sprites now;
-  the rain/smog districts keep a low-contrast overcast deck); far/mid layers are blended toward the haze
-  colour, desaturated, softened and drawn with thinner, lighter outlines.
+  the rain/smog districts keep a low-contrast overcast deck); far/mid layers are pre-blurred (Gaussian
+  1.2 / 0.6 tx, wrapping so tiles stay seamless), blended toward the haze colour, desaturated and drawn
+  with thinner, lighter outlines (room.json haze is kept low because of this).
+- Second pass (v2.1b): every facade carries a light gradient from roofline to wall base that follows the
+  light source (sun/sky-lit from above by day, street-lit from below on Neon Mile, overhead in the
+  Underline/warehouse); multiplicative light pools around lit windows, signs, engine glows, lamp posts and
+  ceiling lights (down-cones), with surfaces away from any light falling off at night/indoors; 25-35 % AO
+  under cornices, sills, awnings and in inner corners, darker door/window reveals and mortar; a splashed
+  grime band at street level; torn, faded posters; varied window dressing (half-drawn curtains, blinds,
+  nets, plants, TV glow); large near-white glass compressed to <= ~0.8 value for the engine bloom; wet
+  roads get coloured vertical streaks under every light (longer for higher sources); irregular puddles
+  that only pick up nearby light; low-frequency walk-band wear (stains, patches, tyre tracks, ~+-5 %).
 
 ## Life data and sprites (v2.1, `life.py`)
 - `game/assets/bg2/_life/`: `cloud_a..e` (near-white, tinted by the engine), `car_a` sedan, `car_b` bakery

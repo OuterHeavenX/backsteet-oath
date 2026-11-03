@@ -111,6 +111,12 @@ def f_pump_station(R, x0, w, f):
         cv.ellipse(px + 60, FB - 38, 8, 20, C('#5a6a70'), ink=C('#0e1418'), iw=MAJOR)
         cv.ellipse(px + 60, FB - 38, 5, 14, C('#141c20'))
         cv.hgrad(px, FB - 58, 60, 40, [C('#ffffff', 60), C('#ffffff', 0)], mode='atop')
+        kit.brushed_metal(cv, px, FB - 58, 60, 40, C('#4a5a60'), 3210 + k, a=0.14, vertical=False)
+        kit.rust_bloom(cv, px, FB - 58, 60, 40, 3220 + k, a=0.4, edge=4.0,
+                       rivets=[(px + 6 + j * 12, FB - 55) for j in range(5)])
+        kit.proud_shadow(cv, px, FB - 58, 60, 40, 8.0, a=0.38)
+        kit.stain_streaks(cv, px + 52, FB - 18, 14, 3230 + k, length=(6, 16), n=3, a=0.35, col='#5a3a24',
+                          light_frac=0.0)
     cv.ellipse(x0 + w / 2, FB - 40, 12, 12, None, ink=C('#c83a2a'), iw=2.0)
     for a in np.linspace(0, math.pi, 4):
         cv.line([(x0 + w / 2 - math.cos(a) * 12, FB - 40 - math.sin(a) * 12),
