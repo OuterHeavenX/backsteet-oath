@@ -16,6 +16,8 @@ var results: Array = []
 
 func _ready() -> void:
 	Audio.unlocked = true
+	if OS.get_environment("PERF_EFFECTS") != "":
+		Settings.effects = OS.get_environment("PERF_EFFECTS")
 	await get_tree().process_frame   # the root is still adding children during _ready
 	var only := OS.get_environment("PERF_ONLY")
 	for sc in SCENARIOS:

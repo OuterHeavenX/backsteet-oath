@@ -132,7 +132,7 @@ func build(v: RoomVisuals, m: Dictionary, bg_root: Node2D, fg_root: Node2D) -> v
 			"pigeons": _make_pigeons(e)
 			"pedestrians", "traffic", "train", "birds":
 				if full: _make_lane(e, bg_root)
-	if meta.has("grade") and full:
+	if meta.has("grade") and full and Settings.post_fx:
 		_make_grade(meta.grade)
 
 # ------------------------------------------------------------------ atmosphere

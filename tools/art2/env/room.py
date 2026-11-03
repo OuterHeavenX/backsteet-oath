@@ -166,16 +166,31 @@ def storm_drain(R, x, y=SIDEWALK_FRONT + 3):
 
 
 def puddle(R, x, y, rx, ry, sky='#c8889a', a=0.38, reflect=True):
+    """Irregular rain puddle: a dark wet blob (overlapping lobes eroded by noise), only a faint sky tint and a thin
+    lit rim. Lights are reflected into it later by realism.post_room (coloured streaks under nearby sources)."""
     cv = R.cv
-    mk = cv.ellipse_mask(x, y, rx, ry)
-    x0, y0, m = mk
-    # irregular edge
-    n = value_noise(m.shape[1], m.shape[0], 3 * cv.D, int(x * 7 + y), 1)
-    m2 = np.clip((m - 0.25 - (n - 0.5) * 0.5) * 2.2, 0, 1)
-    cv.paint((x0, y0, m2), C('#2a2232'), a=0.45, mode='atop')
-    cv.paint((x0, y0, m2), C(sky), a=a, mode='atop')
-    # bright edge glint (top edge)
-    cv.ellipse(x - rx * 0.2, y - ry * 0.55, rx * 0.5, ry * 0.18, C('#ffe0c0'), a=0.25, mode='atop')
+    rs = rng_of('puddle', R.id, round(x), round(y))
+    lobes = [(x, y, rx, ry)]
+    for _ in range(rs.randint(2, 4)):
+        lobes.append((x + rs.uniform(-0.6, 0.6) * rx, y + rs.uniform(-0.35, 0.35) * ry, rx * rs.uniform(0.35, 0.7),
+                      ry * rs.uniform(0.5, 0.9)))
+    X0, X1 = min(l[0] - l[2] for l in lobes) - 1, max(l[0] + l[2] for l in lobes) + 1
+    Y0, Y1 = min(l[1] - l[3] for l in lobes) - 1, max(l[1] + l[3] for l in lobes) + 1
+    x0, y0, m = cv.rect_mask(X0, Y0, X1 - X0, Y1 - Y0)
+    hh, ww = m.shape
+    XX = (np.arange(ww, dtype=np.float32) + x0 + cv.ox + 0.5)[None, :] / cv.D
+    YY = (np.arange(hh, dtype=np.float32) + y0 + cv.oy + 0.5)[:, None] / cv.D
+    f = np.zeros((hh, ww), np.float32)
+    for (lx, ly, lrx, lry) in lobes:
+        f = np.maximum(f, 1 - np.sqrt(((XX - lx) / lrx) ** 2 + ((YY - ly) / lry) ** 2))
+    n = value_noise(ww, hh, 2.5 * cv.D, int(x * 7 + y), 2)
+    m2 = np.clip((f - 0.12 - (n - 0.5) * 0.45) * 5.0, 0, 1) * m
+    cv.paint((x0, y0, m2), C('#141018'), a=0.5, mode='atop')
+    cv.paint((x0, y0, m2), mix(C(sky), C('#2a2430'), 0.5), a=min(a, 0.16), mode='atop')
+    # thin lit rim on the far (upper) edge
+    up = np.zeros_like(m2)
+    up[2:] = m2[:-2]
+    cv.paint((x0, y0, np.clip(m2 - up, 0, 1)), C('#ffe8d0'), a=0.22, mode='atop')
     if hasattr(R, 'puddles'):
         R.puddles.append((x0, y0, m2))
         if rx >= 16:
