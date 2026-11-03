@@ -54,6 +54,8 @@ def clapboard(cv, x, y, w, h, color, seed):
         cv.rect(x, yy, w, 0.8, m.l, a=0.8, mode='atop')
         cv.rect(x, yy + 3.2, w, 0.8, m.s, mode='atop')
         yy += 4
+    kit.wood_grain(cv, x, y, w, h, m.b, seed, a=0.10)
+    kit.peel_paint(cv, x, y, w, h, m.b, seed)
     kit.weather(cv, x, y, w, h, seed, soot=0.25, streak=True)
     return mk
 
@@ -70,13 +72,17 @@ def lantern(R, x, y, col='#e83a3a', r=3.0, glow=True):
 
 
 def bunting(R, x0, y0, x1, y1, sag=6.0, cols=None, seed=0):
+    """Bunting: the cord stays in the base, every pennant is a sway sprite (shared template per colour)."""
+    import life
     cv = R.cv
     pts = cable(cv, x0, y0, x1, y1, sag, 0.4, '#3a2e34')
     cols = cols or ['#e84a3a', '#f8d040', '#3aa0d8', '#5ac06a', '#f4f0e8']
+    rs = rng_of('bunt', seed, x0)
     for i in range(2, len(pts) - 1, 2):
         x, y = pts[i]
-        c = C(cols[(i // 2 + seed) % len(cols)])
-        cv.fill_poly([(x - 1.6, y), (x + 1.6, y), (x, y + 4)], c, ink=shade(c, 1.8), iw=0.3)
+        c = cols[(i // 2 + seed) % len(cols)]
+        life.add_sway(R, f'sway_pennant_{c[1:]}', life.pennant_draw(c), 4.4, 5.6, 2.2, 0.6, x, y - 0.6,
+                      amp=round(rs.uniform(4.0, 7.0), 1), speed=round(rs.uniform(1.3, 2.0), 2))
 
 
 def storefront(R, x, y, w, h, kind, seed, frame='#3a3440', lit=True, pal=None):
@@ -90,6 +96,9 @@ def storefront(R, x, y, w, h, kind, seed, frame='#3a3440', lit=True, pal=None):
         cv.vgrad(x, y, w, h, pal, em=1.0)
     else:
         cv.vgrad(x, y, w, h, [C('#3e3a5c'), C('#2a2840')])
+    if w >= 10 and h >= 10:
+        kit.log(cv, {'type': 'window', 'rect': [round(x + 2, 1), round(y + 2, 1), round(w - 4, 1), round(h - 4, 1)],
+                     'lit': bool(lit), 'kind': 'shop'})
     by = y + h
     if kind == 'noodle':
         for k in range(int(w / 16)):
@@ -148,6 +157,17 @@ def storefront(R, x, y, w, h, kind, seed, frame='#3a3440', lit=True, pal=None):
     cv.fill_poly([(x + w * 0.12, y), (x + w * 0.24, y), (x + w * 0.04, y + h), (x - w * 0.08, y + h)], C('#ffffff'),
                  a=0.12, mode='atop')
     cv.rect(x, y, w, 0.8, C('#ffffff'), a=0.6)
+    glass_finish(cv, x, y, w, h, lit)
+
+
+def glass_finish(cv, x, y, w, h, lit=True):
+    """Shop glass: inner frame bevel (shadow under the head, light on the sill) and a faint diagonal sheen."""
+    e = 1.0 if lit else None
+    cv.rect(x, y, w, 1.4, C('#1a1428'), a=0.35, em=e)
+    cv.rect(x, y, 0.8, h, C('#1a1428'), a=0.22, em=e)
+    cv.rect(x, y + h - 0.6, w, 0.6, C('#ffffff'), a=0.22, em=e)
+    kit.sheen(cv, x, y, w, h, [[(x + w * 0.42 + h * 0.3, y), (x + w * 0.46 + h * 0.3, y), (x + w * 0.46 - h * 0.1, y + h),
+                                (x + w * 0.42 - h * 0.1, y + h)]], C('#ffffff'), 0.09, em=e)
 
 
 def shop_door(R, cx, w=24.0, h=58.0, color='#5a3a2a', lit=True, frame='#3a3440'):
@@ -190,6 +210,7 @@ def shop_building(R, x0, w, f, wallkind='brick', wallcol='#9a5442', trim='#d8ccb
         cv.rect(x0 + 8, sy, w - 16, 17, sm.b, ink=sm.i, iw=MAJOR)
         cv.rect(x0 + 8, sy, w - 16, 1, sm.h, mode='atop')
         painted_text(cv, f.get('sign', ''), x0 + w / 2, sy + 9, 10, C(sign_fg), tracking=0.5)
+    kit.proud_shadow(cv, x0 + 8, sy, w - 16, 18, 3.5, a=0.3)
     # storefront glass either side of the door
     gy0 = sy + 22
     gy1 = FB - 5
@@ -258,6 +279,7 @@ def smokestack(R, x, top, bottom, w=14.0, col='#7a4a3a', smoke=True, band='#e8e0
     if band:
         for yy in (top + 10, top + 16):
             cv.rect(x - w * 0.45, yy, w * 0.9, 2, C(band), mode='atop', a=0.7)
+    kit.soot_above(cv, x - w * 0.42, top + 8, w * 0.84, h=8, a=0.45, seed=int(x))
     if smoke:
         R.ambient.append({"type": "smoke", "x": float(x), "y": float(top - 2), "rate": 0.8})
 

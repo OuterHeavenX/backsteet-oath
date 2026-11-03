@@ -138,6 +138,24 @@
    "front": false
   },
   {
+   "x": 323.0,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
+   "x": 797.5,
+   "y": 10,
+   "r": 30,
+   "color": "#d8f0ea",
+   "energy": 0.25,
+   "flicker": "none",
+   "front": false
+  },
+  {
    "x": 1050,
    "y": 148,
    "r": 44,
@@ -257,5 +275,87 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "haze": {
+  "color": "#3a504a",
+  "far": 0.12,
+  "mid": 0.06
+ },
+ "grade": {
+  "lift": "#06110c",
+  "gain": "#e4fff0",
+  "saturation": 0.92,
+  "contrast": 1.05,
+  "vignette": 0.28
+ },
+ "life": [
+  {
+   "type": "water",
+   "rect": [
+    993.5,
+    305.7,
+    40.7,
+    4.7
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    757.2,
+    300.7,
+    34.6,
+    5.6
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    708.0,
+    239.7,
+    39.2,
+    4.8
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    774.9,
+    322.2,
+    39.1,
+    4.3
+   ],
+   "speed": 5,
+   "tint": "#a8d8c8",
+   "alpha": 0.24
+  },
+  {
+   "type": "shaft",
+   "x": 323.0,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": 6.6,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  },
+  {
+   "type": "shaft",
+   "x": 797.5,
+   "y": 12.0,
+   "w": 44.2,
+   "h": 200.0,
+   "angle": -2.1,
+   "color": "#cfe8e0",
+   "energy": 0.12
+  }
+ ]
 }

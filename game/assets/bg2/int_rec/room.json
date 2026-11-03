@@ -109,5 +109,82 @@
    ],
    "alpha": 0.1
   }
+ ],
+ "haze": {
+  "color": "#f4a87a",
+  "far": 0.14,
+  "mid": 0.06
+ },
+ "grade": {
+  "lift": "#120a14",
+  "gain": "#fff0dc",
+  "saturation": 1.04,
+  "contrast": 1.04,
+  "vignette": 0.2
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    41,
+    55,
+    58,
+    32
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    271,
+    55,
+    58,
+    32
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    501,
+    55,
+    58,
+    32
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "shaft",
+   "x": 70.0,
+   "y": 55,
+   "w": 72.5,
+   "h": 263,
+   "angle": -8.0,
+   "color": "#ffd9a0",
+   "energy": 0.14
+  },
+  {
+   "type": "shaft",
+   "x": 300.0,
+   "y": 55,
+   "w": 72.5,
+   "h": 263,
+   "angle": -8.0,
+   "color": "#ffd9a0",
+   "energy": 0.14
+  },
+  {
+   "type": "shaft",
+   "x": 530.0,
+   "y": 55,
+   "w": 72.5,
+   "h": 263,
+   "angle": 8.0,
+   "color": "#ffd9a0",
+   "energy": 0.14
+  }
  ]
 }

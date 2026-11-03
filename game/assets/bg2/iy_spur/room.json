@@ -222,5 +222,191 @@
    0.2
   ],
   "alpha": 0.12
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 5,
+  "y": [
+   6,
+   58
+  ],
+  "speed": [
+   3,
+   7
+  ],
+  "parallax": 0.08,
+  "tint": "#c8b4ac",
+  "alpha": 0.8
+ },
+ "haze": {
+  "color": "#b8987e",
+  "far": 0.15,
+  "mid": 0.07
+ },
+ "grade": {
+  "lift": "#0a0e1a",
+  "gain": "#ffe9d2",
+  "saturation": 0.98,
+  "contrast": 1.06,
+  "vignette": 0.22
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    30,
+    124,
+    26,
+    30
+   ],
+   "kind": "office",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    340,
+    124,
+    26,
+    30
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    420,
+    144,
+    60,
+    34
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    620,
+    144,
+    60,
+    34
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1325.0,
+    81.0,
+    24,
+    79.0
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1375.3,
+    81.0,
+    24,
+    79.0
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1425.6,
+    81.0,
+    24,
+    79.0
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1475.9,
+    81.0,
+    24,
+    79.0
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1526.1,
+    81.0,
+    24,
+    79.0
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1576.4,
+    81.0,
+    24,
+    79.0
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1626.7,
+    81.0,
+    24,
+    79.0
+   ],
+   "kind": "office",
+   "lit": true
+  },
+  {
+   "type": "train",
+   "y": 200.0,
+   "parallax": 0.5,
+   "file": "../_life/train_el.png",
+   "interval": [
+    28,
+    50
+   ]
+  },
+  {
+   "type": "pigeons",
+   "x": 191.0,
+   "y": 230.5,
+   "count": 4
+  },
+  {
+   "type": "pigeons",
+   "x": 1745.0,
+   "y": 229.7,
+   "count": 4
+  },
+  {
+   "type": "birds",
+   "y": [
+    14,
+    70
+   ],
+   "rate": 0.06
+  }
+ ]
 }

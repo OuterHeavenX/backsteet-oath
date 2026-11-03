@@ -74,7 +74,8 @@ def f_rowhouse(R, x0, w, f):
         stoop(cv, dx - 4, dw + 8, FB, steps=3)
         wx = xx + (hw - 34 if side else 14)
         window(cv, wx, FB - 50, 20, 32, lit=rs.random() < 0.6, seed=xx + 7, frame=trim, kind='grid')
-        # basement vent
+        # basement vent (soot blackens the brick above it)
+        kit.soot_above(cv, wx + 3, FB - 9, 14, h=16, a=0.22, seed=int(wx))
         cv.rect(wx + 2, FB - 9, 16, 6, C('#2a2430'), ink=C('#1a1220'), iw=DETAIL)
         for k in range(6):
             cv.rect(wx + 3 + k * 2.6, FB - 8.5, 0.8, 5, C('#4a4450'))
@@ -107,23 +108,15 @@ def flower_box(R, x, y, w, rs):
 
 
 def laundry(R, pts, rs):
-    cv = R.cv
-    cols = [C('#e8e0d0'), C('#c85a4a'), C('#5a8ac8'), C('#e8c860'), C('#8ab08a'), C('#f0f0f0')]
+    """Washing pegged on the line: each piece is a separate sway sprite (the line itself stays in the base)."""
+    import life
+    cols = ['#e8e0d0', '#c85a4a', '#5a8ac8', '#e8c860', '#8ab08a', '#f0f0f0']
     for k in range(3, len(pts) - 3, 3):
         x, y = pts[k]
         c = rs.choice(cols)
         kind = rs.choice(['shirt', 'sheet', 'sock', 'shirt'])
-        if kind == 'sheet':
-            cv.fill_poly([(x - 4, y), (x + 4, y + 0.3), (x + 4.5, y + 11), (x - 3.5, y + 10)], c, ink=ink_of(c),
-                         iw=DETAIL)
-            cv.rect(x - 4, y, 8, 1.5, shade(c, 0.6), mode='atop')
-        elif kind == 'shirt':
-            cv.fill_poly([(x - 3.5, y), (x + 3.5, y), (x + 5.5, y + 2.5), (x + 3.5, y + 3.5), (x + 3, y + 8),
-                          (x - 3, y + 8), (x - 3.5, y + 3.5), (x - 5.5, y + 2.5)], c, ink=ink_of(c), iw=DETAIL)
-        else:
-            cv.fill_poly([(x - 1, y), (x + 1, y), (x + 1, y + 4), (x + 2.5, y + 5), (x - 1, y + 5)], c,
-                         ink=ink_of(c), iw=DETAIL)
-        cv.rect(x - 0.4, y - 1, 0.8, 1.6, C('#d8c8a0'))
+        life.add_sway(R, f'sway_laundry_{kind}_{c[1:]}', life.garment_draw(kind, c), 14, 15, 7.0, 2.0, x, y,
+                      amp={'sheet': 2.2, 'shirt': 3.2, 'sock': 5.0}[kind], speed=round(rs.uniform(0.9, 1.4), 2))
 
 
 # ----------------------------------------------------------------------------- diner (Lucky Spoon)
@@ -149,6 +142,7 @@ def f_diner(R, x0, w, f):
         cv.line([(k, sy + sh), (k + 12, top - 1)], 1.0, C('#2a2630'))
     sm = M(C('#c0383c'))
     cv.rect(sx, sy, sw, sh, sm.b, ink=sm.i, iw=MAJOR)
+    kit.proud_shadow(cv, sx, sy, sw, sh, 4.0, a=0.3)
     cv.rect(sx, sy, sw, 1.2, sm.h, mode='atop')
     cv.rect(sx + 2.5, sy + 2.5, sw - 5, sh - 5, C('#24142a'), ink=sm.d, iw=DETAIL)
     # marquee bulbs around the board
@@ -163,6 +157,9 @@ def f_diner(R, x0, w, f):
                 cv.radial(bx, by, 2.4, 2.4, C('#ffc060'), a=0.25, mode='add')
     neon_text(cv, f.get('sign', 'LUCKY SPOON'), sx + sw / 2 + 9, sy + sh / 2 + 0.5, 15, C('#ffd23a'), tracking=0.9,
               glow=0.45)
+    for by in (sy, sy + sh - 2.5):
+        kit.log(cv, {'type': 'sign', 'rect': [round(sx + 1, 1), round(by, 1), round(sw - 2, 1), 2.5],
+                     'color': '#ffe08a', 'pattern': 'chase'})
     # spoon icon (cyan neon)
     ix, iy = sx + 16, sy + sh / 2
     lay = cv.layer(ix - 8, iy - 14, 16, 28)
@@ -278,6 +275,8 @@ def diner_window(R, x, y, w, h, rs, k):
     cv.fill_poly([(x + w * 0.1, y), (x + w * 0.3, y), (x + w * 0.05, y + h * 0.7), (x - w * 0.12, y + h * 0.7)],
                  C('#ffffff'), a=0.18, mode='atop')
     cv.rect(x, y, w, 0.8, C('#ffffff'), a=0.8, em=1.0)
+    kit.log(cv, {'type': 'window', 'rect': [round(x, 1), round(y + 10, 1), round(w, 1), round(h - 25, 1)],
+                 'lit': True, 'kind': 'shop'})
     # decal on the glass
     if k == 0:
         cv.text('EST. 1961', 'cond', 3.2, x + w / 2, y + h * 0.4, C('#c8343a'), 'mm', em=1.0, a=0.85)
@@ -302,6 +301,7 @@ def f_laundromat(R, x0, w, f):
     sy = 112
     sm = M(C('#2a5ab0'))
     cv.rect(x0 + 10, sy, w - 20, 18, sm.b, ink=sm.i, iw=MAJOR)
+    kit.proud_shadow(cv, x0 + 10, sy, w - 20, 18, 4.0, a=0.3)
     cv.vgrad(x0 + 12, sy + 2, w - 24, 14, [C('#5a9aff'), C('#2a62c8'), C('#1e4aa0')], em=1.0)
     painted_text(cv, f.get('sign', 'SUDS & DUDS'), x0 + w / 2, sy + 9.5, 11, C('#f4f8ff'), shadow=True, tracking=0.6,
                  em=1.0)
@@ -313,6 +313,8 @@ def f_laundromat(R, x0, w, f):
     gx0, gx1 = x0 + 12, x0 + w - 12
     cv.rect(gx0 - 2, gy0 - 2, gx1 - gx0 + 4, gy1 - gy0 + 4, C('#9aa0b0'), ink=C('#2a2a38'), iw=MAJOR)
     cv.vgrad(gx0, gy0, gx1 - gx0, gy1 - gy0, [C('#f2fbff'), C('#d4ecf4'), C('#a8c8d8')], em=1.0)
+    kit.log(cv, {'type': 'window', 'rect': [round(gx0 + 4, 1), round(gy0 + 4, 1), round(gx1 - gx0 - 8, 1),
+                                            round(gy1 - gy0 - 8, 1)], 'lit': True, 'kind': 'shop'})
     # ceiling tube lights
     for k in range(3):
         lx = gx0 + 14 + k * (gx1 - gx0 - 28) / 2
@@ -852,6 +854,8 @@ def f_diner_interior(R, x0, w, f):
         yy += 2.2
     R.glow(wx + ww_ / 2, wy + wh / 2, 80, '#ffb080', 0.25, 'none')
     R.light(wx + ww_ / 2, 250, 120, 60, '#ffb090', 0.12)
+    kit.log(cv, {'type': 'window', 'rect': [wx + ww_ / 2 + 1, wy + 2, ww_ / 2 - 3, wh - 16], 'lit': True,
+                 'kind': 'shop', 'interior_window': True})
     # neon sign on the wall
     neon_text(cv, 'LUCKY SPOON', x0 + 262, 36, 13, C('#ff5a9a'), tracking=0.8, glow=0.5)
     R.glow(x0 + 262, 36, 70, '#ff5a9a', 0.4, 'neon')

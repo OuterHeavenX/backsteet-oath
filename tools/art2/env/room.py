@@ -176,6 +176,11 @@ def puddle(R, x, y, rx, ry, sky='#c8889a', a=0.38, reflect=True):
     cv.paint((x0, y0, m2), C(sky), a=a, mode='atop')
     # bright edge glint (top edge)
     cv.ellipse(x - rx * 0.2, y - ry * 0.55, rx * 0.5, ry * 0.18, C('#ffe0c0'), a=0.25, mode='atop')
+    if hasattr(R, 'puddles'):
+        R.puddles.append((x0, y0, m2))
+        if rx >= 16:
+            R.water.append({"rect": [round(x - rx * 0.85, 1), round(y - ry * 0.7, 1), round(rx * 1.7, 1),
+                                     round(ry * 1.4, 1)], "kind": "puddle"})
     if reflect:
         R.reflect.append({"rect": [round(x - rx, 1), round(y - ry, 1), round(rx * 2, 1), round(ry * 2, 1)],
                           "alpha": 0.22})

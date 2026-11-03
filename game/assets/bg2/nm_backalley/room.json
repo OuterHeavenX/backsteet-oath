@@ -145,5 +145,122 @@
    0.3
   ],
   "alpha": 0.06
- }
+ },
+ "haze": {
+  "color": "#6a2a6a",
+  "far": 0.12,
+  "mid": 0.06
+ },
+ "grade": {
+  "lift": "#14081f",
+  "gain": "#ecfbff",
+  "saturation": 1.08,
+  "contrast": 1.06,
+  "vignette": 0.26
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    36,
+    6,
+    14,
+    22
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    92,
+    158,
+    14,
+    22
+   ],
+   "kind": "tv",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    500,
+    158,
+    14,
+    22
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    588,
+    8,
+    14,
+    22
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "water",
+   "rect": [
+    134.0,
+    263.5,
+    38.4,
+    4.2
+   ],
+   "speed": 5,
+   "tint": "#e0b0ff",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    12.5,
+    271.2,
+    36.1,
+    5.9
+   ],
+   "speed": 5,
+   "tint": "#e0b0ff",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    572.2,
+    265.7,
+    32.9,
+    3.7
+   ],
+   "speed": 5,
+   "tint": "#e0b0ff",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    425.7,
+    261.6,
+    33.9,
+    5.5
+   ],
+   "speed": 5,
+   "tint": "#e0b0ff",
+   "alpha": 0.24
+  },
+  {
+   "type": "sign",
+   "rect": [
+    558.0,
+    149.0,
+    25.5,
+    6.5
+   ],
+   "pattern": "blink",
+   "color": "#ff4ab0"
+  }
+ ]
 }

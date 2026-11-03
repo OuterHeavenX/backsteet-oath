@@ -140,5 +140,84 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 4,
+  "y": [
+   6,
+   50
+  ],
+  "speed": [
+   2,
+   5
+  ],
+  "parallax": 0.08,
+  "tint": "#30444a",
+  "alpha": 0.6
+ },
+ "haze": {
+  "color": "#3e5450",
+  "far": 0.12,
+  "mid": 0.06
+ },
+ "grade": {
+  "lift": "#0a110c",
+  "gain": "#ecfff0",
+  "saturation": 0.94,
+  "contrast": 1.04,
+  "vignette": 0.22
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    52.0,
+    124.0,
+    96.0,
+    58.0
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    492.0,
+    124.0,
+    96.0,
+    58.0
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    932.0,
+    124.0,
+    96.0,
+    58.0
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1372.0,
+    124.0,
+    96.0,
+    58.0
+   ],
+   "kind": "shop",
+   "lit": true
+  }
+ ]
 }

@@ -81,5 +81,74 @@
   }
  ],
  "ambient": [],
- "reflect": []
+ "reflect": [],
+ "haze": {
+  "color": "#6a2a6a",
+  "far": 0.12,
+  "mid": 0.06
+ },
+ "grade": {
+  "lift": "#14081f",
+  "gain": "#ecfbff",
+  "saturation": 1.08,
+  "contrast": 1.04,
+  "vignette": 0.2
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    302.0,
+    72.0,
+    116.0,
+    56.0
+   ],
+   "kind": "tv",
+   "lit": true
+  },
+  {
+   "type": "sign",
+   "rect": [
+    319.0,
+    24.0,
+    161.5,
+    12.0
+   ],
+   "pattern": "buzz",
+   "color": "#ff4ab0"
+  },
+  {
+   "type": "sign",
+   "rect": [
+    0,
+    149.6,
+    800,
+    2.0
+   ],
+   "pattern": "chase",
+   "color": "#4ae0ff"
+  },
+  {
+   "type": "sign",
+   "rect": [
+    0,
+    153.6,
+    800,
+    2.0
+   ],
+   "pattern": "chase",
+   "color": "#ff4ab0"
+  },
+  {
+   "type": "sign",
+   "rect": [
+    0,
+    157.6,
+    800,
+    2.0
+   ],
+   "pattern": "chase",
+   "color": "#f8e040"
+  }
+ ]
 }

@@ -246,5 +246,737 @@
    0.2
   ],
   "alpha": 0.24
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 6,
+  "y": [
+   6,
+   70
+  ],
+  "speed": [
+   3,
+   8
+  ],
+  "parallax": 0.08,
+  "tint": "#ffffff",
+  "alpha": 0.92
+ },
+ "haze": {
+  "color": "#f0e0b0",
+  "far": 0.12,
+  "mid": 0.05
+ },
+ "grade": {
+  "lift": "#06100f",
+  "gain": "#fff3d8",
+  "saturation": 1.05,
+  "contrast": 1.04,
+  "vignette": 0.16
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    18,
+    100,
+    16,
+    22
+   ],
+   "kind": "tv",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    186,
+    100,
+    16,
+    22
+   ],
+   "kind": "home",
+   "lit": false
+  },
+  {
+   "type": "window",
+   "rect": [
+    532,
+    132,
+    110,
+    75
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    678,
+    132,
+    110,
+    75
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1092,
+    128,
+    100,
+    79
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "window",
+   "rect": [
+    1228,
+    128,
+    100,
+    79
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "pigeons",
+   "x": 1264.0,
+   "y": 232.5,
+   "count": 4
+  },
+  {
+   "type": "pigeons",
+   "x": 228.0,
+   "y": 231.6,
+   "count": 4
+  },
+  {
+   "type": "birds",
+   "y": [
+    14,
+    70
+   ],
+   "rate": 0.06
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 265.0,
+   "y": 103.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.9,
+   "speed": 1.85,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_5ac06a.png",
+   "x": 286.0,
+   "y": 106.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.8,
+   "speed": 1.81,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 307.0,
+   "y": 108.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.6,
+   "speed": 1.43,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_e84a3a.png",
+   "x": 328.0,
+   "y": 110.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.3,
+   "speed": 1.53,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 349.0,
+   "y": 111.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.5,
+   "speed": 1.55,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 370.0,
+   "y": 111.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.3,
+   "speed": 1.46,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_5ac06a.png",
+   "x": 391.0,
+   "y": 111.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.9,
+   "speed": 1.76,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 412.0,
+   "y": 110.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.2,
+   "speed": 1.82,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_e84a3a.png",
+   "x": 433.0,
+   "y": 108.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.9,
+   "speed": 1.55,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 454.0,
+   "y": 106.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.0,
+   "speed": 1.6,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 475.0,
+   "y": 103.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.6,
+   "speed": 1.53,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 265.0,
+   "y": 113.8,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.3,
+   "speed": 1.82,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_e84a3a.png",
+   "x": 286.0,
+   "y": 115.8,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.4,
+   "speed": 1.79,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 307.0,
+   "y": 117.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.1,
+   "speed": 1.58,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 328.0,
+   "y": 118.5,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.6,
+   "speed": 1.69,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_5ac06a.png",
+   "x": 349.0,
+   "y": 119.2,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.7,
+   "speed": 1.75,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 370.0,
+   "y": 119.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.4,
+   "speed": 1.38,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_e84a3a.png",
+   "x": 391.0,
+   "y": 119.2,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.9,
+   "speed": 1.64,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 412.0,
+   "y": 118.5,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.1,
+   "speed": 1.36,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 433.0,
+   "y": 117.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.5,
+   "speed": 1.52,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_5ac06a.png",
+   "x": 454.0,
+   "y": 115.8,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.6,
+   "speed": 1.42,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 475.0,
+   "y": 113.8,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.1,
+   "speed": 1.68,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 823.3,
+   "y": 119.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.3,
+   "speed": 1.96,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 846.7,
+   "y": 121.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.9,
+   "speed": 1.61,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_5ac06a.png",
+   "x": 870.0,
+   "y": 122.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.9,
+   "speed": 1.5,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 893.3,
+   "y": 123.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.0,
+   "speed": 1.85,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_e84a3a.png",
+   "x": 916.7,
+   "y": 124.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.2,
+   "speed": 2.0,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 940.0,
+   "y": 124.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.2,
+   "speed": 1.53,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 963.3,
+   "y": 124.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.6,
+   "speed": 1.33,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_5ac06a.png",
+   "x": 986.7,
+   "y": 124.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.8,
+   "speed": 1.54,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 1010.0,
+   "y": 123.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.9,
+   "speed": 1.42,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_e84a3a.png",
+   "x": 1033.3,
+   "y": 122.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.0,
+   "speed": 1.91,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 1056.7,
+   "y": 121.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.7,
+   "speed": 1.38,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 1361.7,
+   "y": 119.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.4,
+   "speed": 1.43,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 1383.3,
+   "y": 121.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.5,
+   "speed": 1.81,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_5ac06a.png",
+   "x": 1405.0,
+   "y": 122.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.6,
+   "speed": 1.46,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 1426.7,
+   "y": 123.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.9,
+   "speed": 1.62,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_e84a3a.png",
+   "x": 1448.3,
+   "y": 124.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.0,
+   "speed": 1.69,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 1470.0,
+   "y": 124.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.5,
+   "speed": 1.5,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_3aa0d8.png",
+   "x": 1491.7,
+   "y": 124.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 4.7,
+   "speed": 1.48,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_5ac06a.png",
+   "x": 1513.3,
+   "y": 124.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.9,
+   "speed": 1.32,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f4f0e8.png",
+   "x": 1535.0,
+   "y": 123.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.5,
+   "speed": 1.7,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_e84a3a.png",
+   "x": 1556.7,
+   "y": 122.4,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 5.6,
+   "speed": 1.33,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_pennant_f8d040.png",
+   "x": 1578.3,
+   "y": 121.1,
+   "pivot": [
+    4.4,
+    1.2
+   ],
+   "amp": 6.7,
+   "speed": 1.93,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_flag_market_a.png",
+   "x": 234.6,
+   "y": 40.5,
+   "pivot": [
+    1.0,
+    1.0
+   ],
+   "amp": 5.0,
+   "speed": 1.7,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_flag_market_b.png",
+   "x": 506.6,
+   "y": 40.5,
+   "pivot": [
+    1.0,
+    1.0
+   ],
+   "amp": 5.0,
+   "speed": 1.7,
+   "front": false
+  },
+  {
+   "type": "sway",
+   "file": "sway_sign_tea.png",
+   "x": 790.5,
+   "y": 150.6,
+   "pivot": [
+    20.0,
+    1.0
+   ],
+   "amp": 2.2,
+   "speed": 1.1,
+   "front": false
+  }
+ ]
 }

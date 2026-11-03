@@ -31,6 +31,15 @@
    "repeat": true
   },
   {
+   "name": "room_rail",
+   "files": [
+    "rail_0.png"
+   ],
+   "parallax": 0.5,
+   "y": 100,
+   "repeat": true
+  },
+  {
    "name": "base",
    "files": [
     "base_0.png",
@@ -287,5 +296,130 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 7,
+  "y": [
+   4,
+   56
+  ],
+  "speed": [
+   5,
+   11
+  ],
+  "parallax": 0.08,
+  "tint": "#748890",
+  "alpha": 0.9
+ },
+ "haze": {
+  "color": "#7a9494",
+  "far": 0.18,
+  "mid": 0.08
+ },
+ "grade": {
+  "lift": "#081211",
+  "gain": "#e9f8f4",
+  "saturation": 0.92,
+  "contrast": 1.03,
+  "vignette": 0.24
+ },
+ "life": [
+  {
+   "type": "train",
+   "y": 140.0,
+   "parallax": 0.5,
+   "file": "../_life/train_el.png",
+   "interval": [
+    22,
+    40
+   ]
+  },
+  {
+   "type": "pigeons",
+   "x": 1005.0,
+   "y": 230.7,
+   "count": 4
+  },
+  {
+   "type": "pigeons",
+   "x": 228.0,
+   "y": 226.8,
+   "count": 4
+  },
+  {
+   "type": "birds",
+   "y": [
+    14,
+    70
+   ],
+   "rate": 0.04
+  },
+  {
+   "type": "water",
+   "rect": [
+    0,
+    150,
+    1760,
+    64
+   ],
+   "speed": 12,
+   "tint": "#a8d0d4",
+   "alpha": 0.32
+  },
+  {
+   "type": "water",
+   "rect": [
+    1013.2,
+    297.0,
+    54.0,
+    5.8
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    1336.3,
+    318.8,
+    37.3,
+    3.7
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    766.2,
+    258.2,
+    51.9,
+    6.2
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    132.5,
+    298.2,
+    32.6,
+    3.9
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  }
+ ]
 }

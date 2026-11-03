@@ -91,5 +91,41 @@
    ],
    "alpha": 0.12
   }
+ ],
+ "haze": {
+  "color": "#6a2a6a",
+  "far": 0.12,
+  "mid": 0.06
+ },
+ "grade": {
+  "lift": "#14081f",
+  "gain": "#ecfbff",
+  "saturation": 1.08,
+  "contrast": 1.04,
+  "vignette": 0.2
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    203.5,
+    44.5,
+    23.0,
+    17.0
+   ],
+   "kind": "tv",
+   "lit": true
+  },
+  {
+   "type": "sign",
+   "rect": [
+    308,
+    28,
+    24.0,
+    24.0
+   ],
+   "pattern": "buzz",
+   "color": "#3aff8a"
+  }
  ]
 }

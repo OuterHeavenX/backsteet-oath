@@ -31,6 +31,15 @@
    "repeat": true
   },
   {
+   "name": "room_road",
+   "files": [
+    "road_0.png"
+   ],
+   "parallax": 0.85,
+   "y": 150,
+   "repeat": true
+  },
+  {
    "name": "base",
    "files": [
     "base_0.png",
@@ -275,5 +284,129 @@
    0.22
   ],
   "alpha": 0.22
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 5,
+  "y": [
+   8,
+   62
+  ],
+  "speed": [
+   2.5,
+   6
+  ],
+  "parallax": 0.08,
+  "tint": "#ffd6c0",
+  "alpha": 0.85
+ },
+ "haze": {
+  "color": "#f4a87a",
+  "far": 0.14,
+  "mid": 0.06
+ },
+ "grade": {
+  "lift": "#120a14",
+  "gain": "#fff0dc",
+  "saturation": 1.04,
+  "contrast": 1.05,
+  "vignette": 0.2
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    1092,
+    152,
+    26,
+    18
+   ],
+   "kind": "home",
+   "lit": true
+  },
+  {
+   "type": "train",
+   "y": 187.5,
+   "parallax": 0.6,
+   "file": "../_life/train_el.png",
+   "interval": [
+    24,
+    44
+   ]
+  },
+  {
+   "type": "pedestrians",
+   "y": 196.5,
+   "parallax": 0.85,
+   "scale": 0.8,
+   "x": [
+    0,
+    1440
+   ],
+   "rate": 0.12
+  },
+  {
+   "type": "traffic",
+   "y": 212.0,
+   "parallax": 0.85,
+   "files": [
+    "../_life/car_a.png",
+    "../_life/car_b.png",
+    "../_life/car_c.png",
+    "../_life/car_d.png"
+   ],
+   "rate": 0.07,
+   "lights": true
+  },
+  {
+   "type": "pigeons",
+   "x": 376.0,
+   "y": 233.0,
+   "count": 4
+  },
+  {
+   "type": "pigeons",
+   "x": 1042.0,
+   "y": 232.4,
+   "count": 4
+  },
+  {
+   "type": "birds",
+   "y": [
+    14,
+    70
+   ],
+   "rate": 0.06
+  },
+  {
+   "type": "water",
+   "rect": [
+    447.9,
+    296.5,
+    44.2,
+    7.0
+   ],
+   "speed": 5,
+   "tint": "#ffd8c0",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    1164.7,
+    327.6,
+    30.6,
+    4.9
+   ],
+   "speed": 5,
+   "tint": "#ffd8c0",
+   "alpha": 0.24
+  }
+ ]
 }

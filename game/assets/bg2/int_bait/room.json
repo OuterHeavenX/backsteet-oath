@@ -86,5 +86,40 @@
    "rate": 0.3
   }
  ],
- "reflect": []
+ "reflect": [],
+ "haze": {
+  "color": "#7a9494",
+  "far": 0.18,
+  "mid": 0.08
+ },
+ "grade": {
+  "lift": "#081211",
+  "gain": "#e9f8f4",
+  "saturation": 0.92,
+  "contrast": 1.03,
+  "vignette": 0.2
+ },
+ "life": [
+  {
+   "type": "window",
+   "rect": [
+    31,
+    41,
+    98,
+    62
+   ],
+   "kind": "shop",
+   "lit": true
+  },
+  {
+   "type": "shaft",
+   "x": 80.0,
+   "y": 41,
+   "w": 122.5,
+   "h": 277,
+   "angle": -8.0,
+   "color": "#c8e0e4",
+   "energy": 0.14
+  }
+ ]
 }

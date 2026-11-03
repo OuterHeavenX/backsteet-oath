@@ -60,11 +60,11 @@ def brick_wall(cv, x, y, w, h, base, seed, bw=8.0, bh=3.5, var=0.07, mortar=None
         sh_rgb = np.array(m.s[:3], np.float32) / 255
         out = base_rgb[None, None, :] * (1 + v[..., None])
         # per-brick hue drift (warmer / cooler firing) and a fine fired-clay speckle, both low contrast
-        hk = (0.5 if calm else 1.0) * 0.035
+        hk = (0.5 if calm else 1.0) * 0.06
         out = out * (1 + hv[..., None] * np.array([hk, hk * 0.15, -hk], np.float32))
         tx = np.floor(X * D).astype(np.int64) % 256
         ty = np.floor(Y * D).astype(np.int64) % 256
-        out = out * (1 + (spk[ty, tx][..., None] - 0.5) * (0.035 if calm else 0.05))
+        out = out * (1 + (spk[ty, tx][..., None] - 0.5) * (0.04 if calm else 0.06))
         # occasional accent bricks (darker, burnt)
         if accent > 0:
             sel = (a < accent)[..., None]
@@ -138,7 +138,7 @@ def stucco(cv, x, y, w, h, base, seed, soot=0.3, cracks=2, peel=True):
     n2 = value_noise(ww, hh, 3.5 * cv.D, seed + 11, octaves=2)
     cv.paint((x0, y0, ((n2 - 0.5) * 2).clip(0, 1) * mm), m.l, a=0.10, mode='atop')
     cv.paint((x0, y0, ((0.5 - n2) * 2).clip(0, 1) * mm), m.s, a=0.10, mode='atop')
-    micro_speckle(cv, x, y, w, h, seed, amt=0.035)
+    micro_speckle(cv, x, y, w, h, seed, amt=0.025)
     patch_repairs(cv, x, y, w, h, base, seed)
     if peel:
         peel_paint(cv, x, y, w, h, base, seed)
@@ -281,8 +281,10 @@ TV_GLASS = [C('#d8e8ff'), C('#90a8e0'), C('#5060a0')]
 
 
 def window(cv, x, y, w, h, lit=False, seed=0, frame='#d8ccb4', sill=True, lintel=True, kind='sash',
-           interior=None, curtains=None, glass=None, frame_w=1.5, mull=True, blind=None):
-    """A recessed window with frame, sill, lintel, glass and (lit) interior silhouettes."""
+           interior=None, curtains=None, glass=None, frame_w=1.5, mull=True, blind=None, life=None):
+    """A recessed window with frame, sill, lintel and glass. Lit glass shows a room box (back wall, side walls,
+    ceiling lamp, furniture silhouettes); dark glass shows faint room depth under sky/opposite-building
+    reflections and a diagonal sheen. `life`: False = not offered to the engine, str = window kind."""
     rs = rng_of('win', seed, x, y)
     fm = M(frame)
     # lintel / sill
@@ -292,10 +294,22 @@ def window(cv, x, y, w, h, lit=False, seed=0, frame='#d8ccb4', sill=True, lintel
     # frame
     cv.rect(x - frame_w, y - 0.5, w + 2 * frame_w, h + 1, fm.b, ink=fm.i, iw=MAJOR)
     gx, gy, gw, gh = x, y, w, h
+    is_tv = False
+    # room-box geometry (inset back wall)
+    ix0, ix1 = gx + gw * 0.16, gx + gw * 0.84
+    iy0, iy1 = gy + gh * 0.14, gy + gh * 0.74
     if lit:
         pal = glass or (WARM_GLASS if rs.random() < 0.85 else TV_GLASS)
+        is_tv = pal is TV_GLASS
         gm = cv.vgrad(gx, gy, gw, gh, pal, em=1.0)
-        # interior: back wall line, furniture silhouettes, lamp, person
+        deep = mix(pal[2], C('#3a2030'), 0.35)
+        cv.fill_poly([(gx, gy), (gx + gw, gy), (ix1, iy0), (ix0, iy0)], deep, a=0.22, em=1.0)           # ceiling
+        cv.fill_poly([(gx, gy), (ix0, iy0), (ix0, iy1), (gx, gy + gh)], deep, a=0.16, em=1.0)            # left wall
+        cv.fill_poly([(gx + gw, gy), (ix1, iy0), (ix1, iy1), (gx + gw, gy + gh)], deep, a=0.26, em=1.0)  # right wall
+        cv.fill_poly([(gx, gy + gh), (ix0, iy1), (ix1, iy1), (gx + gw, gy + gh)], deep, a=0.34, em=1.0)  # floor
+        cv.radial((ix0 + ix1) / 2, iy0 + 0.5, gw * 0.42, gh * 0.22, mix(pal[0], C('#ffffff'), 0.5), a=0.45,
+                  mode='atop', em=1.0)
+        # interior: furniture silhouettes, lamp, person
         sil = mix(pal[2], C('#3a2030'), 0.55)
         interior = interior or rs.choice(['lamp', 'shelf', 'person', 'plant', 'blank', 'tv'])
         base_y = gy + gh
@@ -305,6 +319,7 @@ def window(cv, x, y, w, h, lit=False, seed=0, frame='#d8ccb4', sill=True, lintel
             cv.fill_poly([(lx - 2.5, base_y - gh * 0.45), (lx + 2.5, base_y - gh * 0.45),
                           (lx + 1.5, base_y - gh * 0.62), (lx - 1.5, base_y - gh * 0.62)],
                          mix(pal[0], C('#ffffff'), 0.5), em=1.0)
+            cv.radial(lx, base_y - gh * 0.5, 5, 6, mix(pal[0], C('#ffffff'), 0.4), a=0.35, mode='atop', em=1.0)
         elif interior == 'shelf':
             cv.rect(gx, base_y - gh * 0.38, gw, gh * 0.38, sil, a=0.85, em=1.0)
             for k in range(int(gw / 2.5)):
@@ -324,6 +339,10 @@ def window(cv, x, y, w, h, lit=False, seed=0, frame='#d8ccb4', sill=True, lintel
                         em=1.0)
         elif interior == 'tv':
             cv.vgrad(gx, gy, gw, gh, TV_GLASS, a=0.35, em=1.0)
+            is_tv = True
+        else:
+            # sofa back / table edge low in the room
+            cv.rect(ix0 - gw * 0.05, base_y - gh * 0.2, (ix1 - ix0) * 0.8, gh * 0.2, sil, a=0.55, em=1.0)
         # curtains
         if curtains is None:
             curtains = rs.random() < 0.6
@@ -334,6 +353,9 @@ def window(cv, x, y, w, h, lit=False, seed=0, frame='#d8ccb4', sill=True, lintel
             cv.fill_poly([(gx, gy), (gx + cw, gy), (gx + cw * 0.55, gy + gh), (gx, gy + gh)], ccol, em=1.0)
             cv.fill_poly([(gx + gw - cw, gy), (gx + gw, gy), (gx + gw, gy + gh), (gx + gw - cw * 0.55, gy + gh)],
                          ccol, em=1.0)
+            cv.line([(gx + cw * 0.5, gy + 1), (gx + cw * 0.3, gy + gh)], 0.4, shade(ccol, 0.5), a=0.6, em=1.0)
+            cv.line([(gx + gw - cw * 0.5, gy + 1), (gx + gw - cw * 0.3, gy + gh)], 0.4, shade(ccol, 0.5), a=0.6,
+                    em=1.0)
             cv.rect(gx, gy, gw, 1.0, shade(ccol, 0.6), em=1.0)
         if blind:
             yy = gy
@@ -341,36 +363,83 @@ def window(cv, x, y, w, h, lit=False, seed=0, frame='#d8ccb4', sill=True, lintel
                 cv.rect(gx, yy, gw, 0.8, mix(pal[0], C('#ffffff'), 0.3), em=1.0)
                 cv.rect(gx, yy + 0.8, gw, 0.5, mix(pal[2], sil, 0.5), em=1.0)
                 yy += 1.6
+        # glass still reads as glass: a faint diagonal sheen over the lit room
+        sheen(cv, gx, gy, gw, gh, [[(gx + gw * 0.55, gy), (gx + gw * 0.75, gy), (gx + gw * 0.25, gy + gh),
+                                    (gx + gw * 0.05, gy + gh)]], C('#ffffff'), 0.07, em=1.0)
     else:
-        gm = cv.vgrad(gx, gy, gw, gh, [C('#3e3a5c'), C('#2a2840'), C('#22223a')])
-        # sky reflection streak
-        cv.fill_poly([(gx + gw * 0.15, gy), (gx + gw * 0.45, gy), (gx + gw * 0.05, gy + gh), (gx - gw * 0.25, gy + gh)],
-                     C('#8a7aa0'), a=0.35, mode='atop')
+        sky = C(LIGHT.get('sky', '#8a7aa0'))
+        top = mix(C('#3e3a5c'), sky, 0.38)
+        gm = cv.vgrad(gx, gy, gw, gh, [top, C('#2e2c48'), C('#22223a')])
+        # faint room depth behind the reflections
+        cv.rect(ix0, iy0, ix1 - ix0, iy1 - iy0, C('#4a4660'), a=0.22, mode='atop')
+        cv.fill_poly([(gx, gy + gh), (ix0, iy1), (ix1, iy1), (gx + gw, gy + gh)], C('#12101e'), a=0.35, mode='atop')
+        furn = rs.choice(['sofa', 'lamp', 'chair', 'none', 'shelf'])
+        fc = C('#14121e')
+        if furn == 'sofa':
+            cv.rect(ix0, iy1 - gh * 0.16, (ix1 - ix0) * 0.9, gh * 0.18, fc, a=0.45, mode='atop')
+        elif furn == 'lamp':
+            lx = rs.uniform(ix0 + 1, ix1 - 1)
+            cv.rect(lx - 0.3, iy1 - gh * 0.36, 0.6, gh * 0.36, fc, a=0.5, mode='atop')
+            cv.fill_poly([(lx - 2, iy1 - gh * 0.36), (lx + 2, iy1 - gh * 0.36), (lx + 1.3, iy1 - gh * 0.48),
+                          (lx - 1.3, iy1 - gh * 0.48)], C('#4a4256'), a=0.5, mode='atop')
+        elif furn == 'chair':
+            cx_ = rs.uniform(ix0 + 2, ix1 - 2)
+            cv.rect(cx_ - 1.6, iy1 - gh * 0.26, 3.2, gh * 0.26, fc, a=0.45, mode='atop')
+        elif furn == 'shelf':
+            cv.rect(ix0, iy0 + (iy1 - iy0) * 0.3, (ix1 - ix0), 0.6, fc, a=0.5, mode='atop')
+        # opposite-building reflection: a darker skyline across the middle of the pane
+        sk_y = gy + gh * rs.uniform(0.3, 0.5)
+        pts = [(gx, gy + gh)]
+        xx = gx
+        while xx < gx + gw:
+            ty = sk_y + rs.uniform(-gh * 0.12, gh * 0.12)
+            nx = min(gx + gw, xx + rs.uniform(3, 7))
+            pts += [(xx, ty), (nx, ty)]
+            xx = nx
+        pts.append((gx + gw, gy + gh))
+        cv.fill_poly(pts, C('#1c1a2c'), a=0.28, mode='atop')
+        # sky reflection streaks: one broad, one thin diagonal sheen
+        sheen(cv, gx, gy, gw, gh, [[(gx + gw * 0.15, gy), (gx + gw * 0.45, gy), (gx + gw * 0.05, gy + gh),
+                                    (gx - gw * 0.25, gy + gh)]], mix(sky, C('#ffffff'), 0.25), 0.22)
+        sheen(cv, gx, gy, gw, gh, [[(gx + gw * 0.58, gy), (gx + gw * 0.66, gy), (gx + gw * 0.36, gy + gh),
+                                    (gx + gw * 0.28, gy + gh)]], mix(sky, C('#ffffff'), 0.5), 0.16)
         if rs.random() < 0.5:
             yy = gy
             while yy < gy + gh * rs.uniform(0.3, 0.7):
                 cv.rect(gx, yy, gw, 0.8, C('#9a8a9a'), a=0.8)
                 cv.rect(gx, yy + 0.8, gw, 0.4, C('#4a3a4a'), a=0.8)
                 yy += 1.4
-    # inner recess shadow (top + left)
-    cv.rect(gx, gy, gw, 1.2, C('#1a1428'), a=0.45)
-    cv.rect(gx, gy, 0.8, gh, C('#1a1428'), a=0.3)
+    # inner recess: shadow on the top/left reveal, light catching the bottom/right reveal
+    cv.rect(gx, gy, gw, 1.2, C('#1a1428'), a=0.45, em=1.0 if lit else None)
+    cv.rect(gx, gy + 1.2, gw, 1.0, C('#1a1428'), a=0.18, em=1.0 if lit else None)
+    cv.rect(gx, gy, 0.8, gh, C('#1a1428'), a=0.3, em=1.0 if lit else None)
+    cv.rect(gx, gy + gh - 0.5, gw, 0.5, fm.h, a=0.35, em=1.0 if lit else None)
+    cv.rect(gx + gw - 0.5, gy, 0.5, gh, fm.l, a=0.25, em=1.0 if lit else None)
     # mullions
     if mull:
         mc = fm.b
         if kind == 'sash':
             cv.rect(gx, gy + gh / 2 - 0.5, gw, 1, mc, ink=fm.i, iw=DETAIL)
+            cv.rect(gx, gy + gh / 2 + 0.5, gw, 0.5, C('#1a1428'), a=0.25, em=1.0 if lit else None)
             if gw > 9:
                 cv.rect(gx + gw / 2 - 0.4, gy, 0.8, gh, mc)
         elif kind == 'grid':
             for k in range(1, 3):
                 cv.rect(gx + gw * k / 3 - 0.35, gy, 0.7, gh, mc)
             cv.rect(gx, gy + gh / 2 - 0.35, gw, 0.7, mc)
+    if getattr(cv, 'log', None) is not None and life is not False:
+        D = cv.D
+        tx0, ty0 = int(round(gx * D)) - cv.ox, int(round(gy * D)) - cv.oy
+        tx1, ty1 = int(round((gx + gw) * D)) - cv.ox, int(round((gy + gh) * D)) - cv.oy
+        snap = cv.px[max(0, ty0):max(0, ty1), max(0, tx0):max(0, tx1), :3].copy()
+        k_ = life if isinstance(life, str) else ('tv' if is_tv else 'home')
+        log(cv, {'type': 'window', 'rect': [round(gx, 1), round(gy, 1), round(gw, 1), round(gh, 1)], 'lit': bool(lit),
+                 'kind': k_, 'snap': snap})
     if sill:
         cv.rect(x - 2.5, y + h + 0.5, w + 5, 2, fm.b, ink=fm.i, iw=DETAIL)
         cv.rect(x - 2.5, y + h + 0.5, w + 5, 0.6, fm.h, mode='atop')
-        # drip stain under sill
-        cv.vgrad(x, y + h + 2.5, w, 7, [C('#2a1e2e', 90), C('#2a1e2e', 0)], mode='atop')
+        ao_under(cv, x - 2.5, y + h + 3.0, w + 5, 4.0, a=0.32)
+        stain_streaks(cv, x - 1, y + h + 3.0, w + 2, seed * 31 + int(x), length=(6, 20 + h * 0.6), a=0.26)
     return (gx, gy, gw, gh)
 
 
@@ -396,6 +465,8 @@ def door(cv, x, yb, w, h, color, glass=True, lit=False, seed=0, frame='#3a2e34',
     for k in range(2):
         cv.rect(x + 2.5, py + k * (ph + 2), w - 5, ph, m.s, ink=m.d, iw=DETAIL)
         cv.rect(x + 2.5, py + k * (ph + 2), w - 5, 0.6, m.l, mode='atop')
+    ao_under(cv, x, y, w, 4.0, a=0.3)
+    cv.rect(x, y, 0.8, h, C('#1a1428'), a=0.22, mode='atop')
     if knob:
         cv.ellipse(x + w - 3, y + h * 0.55, 0.9, 0.9, C('#e8c870'), ink=C('#4a3a20'), iw=DETAIL)
     if transom:
@@ -446,6 +517,11 @@ def awning(cv, x, y, w, h, c1, c2=None, stripe=6.0, valance=3.5, scallop=True, s
             lay.ellipse(xx + r, vy + valance, r, r * 0.7, (m1.s if int((xx - x + 2) / stripe) % 2 == 0 or not c2 else m2.s))
             xx += stripe
     cv.merge(lay, ink=m1.i, iw=MAJOR)
+    depth = h * 1.5 + 4
+    ox, oy = wall_shadow_offset(depth)
+    bot = vy + valance + 0.5
+    defer_shadow(cv, [(x - 2, bot), (x + w + 2, bot), (x + w + 2 + ox, bot + oy), (x - 2 + ox, bot + oy)],
+                 a=0.30, soft=1.6)
     return vy + valance + 1.5
 
 
@@ -470,6 +546,8 @@ def cornice(cv, x, y, w, color, h=4.0, dentils=True):
             cv.rect(xx, y + h, 1.5, 1.5, m.s, ink=m.i, iw=DETAIL)
             xx += 3.5
     cast_shadow_rect(cv, x - 1, y + h + 1.5, w + 2, 2.5, a=0.35)
+    ao_under(cv, x - 1, y + h + 1.5, w + 2, 10.0, a=0.22)
+    stain_streaks(cv, x, y + h + 1.5, w, int(x * 3 + y), length=(12, 44), n=max(2, int(w / 12)), a=0.2)
 
 
 def parapet(cv, x, y, w, color, h=5.0):
@@ -477,6 +555,7 @@ def parapet(cv, x, y, w, color, h=5.0):
     cv.rect(x, y, w, h, m.b, ink=m.i, iw=MAJOR)
     cv.rect(x, y, w, 1, m.l, mode='atop')
     cv.rect(x, y + h - 1, w, 1, m.s, mode='atop')
+    stain_streaks(cv, x, y + h, w, int(x * 5 + y), length=(4, 16), n=max(1, int(w / 18)), a=0.16)
 
 
 def drainpipe(cv, x, y0, y1, color='#5a5660'):
@@ -488,6 +567,12 @@ def drainpipe(cv, x, y0, y1, color='#5a5660'):
         cv.rect(x - 1.6, yy, 3.2, 1.2, m.s, ink=m.i, iw=DETAIL)
         yy += 22
     cv.fill_poly([(x - 1, y1 - 2), (x + 1, y1 - 2), (x + 3, y1), (x - 1, y1)], m.b, ink=m.i, iw=DETAIL)
+    proud_shadow(cv, x - 1, y0, 2, y1 - y0, 2.0, a=0.22, soft=0.8)
+    yy = y0 + 8
+    while yy < y1:
+        stain_streaks(cv, x - 1.2, yy + 1.2, 2.4, int(yy * 13 + x), length=(3, 10), n=1, a=0.16, col='#6a3a24',
+                      light_frac=0.0)
+        yy += 22
 
 
 def fire_escape(cv, x, w, floors, color='#2e2a36', ladder=True, bottom=None):
@@ -533,7 +618,9 @@ def fire_escape(cv, x, w, floors, color='#2e2a36', ladder=True, bottom=None):
         cv.rect(x - 3, fy, w + 6, 0.5, M(color).l, a=0.7)
     # cast shadow on the wall
     for fy in floors:
-        cast_shadow_rect(cv, x - 2, fy + 2, w + 6, 3.0, a=0.3, soft=1.0)
+        ox_, oy_ = wall_shadow_offset(5.0)
+        defer_shadow(cv, [(x - 3, fy + 1.5), (x + w + 3, fy + 1.5), (x + w + 3 + ox_, fy + 1.5 + oy_),
+                          (x - 3 + ox_, fy + 1.5 + oy_)], a=0.30, soft=1.0)
 
 
 def cable(cv, x0, y0, x1, y1, sag=6.0, w=0.6, col='#1e1824', a=0.9):
@@ -577,7 +664,10 @@ def ac_unit(cv, x, y, w=10.0, h=7.0, color='#b8b4a8'):
     cv.rect(x, y, w, 0.6, m.h, mode='atop')
     cv.rect(x + 1, y + h, 1, 2, m.s, ink=m.i, iw=DETAIL)
     cv.rect(x + w - 2, y + h, 1, 2, m.s, ink=m.i, iw=DETAIL)
-    cv.vgrad(x, y + h + 2, w, 5, [C('#3a2a30', 80), C('#3a2a30', 0)], mode='atop')
+    rust_bloom(cv, x, y, w, h, int(x * 3 + y), a=0.25, edge=1.5)
+    proud_shadow(cv, x, y, w, h, 4.0, a=0.24)
+    stain_streaks(cv, x + 1, y + h + 2, w - 2, int(x * 7 + y), length=(6, 22), n=2, a=0.18, light_frac=0.0)
+    soot_above(cv, x + 1, y, w - 2, h=10, a=0.12, seed=int(x))
 
 
 def stoop(cv, x, w, yb, steps=3, color='#8a8078', rail=True, rail_col='#2a2630'):
@@ -623,6 +713,10 @@ def neon_text(cv, s, cx, cy, size, color, kind='sign', tracking=0.6, glow=0.55, 
     cv.paint((x0 - R, y0 - R, np.clip(band * 0.85, 0, 1)), mix(color, C('#ffffff'), 0.35), em=1.0)
     hot = np.clip(1 - _dil(1 - band, cv.D * 0.35), 0, 1)
     cv.paint((x0 - R, y0 - R, hot), mix(color, C('#ffffff'), 0.85), em=1.0)
+    hh, ww = outer.shape
+    log(cv, {'type': 'sign', 'text': s, 'rect': [round((x0 - R + cv.ox) / cv.D, 1), round((y0 - R + cv.oy) / cv.D, 1),
+                                                   round(ww / cv.D, 1), round(hh / cv.D, 1)],
+             'color': '#%02x%02x%02x' % tuple(color[:3])})
     return (x0 - R, y0 - R, outer)
 
 
@@ -789,6 +883,21 @@ def _grid(cv, x, y, w, h):
     return x0, y0, m, X[None, :], Y[:, None]
 
 
+def sheen(cv, x, y, w, h, polys, col, a, em=None):
+    """Glass reflections clipped to the pane rect (x, y, w, h): each poly is painted at alpha a."""
+    x0, y0, rm = cv.rect_mask(x, y, w, h)
+    acc = np.zeros_like(rm)
+    for pts in polys:
+        px0, py0, pm = cv.poly_mask(pts)
+        hh, ww = rm.shape
+        sx0, sy0 = max(x0, px0), max(y0, py0)
+        sx1, sy1 = min(x0 + ww, px0 + pm.shape[1]), min(y0 + hh, py0 + pm.shape[0])
+        if sx1 > sx0 and sy1 > sy0:
+            acc[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0] = np.maximum(
+                acc[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0], pm[sy0 - py0:sy1 - py0, sx0 - px0:sx1 - px0])
+    cv.paint((x0, y0, acc * rm), col, a=a, mode='atop', em=em)
+
+
 def wall_shadow_offset(depth):
     """Offset (u) of the shadow a wall-mounted object `depth` u proud of the wall throws onto it."""
     if LIGHT.get('interior'):
@@ -875,10 +984,10 @@ def peel_paint(cv, x, y, w, h, base, seed, n=None, under=None):
     """Peeling paint: irregular flakes showing the older coat beneath, with a lit lip and a dark curl edge."""
     rs = rng_of('peel', seed, round(x), round(y))
     m = M(base)
-    under = under or mix(shade(m.b, 0.5), C('#9a9282'), 0.45)
-    n = n if n is not None else max(0, int(w * h / 5200) + (1 if rs.random() < 0.6 else 0))
+    under = under or mix(m.b, C('#cfc6b4'), 0.42)          # the older plaster coat shows through
+    n = n if n is not None else max(0, int(w * h / 6500) + (1 if rs.random() < 0.5 else 0))
     for _ in range(n):
-        pw, ph = rs.uniform(5, 14), rs.uniform(3, 9)
+        pw, ph = rs.uniform(4, 10), rs.uniform(2.5, 6)
         px_, py_ = rs.uniform(x + 2, x + w - pw - 2), rs.uniform(y + 4, y + h - ph - 4)
         x0, y0, mm, X, Y = _grid(cv, px_, py_, pw, ph)
         hh, ww = mm.shape
@@ -889,14 +998,14 @@ def peel_paint(cv, x, y, w, h, base, seed, n=None, under=None):
         flake = np.clip((0.95 - d - (nz - 0.5) * 0.9) * 6, 0, 1) * mm
         if flake.max() <= 0:
             continue
-        cv.paint((x0, y0, flake.astype(np.float32)), under, a=0.85, mode='atop')
-        # lip: shifted mask difference (light on the top edge, curl shadow below)
+        cv.paint((x0, y0, flake.astype(np.float32)), under, a=0.7, mode='atop')
+        # curled paint edge: a lit lip along the top, a thin shadow where it lifts at the bottom
         up = np.zeros_like(flake)
         up[1:] = flake[:-1]
         dn = np.zeros_like(flake)
         dn[:-1] = flake[1:]
-        cv.paint((x0, y0, np.clip(dn - flake, 0, 1).astype(np.float32)), m.h, a=0.55, mode='atop')
-        cv.paint((x0, y0, np.clip(up - flake, 0, 1).astype(np.float32)), m.d, a=0.5, mode='atop')
+        cv.paint((x0, y0, np.clip(dn - flake, 0, 1).astype(np.float32)), m.h, a=0.45, mode='atop')
+        cv.paint((x0, y0, np.clip(up - flake, 0, 1).astype(np.float32)), m.d, a=0.35, mode='atop')
 
 
 def patch_repairs(cv, x, y, w, h, base, seed, n=None):
@@ -908,10 +1017,11 @@ def patch_repairs(cv, x, y, w, h, base, seed, n=None):
         pw, ph = rs.uniform(8, 26), rs.uniform(5, 16)
         px_, py_ = rs.uniform(x, x + max(1, w - pw)), rs.uniform(y + 2, y + max(3, h - ph))
         tone_c = m.l if rs.random() < 0.5 else m.s
-        cv.rect(px_, py_, pw, ph, tone_c, a=rs.uniform(0.18, 0.32), mode='atop')
-        for sx, sy, sw, sh in ((px_, py_, pw, 0.5), (px_, py_ + ph - 0.5, pw, 0.5), (px_, py_, 0.5, ph),
-                               (px_ + pw - 0.5, py_, 0.5, ph)):
-            cv.rect(sx, sy, sw, sh, m.d, a=0.16, mode='atop')
+        x0, y0, mm = cv.rect_mask(px_, py_, pw, ph)
+        R_ = int(cv.D * 2)
+        soft = blur(np.pad(mm, R_), cv.D * 0.8, passes=2)
+        cv.paint((x0 - R_, y0 - R_, soft), tone_c, a=rs.uniform(0.14, 0.24), mode='atop')
+        cv.rect(px_, py_, pw, 0.5, m.d, a=0.06, mode='atop')
 
 
 def wood_grain(cv, x, y, w, h, base, seed, a=0.16, along='x'):
@@ -972,7 +1082,7 @@ def micro_speckle(cv, x, y, w, h, seed, amt=0.045):
     """Very fine, low-contrast value speckle (aggregate / plaster grain), centred on zero."""
     x0, y0, mm, X, Y = _grid(cv, x, y, w, h)
     hh, ww = mm.shape
-    nz = value_noise(ww, hh, 1.1 * cv.D, abs(hash(('speck', seed))) % 99991, 1)
+    nz = value_noise(ww, hh, 1.5 * cv.D, abs(hash(('speck', seed))) % 99991, 1)
     cv.paint((x0, y0, (np.clip(nz - 0.5, 0, 1) * 2 * mm).astype(np.float32)), C('#fff4e4'), a=amt * 0.6,
              mode='atop')
     cv.paint((x0, y0, (np.clip(0.5 - nz, 0, 1) * 2 * mm).astype(np.float32)), C('#1a1024'), a=amt, mode='atop')

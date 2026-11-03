@@ -120,7 +120,7 @@ sprites live in `game/assets/bg2/_life/`; room-specific ones live in the room fo
   {"type": "window", "rect": [x, y, w, h], "kind": "home", "lit": true},
   {"type": "pedestrians", "y": 212, "parallax": 0.6, "scale": 0.55, "x": [0, 1600], "rate": 0.25},
   {"type": "traffic", "y": 196, "parallax": 0.55, "files": ["../_life/car_a.png"], "rate": 0.08, "lights": true},
-  {"type": "train", "y": 120, "parallax": 0.3, "file": "../_life/train_el.png", "interval": [25, 45]},
+  {"type": "train", "y": 120, "parallax": 0.3, "file": "../_life/train_el.png", "interval": [25, 45], "scale": 1.0},
   {"type": "pigeons", "x": 420, "y": 300, "count": 4},
   {"type": "birds", "y": [20, 80], "rate": 0.05},
   {"type": "sway", "file": "flag_a.png", "x": 512, "y": 120, "pivot": [10, 0], "amp": 4.0, "speed": 1.2, "front": false},

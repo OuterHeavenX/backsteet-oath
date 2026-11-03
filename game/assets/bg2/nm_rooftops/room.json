@@ -31,6 +31,15 @@
    "repeat": true
   },
   {
+   "name": "room_el",
+   "files": [
+    "el_0.png"
+   ],
+   "parallax": 0.7,
+   "y": 150,
+   "repeat": true
+  },
+  {
    "name": "base",
    "files": [
     "base_0.png",
@@ -234,5 +243,98 @@
    0.3
   ],
   "alpha": 0.06
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 4,
+  "y": [
+   6,
+   60
+  ],
+  "speed": [
+   2,
+   5
+  ],
+  "parallax": 0.08,
+  "tint": "#4a3060",
+  "alpha": 0.55
+ },
+ "haze": {
+  "color": "#6a2a6a",
+  "far": 0.12,
+  "mid": 0.06
+ },
+ "grade": {
+  "lift": "#14081f",
+  "gain": "#ecfbff",
+  "saturation": 1.08,
+  "contrast": 1.06,
+  "vignette": 0.26
+ },
+ "life": [
+  {
+   "type": "train",
+   "y": 176.0,
+   "parallax": 0.7,
+   "file": "../_life/train_el.png",
+   "interval": [
+    20,
+    36
+   ],
+   "scale": 0.6
+  },
+  {
+   "type": "water",
+   "rect": [
+    433.6,
+    250.0,
+    29.2,
+    2.9
+   ],
+   "speed": 5,
+   "tint": "#e0b0ff",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    1287.9,
+    270.4,
+    28.6,
+    3.9
+   ],
+   "speed": 5,
+   "tint": "#e0b0ff",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    1281.8,
+    313.1,
+    28.8,
+    4.0
+   ],
+   "speed": 5,
+   "tint": "#e0b0ff",
+   "alpha": 0.24
+  },
+  {
+   "type": "sign",
+   "rect": [
+    788.0,
+    58.5,
+    123.5,
+    15.0
+   ],
+   "pattern": "buzz",
+   "color": "#f8f0e0"
+  }
+ ]
 }

@@ -252,5 +252,108 @@
    0.2
   ],
   "alpha": 0.0
- }
+ },
+ "clouds": {
+  "files": [
+   "../_life/cloud_a.png",
+   "../_life/cloud_b.png",
+   "../_life/cloud_c.png",
+   "../_life/cloud_d.png",
+   "../_life/cloud_e.png"
+  ],
+  "count": 7,
+  "y": [
+   4,
+   56
+  ],
+  "speed": [
+   5,
+   11
+  ],
+  "parallax": 0.08,
+  "tint": "#748890",
+  "alpha": 0.9
+ },
+ "haze": {
+  "color": "#7a9494",
+  "far": 0.18,
+  "mid": 0.08
+ },
+ "grade": {
+  "lift": "#081211",
+  "gain": "#e9f8f4",
+  "saturation": 0.92,
+  "contrast": 1.03,
+  "vignette": 0.24
+ },
+ "life": [
+  {
+   "type": "pigeons",
+   "x": 191.0,
+   "y": 227.9,
+   "count": 4
+  },
+  {
+   "type": "pigeons",
+   "x": 894.0,
+   "y": 229.5,
+   "count": 4
+  },
+  {
+   "type": "birds",
+   "y": [
+    14,
+    70
+   ],
+   "rate": 0.04
+  },
+  {
+   "type": "water",
+   "rect": [
+    872.9,
+    318.6,
+    50.3,
+    4.7
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    277.4,
+    260.3,
+    52.3,
+    6.3
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    94.2,
+    308.1,
+    31.7,
+    4.5
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  },
+  {
+   "type": "water",
+   "rect": [
+    300.2,
+    312.2,
+    32.0,
+    5.9
+   ],
+   "speed": 5,
+   "tint": "#a8d0d4",
+   "alpha": 0.24
+  }
+ ]
 }
