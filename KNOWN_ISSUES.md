@@ -5,7 +5,7 @@ run, feature tests, quest tests and unit tests all pass on the visual-upgrade bu
 
 ## Release gates still open
 - **Human playtest not performed.** The campaign duration (target: 60+ minutes of active play) is an estimate
-  based on automated runs of 47–49 in-game minutes; see PLAYTHROUGH_REPORT.md. This is the reason for the `-rc`
+  based on automated runs of about 55 in-game minutes with the 1.2 expansion (47–49 before it); see PLAYTHROUGH_REPORT.md. This is the reason for the `-rc`
   label.
 - **No GPU performance measurement yet.** Players can now report it from the run summary card or with Settings → Show FPS. Every measurement so far ran on a GPU-less VM using software rendering, at
   28–47 FPS for 1.1.0 against 117–140 FPS for rc4 (see docs/visual/UPGRADE_REPORT.md). The new art renders at
@@ -28,7 +28,9 @@ run, feature tests, quest tests and unit tests all pass on the visual-upgrade bu
   - Distant skylines are flat silhouettes, and some floors are mild patterns.
 - `jump_punch` and the from-behind hit read weaker than the other animations.
 - Old Quarter skies are a cooler dusk (violet above an amber horizon) than the art-direction target's amber.
-- The web download is 56.7 MB, about twice rc3's, because of the 2× art.
+- The web download is 74.5 MB in 1.3 (56.7 MB in 1.1, about half that in rc3) because of the 2× art and the 1.3
+  background layers. The Windows zip (102.3 MB) is split into two parts on the release-builds branch because of
+  GitHub's 100 MB file limit.
 
 ## Minor issues
 - Difficulty spikes in the warehouse for players who never buy food or manuals. The bot never shops, and it was
