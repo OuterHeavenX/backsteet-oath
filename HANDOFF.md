@@ -1,6 +1,6 @@
 # HANDOFF — continuation notes
 
-**Version:** 1.4.0-rc1 (gameplay polish; resume from `docs/polish/CHECKLIST.md`) · **Branch:** `claude/gameplay-polish` (1.3.0-rc1 is `main` / `claude/visual-upgrade` (rc4 audio hotfix of the old art: `claude/backstreet-oath-build`) · **Release binaries:** branch `release-builds`
+**Version:** 1.4.0-rc1 (gameplay polish; resume from `docs/polish/CHECKLIST.md`) · **Branch:** `claude/gameplay-polish` · 1.3.0-rc1 is on `main` and `claude/visual-upgrade`; the old-art rc4 hotfix is `claude/backstreet-oath-build` · **Release binaries (1.3):** branch `release-builds`
 (orphan branch holding the four zips + itch assets, because build outputs are git-ignored on the main branch).
 **Engine:** Godot 4.7.2-stable. Fresh container: download `Godot_v4.7.2-stable_linux.x86_64.zip` and
 `Godot_v4.7.2-stable_export_templates.tpz` from github.com/godotengine/godot-builds releases; put templates in
