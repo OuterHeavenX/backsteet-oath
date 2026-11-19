@@ -103,6 +103,9 @@ func _ready() -> void:
 			"quest":
 				# quest:<id>[:<state>[:<step>]]  set a side job's state mid-run (default: done)
 				GameState.quests[parts[1]] = {"state": parts[2] if parts.size() > 2 else "done", "step": int(parts[3]) if parts.size() > 3 else 0, "data": {}}
+			"story":
+				# story:<method>  call a Story method that takes the current room (e.g. story:_seat_ending_guests)
+				Story.call(parts[1], w.room)
 			"talk":
 				# talk:<npc id>  start a conversation with an NPC in the room (as if the player walked up and pressed Action)
 				var who = w.room.find_npc(parts[1])
