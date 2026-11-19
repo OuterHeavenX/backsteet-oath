@@ -34,6 +34,8 @@ static func is_heavy(d: Dictionary, dmg: int) -> bool:
 
 ## Called once per landed hit, from Actor.take_damage_and_react.
 static func impact(room: Node, attacker: Node, target: Actor, d: Dictionary, dir: int, dmg: int) -> void:
+	if PerfDebug.off("combat_fx"):
+		return
 	var mat := material_of(attacker, d)
 	var heavy := is_heavy(d, dmg)
 	var p: Vector2 = target.hit_point() + Vector2(-dir * 4, 0)
@@ -68,6 +70,8 @@ static func impact(room: Node, attacker: Node, target: Actor, d: Dictionary, dir
 
 ## Smear arc at the attacker's contact frame (shown on whiffs too, like a real swing).
 static func arc(room: Node, a: Actor) -> void:
+	if PerfDebug.off("combat_fx"):
+		return
 	var anim := str(a.atk.get("anim", ""))
 	var arc_name: String = ARC_FOR.get(anim, "")
 	if arc_name == "" or a.atk.get("projectile", false):

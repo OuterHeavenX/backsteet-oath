@@ -13,7 +13,12 @@ void fragment() {
 }
 """
 const GRADE_SHADER := """shader_type canvas_item;
+//DEFINES
+#ifdef BLOOM
 uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
+#else
+uniform sampler2D screen_tex : hint_screen_texture, filter_nearest;
+#endif
 uniform vec3 lift = vec3(0.0);
 uniform vec3 gain = vec3(1.0);
 uniform float saturation = 1.0;
@@ -26,9 +31,11 @@ uniform float t = 0.0;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 void fragment() {
 	vec3 c = texture(screen_tex, SCREEN_UV).rgb;
+#ifdef BLOOM
 	// restrained bloom: only the brightest lights (neon, lamps, lit glass) bleed softly
 	vec3 b = textureLod(screen_tex, SCREEN_UV, 2.5).rgb * 0.5 + textureLod(screen_tex, SCREEN_UV, 4.0).rgb * 0.5;
 	c += min(max(b - threshold, 0.0) * bloom * 1.8, vec3(0.18));
+#endif
 	c = (c - 0.5) * contrast + 0.5;
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
 	c = mix(vec3(l), c, saturation);
@@ -99,6 +106,10 @@ var pass_timer := 4.0
 var passers: Array = []
 const PASS_DISTRICTS := ["old_quarter", "canal_market", "neon_mile", "ironworks"]
 const PASSERS := ["towna", "townb", "townc", "townd"]
+## life entry type -> PerfDebug switch name (profiling only)
+const PROFILE_GROUP := {"window": "windows", "sway": "sway", "water": "water", "sign": "signs", "shaft": "shafts",
+	"pigeons": "pigeons", "pedestrians": "lanes", "traffic": "lanes", "train": "lanes", "birds": "lanes"}
+var _passers_on := true
 static var _haze_shader: Shader
 static var _shaders: Dictionary = {}
 
@@ -116,11 +127,15 @@ func build(v: RoomVisuals, m: Dictionary, bg_root: Node2D, fg_root: Node2D) -> v
 	full = Settings.effects_full()
 	base_front = Node2D.new()
 	bg_root.add_child(base_front)
-	_apply_haze()
-	if meta.has("clouds") and full:
+	_passers_on = not PerfDebug.off("passers")
+	if not PerfDebug.off("haze"):
+		_apply_haze()
+	if meta.has("clouds") and full and not PerfDebug.off("clouds"):
 		_make_clouds(meta.clouds, bg_root)
 	for e in meta.get("life", []):
 		if typeof(e) != TYPE_DICTIONARY:
+			continue
+		if PerfDebug.off(str(PROFILE_GROUP.get(str(e.get("type", "")), ""))):
 			continue
 		match str(e.get("type", "")):
 			"window": _make_window(e)
@@ -132,7 +147,7 @@ func build(v: RoomVisuals, m: Dictionary, bg_root: Node2D, fg_root: Node2D) -> v
 			"pigeons": _make_pigeons(e)
 			"pedestrians", "traffic", "train", "birds":
 				if full: _make_lane(e, bg_root)
-	if meta.has("grade") and full and Settings.post_fx:
+	if meta.has("grade") and full and Settings.post_fx and not PerfDebug.off("grade"):
 		_make_grade(meta.grade)
 
 # ------------------------------------------------------------------ atmosphere
@@ -164,7 +179,7 @@ func _make_grade(g: Dictionary) -> void:
 	grade_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	grade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var mat := ShaderMaterial.new()
-	mat.shader = _shader(GRADE_SHADER)
+	mat.shader = _shader(GRADE_SHADER.replace("//DEFINES", "" if PerfDebug.off("bloom") else "#define BLOOM"))
 	var lift := Color(str(g.get("lift", "#000000")))
 	var gain := Color(str(g.get("gain", "#ffffff")))
 	mat.set_shader_parameter("lift", Vector3(lift.r, lift.g, lift.b))
@@ -216,7 +231,7 @@ func _make_lane(e: Dictionary, bg_root: Node2D) -> void:
 		lane.parallax = float(e.get("parallax", 0.1))
 	_insert_at_parallax(bg_root, lane.node, lane.parallax)
 	var hz: Dictionary = meta.get("haze", {})
-	if not hz.is_empty() and lane.kind in ["pedestrians", "traffic"]:
+	if not hz.is_empty() and lane.kind in ["pedestrians", "traffic"] and not PerfDebug.off("haze"):
 		var mat := ShaderMaterial.new()
 		mat.shader = _shader(HAZE_SHADER)
 		mat.set_shader_parameter("haze", Color(str(hz.get("color", "#c0a090"))))
@@ -582,7 +597,7 @@ func update(cam_left: float, view_w: float, dt: float) -> void:
 ## Townsfolk strolling along the back of the sidewalk when the street is quiet (neighbourhood districts only).
 func _update_passersby(dt: float) -> void:
 	passers = passers.filter(func(n): return is_instance_valid(n) and not n.is_queued_for_deletion())
-	if room.interior or not (str(room.district) in PASS_DISTRICTS) or room.cutscene or room.boss_active or room.combat_active():
+	if not _passers_on or room.interior or not (str(room.district) in PASS_DISTRICTS) or room.cutscene or room.boss_active or room.combat_active():
 		return
 	if room.player == null or Story.busy:
 		return
