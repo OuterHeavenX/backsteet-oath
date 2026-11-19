@@ -300,6 +300,19 @@ func t_weights() -> void:
 		await goto_room(pair[0])
 		await clear_walk(float(pair[2]) + 60.0)
 		await collect_key(pair[1])
+		if not GameState.has_key(pair[1]):
+			# diagnostics for a rare intermittent failure of this step
+			var r = w.room
+			var foes: Array = []
+			for a in r.actors:
+				if a is Enemy:
+					foes.append("%s@%d,%d %s dead=%s entering=%s onscreen=%s hp=%d" % [a.enemy_id, int(a.position.x), int(a.position.y), a.state, str(a.dead), str(a.entering), str(r.on_screen(a, 0)), a.hp])
+			var pks: Array = []
+			for pk in r.pickups:
+				pks.append("%s:%s@%d,%d z=%.1f" % [pk.kind, pk.key_id, int(pk.position.x), int(pk.position.y), pk.z])
+			print("DIAG weights ", pair[0], " player=", r.player.position, " state=", r.player.state, " cam=", r.cam_left(), "..", r.cam_right(), " zoom=", r.camera.zoom.x,
+				" waves_done=", r.waves_done.keys(), " active=", r.active_waves.keys(), " queue=", r.wave_queue.size(), " locked=", r.exits_locked,
+				" busy=", Story.busy, " dialogue=", w.dialogue.active, " cutscene=", r.cutscene, " quest=", GameState.quests.get("weights", {}), " foes=", foes, " pickups=", pks)
 		check(GameState.has_key(pair[1]), "inspector drops weights in " + pair[0])
 	check(Quests.step("weights") == 1, "all three weights recovered")
 	await goto_room("cm_canalwalk")

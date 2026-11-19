@@ -14,6 +14,8 @@ run and every test suite pass on this build (see `docs/polish/VALIDATION_REPORT.
 - **No GPU performance measurement yet.** Every number so far comes from a GPU-less machine using software
   rendering (see `docs/polish/PERF_REPORT.md`). Players can report real numbers with Settings → Show FPS or from
   the run summary card. *Effects: Reduced* and *Colour grade & bloom: Off* are the fallbacks for slow devices.
+- **The new bloom pass is unproven on real GPU drivers.** It was only seen on two software renderers. If streets
+  look wrong with Settings → Colour grade & bloom on, turn it off and report the device.
 - **Audio has not been listened to.** This includes the three new attack cues, which are only known to be
   numerically different from each other.
 - **Not tested on physical devices:** Steam Deck hardware, iPhone/Safari, Android phones and real gamepads. Desktop

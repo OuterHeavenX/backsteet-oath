@@ -83,8 +83,19 @@ The economy was reviewed, not retuned: see `ECONOMY_REVIEW.md`. In short, income
 is by far the strongest purchase (about $250 reaches every cap), and nothing needs farming.
 
 ## 5c. Performance and load
-See `PERF_REPORT.md` (profiling harness, the cheaper grade and bloom pass, web load measurements). All numbers
-are from a software renderer in a container and say nothing about real GPUs, a Steam Deck or phones.
+
+Full detail, commands and evidence: `PERF_REPORT.md`. **Every number is from a software renderer in a container.**
+They compare builds on one machine; they say nothing about real GPUs, a Steam Deck or phones.
+
+| What changed | Measured here | Why | Where |
+|---|---|---|---|
+| The colour grade and bloom pass no longer asks the engine for a blurred copy of the whole screen every frame; it blurs a small copy itself. | 7 to 15 ms less per frame on the software renderer in four scenes (for example Kettle Street with eight enemies: 53.4 to 41.0 ms). The picture differs from the old pass by 0.11 of 255 levels on average. | Profiling showed this pass was 40 to 50% of the frame, most of it the blur. | `room_life.gd` |
+| Imported textures use lossless WebP at its strongest setting. Pixels are identical (all 1,025 textures compared). | Web package 66.2 to 54.3 MB; every platform's pack is 11.9 MB smaller. Cold load to the title on a simulated 50 Mbit/s line: 19.2 to 16.9 s (one run each). | A free size cut with no visual change. Import takes about 7 minutes instead of 4 to 5. | `project.godot` |
+| A profiling harness that records frame-time distribution, load time and the renderer in use, with a switch for each visual system and an on/off alternation mode for small differences; web size and load scripts. | Run-to-run noise on this machine is about 5 ms, which the alternation mode gets under. | So the next optimisation starts from measurements. | `game/tests/perf.gd`, `tools/perf/`, `tools/webtest/load_test.js` |
+
+Found but not changed (listed in the report): overdraw from the sky and far background layers (8 to 9 ms here)
+and the HUD (5 to 8 ms). The new bloom pass has only been seen on two software renderers; Settings > Colour
+grade & bloom: Off turns the whole pass off if a real GPU driver disagrees.
 
 ## 6. For playtesting
 - **Settings > Playtest log** (off by default) keeps first-time timestamps, tips done or skipped, stage times,
