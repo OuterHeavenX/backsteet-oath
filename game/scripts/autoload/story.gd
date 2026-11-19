@@ -1550,7 +1550,10 @@ func _cup_start(room: Node) -> void:
 	Audio.play_music("neon_mile", 1.0)
 	busy = false
 
-func _cup_return_weapon(p: Player) -> void:
+func _cup_return_weapon(p) -> void:
+	if p == null or not is_instance_valid(p):
+		held_weapon_for_cup = ""
+		return
 	if held_weapon_for_cup != "" and is_instance_valid(p):
 		p.equip_weapon(held_weapon_for_cup)
 	held_weapon_for_cup = ""

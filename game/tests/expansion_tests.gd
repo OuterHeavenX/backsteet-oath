@@ -85,9 +85,11 @@ func _axis(a: String, on: bool) -> void:
 		held[a] = on
 		act(a, on)
 
-func _knock_out_enemies() -> void:
+func _knock_out_enemies(bosses: bool = false) -> void:
 	for e in w.room.actors.duplicate():
-		if e is Enemy and e.team == Actor.TEAM_ENEMY and not e.dead and not e.entering and w.room.on_screen(e, 0) and e.state != "knockdown" and not e.lying:
+		# Bosses are left to the boss tests. (This helper used to floor them too, which only "worked" because a
+		# second boss fight could start in the pause after the first one fell: fixed in Room.boss_done.)
+		if e is Enemy and (bosses or not e.is_boss) and e.team == Actor.TEAM_ENEMY and not e.dead and not e.entering and w.room.on_screen(e, 0) and e.state != "knockdown" and not e.lying:
 			e.hp = 0
 			e.take_damage_and_react(w.room.player, {"knockdown": true, "kb": 120, "launch": 120}, 0.0, 1, false)
 
@@ -325,7 +327,7 @@ func _run_ladder(lose_at: int) -> void:
 		elif allow_ko:
 			pass   # let the knockout land (no HP refill)
 		else:
-			_knock_out_enemies()
+			_knock_out_enemies(true)    # the ladder's last bout is Mae: floor her too
 			GameState.hp = GameState.max_hp()
 			p.hp = GameState.hp
 		await frames(1)
