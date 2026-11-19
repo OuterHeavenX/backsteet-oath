@@ -1,0 +1,60 @@
+{
+ "url": "http://127.0.0.1:8766/index.html?bo_debug=1",
+ "profile": "unthrottled",
+ "profile_settings": null,
+ "browser": "chromium 153.0.8010.12 headless, WebGL via SwiftShader (software)",
+ "viewport": "1280x720",
+ "engine_start_ms": 867,
+ "title_ms": 3089,
+ "files": [
+  {
+   "file": "index.html",
+   "status": 200,
+   "transfer_bytes": 8777,
+   "decoded_bytes": 8589,
+   "content_encoding": ""
+  },
+  {
+   "file": "index.png",
+   "status": 200,
+   "transfer_bytes": 21632,
+   "decoded_bytes": 21443,
+   "content_encoding": ""
+  },
+  {
+   "file": "index.js",
+   "status": 200,
+   "transfer_bytes": 280018,
+   "decoded_bytes": 279815,
+   "content_encoding": ""
+  },
+  {
+   "file": "index.wasm",
+   "status": 200,
+   "transfer_bytes": 39514953,
+   "decoded_bytes": 39514754,
+   "content_encoding": ""
+  },
+  {
+   "file": "index.pck",
+   "status": 200,
+   "transfer_bytes": 66186019,
+   "decoded_bytes": 66185812,
+   "content_encoding": ""
+  }
+ ],
+ "transfer_bytes": 106011399,
+ "decoded_bytes": 106010413,
+ "new_game_world_ready_ms": 4877,
+ "new_game_control_ms": 13395,
+ "warm_title_ms": 2120,
+ "warm_transfer_bytes": 105701077,
+ "warm_statuses": [
+  "index.html:200",
+  "index.png:200",
+  "index.js:200",
+  "index.wasm:200",
+  "index.pck:200"
+ ],
+ "errors": []
+}

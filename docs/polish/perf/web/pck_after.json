@@ -1,0 +1,901 @@
+{
+ "pack": "build/web/index.pck",
+ "files": 1758,
+ "bytes": 54144565,
+ "groups": {
+  ".godot (other)": {
+   "bytes": 46228,
+   "files": 6
+  },
+  "assets/fonts": {
+   "bytes": 136466,
+   "files": 12
+  },
+  "assets/props2": {
+   "bytes": 216770,
+   "files": 115
+  },
+  "assets/audio/sfx": {
+   "bytes": 1026721,
+   "files": 126
+  },
+  "assets/portraits2": {
+   "bytes": 3195674,
+   "files": 72
+  },
+  "assets/sprites/chars": {
+   "bytes": 18081679,
+   "files": 216
+  },
+  "assets/fx2": {
+   "bytes": 370121,
+   "files": 93
+  },
+  "assets/icons2": {
+   "bytes": 255491,
+   "files": 216
+  },
+  "assets/ui2": {
+   "bytes": 1143736,
+   "files": 127
+  },
+  "assets/bg2": {
+   "bytes": 12645447,
+   "files": 509
+  },
+  "assets/weapons2": {
+   "bytes": 27169,
+   "files": 31
+  },
+  "assets/pickups2": {
+   "bytes": 21096,
+   "files": 25
+  },
+  "assets/audio/music": {
+   "bytes": 16287047,
+   "files": 30
+  },
+  "assets/fx": {
+   "bytes": 2726,
+   "files": 1
+  },
+  "assets/pickups": {
+   "bytes": 1108,
+   "files": 1
+  },
+  "assets/props": {
+   "bytes": 7580,
+   "files": 1
+  },
+  "assets/sprites/characters": {
+   "bytes": 87495,
+   "files": 60
+  },
+  "assets/ui": {
+   "bytes": 236,
+   "files": 1
+  },
+  "assets/weapons": {
+   "bytes": 1960,
+   "files": 1
+  },
+  "data": {
+   "bytes": 188294,
+   "files": 12
+  },
+  "(root)": {
+   "bytes": 2738,
+   "files": 2
+  },
+  "scenes": {
+   "bytes": 296,
+   "files": 3
+  },
+  "scripts": {
+   "bytes": 398487,
+   "files": 98
+  }
+ },
+ "largest": [
+  {
+   "bytes": 1536218,
+   "file": "assets/audio/music/ending.ogg  [imported]"
+  },
+  {
+   "bytes": 1493682,
+   "file": "assets/audio/music/underline.ogg  [imported]"
+  },
+  {
+   "bytes": 1444582,
+   "file": "assets/audio/music/rook.ogg  [imported]"
+  },
+  {
+   "bytes": 1394626,
+   "file": "assets/audio/music/warehouse.ogg  [imported]"
+  },
+  {
+   "bytes": 1335646,
+   "file": "assets/audio/music/old_quarter.ogg  [imported]"
+  },
+  {
+   "bytes": 1325486,
+   "file": "assets/audio/music/ironworks.ogg  [imported]"
+  },
+  {
+   "bytes": 1287774,
+   "file": "assets/audio/music/neon_mile.ogg  [imported]"
+  },
+  {
+   "bytes": 1255506,
+   "file": "assets/audio/music/floodgate.ogg  [imported]"
+  },
+  {
+   "bytes": 1163106,
+   "file": "assets/audio/music/canal_market.ogg  [imported]"
+  },
+  {
+   "bytes": 1142154,
+   "file": "assets/audio/music/safe_hub.ogg  [imported]"
+  },
+  {
+   "bytes": 1116286,
+   "file": "assets/audio/music/boss.ogg  [imported]"
+  },
+  {
+   "bytes": 996702,
+   "file": "assets/audio/music/title.ogg  [imported]"
+  },
+  {
+   "bytes": 633466,
+   "file": "assets/audio/music/setback.ogg  [imported]"
+  },
+  {
+   "bytes": 462088,
+   "file": "assets/bg2/ul_vault/base_0.png  [imported]"
+  },
+  {
+   "bytes": 359196,
+   "file": "assets/bg2/rw_floor/base_0.png  [imported]"
+  },
+  {
+   "bytes": 359154,
+   "file": "assets/bg2/iy_foundry/base_0.png  [imported]"
+  },
+  {
+   "bytes": 358890,
+   "file": "assets/sprites/chars/duke.png  [imported]"
+  },
+  {
+   "bytes": 350720,
+   "file": "assets/sprites/chars/otto.png  [imported]"
+  },
+  {
+   "bytes": 343358,
+   "file": "assets/bg2/nm_marquee/base_0.png  [imported]"
+  },
+  {
+   "bytes": 341140,
+   "file": "assets/bg2/iy_spur/base_1.png  [imported]"
+  },
+  {
+   "bytes": 333738,
+   "file": "assets/bg2/oq_brickrow/base_0.png  [imported]"
+  },
+  {
+   "bytes": 331766,
+   "file": "assets/bg2/iy_spur/base_0.png  [imported]"
+  },
+  {
+   "bytes": 329636,
+   "file": "assets/bg2/iy_gate/base_0.png  [imported]"
+  },
+  {
+   "bytes": 328418,
+   "file": "assets/sprites/chars/dogs_heavy.png  [imported]"
+  },
+  {
+   "bytes": 321992,
+   "file": "assets/sprites/chars/saints_heavy.png  [imported]"
+  },
+  {
+   "bytes": 318358,
+   "file": "assets/sprites/chars/yard_heavy.png  [imported]"
+  },
+  {
+   "bytes": 316806,
+   "file": "assets/sprites/chars/moles_heavy.png  [imported]"
+  },
+  {
+   "bytes": 315484,
+   "file": "assets/sprites/chars/kowal.png  [imported]"
+  },
+  {
+   "bytes": 311314,
+   "file": "assets/sprites/chars/grays_heavy.png  [imported]"
+  },
+  {
+   "bytes": 309512,
+   "file": "assets/sprites/chars/nico.png  [imported]"
+  },
+  {
+   "bytes": 306020,
+   "file": "assets/sprites/chars/mara.png  [imported]"
+  },
+  {
+   "bytes": 305780,
+   "file": "assets/sprites/chars/dogs_brawler.png  [imported]"
+  },
+  {
+   "bytes": 305006,
+   "file": "assets/sprites/chars/rats_heavy.png  [imported]"
+  },
+  {
+   "bytes": 304764,
+   "file": "assets/bg2/rw_storage/base_0.png  [imported]"
+  },
+  {
+   "bytes": 304286,
+   "file": "assets/sprites/chars/benny.png  [imported]"
+  },
+  {
+   "bytes": 301166,
+   "file": "assets/sprites/chars/dogs_flanker.png  [imported]"
+  },
+  {
+   "bytes": 299464,
+   "file": "assets/sprites/chars/dogs_weapon.png  [imported]"
+  },
+  {
+   "bytes": 298290,
+   "file": "assets/sprites/chars/rook_p2.png  [imported]"
+  },
+  {
+   "bytes": 294656,
+   "file": "assets/sprites/chars/rhea.png  [imported]"
+  },
+  {
+   "bytes": 293676,
+   "file": "assets/bg2/oq_kettle/base_0.png  [imported]"
+  },
+  {
+   "bytes": 289384,
+   "file": "assets/sprites/chars/rook.png  [imported]"
+  },
+  {
+   "bytes": 288616,
+   "file": "assets/sprites/chars/price.png  [imported]"
+  },
+  {
+   "bytes": 287444,
+   "file": "assets/sprites/chars/dogs_thrower.png  [imported]"
+  },
+  {
+   "bytes": 278644,
+   "file": "assets/bg2/rw_storage/base_1.png  [imported]"
+  },
+  {
+   "bytes": 278148,
+   "file": "assets/sprites/chars/grays_weapon.png  [imported]"
+  },
+  {
+   "bytes": 277012,
+   "file": "assets/sprites/chars/mae.png  [imported]"
+  },
+  {
+   "bytes": 276554,
+   "file": "assets/sprites/chars/eli.png  [imported]"
+  },
+  {
+   "bytes": 275360,
+   "file": "assets/sprites/chars/saints_brawler.png  [imported]"
+  },
+  {
+   "bytes": 273800,
+   "file": "assets/sprites/chars/grays_thrower.png  [imported]"
+  },
+  {
+   "bytes": 273630,
+   "file": "assets/sprites/chars/grays_blocker.png  [imported]"
+  },
+  {
+   "bytes": 273004,
+   "file": "assets/sprites/chars/yard_blocker.png  [imported]"
+  },
+  {
+   "bytes": 272948,
+   "file": "assets/sprites/chars/saints_thrower.png  [imported]"
+  },
+  {
+   "bytes": 272676,
+   "file": "assets/sprites/chars/yard_weapon.png  [imported]"
+  },
+  {
+   "bytes": 271790,
+   "file": "assets/sprites/chars/moles_flanker.png  [imported]"
+  },
+  {
+   "bytes": 271232,
+   "file": "assets/sprites/chars/grays_brawler.png  [imported]"
+  },
+  {
+   "bytes": 270896,
+   "file": "assets/sprites/chars/saints_weapon.png  [imported]"
+  },
+  {
+   "bytes": 269840,
+   "file": "assets/sprites/chars/moles_weapon.png  [imported]"
+  },
+  {
+   "bytes": 268600,
+   "file": "assets/sprites/chars/yard_brawler.png  [imported]"
+  },
+  {
+   "bytes": 267258,
+   "file": "assets/sprites/chars/sabine.png  [imported]"
+  },
+  {
+   "bytes": 267028,
+   "file": "assets/bg2/int_garage/base_0.png  [imported]"
+  },
+  {
+   "bytes": 266818,
+   "file": "assets/sprites/chars/moles_brawler.png  [imported]"
+  },
+  {
+   "bytes": 266272,
+   "file": "assets/sprites/chars/dogs_blocker.png  [imported]"
+  },
+  {
+   "bytes": 265642,
+   "file": "assets/sprites/chars/saints_blocker.png  [imported]"
+  },
+  {
+   "bytes": 265572,
+   "file": "assets/sprites/chars/yard_thrower.png  [imported]"
+  },
+  {
+   "bytes": 264828,
+   "file": "assets/sprites/chars/moles_thrower.png  [imported]"
+  },
+  {
+   "bytes": 264716,
+   "file": "assets/bg2/ul_tunnel/base_0.png  [imported]"
+  },
+  {
+   "bytes": 263736,
+   "file": "assets/sprites/chars/rats_weapon.png  [imported]"
+  },
+  {
+   "bytes": 263620,
+   "file": "assets/bg2/fr_pumpstation/base_0.png  [imported]"
+  },
+  {
+   "bytes": 261968,
+   "file": "assets/sprites/chars/yard_flanker.png  [imported]"
+  },
+  {
+   "bytes": 260940,
+   "file": "assets/sprites/chars/grays_flanker.png  [imported]"
+  },
+  {
+   "bytes": 259736,
+   "file": "assets/sprites/chars/saints_flanker.png  [imported]"
+  },
+  {
+   "bytes": 259440,
+   "file": "assets/sprites/chars/rats_thrower.png  [imported]"
+  },
+  {
+   "bytes": 259414,
+   "file": "assets/sprites/chars/lou.png  [imported]"
+  },
+  {
+   "bytes": 258360,
+   "file": "assets/sprites/chars/rats_blocker.png  [imported]"
+  },
+  {
+   "bytes": 257896,
+   "file": "assets/sprites/chars/moles_blocker.png  [imported]"
+  },
+  {
+   "bytes": 255192,
+   "file": "assets/sprites/chars/jett.png  [imported]"
+  },
+  {
+   "bytes": 254606,
+   "file": "assets/sprites/chars/rats_brawler.png  [imported]"
+  },
+  {
+   "bytes": 254032,
+   "file": "assets/bg2/nm_rooftops/base_0.png  [imported]"
+  },
+  {
+   "bytes": 251594,
+   "file": "assets/sprites/chars/rats_flanker.png  [imported]"
+  },
+  {
+   "bytes": 250162,
+   "file": "assets/bg2/cm_gate/base_0.png  [imported]"
+  },
+  {
+   "bytes": 249356,
+   "file": "assets/ui2/map.png  [imported]"
+  },
+  {
+   "bytes": 249108,
+   "file": "assets/bg2/nm_arcade/base_0.png  [imported]"
+  },
+  {
+   "bytes": 238848,
+   "file": "assets/bg2/rw_office/base_0.png  [imported]"
+  },
+  {
+   "bytes": 238800,
+   "file": "assets/bg2/cm_canalwalk/base_0.png  [imported]"
+  },
+  {
+   "bytes": 237754,
+   "file": "assets/bg2/int_rec/base_0.png  [imported]"
+  },
+  {
+   "bytes": 226448,
+   "file": "assets/bg2/iy_gate/base_1.png  [imported]"
+  },
+  {
+   "bytes": 224926,
+   "file": "assets/bg2/ul_tunnel/base_1.png  [imported]"
+  },
+  {
+   "bytes": 223378,
+   "file": "assets/bg2/nm_marquee/base_1.png  [imported]"
+  },
+  {
+   "bytes": 220152,
+   "file": "assets/bg2/rw_dock/base_0.png  [imported]"
+  },
+  {
+   "bytes": 219492,
+   "file": "assets/bg2/ul_station/base_0.png  [imported]"
+  },
+  {
+   "bytes": 216550,
+   "file": "assets/bg2/int_switch/base_0.png  [imported]"
+  },
+  {
+   "bytes": 215344,
+   "file": "assets/bg2/cm_pier/base_0.png  [imported]"
+  },
+  {
+   "bytes": 213788,
+   "file": "assets/bg2/fr_dockgate/base_0.png  [imported]"
+  },
+  {
+   "bytes": 211830,
+   "file": "assets/bg2/oq_kettle/base_1.png  [imported]"
+  },
+  {
+   "bytes": 209020,
+   "file": "assets/bg2/oq_chainlot/base_0.png  [imported]"
+  },
+  {
+   "bytes": 205994,
+   "file": "assets/bg2/nm_backalley/base_0.png  [imported]"
+  },
+  {
+   "bytes": 204364,
+   "file": "assets/bg2/cm_canalwalk/base_1.png  [imported]"
+  },
+  {
+   "bytes": 199158,
+   "file": "assets/bg2/oq_brickrow/base_1.png  [imported]"
+  },
+  {
+   "bytes": 195904,
+   "file": "assets/bg2/fr_bridge/base_0.png  [imported]"
+  },
+  {
+   "bytes": 192742,
+   "file": "assets/bg2/nm_arcade/base_1.png  [imported]"
+  },
+  {
+   "bytes": 180236,
+   "file": "assets/bg2/fr_pumpstation/base_1.png  [imported]"
+  },
+  {
+   "bytes": 178534,
+   "file": "assets/sprites/chars/bigmo.png  [imported]"
+  },
+  {
+   "bytes": 173202,
+   "file": "assets/sprites/chars/hank.png  [imported]"
+  },
+  {
+   "bytes": 169558,
+   "file": "assets/sprites/chars/sal.png  [imported]"
+  },
+  {
+   "bytes": 169526,
+   "file": "assets/sprites/chars/gus.png  [imported]"
+  },
+  {
+   "bytes": 163378,
+   "file": "assets/bg2/int_bait/base_0.png  [imported]"
+  },
+  {
+   "bytes": 162094,
+   "file": "assets/bg2/int_noodle/base_0.png  [imported]"
+  },
+  {
+   "bytes": 159158,
+   "file": "assets/bg2/int_books/base_0.png  [imported]"
+  },
+  {
+   "bytes": 156274,
+   "file": "assets/sprites/chars/towna.png  [imported]"
+  },
+  {
+   "bytes": 153766,
+   "file": "assets/sprites/chars/fong.png  [imported]"
+  },
+  {
+   "bytes": 152414,
+   "file": "assets/sprites/chars/dot.png  [imported]"
+  },
+  {
+   "bytes": 151758,
+   "file": "assets/bg2/nm_rooftops/base_1.png  [imported]"
+  },
+  {
+   "bytes": 148920,
+   "file": "assets/sprites/chars/rosa.png  [imported]"
+  },
+  {
+   "bytes": 146764,
+   "file": "assets/bg2/int_diner/base_0.png  [imported]"
+  },
+  {
+   "bytes": 146306,
+   "file": "assets/ui2/title_far.png  [imported]"
+  },
+  {
+   "bytes": 145712,
+   "file": "assets/sprites/chars/townb.png  [imported]"
+  },
+  {
+   "bytes": 142192,
+   "file": "assets/sprites/chars/townd.png  [imported]"
+  },
+  {
+   "bytes": 141882,
+   "file": "assets/sprites/chars/kiki.png  [imported]"
+  },
+  {
+   "bytes": 141800,
+   "file": "assets/bg2/fr_bridge/base_1.png  [imported]"
+  },
+  {
+   "bytes": 139740,
+   "file": "assets/sprites/chars/alvarez.png  [imported]"
+  },
+  {
+   "bytes": 139500,
+   "file": "assets/sprites/chars/marv.png  [imported]"
+  },
+  {
+   "bytes": 139352,
+   "file": "assets/bg2/cm_gate/base_1.png  [imported]"
+  },
+  {
+   "bytes": 139340,
+   "file": "assets/sprites/chars/otis.png  [imported]"
+  },
+  {
+   "bytes": 139132,
+   "file": "assets/sprites/chars/ines.png  [imported]"
+  },
+  {
+   "bytes": 138120,
+   "file": "assets/sprites/chars/lacey.png  [imported]"
+  },
+  {
+   "bytes": 136368,
+   "file": "assets/sprites/chars/townc.png  [imported]"
+  },
+  {
+   "bytes": 133460,
+   "file": "assets/bg2/rw_dock/base_1.png  [imported]"
+  },
+  {
+   "bytes": 132788,
+   "file": "assets/sprites/chars/hollis.png  [imported]"
+  },
+  {
+   "bytes": 130460,
+   "file": "assets/bg2/int_pharmacy/base_0.png  [imported]"
+  },
+  {
+   "bytes": 129352,
+   "file": "assets/sprites/chars/teddy.png  [imported]"
+  },
+  {
+   "bytes": 129294,
+   "file": "assets/bg2/ul_station/base_1.png  [imported]"
+  },
+  {
+   "bytes": 123674,
+   "file": "assets/bg2/int_canteen/base_0.png  [imported]"
+  },
+  {
+   "bytes": 123276,
+   "file": "assets/sprites/chars/pip.png  [imported]"
+  },
+  {
+   "bytes": 123250,
+   "file": "assets/bg2/fr_dockgate/base_1.png  [imported]"
+  },
+  {
+   "bytes": 123006,
+   "file": "assets/bg2/iy_foundry/base_1.png  [imported]"
+  },
+  {
+   "bytes": 111230,
+   "file": "assets/audio/sfx/rain_loop.ogg  [imported]"
+  },
+  {
+   "bytes": 111016,
+   "file": "assets/portraits2/kowal.png  [imported]"
+  },
+  {
+   "bytes": 109426,
+   "file": "assets/ui2/title_mid.png  [imported]"
+  },
+  {
+   "bytes": 109030,
+   "file": "assets/audio/sfx/street_loop.ogg  [imported]"
+  },
+  {
+   "bytes": 108990,
+   "file": "assets/audio/sfx/industrial_loop.ogg  [imported]"
+  },
+  {
+   "bytes": 104622,
+   "file": "assets/portraits2/eli.png  [imported]"
+  },
+  {
+   "bytes": 103580,
+   "file": "assets/portraits2/nico.png  [imported]"
+  },
+  {
+   "bytes": 102326,
+   "file": "assets/bg2/_district/floodgate_sky.png  [imported]"
+  },
+  {
+   "bytes": 99638,
+   "file": "assets/portraits2/price.png  [imported]"
+  },
+  {
+   "bytes": 99262,
+   "file": "assets/portraits2/rhea.png  [imported]"
+  },
+  {
+   "bytes": 98008,
+   "file": "assets/bg2/cm_pier/base_1.png  [imported]"
+  },
+  {
+   "bytes": 97988,
+   "file": "assets/portraits2/rosa.png  [imported]"
+  },
+  {
+   "bytes": 95956,
+   "file": "assets/portraits2/kiki.png  [imported]"
+  },
+  {
+   "bytes": 95600,
+   "file": "assets/bg2/_district/neon_mile_far.png  [imported]"
+  },
+  {
+   "bytes": 95184,
+   "file": "assets/portraits2/fong.png  [imported]"
+  },
+  {
+   "bytes": 94544,
+   "file": "assets/portraits2/alvarez.png  [imported]"
+  },
+  {
+   "bytes": 94414,
+   "file": "assets/portraits2/mara.png  [imported]"
+  },
+  {
+   "bytes": 93570,
+   "file": "assets/portraits2/mae.png  [imported]"
+  },
+  {
+   "bytes": 91578,
+   "file": "assets/portraits2/marv.png  [imported]"
+  },
+  {
+   "bytes": 90662,
+   "file": "assets/portraits2/yard.png  [imported]"
+  },
+  {
+   "bytes": 89710,
+   "file": "assets/portraits2/moles.png  [imported]"
+  },
+  {
+   "bytes": 89096,
+   "file": "assets/portraits2/otis.png  [imported]"
+  },
+  {
+   "bytes": 87744,
+   "file": "assets/portraits2/hollis.png  [imported]"
+  },
+  {
+   "bytes": 86812,
+   "file": "assets/portraits2/jett.png  [imported]"
+  },
+  {
+   "bytes": 86474,
+   "file": "assets/bg2/oq_chainlot/base_1.png  [imported]"
+  },
+  {
+   "bytes": 86010,
+   "file": "assets/portraits2/dot.png  [imported]"
+  },
+  {
+   "bytes": 85594,
+   "file": "assets/portraits2/gus.png  [imported]"
+  },
+  {
+   "bytes": 85006,
+   "file": "assets/portraits2/bigmo.png  [imported]"
+  },
+  {
+   "bytes": 84984,
+   "file": "assets/portraits2/ines.png  [imported]"
+  },
+  {
+   "bytes": 84470,
+   "file": "assets/audio/music/defeat.ogg  [imported]"
+  },
+  {
+   "bytes": 84362,
+   "file": "assets/portraits2/teddy.png  [imported]"
+  },
+  {
+   "bytes": 84336,
+   "file": "assets/portraits2/saints.png  [imported]"
+  },
+  {
+   "bytes": 84334,
+   "file": "assets/portraits2/pip.png  [imported]"
+  },
+  {
+   "bytes": 84022,
+   "file": "assets/portraits2/duke.png  [imported]"
+  },
+  {
+   "bytes": 83694,
+   "file": "assets/portraits2/sal.png  [imported]"
+  },
+  {
+   "bytes": 82980,
+   "file": "assets/portraits2/otto.png  [imported]"
+  },
+  {
+   "bytes": 82716,
+   "file": "assets/portraits2/sabine.png  [imported]"
+  },
+  {
+   "bytes": 82654,
+   "file": "assets/portraits2/grays.png  [imported]"
+  },
+  {
+   "bytes": 82112,
+   "file": "assets/portraits2/lou.png  [imported]"
+  },
+  {
+   "bytes": 81496,
+   "file": "assets/portraits2/lacey.png  [imported]"
+  },
+  {
+   "bytes": 81464,
+   "file": "assets/portraits2/rook.png  [imported]"
+  },
+  {
+   "bytes": 81328,
+   "file": "assets/bg2/int_arcade/base_0.png  [imported]"
+  },
+  {
+   "bytes": 80960,
+   "file": "assets/portraits2/hank.png  [imported]"
+  },
+  {
+   "bytes": 79914,
+   "file": "assets/portraits2/rats.png  [imported]"
+  },
+  {
+   "bytes": 78694,
+   "file": "assets/ui2/title_hero.png  [imported]"
+  },
+  {
+   "bytes": 77766,
+   "file": "assets/ui2/logo.png  [imported]"
+  },
+  {
+   "bytes": 77116,
+   "file": "assets/portraits2/dogs.png  [imported]"
+  },
+  {
+   "bytes": 74714,
+   "file": "assets/audio/music/victory.ogg  [imported]"
+  },
+  {
+   "bytes": 72554,
+   "file": "assets/audio/sfx/neon_buzz_loop.ogg  [imported]"
+  },
+  {
+   "bytes": 72154,
+   "file": "assets/ui2/title_street.png  [imported]"
+  },
+  {
+   "bytes": 69594,
+   "file": "assets/portraits2/benny.png  [imported]"
+  },
+  {
+   "bytes": 63164,
+   "file": "assets/ui2/title_sky.png  [imported]"
+  },
+  {
+   "bytes": 62032,
+   "file": "assets/ui2/logo_small.png  [imported]"
+  },
+  {
+   "bytes": 59754,
+   "file": "assets/bg2/_district/old_quarter_far.png  [imported]"
+  },
+  {
+   "bytes": 52554,
+   "file": "assets/bg2/_district/old_quarter_mid.png  [imported]"
+  },
+  {
+   "bytes": 51368,
+   "file": "assets/bg2/ul_vault/base_1.png  [imported]"
+  },
+  {
+   "bytes": 50665,
+   "file": "data/dialogue.json"
+  },
+  {
+   "bytes": 48328,
+   "file": "assets/bg2/oq_chainlot/road_0.png  [imported]"
+  },
+  {
+   "bytes": 47150,
+   "file": "assets/fx2/levelup_burst.png  [imported]"
+  },
+  {
+   "bytes": 42796,
+   "file": "assets/bg2/_district/canal_market_mid.png  [imported]"
+  },
+  {
+   "bytes": 42564,
+   "file": "assets/bg2/_district/ironworks_sky.png  [imported]"
+  },
+  {
+   "bytes": 41090,
+   "file": "scripts/autoload/story.gdc"
+  },
+  {
+   "bytes": 39226,
+   "file": "data/rooms.json"
+  },
+  {
+   "bytes": 38412,
+   "file": "assets/bg2/rw_floor/base_1.png  [imported]"
+  },
+  {
+   "bytes": 37259,
+   "file": ".godot/uid_cache.bin"
+  }
+ ]
+}
