@@ -210,30 +210,28 @@ func _skill_row(sid: String, req: String) -> Button:
 	elif not available:
 		label_t = "???  (come back later)"
 	var b := UIKit.button(label_t, func(): _buy_skill(sid, req), 210)
-	b.disabled = owned
 	b.focus_entered.connect(func():
-		if available:
-			_show("%s  How: %s" % [s.desc, PreviewText.technique_how(sid)], " ".join(PreviewText.technique(sid)))
+		if available or owned:
+			_show("%s  How: %s" % [s.desc, PreviewText.technique_how(sid)], "%s  Confirm to watch the move%s." % [
+				" ".join(PreviewText.technique(sid)), "" if owned else " before you decide (looking is free)"])
 		else:
 			_show("This manual isn't on the shelf yet. Keep following the story.", ""))
 	h.add_child(b)
-	h.add_child(UIKit.label(PreviewText.technique_how(sid) if available else "", UIKit.DIM))
+	h.add_child(UIKit.label(PreviewText.technique_how(sid) if available or owned else "", UIKit.DIM))
 	rows.add_child(h)
 	return b
 
+## Pressing a manual opens its preview (the move, its input on this device, what it does). The preview is
+## free; the charge below happens only if the player presses Buy there.
 func _buy_skill(sid: String, req: String) -> void:
-	if _locked() or GameState.has_skill(sid):
+	if _locked():
 		return
-	if req != "" and not GameState.check(req):
+	if not GameState.has_skill(sid) and req != "" and not GameState.check(req):
 		Audio.sfx("deny")
 		return
 	var s: Dictionary = Content.skill(sid)
+	var yes: bool = await ManualPreviewMenu.ask(host, sid, shop_id)
 	var price := price_of(int(s.price))
-	if GameState.cash < price:
-		Audio.sfx("deny")
-		info.text = "Not enough cash. You need $%d." % price
-		return
-	var yes: bool = await ConfirmMenu.ask(host, "Buy %s for $%d?\n%s" % [s.name, price, PreviewText.technique_how(sid)], false)
 	if not yes or GameState.has_skill(sid) or GameState.cash < price or not GameState.spend(price):
 		return
 	GameState.learn(sid)

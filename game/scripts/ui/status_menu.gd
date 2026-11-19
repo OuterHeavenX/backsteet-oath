@@ -148,7 +148,9 @@ func _build_techniques() -> void:
 		var owned := GameState.has_skill(sid)
 		var h := UIKit.hbox(6)
 		h.add_child(UIKit.icon_rect(SpriteLib.icon(s.get("icon", "skill")), 16))
-		var b := UIKit.button(s.name if owned else "??? (not learned)", func(): pass, 150)
+		var b := UIKit.button(s.name if owned else "??? (not learned)", func():
+			if owned and host:
+				ManualPreviewMenu.ask(host, sid), 150)
 		var how := PreviewText.technique_how(sid)
 		b.focus_entered.connect(func():
 			if owned:
