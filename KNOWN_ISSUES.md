@@ -1,25 +1,26 @@
 # Known Issues & Limitations (1.4.0-rc1)
 
 No known blocker or major bugs remain in the main campaign or on the tested platforms. The automated campaign
-run, feature tests, quest tests and unit tests all pass on the visual-upgrade build.
+run and every test suite pass on this build (see `docs/polish/VALIDATION_REPORT.md`).
 
 ## Release gates still open
-- **Human playtest not performed.** The campaign duration (target: 60+ minutes of active play) is an estimate
-  based on automated runs of about 55 in-game minutes with the 1.2 expansion (47–49 before it); see PLAYTHROUGH_REPORT.md. This is the reason for the `-rc`
-  label.
-- **No GPU performance measurement yet.** Players can now report it from the run summary card or with Settings → Show FPS. Every measurement so far ran on a GPU-less VM using software rendering, at
-  28–47 FPS for 1.1.0 against 117–140 FPS for rc4 (see docs/visual/UPGRADE_REPORT.md). The new art renders at
-  window resolution, so it needs about 4× the pixel fill of rc3. Real GPUs are expected to hold 60 FPS, but nobody
-  has measured that, including on a Steam Deck. *Effects: Reduced* is the fallback for slow devices.
-- **Living backgrounds cost (1.3):** measured on a GPU-less VM with software rendering at 1280×720 on Kettle Street:
-  1.2.0-rc1 about 22 FPS; 1.3 with all effects about 12 FPS; with "Colour grade & bloom" off about 17 FPS; with
-  Effects: Reduced about 20 FPS. The full-screen grade and bloom pass is most of the extra cost. It should be
-  cheap on a real GPU, but that is unmeasured, which is why it is off by default on touch browsers.
+- **Human playtest not performed.** Nobody has played 1.4.0-rc1, or any version, start to finish. A five-person
+  first-time test is prepared in `docs/polish/PLAYTEST_KIT.md`. Campaign length for a person is unknown: the bot
+  takes 47 to 52 in-game minutes without shopping (it was 56 in 1.3; this pass removed some repeated street
+  fights on purpose). This is the reason for the `-rc` label.
+- **The 1.4 design changes are hypotheses.** The closer fight camera, the tips, the attack tells, Kowal's lights
+  and the Storage Floor run are tested for correctness, not for whether people understand or enjoy them. See
+  `docs/polish/FOLLOW_UPS.md`.
+- **No GPU performance measurement yet.** Every number so far comes from a GPU-less machine using software
+  rendering (see `docs/polish/PERF_REPORT.md`). Players can report real numbers with Settings → Show FPS or from
+  the run summary card. *Effects: Reduced* and *Colour grade & bloom: Off* are the fallbacks for slow devices.
+- **Audio has not been listened to.** This includes the three new attack cues, which are only known to be
+  numerically different from each other.
 - **Not tested on physical devices:** Steam Deck hardware, iPhone/Safari, Android phones and real gamepads. Desktop
-  Chromium (software WebGL) and mobile emulation were tested; real devices may behave differently.
+  Chromium (software WebGL) and touch emulation were tested; real devices may behave differently.
 - **Windows build** is exported but was not launched (no Windows machine available).
-- **itch.io upload not performed:** this environment's network policy blocks itch.io and the butler download
-  host. See ITCH_PAGE.md for the exact upload steps.
+- **Not published.** 1.4.0-rc1 exists only on the `claude/gameplay-polish` branch; the itch.io page and the
+  `release-builds` branch still hold 1.3.0-rc1.
 
 ## Visual limitations (honest ceiling)
 - All art is procedural vector illustration from this project's generators, not hand-painted.
@@ -33,8 +34,12 @@ run, feature tests, quest tests and unit tests all pass on the visual-upgrade bu
   GitHub's 100 MB file limit.
 
 ## Minor issues
-- Difficulty spikes in the warehouse for players who never buy food or manuals. The bot never shops, and it was
-  knocked out 15 times across the campaign. Relaxed difficulty and food are the intended relief.
+- Difficulty rises from the Neon Mile on for players who never buy food or manuals: a bot that never shops is
+  knocked out 15 to 17 times, one that spends half its cash on food 4 times, and one on Relaxed 4 times. Food,
+  Dot's free plate and Relaxed difficulty are the intended relief; enemy numbers were not changed.
+- Permanent food bonuses are cheap relative to income (about $250 buys all of them). Whether that is a problem
+  needs player evidence; see `docs/polish/ECONOMY_REVIEW.md`.
+- The heavy's grab has no wind-up animation frames; it relies on a held pose, a lean and the purple tell.
 - The audio mix has not been listened to by a human, and this container has no audio device. Since rc4, browser
   output is verified numerically by measuring Web Audio RMS. The new material sound layers on impacts are mixed
   quietly for that reason.
