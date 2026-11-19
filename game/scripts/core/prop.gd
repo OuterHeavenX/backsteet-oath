@@ -114,5 +114,29 @@ func _physics_process(_d: float) -> void:
 	elif spr:
 		spr.position.x = 0.0
 
+var _ring: CombatMarks.Ring
+var _key: CombatMarks.Keyline
+## near: Nico is close with free hands (soft ring). target: Action would lift this now (pulsing outline).
+func set_guide(near: bool, target: bool, blink: float) -> void:
+	if near or target:
+		if _ring == null:
+			_ring = CombatMarks.Ring.new()
+			_ring.position = Vector2(0, -footprint.y * 0.5)
+			add_child(_ring)
+			move_child(_ring, 0)
+		_ring.visible = true
+		_ring.look(Color(CombatMarks.USE_COL, 0.75 if target else 0.3 + 0.2 * blink), half_w + 4.0, 1.6 if target else 1.2)
+	elif _ring and _ring.visible:
+		_ring.visible = false
+	if target:
+		if _key == null:
+			_key = CombatMarks.Keyline.new()
+			add_child(_key)
+			move_child(_key, 1)
+		_key.visible = true
+		_key.sync(spr, 1.0, Color(CombatMarks.USE_COL, 0.55 + 0.4 * blink))
+	elif _key and _key.visible:
+		_key.visible = false
+
 func label() -> String:
 	return NAMES.get(type, type.capitalize())

@@ -202,7 +202,8 @@ var cast_shadow: Dictionary:
 
 func _process(dt: float) -> void:
 	if vis and vis.v2:
-		vis.update(cam_left(), view_width(), actors, dt)
+		# background layers are laid out for the unzoomed view, so zooming never makes the skyline slide
+		vis.update(vis_left(), screen_width(), actors, dt)
 
 func _build_props() -> void:
 	var contents: Dictionary = enc.get("prop_contents", {})
@@ -543,10 +544,11 @@ func _physics_process(_delta: float) -> void:
 		_update_events()
 		_update_waves()
 		_check_exits()
+	_update_guides()
 	if parallax:
-		var vw := view_width()
-		parallax.position = Vector2(cam_left(), 0)
-		parallax.region_rect = Rect2(cam_left() * 0.25, 0, vw, parallax.texture.get_height())
+		var vw := screen_width()
+		parallax.position = Vector2(vis_left(), 0)
+		parallax.region_rect = Rect2(vis_left() * 0.25, 0, vw, parallax.texture.get_height())
 
 ## Keeps fighters from standing inside each other (enemies yield to the player).
 func _separate_bodies() -> void:
@@ -573,8 +575,15 @@ func _separate_bodies() -> void:
 					a.position = move_actor(a, Vector2(-dir * push, 0))
 					b.position = move_actor(b, Vector2(dir * push, 0))
 
-func view_width() -> float:
+## Width of the screen in world units at zoom 1 (layout width for backgrounds).
+func screen_width() -> float:
 	return get_viewport_rect().size.x
+
+## Width of the street actually visible right now (zoom-aware). Enemy AI, spawns and "on screen" tests use
+## this, so nothing can act from outside the framed view when the camera is closer.
+func view_width() -> float:
+	var z := camera.zoom.x if camera else 1.0
+	return screen_width() / maxf(z, 0.01)
 
 func cam_left() -> float:
 	return cam_x - view_width() * 0.5
@@ -582,25 +591,72 @@ func cam_left() -> float:
 func cam_right() -> float:
 	return cam_x + view_width() * 0.5
 
+func vis_left() -> float:
+	return cam_x - screen_width() * 0.5
+
 func on_screen(a: Node2D, margin: float) -> bool:
 	return a.position.x >= cam_left() + margin and a.position.x <= cam_right() - margin
+
+## True while the fight framing should be held: enemies up, a boss fight, spawns pending, or just after.
+var zoom_hold := 0
+func _combat_framing() -> bool:
+	if Settings.combat_camera != "close":
+		return false
+	if enemies_alive() > 0 or boss_active or not wave_queue.is_empty():
+		zoom_hold = int(Content.tune("camera", "hold_seconds", 2.5) * 60.0)
+	elif zoom_hold > 0:
+		zoom_hold -= 1
+	return zoom_hold > 0
 
 func _target_cam_x() -> float:
 	var vw := view_width()
 	if width <= vw:
 		return width * 0.5
-	var tx := player.position.x + player.facing * 24.0 if player else vw * 0.5
+	if player == null:
+		return vw * 0.5
+	var tx := player.position.x
+	if zoom_hold > 0:
+		# In a fight, lean toward the enemies instead of swinging with every turn of the player.
+		var rng := Content.tune("camera", "threat_range", 300.0)
+		var sum := 0.0
+		var n := 0
+		for a in actors:
+			if a is Enemy and a.team == Actor.TEAM_ENEMY and not a.dead and absf(a.position.x - tx) < rng:
+				sum += a.position.x
+				n += 1
+		if n > 0:
+			var lim := Content.tune("camera", "threat_bias_max", 60.0)
+			tx += clampf((sum / n - tx) * Content.tune("camera", "threat_bias", 0.3), -lim, lim)
+	else:
+		tx += player.facing * Content.tune("camera", "lead", 24.0)
 	return clampf(tx, vw * 0.5, width - vw * 0.5)
 
 var cam_focus := -1.0
 func _update_camera(snap: bool) -> void:
-	var target := _target_cam_x() if cam_focus < 0.0 else clampf(cam_focus, view_width() * 0.5, maxf(width - view_width() * 0.5, view_width() * 0.5))
-	if width <= view_width():
+	# zoom first: the visible width decides how far the camera may travel
+	var zt := Content.tune("camera", "explore_zoom", 1.0)
+	if _combat_framing():
+		zt = Content.tune("camera", "combat_zoom", 1.16)
+	if cutscene and Settings.cinematic_bars:
+		zt = maxf(zt, Content.tune("camera", "cutscene_zoom", 1.06))
+	var z := camera.zoom.x
+	if snap:
+		z = zt
+	else:
+		# eased, with a floor on the step so it settles; slow enough not to pump as fighters come and go
+		var step := (zt - z) * Content.tune("camera", "zoom_ease", 0.055)
+		if absf(step) < 0.0006:
+			step = clampf(zt - z, -0.0006, 0.0006)
+		z += step
+	camera.zoom = Vector2(z, z)
+	var vw := view_width()
+	var target := _target_cam_x() if cam_focus < 0.0 else clampf(cam_focus, vw * 0.5, maxf(width - vw * 0.5, vw * 0.5))
+	if width <= vw:
 		target = width * 0.5
 	if snap:
 		cam_x = target
 	else:
-		cam_x = lerpf(cam_x, target, 0.12)
+		cam_x = lerpf(cam_x, target, Content.tune("camera", "follow_ease", 0.12))
 		if absf(cam_x - target) < 0.3:
 			cam_x = target
 	# damped spring for directional camera impulses
@@ -610,14 +666,52 @@ func _update_camera(snap: bool) -> void:
 		cam_kick = Vector2.ZERO
 		cam_kick_v = Vector2.ZERO
 	var off := cam_kick.limit_length(6.0)
-	var cy: float = world.camera_center_y() if world and world.has_method("camera_center_y") else VIEW_H * 0.5
-	# a slow push-in during scripted scenes
-	var zt := 1.06 if cutscene and Settings.cinematic_bars else 1.0
-	var z := move_toward(camera.zoom.x, zt, 0.0025 if zt > camera.zoom.x else 0.006)
-	if snap:
-		z = zt
-	camera.zoom = Vector2(z, z)
-	camera.position = Vector2(cam_x + off.x, cy + off.y + (z - 1.0) * 70.0)
+	# Keep the bottom edge of the street fixed on screen at any zoom: the lanes and the touch controls keep
+	# their relationship, and only sky is cropped when the camera moves in.
+	var vs := get_viewport_rect().size
+	var pf_top: float = world.playfield_top() if world and world.has_method("playfield_top") else 0.0
+	var cy := VIEW_H - (pf_top + VIEW_H - vs.y * 0.5) / z
+	camera.position = Vector2(cam_x + off.x, cy + off.y)
+
+# ---------------------------------------------------------------- readability guides
+var _guide_t := 0
+## Rings, Nico's keyline and the highlight on usable things. Presentation only; reads state, changes none.
+func _update_guides() -> void:
+	_guide_t += 1
+	var on: bool = Settings.combat_guides and player != null and not player.dead
+	var lane_d := Content.tune("readability", "lane_depth", 9.0)
+	var lane_r := Content.tune("readability", "lane_range", 170.0)
+	var blink := 0.5 + 0.5 * sin(_guide_t * 0.2)
+	for a in actors:
+		if a == player:
+			a.set_ring(CombatMarks.USE_COL, Content.tune("readability", "player_ring_alpha", 0.45) if on and not cutscene else 0.0, 12.0)
+			a.set_keyline(CombatMarks.KEY_COL, Content.tune("readability", "keyline_alpha", 0.5) if on else 0.0)
+		elif a is Enemy and a.team == Actor.TEAM_ENEMY:
+			var show := 0.0
+			var col := CombatMarks.LANE_COL
+			var wdt := 1.2
+			if on and not a.dead and not a.lying and a.state not in ["carried", "thrown", "knockdown", "removed"]:
+				var in_lane: bool = absf(a.position.y - player.position.y) <= lane_d and absf(a.position.x - player.position.x) <= lane_r
+				if in_lane:
+					show = Content.tune("readability", "lane_ring_alpha", 0.6)
+					if a.state == "attack" and a.attack_phase() == 0:
+						col = CombatMarks.tell_color(a.tell_kind) if a.telegraph_t > 0 else CombatMarks.DANGER_COL
+						show = 0.95
+						wdt = 2.0
+			a.set_ring(col, show, 0.0, wdt)
+	# usable things: a ring while Nico is near and empty-handed, a keyline on the one Action would take
+	var ctx: Dictionary = find_context(player) if on and player.control_enabled else {}
+	var target: Node = ctx.get("node") if ctx.get("type", "") in ["pickup", "prop", "enemy"] else null
+	var free_hands: bool = on and player.held == "" and player.carried_actor == null and not cutscene
+	var use_r := Content.tune("readability", "usable_range", 110.0)
+	for pr in props:
+		if pr.liftable and not pr.broken:
+			pr.set_guide(free_hands and absf(pr.position.x - player.position.x) < use_r, pr == target, blink)
+	for pk in pickups:
+		if pk.kind == "weapon" and not pk.collected:
+			pk.set_guide(free_hands and absf(pk.position.x - player.position.x) < use_r, pk == target, blink)
+	if target is Enemy:
+		(target as Enemy).set_ring(CombatMarks.USE_COL, 0.55 + 0.4 * blink, 0.0, 1.8)
 
 # ---------------------------------------------------------------- collision
 func move_actor(a: Actor, d: Vector2) -> Vector2:
@@ -971,6 +1065,11 @@ func escort_down(n: NPC) -> void:
 
 func on_player_damaged(_d: int) -> void:
 	pass
+
+## Arms a contextual tip the first time its situation comes up (no-op once seen, or on saves without tips).
+func tutor_arm(id: String) -> void:
+	if world and world.get("tutor") != null and GameState.has_flag("tutor_v2"):
+		world.tutor.arm(id)
 
 ## Reports a real gameplay event to the tips director (a block, a throw, a door...). Safe without a world.
 func tutor_event(ev: String) -> void:

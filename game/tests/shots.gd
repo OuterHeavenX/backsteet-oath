@@ -79,6 +79,23 @@ func _ready() -> void:
 						b.hp = int(b.max_hp * float(parts[1]))
 			"tp":
 				w.room.player.position = Vector2(float(parts[1]), float(parts[2]))
+			"attack":
+				# force the n-th enemy to start an attack now (for capturing tells): attack:<index>:<attack id>
+				var foes: Array = []
+				for a in w.room.actors:
+					if a is Enemy and not a.dead:
+						foes.append(a)
+				if int(parts[1]) < foes.size():
+					var foe: Enemy = foes[int(parts[1])]
+					foe.facing = 1 if w.room.player.position.x > foe.position.x else -1
+					foe.set_state("idle")
+					foe._launch_attack(parts[2])
+			"freeze":
+				for a in w.room.actors:
+					if a is Enemy:
+						a.hold = parts.size() < 2 or parts[1] != "off"
+			"flag":
+				GameState.set_flag(parts[1])
 			"menu":
 				match parts[1]:
 					"pause": w.open_pause()

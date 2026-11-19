@@ -218,6 +218,7 @@ func _intro(room: Node) -> void:
 	var fl: Enemy = _spawn_from_side(room, "dogs_flanker", 1, {"hp_mult": 0.8})
 	if tut.is_pending("throw"):
 		fl.taunt_t = 130
+		tut.prefer("throw")
 		world.toast("One more! There's a bottle on the ground.")
 	while _valid(room) and _alive(fl):
 		await get_tree().physics_frame

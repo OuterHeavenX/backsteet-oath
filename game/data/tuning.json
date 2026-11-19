@@ -1,0 +1,24 @@
+{
+ "_doc": "Tunable feel values that need player evidence. Change here, not in code. camera.combat_zoom: 1.0 restores the 1.3 framing. Rates are per 60 Hz tick.",
+ "camera": {
+  "combat_zoom": 1.16,
+  "explore_zoom": 1.0,
+  "cutscene_zoom": 1.06,
+  "zoom_ease": 0.055,
+  "hold_seconds": 2.5,
+  "follow_ease": 0.12,
+  "lead": 24.0,
+  "threat_bias": 0.3,
+  "threat_bias_max": 60.0,
+  "threat_range": 300.0
+ },
+ "readability": {
+  "keyline_alpha": 0.5,
+  "keyline_px": 1.0,
+  "player_ring_alpha": 0.45,
+  "lane_ring_alpha": 0.6,
+  "lane_depth": 9.0,
+  "lane_range": 170.0,
+  "usable_range": 110.0
+ }
+}

@@ -113,6 +113,8 @@ func _ready() -> void:
 	await test_old_saves()
 	await test_guard_break_rules()
 	await test_reference_and_devices()
+	await test_combat_camera()
+	await test_guides_and_tells()
 	print("OPENING TESTS: %d passed, %d failed" % [passes, fails])
 	get_tree().quit(fails)
 
@@ -561,3 +563,170 @@ func test_reference_and_devices() -> void:
 	check(tut().is_learned("skill_rising"), "using the technique retires its reminder")
 	tut().arm_skill("rising")
 	check(tut().is_learned("skill_rising"), "the reminder does not return")
+
+# ---------------------------------------------------------------- combat camera
+func _clear_enemies() -> void:
+	for a in room().actors.duplicate():
+		if a is Enemy:
+			room().remove_actor(a)
+
+func test_combat_camera() -> void:
+	Settings.combat_camera = "close"
+	await start_world(_in_room("oq_kettle", ["intro_seen", "intro_done", "met_mara"], "find_mara"))
+	GameState.spawn = "west"
+	var r := room()
+	var p: Player = r.player
+	p.position = Vector2(800, 290)
+	await frames(60)
+	var zc := Content.tune("camera", "combat_zoom", 1.16)
+	check(is_equal_approx(r.camera.zoom.x, 1.0), "no zoom while exploring (zoom %.3f)" % r.camera.zoom.x)
+	var wide_w: float = r.view_width()
+	# a fight starts: the zoom eases in and never reverses while the fight lasts
+	var e1: Enemy = r.spawn_enemy("dogs_brawler", Vector2(900, 290), {})
+	e1.hold = true
+	var last: float = r.camera.zoom.x
+	var monotone := true
+	for i in 240:
+		await frames(1)
+		if r.camera.zoom.x < last - 0.0001:
+			monotone = false
+		last = r.camera.zoom.x
+		if i == 100:
+			# one enemy goes down and another arrives: the framing must hold, not pump out and back in
+			r.remove_actor(e1)
+			var e2: Enemy = r.spawn_enemy("dogs_flanker", Vector2(940, 300), {})
+			e2.hold = true
+	check(monotone, "the zoom never pumps while fighters come and go")
+	check(absf(r.camera.zoom.x - zc) < 0.01, "the fight framing settles at the tuned zoom (%.3f)" % r.camera.zoom.x)
+	check(r.view_width() < wide_w - 40.0, "the visible street is narrower in a fight")
+	# the street's bottom edge stays on the bottom edge of the screen
+	var vs: Vector2 = r.get_viewport_rect().size
+	var bottom_screen := (Room.VIEW_H - r.camera.position.y) * r.camera.zoom.x + vs.y * 0.5
+	check(absf(bottom_screen - (w.playfield_top() + Room.VIEW_H)) < 1.0, "the bottom of the street stays fixed on screen when zoomed (%.1f)" % bottom_screen)
+	# turning around in a fight does not swing the camera
+	await frames(60)
+	var cx0: float = r.cam_x
+	p.facing = -p.facing
+	await frames(40)
+	check(absf(r.cam_x - cx0) < 3.0, "turning around mid-fight does not swing the camera (moved %.1f)" % absf(r.cam_x - cx0))
+	# enemies never attack from outside the framed view
+	_clear_enemies()
+	p.position = Vector2(800, 290)
+	god = true
+	for id in ["dogs_thrower", "dogs_brawler", "dogs_weapon", "dogs_flanker"]:
+		var e: Enemy = r.spawn_enemy(id, Vector2(p.position.x + (r.screen_width() * 0.5 - 6.0) * (1 if id != "dogs_flanker" else -1), 280), {})
+		e.leash = true
+	var offscreen_attacks := 0
+	var attacks_seen := 0
+	var was: Dictionary = {}
+	for i in 900:
+		await frames(1)
+		for a in r.actors:
+			if a is Enemy and not a.dead:
+				var atk_now: bool = a.state == "attack"
+				if atk_now and not was.get(a.get_instance_id(), false):
+					attacks_seen += 1
+					if a.position.x < r.cam_left() or a.position.x > r.cam_right():
+						offscreen_attacks += 1
+				was[a.get_instance_id()] = atk_now
+	check(attacks_seen > 3, "enemies attacked during the camera test (%d attacks)" % attacks_seen)
+	check(offscreen_attacks == 0, "no attack starts outside the framed view (%d did)" % offscreen_attacks)
+	# after the fight the camera eases back out
+	_clear_enemies()
+	await frames(int(Content.tune("camera", "hold_seconds", 2.5) * 60.0) + 200)
+	check(absf(r.camera.zoom.x - 1.0) < 0.01, "the camera eases back out after the fight (%.3f)" % r.camera.zoom.x)
+	# the Wide setting keeps the 1.3 framing
+	Settings.combat_camera = "wide"
+	r.spawn_enemy("dogs_brawler", Vector2(900, 290), {}).hold = true
+	await frames(120)
+	check(is_equal_approx(r.camera.zoom.x, 1.0), "Combat camera: Wide never zooms")
+	Settings.combat_camera = "close"
+	_clear_enemies()
+	# small rooms: the camera still keeps the player in view when zoomed
+	await start_world(_in_room("int_rec", ["intro_seen", "intro_done", "met_mara", "benny_lesson_done"], "chain_dogs"))
+	r = room()
+	p = r.player
+	r.spawn_enemy("dogs_brawler", Vector2(560, 320), {}).hold = true
+	p.position = Vector2(40, 320)
+	await frames(200)
+	check(p.position.x >= r.cam_left() and p.position.x <= r.cam_right(), "in a small room the zoomed camera still shows the player")
+	check(r.cam_left() >= -0.5 and r.cam_right() <= r.width + 0.5, "the zoomed camera stays inside a small room")
+
+# ---------------------------------------------------------------- guides and tells
+func test_guides_and_tells() -> void:
+	Settings.combat_guides = true
+	await start_world(_in_room("oq_chainlot", ["intro_seen", "intro_done", "met_mara", "duke_intro_seen", "tutor_v2"], "chain_dogs"))
+	var r := room()
+	var p: Player = r.player
+	p.position = Vector2(700, 290)
+	_clear_enemies()
+	var e: Enemy = r.spawn_enemy("yard_heavy", Vector2(760, 290), {})
+	e.hold = true
+	await frames(6)
+	check(p.keyline != null and p.keyline.visible and p.ring != null and p.ring.visible, "Nico has a keyline and a ground ring")
+	check(e.ring != null and e.ring.visible, "an enemy standing in Nico's lane shows a lane ring")
+	e.position.y = 330
+	await frames(3)
+	check(not e.ring.visible, "the lane ring hides when the enemy is in another lane")
+	e.position.y = 290
+	# tells by kind: shape, tint and the ground a surrounding attack covers
+	e.hold = false
+	e.set_state("idle")
+	e._launch_attack("e_heavy_punch")
+	await frames(3)
+	check(e.tell != null and e.tell.visible and e.tell.kind == "heavy", "a guardable heavy attack shows the warning tell")
+	check(e.ring.visible and e.ring.col.r > 0.8 and e.ring.col.g < 0.5, "the attacker's ring turns to the danger colour during wind-up")
+	e.set_state("idle")
+	e.cooldowns.clear()
+	e._launch_attack("e_grab")
+	await frames(3)
+	check(e.tell.visible and e.tell.kind == "unblockable", "a grab shows the cannot-be-guarded tell")
+	check(tut().state("unblockable") != 0, "the first unblockable arms its one-time tip")
+	e.set_state("idle")
+	e._launch_attack("sabine_bash")
+	await frames(3)
+	check(e.tell.visible and e.tell.kind == "break", "a guard-breaking attack shows the guard-break tell")
+	e.set_state("idle")
+	e._launch_attack("otto_slam")
+	await frames(3)
+	check(e.zone != null and e.zone.visible and e.zone.rx >= 80.0, "a surrounding attack marks the ground it will cover")
+	e.set_state("idle")
+	await frames(3)
+	check(not e.tell.visible and not e.zone.visible, "tells clear when the wind-up ends")
+	# tells keep working with flashes and guides turned down
+	var flash0: float = Settings.flash
+	Settings.flash = 0.0
+	Settings.combat_guides = false
+	e._launch_attack("e_grab")
+	await frames(3)
+	check(e.tell.visible, "tells do not depend on the flash or guide settings")
+	check(not p.keyline.visible and not p.ring.visible and not e.ring.visible, "Combat guides: Off hides the keyline and rings")
+	Settings.flash = flash0
+	Settings.combat_guides = true
+	# usable objects: ring when near with free hands, outline on the one Action would take
+	_clear_enemies()
+	var crate: Prop = null
+	for pr in r.props:
+		if pr.type == "crate":
+			crate = pr
+	if crate != null:
+		p.position = crate.position + Vector2(-70, 6)
+		p.set_state("idle")
+		await frames(3)
+		check(crate._ring != null and crate._ring.visible and (crate._key == null or not crate._key.visible), "a liftable crate nearby gets a ring")
+		p.position = crate.position + Vector2(-10, 6)
+		await frames(3)
+		check(crate._key != null and crate._key.visible, "the object Action would lift is outlined")
+		p.equip_weapon("bat")
+		await frames(3)
+		check(not crate._ring.visible or crate._key.visible, "with full hands only the Action target stays marked")
+	# fast wind-ups hold the cocked pose instead of flashing two frames
+	GameState.learn("rising")
+	p.held = ""
+	p.set_state("idle")
+	p.start_attack("rising_kick")
+	var seen: Dictionary = {}
+	for i in 3:
+		p.atk_t = i + 1
+		seen[p._attack_frame()] = true
+	check(seen.size() == 1, "a 3-tick wind-up shows one pose, not a flicker (%s)" % str(seen.keys()))

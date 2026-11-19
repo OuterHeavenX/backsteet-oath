@@ -12,7 +12,7 @@ Rebuild everything with `python3 tools/audio/gen_audio.py` (Python 3 + numpy + f
 - Seamless loops: the arrangement is rendered past the loop end and the tail is wrapped onto the start; echo, room reverb, EQ and limiting are applied circularly, so the last sample flows into the first.
 - Levels: music is normalised to about -16 LUFS integrated (BS.1770 K-weighting; `safe_hub` -17, `setback`/`defeat` -18 for their quieter mood) with a soft limiter, peaks below -1 dBFS after encoding. One-shot SFX are normalised by momentary loudness per category (impacts loudest, UI and footsteps soft); ambient loops sit at -25..-28 LUFS so they can play under music.
 
-Total size of all OGG files: **16.06 MB** (78 files).
+Total size of all OGG files: **16.08 MB** (81 files).
 
 ## Music
 
@@ -99,6 +99,9 @@ BPM values are exact: the 16th-note is a whole number of samples (nominal tempo 
 | `save` | `sfx/save.ogg` | 0.900 s | no | Game saved: soft rising chime | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `guard_break` | `sfx/guard_break.ogg` | 0.750 s | no | Guard broken: shatter, thump, falling tone | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `charge` | `sfx/charge.ogg` | 1.000 s | no | Charging power: rising tremolo sweep | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
+| `tell_heavy` | `sfx/tell_heavy.ogg` | 0.300 s | no | Tell: slow heavy attack that can be guarded (one rising whoosh) | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
+| `tell_unblock` | `sfx/tell_unblock.ogg` | 0.400 s | no | Tell: attack that cannot be guarded (low double thump with a growl) | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
+| `tell_break` | `sfx/tell_break.ogg` | 0.320 s | no | Tell: guard-breaking attack (bright rising metallic ring) | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `rain_loop` | `sfx/rain_loop.ogg` | 10.000 s | yes | Seamless rain ambience loop with drips | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `street_loop` | `sfx/street_loop.ogg` | 10.000 s | yes | Seamless city ambience: distant traffic, murmur, passing cars | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
 | `industrial_loop` | `sfx/industrial_loop.ogg` | 10.000 s | yes | Seamless factory ambience: hum, press thumps, steam, clinks | procedurally synthesized by tools/audio/gen_audio.py, original, project-owned |
@@ -184,6 +187,9 @@ Peak = sample peak dBFS, RMS = whole-file RMS dBFS, LUFS = integrated loudness f
 | `save` | sfx | -9.02 | -20.39 | -17.0 | - | 10 |
 | `guard_break` | sfx | -1.45 | -15.24 | -12.1 | - | 10 |
 | `charge` | sfx | -5.60 | -18.71 | -16.1 | - | 15 |
+| `tell_heavy` | sfx | -6.98 | -18.21 | -18.1 | - | 7 |
+| `tell_unblock` | sfx | -1.69 | -12.31 | -13.0 | - | 7 |
+| `tell_break` | sfx | -3.20 | -17.34 | -15.1 | - | 8 |
 | `rain_loop` | sfx | -15.28 | -29.26 | -26.2 | 0.27 | 105 |
 | `street_loop` | sfx | -12.60 | -27.44 | -27.2 | 0.03 | 102 |
 | `industrial_loop` | sfx | -9.07 | -24.15 | -25.1 | 0.20 | 102 |

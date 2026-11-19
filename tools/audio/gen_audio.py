@@ -2612,6 +2612,42 @@ def sfx_neon_buzz_loop():
     return y
 
 
+def sfx_tell_heavy():
+    """Wind-up cue for a slow heavy attack that CAN be guarded: one short rising whoosh."""
+    n = S(0.3)
+    t = secs(n)
+    y = 0.8 * whoosh(0.3, lambda u: 500 + 2600 * u ** 1.5, 0.9, 'tellh', lambda tt: tt ** 1.5)
+    y = fit(y, n) + 0.35 * osc_tri(sweep_curve(n, 320, 760)) * np.minimum(t / 0.02, 1)
+    return y * np.clip((0.3 - t) / 0.05, 0, 1)
+
+
+def sfx_tell_unblock():
+    """Wind-up cue for an attack that CANNOT be guarded: a low double thump with a growl under it."""
+    b = buf(0.4)
+    for t0, g in ((0.0, 1.0), (0.13, 0.85)):
+        n = S(0.16)
+        t = secs(n)
+        f = 62 + 70 * np.exp(-t / 0.03)
+        place(b, t0, (osc_sine(f) + 0.3 * osc_tri(2 * f)) * env_exp(n, 0.055, 0.003), g)
+    n2 = S(0.36)
+    t2 = secs(n2)
+    growl = filt(osc_saw(92 + 6 * np.sin(2 * np.pi * 31 * t2)), r_lp(520, 2))
+    place(b, 0.0, growl * np.minimum(t2 / 0.03, 1) * np.clip((0.36 - t2) / 0.1, 0, 1), 0.35)
+    return b
+
+
+def sfx_tell_break():
+    """Wind-up cue for a guard-breaking attack: a bright rising metallic ring with a click."""
+    n = S(0.32)
+    t = secs(n)
+    f = sweep_curve(n, 1100, 2600)
+    y = 0.6 * osc_pulse(f, 0.3) + 0.5 * osc_sine(f * 1.5) + 0.3 * osc_sine(f * 2.01)
+    y = filt(y, r_hp(700, 2), r_lp(7500, 1))
+    y *= np.minimum(t / 0.004, 1) * np.exp(-t / 0.16)
+    click = filt(_noise(n, 'tellb'), r_bp(2500, 8000)) * env_exp(n, 0.008)
+    return y + 0.6 * click
+
+
 # id -> (function, loudness target, description)
 #   target: momentary-max LUFS for one-shots, integrated LUFS for loops
 SFX = [
@@ -2674,6 +2710,9 @@ SFX = [
     ('save', sfx_save, -17, 'Game saved: soft rising chime'),
     ('guard_break', sfx_guard_break, -12, 'Guard broken: shatter, thump, falling tone'),
     ('charge', sfx_charge, -16, 'Charging power: rising tremolo sweep'),
+    ('tell_heavy', sfx_tell_heavy, -18, 'Tell: slow heavy attack that can be guarded (one rising whoosh)'),
+    ('tell_unblock', sfx_tell_unblock, -13, 'Tell: attack that cannot be guarded (low double thump with a growl)'),
+    ('tell_break', sfx_tell_break, -15, 'Tell: guard-breaking attack (bright rising metallic ring)'),
     ('rain_loop', sfx_rain_loop, -26, 'Seamless rain ambience loop with drips'),
     ('street_loop', sfx_street_loop, -27, 'Seamless city ambience: distant traffic, murmur, passing cars'),
     ('industrial_loop', sfx_industrial_loop, -25, 'Seamless factory ambience: hum, press thumps, steam, clinks'),

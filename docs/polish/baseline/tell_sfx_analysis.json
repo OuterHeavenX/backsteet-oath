@@ -1,0 +1,56 @@
+{
+ "tell_heavy": {
+  "dur_s": 0.312,
+  "centroid_hz": 839,
+  "energy_below_300hz": 0.0,
+  "energy_above_2khz": 0.09,
+  "rms_db": -18.4,
+  "peak_db": -7.0,
+  "env_peaks": 7
+ },
+ "tell_unblock": {
+  "dur_s": 0.397,
+  "centroid_hz": 116,
+  "energy_below_300hz": 0.97,
+  "energy_above_2khz": 0.0,
+  "rms_db": -12.3,
+  "peak_db": -1.7,
+  "env_peaks": 3
+ },
+ "tell_break": {
+  "dur_s": 0.332,
+  "centroid_hz": 2379,
+  "energy_below_300hz": 0.0,
+  "energy_above_2khz": 0.54,
+  "rms_db": -17.5,
+  "peak_db": -3.2,
+  "env_peaks": 2
+ },
+ "whiff": {
+  "dur_s": 0.217,
+  "centroid_hz": 3763,
+  "energy_below_300hz": 0.0,
+  "energy_above_2khz": 0.81,
+  "rms_db": -19.6,
+  "peak_db": -4.9,
+  "env_peaks": 2
+ },
+ "charge": {
+  "dur_s": 1.0,
+  "centroid_hz": 680,
+  "energy_below_300hz": 0.22,
+  "energy_above_2khz": 0.05,
+  "rms_db": -18.7,
+  "peak_db": -5.6,
+  "env_peaks": 14
+ },
+ "guard_break": {
+  "dur_s": 0.747,
+  "centroid_hz": 1666,
+  "energy_below_300hz": 0.52,
+  "energy_above_2khz": 0.24,
+  "rms_db": -15.2,
+  "peak_db": -1.5,
+  "env_peaks": 5
+ }
+}

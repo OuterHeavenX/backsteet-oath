@@ -20,6 +20,7 @@ var npc_talk: Dictionary = {}       # npc id -> Array of {if, say}
 var encounters: Dictionary = {}
 var quests: Dictionary = {}
 var story: Dictionary = {}
+var tuning: Dictionary = {}
 var props_meta: Dictionary = {}
 var weapon_sprites: Dictionary = {}
 var fx_meta: Dictionary = {}
@@ -71,6 +72,7 @@ func reload() -> void:
 	encounters = _load("res://data/encounters.json").get("rooms", {})
 	quests = _load("res://data/quests.json").get("quests", {})
 	story = _load("res://data/story.json")
+	tuning = _load_optional("res://data/tuning.json")
 	props_meta = _load_optional("res://assets/props/props.json")
 	weapon_sprites = _load_optional("res://assets/weapons/weapons.json")
 	fx_meta = _load_optional("res://assets/fx/fx.json")
@@ -96,6 +98,13 @@ func _load_optional(path: String) -> Dictionary:
 	return data if typeof(data) == TYPE_DICTIONARY else {}
 
 # ---------------------------------------------------------------- getters
+## A tunable feel value from data/tuning.json, with a code default if the file or key is missing.
+func tune(group: String, key: String, default_value: float) -> float:
+	var g = tuning.get(group, {})
+	if typeof(g) == TYPE_DICTIONARY and g.has(key):
+		return float(g[key])
+	return default_value
+
 func attack(id: String) -> Dictionary:
 	return attacks.get(id, {})
 

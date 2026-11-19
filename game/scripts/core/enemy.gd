@@ -169,6 +169,10 @@ func think() -> void:
 	if room == null:
 		return
 	if hold:
+		# a held fighter must not sit on an attack token, or nobody else could attack
+		if token:
+			_release_token()
+		pending_attack = ""
 		vel = vel.move_toward(Vector2.ZERO, 600 * DT)
 		return
 	target = room.pick_target(self)
@@ -347,8 +351,16 @@ func _launch_attack(id: String) -> void:
 		return
 	start_attack(id)
 	cooldowns[id] = 40 + int(d.get("recovery", 20))
-	if int(d.get("startup", 0)) >= 18 and room:
-		room.spawn_fx("exclaim", Vector2(0, -height - 10), 0.0, self, int(d.startup))
+	if d.get("telegraph", false) and team == TEAM_ENEMY:
+		# each kind of tell has its own cue; plain heavy attacks only announce the slow ones
+		match CombatMarks.tell_kind(d):
+			"unblockable": Audio.sfx("tell_unblock", -3.0, 0.0)
+			"break": Audio.sfx("tell_break", -4.0, 0.0)
+			_:
+				if int(d.get("startup", 0)) >= 18:
+					Audio.sfx("tell_heavy", -7.0, 0.05)
+		if room and CombatMarks.tell_kind(d) == "unblockable":
+			room.tutor_arm("unblockable")
 	if d.get("air", false):
 		vz = 260.0
 		z = 0.5

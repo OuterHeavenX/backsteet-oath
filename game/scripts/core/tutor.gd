@@ -152,6 +152,17 @@ func _complete(id: String) -> void:
 		shown = ""
 		shown_t = 0.0
 
+## Puts an armed tip on screen now because its moment has come (e.g. something to throw just landed).
+## The tip it replaces simply waits its turn again.
+func prefer(id: String) -> void:
+	if state(id) != ARMED or shown == id:
+		return
+	if shown != "":
+		_rot_block[shown] = ROTATE_SECONDS
+	_rot_block.erase(id)
+	shown = id
+	shown_t = 0.0
+
 func skip(id: String) -> void:
 	if state(id) == ARMED:
 		_set_state(id, SKIPPED)

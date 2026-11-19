@@ -118,6 +118,11 @@ var land_t := 0
 var hurt_kind := "hurt_high"
 var vis_facing := 1
 var light_tint := Color(1, 1, 1)
+var ring: CombatMarks.Ring          # ground ring (readability guide), created on first use
+var keyline: CombatMarks.Keyline    # silhouette outline behind the body
+var tell: CombatMarks.Tell          # badge above the head during a telegraphed wind-up
+var zone: CombatMarks.Zone          # ground area of a surrounding attack
+var tell_kind := "heavy"
 
 func setup_visual(id: String) -> void:
 	char_id = id
@@ -577,6 +582,7 @@ func start_attack(id: String, def_override: Dictionary = {}) -> bool:
 	set_state("attack")
 	if d.get("telegraph", false):
 		telegraph_t = int(d.get("startup", 10))
+		tell_kind = CombatMarks.tell_kind(d)
 	if room:
 		room.notify_attack(self)
 	return true
@@ -917,6 +923,77 @@ func _anim_for_state() -> Array:
 			return ["cower", "loop", 0]
 	return ["idle", "loop", 0]
 
+## Telegraphed attacks rear back through the wind-up, lunge on contact and settle during recovery. It follows
+## the attack's own tick phases, so the drawing always agrees with when the hit can land.
+func _attack_lean() -> float:
+	if state != "attack" or not atk.get("telegraph", false) or atk.get("air", false) or atk.get("projectile", false):
+		return 0.0
+	var s_: float = maxf(float(atk.get("startup", 10)), 1.0)
+	var a_: float = float(atk.get("active", 3))
+	var r_: float = maxf(float(_recovery_ticks()), 1.0)
+	var ph := attack_phase()
+	if ph == 0:
+		var u := clampf(float(atk_t) / s_, 0.0, 1.0)
+		return -0.09 * (1.0 - (1.0 - u) * (1.0 - u))
+	if ph == 1:
+		return 0.075
+	return 0.075 * clampf(1.0 - (float(atk_t) - s_ - a_) / (r_ * 0.5), 0.0, 1.0)
+
+## Wind-up marks for telegraphed attacks: a badge whose shape names the kind of attack (so it reads with
+## flashes turned down or off) and, for attacks that hit all around, the ground they will cover.
+func _update_tell(telling: bool) -> void:
+	if not telling:
+		if tell and tell.visible:
+			tell.visible = false
+		if zone and zone.visible:
+			zone.visible = false
+		return
+	if tell == null:
+		tell = CombatMarks.Tell.new()
+		tell.z_index = 60
+		add_child(tell)
+		tell.visible = false
+	tell.show_kind(tell_kind)
+	tell.tick()
+	tell.position = Vector2(0, -height - 16.0 - z)
+	var xr: Array = atk.get("x", [0, 24])
+	if float(xr[0]) < -8.0 and not atk.get("air", false):
+		if zone == null:
+			zone = CombatMarks.Zone.new()
+			zone.z_index = -9
+			add_child(zone)
+		var s_: float = maxf(float(atk.get("startup", 10)), 1.0)
+		zone.visible = true
+		zone.look(CombatMarks.tell_color(tell_kind), maxf(absf(float(xr[0])), float(xr[1])), float(atk.get("depth", 10)) + 4.0, clampf(1.0 - telegraph_t / s_, 0.0, 1.0))
+	elif zone and zone.visible:
+		zone.visible = false
+
+## Ground ring under the feet (a = 0 hides it).
+func set_ring(c: Color, a: float, r: float = 0.0, w: float = 1.2) -> void:
+	if a <= 0.01:
+		if ring and ring.visible:
+			ring.visible = false
+		return
+	if ring == null:
+		ring = CombatMarks.Ring.new()
+		ring.z_index = -9
+		add_child(ring)
+	ring.visible = true
+	ring.look(Color(c, a), r if r > 0.0 else half_w + 5.0, w)
+
+## Thin silhouette outline behind the body (a = 0 hides it). Kept one logical pixel wide.
+func set_keyline(c: Color, a: float) -> void:
+	if a <= 0.01 or body == null or state == "removed":
+		if keyline and keyline.visible:
+			keyline.visible = false
+		return
+	if keyline == null:
+		keyline = CombatMarks.Keyline.new()
+		visual.add_child(keyline)
+		visual.move_child(keyline, 0)
+	keyline.visible = true
+	keyline.sync(body, Content.tune("readability", "keyline_px", 1.0), Color(c, a * body.modulate.a))
+
 ## Maps a knockdown phase (0 launch, 1 airborne, 2 impact, 3 bounce, 4 lying) onto the sheet's frame count.
 func _kd_index(phase: int) -> int:
 	var n: int = SpriteLib.anim_def(sheet, "knockdown").frames.size()
@@ -941,7 +1018,9 @@ func _attack_frame() -> int:
 	if ph == 0:
 		if c == 0:
 			return 0
-		return clampi(int(float(atk_t) / float(maxi(s_, 1)) * float(c)), 0, c - 1)
+		# Never flash a wind-up frame for less than two ticks: very fast moves show only the last (cocked) pose.
+		var used := clampi(int(s_ / 2), 1, c)
+		return (c - used) + clampi(int(float(atk_t) / float(maxi(s_, 1)) * float(used)), 0, used - 1)
 	if ph == 1:
 		if atk.get("hits", 1) > 1 and n - c > 1:
 			return c + (int(atk_t / 3) % 2)
@@ -996,6 +1075,7 @@ func _update_visual() -> void:
 		vis_facing = -facing
 	visual.position = Vector2(0, -z)
 	visual.scale.x = float(vis_facing)
+	visual.rotation = _attack_lean() * float(vis_facing)
 	# contact shadow shrinks with height
 	var s := clampf(1.0 - z / 140.0, 0.45, 1.0)
 	shadow.scale = Vector2(s, s) * (1.25 if height > 50 else 1.0) * _shadow_base
@@ -1021,11 +1101,13 @@ func _update_visual() -> void:
 	if flash > 0.0:
 		flash = maxf(0.0, flash - 0.16)
 	var f := flash * Settings.flash
-	if telegraph_t > 0 and (telegraph_t / 4) % 2 == 0:
+	var telling := telegraph_t > 0 and state == "attack" and not dead
+	if telling and (telegraph_t / 4) % 2 == 0:
 		f = maxf(f, 0.45 * maxf(Settings.flash, 0.35))
-		mat.set_shader_parameter("flash_color", Color(1.0, 0.35, 0.25))
+		mat.set_shader_parameter("flash_color", CombatMarks.tell_color(tell_kind).lightened(0.1))
 	else:
 		mat.set_shader_parameter("flash_color", flash_color)
+	_update_tell(telling)
 	# hi-res bodies read better with a partial flash (a full white silhouette looked blown out)
 	mat.set_shader_parameter("flash_amount", minf(f, 1.0) * 0.55)
 	if invuln > 0 and state in ["idle", "walk", "run", "guard"] and team == TEAM_PLAYER:
