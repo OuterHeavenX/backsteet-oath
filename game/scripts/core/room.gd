@@ -509,7 +509,8 @@ func shake(n: int) -> void:
 
 ## Directional camera kick: a short damped spring along dir (respects the screen-shake setting).
 func impulse(dir: Vector2, mag: float) -> void:
-	var m := mag * Settings.screen_shake
+	# divided by the zoom so a kick moves the picture by the same amount on screen at any framing
+	var m := mag * Settings.screen_shake / maxf(camera.zoom.x if camera else 1.0, 0.5)
 	if m <= 0.01:
 		return
 	cam_kick_v += dir.normalized() * m * 60.0

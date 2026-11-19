@@ -34,7 +34,7 @@ Questions, in priority order:
 The playtest log records, on that device only and inside that save: when things first happened (first move, hit,
 block, throw, door, meal, technique, purchase, knockout), which tips were completed by doing and which were
 skipped, when each story stage was reached, knockouts per room, and purchases. Read it under
-**Pause > Playtest notes**. Nothing is sent anywhere. Turn it off afterwards if the device is the player's own.
+**Pause > Help & tips > Playtest notes**. Nothing is sent anywhere. Turn it off afterwards if the device is the player's own.
 
 ## Facilitator script
 Read this aloud, then stay quiet.
@@ -127,7 +127,7 @@ Do not prompt during play. Note anything they say or do when the neighbours walk
 | Later walked back west and commented on people in the street or the missing Chain Dogs | |
 
 ### G. Purchases and numbers (copy from the game after the session)
-From **Pause > Playtest notes** and the HUD:
+From **Pause > Help & tips > Playtest notes** and the HUD:
 
 | Item | Value |
 |---|---|

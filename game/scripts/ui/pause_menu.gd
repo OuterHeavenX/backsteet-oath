@@ -17,12 +17,11 @@ func build() -> void:
 	save_btn.disabled = not safe
 	btns.append(save_btn)
 	btns.append(UIKit.button("Settings", func(): host.push_menu(SettingsMenu.new()), 220))
-	btns.append(UIKit.button("Controls", func(): host.push_menu(ControlsMenu.new()), 220))
-	btns.append(UIKit.button("Fighting tips", func(): host.push_menu(TipsMenu.new()), 220))
-	if Settings.playtest_log:
-		btns.append(UIKit.button("Playtest notes", func(): host.push_menu(PlaytestMenu.new()), 220))
+	btns.append(UIKit.button("Help & tips", func(): host.push_menu(HelpMenu.new()), 220))
+	# One press from pause while a tip is waiting: the explicit way to skip it.
 	var tut = host.get("tutor")
-	if tut != null and tut.enabled() and tut.any_armed():
+	var skipping: bool = tut != null and tut.enabled() and tut.any_armed()
+	if skipping:
 		btns.append(UIKit.button("Skip this tip" if tut.shown != "" else "Skip waiting tips", func():
 			if tut.shown != "":
 				tut.skip_current()
@@ -32,8 +31,10 @@ func build() -> void:
 	btns.append(UIKit.button("Quit to Title", _quit, 220))
 	for b in btns:
 		c.add_child(b)
-	c.add_child(UIKit.spacer(2))
-	c.add_child(UIKit.wrap_label("Progress autosaves when you enter a room. Diner, noodle bar, canteen, arcade and bait shop are safe hubs.", 220, UIKit.DIM))
+	if not (skipping and Settings.large_text):
+		# (dropped only when the extra Skip button and Large text together would push the menu off screen)
+		c.add_child(UIKit.spacer(2))
+		c.add_child(UIKit.wrap_label("Progress autosaves when you enter a room. Diner, noodle bar, canteen, arcade and bait shop are safe hubs.", 220, UIKit.DIM))
 	first_focus = btns[0]
 
 func _save() -> void:
