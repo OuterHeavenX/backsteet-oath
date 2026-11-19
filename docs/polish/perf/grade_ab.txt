@@ -1,0 +1,15 @@
+frame                  variant     mean|d|    p99  p99.9   max   >2 lvl   >8 lvl
+fr_pumpstation_760     1_new         0.002      0      2    10    0.09%    0.00%
+fr_pumpstation_760     2_nobloom     0.004      0      4    14    0.12%    0.05%
+int_diner_320          1_new         0.051      3      6    12    1.45%    0.01%
+int_diner_320          2_nobloom     0.341     17     21    26    7.60%    4.86%
+nm_marquee_1300        1_new         0.025      2      7    12    0.93%    0.02%
+nm_marquee_1300        2_nobloom     0.085      9     18    26    1.83%    1.10%
+nm_marquee_700         1_new         0.066      3      7    12    1.73%    0.03%
+nm_marquee_700         2_nobloom     0.462     19     24    27    9.63%    7.27%
+oq_kettle_1150         1_new         0.009      1      4    11    0.31%    0.01%
+oq_kettle_1150         2_nobloom     0.022      3      9    14    1.15%    0.10%
+oq_kettle_640          1_new         0.114      4      7    14    3.50%    0.02%
+oq_kettle_640          2_nobloom     0.867     26     27    31   15.88%    9.99%
+ul_vault_450           1_new         0.005      0      4    11    0.21%    0.00%
+ul_vault_450           2_nobloom     0.030      0     20    24    0.57%    0.44%

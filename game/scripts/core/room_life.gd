@@ -12,7 +12,103 @@ void fragment() {
 	COLOR.rgb = mix(COLOR.rgb, haze.rgb, amount);
 }
 """
+## Colour grade + restrained bloom (docs/polish/PERF_REPORT.md has the measurements behind this layout).
+## 1.3.0-rc1 did both in one pass that asked the engine for a mipmapped copy of the screen. That makes the renderer
+## rebuild a 13-tap blur chain of the whole screen every frame, the single most expensive thing in the frame.
+## Now:
+##   1. GRADE_SHADER grades the screen from a plain (unblurred) copy.
+##   2. BLOOM_DOWN_SHADER, drawn as the only child of a CanvasGroup, writes a small soft copy of the frame
+##      (BLOOM_CELLS pixels) into the corner of the back buffer. It reads the frame straight from the viewport
+##      texture, undoing the grade so the bloom threshold still sees the ungraded picture.
+##   3. BLOOM_ADD_SHADER, the CanvasGroup's own material, stretches that small image over the screen and adds the
+##      bloom. The grade is affine, so adding "grade's linear part x bloom" after the grade equals grading
+##      "picture + bloom", which is what rc1 computed.
+const GRADE_FUNCS := """
+uniform vec3 lift = vec3(0.0);
+uniform vec3 gain = vec3(1.0);
+uniform float saturation = 1.0;
+uniform float contrast = 1.0;
+uniform float vignette = 0.2;
+uniform float bloom = 0.35;
+uniform float threshold = 0.8;
+float vig(vec2 uv) {
+	vec2 d = uv - 0.5;
+	return 1.0 - vignette * smoothstep(0.25, 0.75, dot(d, d) * 1.6);
+}
+"""
 const GRADE_SHADER := """shader_type canvas_item;
+uniform sampler2D screen_tex : hint_screen_texture, filter_nearest;
+//FUNCS
+uniform float grain = 0.012;
+uniform float t = 0.0;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+void fragment() {
+	vec3 c = texelFetch(screen_tex, ivec2(FRAGCOORD.xy), 0).rgb;
+	c = (c - 0.5) * contrast + 0.5;
+	float l = dot(c, vec3(0.299, 0.587, 0.114));
+	c = mix(vec3(l), c, saturation);
+	c = lift + c * (gain - lift);
+	c *= vig(SCREEN_UV);
+	c += (hash(SCREEN_UV * 731.0 + t) - 0.5) * grain;
+	COLOR = vec4(clamp(c, 0.0, 1.0), 1.0);
+}
+"""
+const BLOOM_DOWN_SHADER := """shader_type canvas_item;
+uniform sampler2D frame : filter_linear;
+//FUNCS
+uniform vec2 cells = vec2(160.0, 90.0);
+// tap spacing in screen UV (8.3 px and 5.8 px at 1280x720) and the weight of the tight footprint: fitted against
+// the rc1 pass on frozen frames with tests/grade_ab.tscn (mean difference <= 0.12 of 255 levels)
+uniform vec2 tap_wide = vec2(0.0065, 0.01156);
+uniform vec2 tap_tight = vec2(0.0045, 0.008);
+uniform float tight_mix = 0.35;
+void fragment() {
+	// centre of this cell on the screen (the first and last cells sit exactly on the screen edges)
+	vec2 uv = (UV * cells - 0.5) / (cells - 1.0);
+	vec3 w = vec3(0.0);
+	for (int j = 0; j < 5; j++) {
+		for (int i = 0; i < 5; i++) {
+			w += textureLod(frame, uv + (vec2(float(i), float(j)) - 2.0) * tap_wide, 0.0).rgb;
+		}
+	}
+	vec3 n = vec3(0.0);
+	for (int j = 0; j < 2; j++) {
+		for (int i = 0; i < 2; i++) {
+			n += textureLod(frame, uv + (vec2(float(i), float(j)) - 0.5) * tap_tight, 0.0).rgb;
+		}
+	}
+	vec3 c = mix(w * 0.04, n * 0.25, tight_mix);
+	// the frame is already graded: undo it (the grade is affine and preserves luma through the saturation step)
+	c = (c / vig(uv) - lift) / max(gain - lift, vec3(0.001));
+	float l = dot(c, vec3(0.299, 0.587, 0.114));
+	c = l + (c - l) / saturation;
+	c = (c - 0.5) / contrast + 0.5;
+	COLOR = vec4(clamp(c, 0.0, 1.0), 1.0);
+}
+"""
+const BLOOM_ADD_SHADER := """shader_type canvas_item;
+render_mode blend_premul_alpha;
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
+//FUNCS
+uniform vec2 cells = vec2(160.0, 90.0);
+void fragment() {
+	// the small soft image sits in the top-left cells.x by cells.y pixels of the back buffer
+	vec2 uv = (0.5 + SCREEN_UV * (cells - 1.0)) * SCREEN_PIXEL_SIZE;
+	vec3 b = textureLod(screen_tex, uv, 0.0).rgb;
+	// restrained bloom: only the brightest lights (neon, lamps, lit glass) bleed softly
+	vec3 a = min(max(b - threshold, 0.0) * bloom * 1.8, vec3(0.18));
+	// carry it through the linear part of the grade (contrast, saturation, gain, vignette)
+	a *= contrast;
+	float l = dot(a, vec3(0.299, 0.587, 0.114));
+	a = l + (a - l) * saturation;
+	a *= (gain - lift) * vig(SCREEN_UV);
+	// premultiplied output with zero alpha = a pure add (canvas groups are always composited premultiplied)
+	COLOR = vec4(max(a, vec3(0.0)), 0.0);
+}
+"""
+## The 1.3.0-rc1 pass, kept only as the reference for before/after measurements and pixel comparisons
+## (PerfDebug "fast_bloom" off selects it; the shipped game never does).
+const GRADE_SHADER_LEGACY := """shader_type canvas_item;
 uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
 uniform vec3 lift = vec3(0.0);
 uniform vec3 gain = vec3(1.0);
@@ -26,7 +122,6 @@ uniform float t = 0.0;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 void fragment() {
 	vec3 c = texture(screen_tex, SCREEN_UV).rgb;
-	// restrained bloom: only the brightest lights (neon, lamps, lit glass) bleed softly
 	vec3 b = textureLod(screen_tex, SCREEN_UV, 2.5).rgb * 0.5 + textureLod(screen_tex, SCREEN_UV, 4.0).rgb * 0.5;
 	c += min(max(b - threshold, 0.0) * bloom * 1.8, vec3(0.18));
 	c = (c - 0.5) * contrast + 0.5;
@@ -39,6 +134,7 @@ void fragment() {
 	COLOR = vec4(clamp(c, 0.0, 1.0), 1.0);
 }
 """
+const BLOOM_CELLS := Vector2i(160, 90)
 const WATER_SHADER := """shader_type canvas_item;
 render_mode blend_add;
 uniform sampler2D noise_tex : repeat_enable, filter_linear;
@@ -93,12 +189,19 @@ var shaders_t: Array = []      # ShaderMaterials that need `t`
 var pigeons: Array = []        # [{node, birds:[{spr, vel, flying, home}], x, y, timer}]
 var shafts: Array = []         # [{spr, base}]
 var grade_rect: ColorRect
+var grade_layer: CanvasLayer
+var bloom_group: CanvasGroup
+var bloom_down: ColorRect
 var base_front: Node2D         # drawn above the base layer (parallax 1), still behind actors
 var sign_root: Node2D
 var pass_timer := 4.0
 var passers: Array = []
 const PASS_DISTRICTS := ["old_quarter", "canal_market", "neon_mile", "ironworks"]
 const PASSERS := ["towna", "townb", "townc", "townd"]
+## life entry type -> PerfDebug switch name (profiling only)
+const PROFILE_GROUP := {"window": "windows", "sway": "sway", "water": "water", "sign": "signs", "shaft": "shafts",
+	"pigeons": "pigeons", "pedestrians": "lanes", "traffic": "lanes", "train": "lanes", "birds": "lanes"}
+var _passers_on := true
 static var _haze_shader: Shader
 static var _shaders: Dictionary = {}
 
@@ -116,11 +219,15 @@ func build(v: RoomVisuals, m: Dictionary, bg_root: Node2D, fg_root: Node2D) -> v
 	full = Settings.effects_full()
 	base_front = Node2D.new()
 	bg_root.add_child(base_front)
-	_apply_haze()
-	if meta.has("clouds") and full:
+	_passers_on = not PerfDebug.off("passers")
+	if not PerfDebug.off("haze"):
+		_apply_haze()
+	if meta.has("clouds") and full and not PerfDebug.off("clouds"):
 		_make_clouds(meta.clouds, bg_root)
 	for e in meta.get("life", []):
 		if typeof(e) != TYPE_DICTIONARY:
+			continue
+		if PerfDebug.off(str(PROFILE_GROUP.get(str(e.get("type", "")), ""))):
 			continue
 		match str(e.get("type", "")):
 			"window": _make_window(e)
@@ -132,7 +239,7 @@ func build(v: RoomVisuals, m: Dictionary, bg_root: Node2D, fg_root: Node2D) -> v
 			"pigeons": _make_pigeons(e)
 			"pedestrians", "traffic", "train", "birds":
 				if full: _make_lane(e, bg_root)
-	if meta.has("grade") and full and Settings.post_fx:
+	if meta.has("grade") and full and Settings.post_fx and not PerfDebug.off("grade"):
 		_make_grade(meta.grade)
 
 # ------------------------------------------------------------------ atmosphere
@@ -157,25 +264,57 @@ func _apply_haze() -> void:
 				s.material = mat
 
 func _make_grade(g: Dictionary) -> void:
-	var layer := CanvasLayer.new()
-	layer.layer = 5
-	room.add_child(layer)
+	grade_layer = CanvasLayer.new()
+	grade_layer.layer = 5
+	room.add_child(grade_layer)
+	var legacy := PerfDebug.off("fast_bloom")
+	var lift := Color(str(g.get("lift", "#000000")))
+	var gain := Color(str(g.get("gain", "#ffffff")))
+	var params := {
+		"lift": Vector3(lift.r, lift.g, lift.b), "gain": Vector3(gain.r, gain.g, gain.b),
+		"saturation": clampf(float(g.get("saturation", 1.0)), 0.8, 1.2),
+		"contrast": clampf(float(g.get("contrast", 1.0)), 0.9, 1.15),
+		"vignette": clampf(float(g.get("vignette", 0.2)), 0.0, 0.35),
+		"bloom": clampf(float(g.get("bloom", 0.35)), 0.0, 0.6) * (1.0 if Settings.flash > 0.0 else 0.5)}
 	grade_rect = ColorRect.new()
 	grade_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	grade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var mat := ShaderMaterial.new()
-	mat.shader = _shader(GRADE_SHADER)
-	var lift := Color(str(g.get("lift", "#000000")))
-	var gain := Color(str(g.get("gain", "#ffffff")))
-	mat.set_shader_parameter("lift", Vector3(lift.r, lift.g, lift.b))
-	mat.set_shader_parameter("gain", Vector3(gain.r, gain.g, gain.b))
-	mat.set_shader_parameter("saturation", clampf(float(g.get("saturation", 1.0)), 0.8, 1.2))
-	mat.set_shader_parameter("contrast", clampf(float(g.get("contrast", 1.0)), 0.9, 1.15))
-	mat.set_shader_parameter("vignette", clampf(float(g.get("vignette", 0.2)), 0.0, 0.35))
-	mat.set_shader_parameter("bloom", clampf(float(g.get("bloom", 0.35)), 0.0, 0.6) * (1.0 if Settings.flash > 0.0 else 0.5))
+	var mat := _grade_material(GRADE_SHADER_LEGACY if legacy else GRADE_SHADER, params)
 	grade_rect.material = mat
-	layer.add_child(grade_rect)
+	grade_layer.add_child(grade_rect)
 	shaders_t.append(mat)
+	if legacy or PerfDebug.off("bloom") or float(params.bloom) <= 0.0:
+		return
+	bloom_group = CanvasGroup.new()
+	bloom_group.fit_margin = 16384.0          # the group's own quad must cover the whole screen
+	bloom_group.clear_margin = 0.0
+	bloom_group.material = _grade_material(BLOOM_ADD_SHADER, params)
+	grade_layer.add_child(bloom_group)
+	bloom_down = ColorRect.new()
+	bloom_down.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var dm := _grade_material(BLOOM_DOWN_SHADER, params)
+	dm.set_shader_parameter("frame", room.get_viewport().get_texture())
+	bloom_down.material = dm
+	bloom_group.add_child(bloom_down)
+	_fit_bloom()
+	if not room.get_viewport().size_changed.is_connected(_fit_bloom):
+		room.get_viewport().size_changed.connect(_fit_bloom)
+
+func _grade_material(code: String, params: Dictionary) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = _shader(code.replace("//FUNCS", GRADE_FUNCS))
+	for k in params:
+		m.set_shader_parameter(k, params[k])
+	m.set_shader_parameter("cells", Vector2(BLOOM_CELLS))
+	return m
+
+## The small bloom image is BLOOM_CELLS physical pixels in the top-left corner, whatever the window size.
+func _fit_bloom() -> void:
+	if not is_instance_valid(bloom_down):
+		return
+	var k: Vector2 = room.get_viewport().get_final_transform().get_scale()
+	bloom_down.position = Vector2.ZERO
+	bloom_down.size = Vector2(BLOOM_CELLS) / Vector2(maxf(k.x, 0.01), maxf(k.y, 0.01))
 
 # ------------------------------------------------------------------ clouds and parallax lanes
 func _insert_at_parallax(bg_root: Node2D, node: Node2D, par: float) -> void:
@@ -216,7 +355,7 @@ func _make_lane(e: Dictionary, bg_root: Node2D) -> void:
 		lane.parallax = float(e.get("parallax", 0.1))
 	_insert_at_parallax(bg_root, lane.node, lane.parallax)
 	var hz: Dictionary = meta.get("haze", {})
-	if not hz.is_empty() and lane.kind in ["pedestrians", "traffic"]:
+	if not hz.is_empty() and lane.kind in ["pedestrians", "traffic"] and not PerfDebug.off("haze"):
 		var mat := ShaderMaterial.new()
 		mat.shader = _shader(HAZE_SHADER)
 		mat.set_shader_parameter("haze", Color(str(hz.get("color", "#c0a090"))))
@@ -582,7 +721,7 @@ func update(cam_left: float, view_w: float, dt: float) -> void:
 ## Townsfolk strolling along the back of the sidewalk when the street is quiet (neighbourhood districts only).
 func _update_passersby(dt: float) -> void:
 	passers = passers.filter(func(n): return is_instance_valid(n) and not n.is_queued_for_deletion())
-	if room.interior or not (str(room.district) in PASS_DISTRICTS) or room.cutscene or room.boss_active or room.combat_active():
+	if not _passers_on or room.interior or not (str(room.district) in PASS_DISTRICTS) or room.cutscene or room.boss_active or room.combat_active():
 		return
 	if room.player == null or Story.busy:
 		return

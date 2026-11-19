@@ -33,6 +33,8 @@ func _ready() -> void:
 		m.shader = sh
 		m.set_shader_parameter("mask", mask)
 		_rect.material = m
+	if LoadMarks.wanted():   # load-test timing markers (?bo_debug / -- --bo-debug only)
+		add_child(LoadMarks.new())
 
 func fade_out(t: float = 0.3) -> void:
 	_rect.mouse_filter = Control.MOUSE_FILTER_STOP

@@ -27,6 +27,7 @@ var _dark_speed := 1.0
 var bg_root_ref: Node2D
 var life: RoomLife
 var fg_root_ref: Node2D
+var _rim_off := false          # PerfDebug "rim" (profiling only)
 static var _add_mat: CanvasItemMaterial
 
 static func has_v2(room_id: String) -> bool:
@@ -50,6 +51,8 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 	var dens := float(meta.get("density", 2))
 	var sc := 1.0 / dens
 	for L in meta.get("layers", []):
+		if PerfDebug.off("parallax") and str(L.get("name", "")) != "base":
+			continue
 		var node := Node2D.new()
 		bg_root.add_child(node)
 		var par := float(L.get("parallax", 1.0))
@@ -78,7 +81,7 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 			node.add_child(s)
 		layers.append(entry)
 	for F in meta.get("fg", []):
-		if not _visible_by_state(F):
+		if not _visible_by_state(F) or PerfDebug.off("fg"):
 			continue
 		var tex2 := SpriteLib.tex(_path(str(F.get("file", ""))))
 		if tex2 == null:
@@ -92,7 +95,7 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 		fg.append({"spr": s2, "x": float(F.get("x", 0)), "y": float(F.get("y", 360)), "parallax": float(F.get("parallax", 1.2)),
 			"fade": bool(F.get("fade", true)), "alpha": 1.0, "w": tex2.get_width() * sc, "h": tex2.get_height() * sc})
 	var lm: Dictionary = meta.get("lightmap", {})
-	if lm.has("file"):
+	if lm.has("file") and not PerfDebug.off("lightmap"):
 		var ltex := SpriteLib.tex(_path(str(lm.file)))
 		if ltex:
 			light_img = ltex.get_image()
@@ -100,21 +103,22 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 				light_img.decompress()
 			light_cell = float(lm.get("cell", 8))
 	var rim: Dictionary = meta.get("rim", {})
-	if not rim.is_empty():
+	_rim_off = PerfDebug.off("rim")
+	if not rim.is_empty() and not _rim_off:
 		var d: Array = rim.get("dir", [-1, -0.35])
 		rim_default = {"color": Color(str(rim.get("color", "#ffd0a0"))), "dir": Vector2(d[0], d[1]).normalized(),
 			"strength": float(rim.get("strength", 0.4))}
 	var cs: Dictionary = meta.get("cast_shadow", {})
-	if not cs.is_empty():
+	if not cs.is_empty() and not PerfDebug.off("cast"):
 		var cd: Array = cs.get("dir", [0.55, 0.22])
 		cast_shadow = {"dir": Vector2(cd[0], cd[1]), "alpha": float(cs.get("alpha", 0.22))}
-	for R in meta.get("reflect", []):
+	for R in (meta.get("reflect", []) if not PerfDebug.off("reflect") else []):
 		var rr: Array = R.get("rect", [0, 0, 0, 0])
 		reflects.append({"rect": Rect2(rr[0], rr[1], rr[2], rr[3]), "alpha": float(R.get("alpha", 0.18))})
 	var gtex := SpriteLib.tex("res://assets/fx2/glow_soft.png")
 	if gtex == null:
 		gtex = _fallback_glow()
-	for G in meta.get("glows", []):
+	for G in (meta.get("glows", []) if not PerfDebug.off("glows") else []):
 		var g := Sprite2D.new()
 		g.texture = gtex
 		g.material = add_material()
@@ -129,7 +133,7 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 		(glow_front if front else glow_back).add_child(g)
 		glows.append({"spr": g, "x": g.position.x, "y": g.position.y, "r": rad, "color": col, "energy": en,
 			"flicker": str(G.get("flicker", "none")), "phase": randf() * 10.0, "front": front, "off_t": 0.0})
-	if Settings.effects_full():
+	if Settings.effects_full() and not PerfDebug.off("ambient"):
 		for A in meta.get("ambient", []):
 			_make_ambient(A, glow_back, glow_front)
 	life = RoomLife.new()
@@ -258,6 +262,8 @@ func set_darkness(level: float, secs: float = 0.6) -> void:
 
 ## A glow that follows an actor (e.g. Kowal's lantern). It also feeds rim light like any other glow.
 func add_follow_light(node: Node2D, radius: float, col: Color, energy: float, offset: Vector2) -> void:
+	if PerfDebug.off("glows"):
+		return
 	var gtex := SpriteLib.tex("res://assets/fx2/glow_soft.png")
 	if gtex == null:
 		gtex = _fallback_glow()
@@ -291,6 +297,8 @@ func light_at(p: Vector2) -> Color:
 	return Color(c.r * k, c.g * k, c.b * k)
 
 func rim_at(p: Vector2) -> Dictionary:
+	if _rim_off:
+		return rim_default
 	var best := 0.0
 	var res := rim_default
 	for G in glows:
@@ -322,7 +330,7 @@ func reflect_at(p: Vector2) -> float:
 # ------------------------------------------------------------------ ambient life
 func _make_ambient(A: Dictionary, back: Node2D, front: Node2D) -> void:
 	var typ := str(A.get("type", ""))
-	if typ not in AMBIENT_TYPES:
+	if typ not in AMBIENT_TYPES or PerfDebug.off("ambient"):
 		return
 	var p := CPUParticles2D.new()
 	p.position = Vector2(float(A.get("x", 0)), float(A.get("y", 0)))

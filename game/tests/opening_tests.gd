@@ -159,12 +159,17 @@ func test_intro_tips() -> void:
 	for o in enemies():
 		if o != e:
 			o.hold = true
-	p.position = Vector2(e.position.x - 24.0, e.position.y)
-	p.facing = 1
-	for i in 3:
-		await tap("punch")
-		await frames(9)
-	await frames(30)
+	# (retried: the other Dog may already be mid-swing when it is told to hold, and a hit breaks the combo)
+	for attempt in 4:
+		await until(func(): return p.state in ["idle", "walk"], 120)
+		p.position = Vector2(e.position.x - 24.0, e.position.y)
+		p.facing = 1
+		for i in 3:
+			await tap("punch")
+			await frames(9)
+		await frames(30)
+		if tut().is_learned("combo"):
+			break
 	check(tut().is_learned("combo"), "the third hit of a combo completes the combo tip")
 	# guard: a real blocked hit
 	e.frozen = false

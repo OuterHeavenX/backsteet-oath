@@ -244,7 +244,10 @@ func test_storage_crane() -> void:
 	victim.position = zone
 	var hp0 := victim.hp
 	p.position = Vector2(700, 250)
-	await until(func(): return victim.hp < hp0, 600)
+	# up to two full crane cycles: the spot may have just had its turn when the victim is placed
+	await until(func():
+		victim.position = zone
+		return victim.hp < hp0, 1500)
 	check(victim.hp < hp0, "a crate dropped on a mark hurts the enemy standing there")
 	await frames(30)
 	var left_crate := false
