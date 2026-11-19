@@ -926,6 +926,12 @@ def main():
             os.makedirs(a.preview, exist_ok=True)
             preview(rid, js, a.preview)
     write_ledger(built)
+    if 'cm_gate' in ids:
+        # Regenerating the Market Gate rewrites its room.json and PNGs, which drops the story-gated mural layers
+        # (side job "Wet Paint"). Put them back so a regeneration can never silently lose them.
+        import subprocess
+        subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mural.py')], check=True)
+        print('re-applied the cm_gate mural layers (tools/art2/env/mural.py)')
 
 
 if __name__ == '__main__':

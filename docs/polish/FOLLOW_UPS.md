@@ -80,6 +80,9 @@ how the game runs on a GPU, a Steam Deck or a phone. The steps for a person to m
 `VALIDATION_REPORT.md`.
 
 ## Smaller items
+- Possible older issue, **not confirmed by running it**: from reading the code, the postgame welcome line in the
+  diner may be replaced by the ending's own diner dialogue, so players might never see it.
+- Regenerating the Market Gate art re-applies the mural layers automatically (`gen_env2.py` calls `mural.py`).
 - The heavy's grab still has no wind-up animation frames (a held pose plus the lean and the purple tell).
 - Sparring partners use Chain Dog sprites and are written as ex-Dogs who train with Benny; a dedicated look would
   need art.
