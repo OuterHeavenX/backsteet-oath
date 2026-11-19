@@ -14,6 +14,10 @@ static func ab(a: Variant, b: Variant, fmt: String = "%d") -> String:
 static func _target() -> String:
 	return "a " + Preview.ref_label()
 
+## A stat's total from a Preview sheet ("hp" there is current HP, so Max HP reads max_hp).
+static func _stat(sheet: Dictionary, s: String) -> int:
+	return int(sheet.max_hp) if s == "hp" else int(sheet[s])
+
 static func _cap(s: String) -> String:
 	return s.left(1).to_upper() + s.substr(1)
 
@@ -51,10 +55,10 @@ static func food(item_id: String) -> Dictionary:
 		var fa := int(a.food.get(s, 0))
 		var nm: String = STAT_NAME.get(s, str(s).to_upper())
 		if fa > fb:
-			parts.append("%s +%d for good: %d -> %d (food bonus %d -> %d of %d%s)" % [nm, fa - fb, int(b[s]), int(a[s]), fb, fa, cap,
+			parts.append("%s +%d for good: %d -> %d (food bonus %d -> %d of %d%s)" % [nm, fa - fb, _stat(b, s), _stat(a, s), fb, fa, cap,
 				", the cap" if fa >= cap else ""])
 		else:
-			parts.append("%s stays %d (its food bonus is maxed: %d of %d)" % [nm, int(b[s]), fb, cap])
+			parts.append("%s stays %d (its food bonus is maxed: %d of %d)" % [nm, _stat(b, s), fb, cap])
 	if p.no_effect:
 		return {"text": "No effect right now: " + "; ".join(parts) + ".", "no_effect": true}
 	return {"text": "Eat now: " + "; ".join(parts) + ".", "no_effect": false}
@@ -66,7 +70,7 @@ static func stat_point(stat: String, weapon: String = "") -> String:
 	var b: Dictionary = p.before
 	var a: Dictionary = p.after
 	var who := _target()
-	var head := "Next point: %s %s. " % [STAT_NAME.get(stat, stat), ab(b.max_hp if stat == "hp" else b[stat], a.max_hp if stat == "hp" else a[stat])]
+	var head := "Next point: %s %s. " % [STAT_NAME.get(stat, stat), ab(_stat(b, stat), _stat(a, stat))]
 	var wname := str(Content.weapon(str(b.weapon_id)).get("name", "weapon"))
 	match stat:
 		"hp":

@@ -140,6 +140,13 @@ static func master(family: String) -> int:
 	return 0
 
 # ---------------------------------------------------------------- the bench
+static var _bench: Bench       # the Bench that is open right now, if any
+
+## Closes a Bench that was left open. Called when the next one opens and at the end of the frame.
+static func sweep() -> void:
+	if _bench != null:
+		_bench.close()
+
 ## Stands in for the Room while a probe hit lands: accepts the presentation calls a hit makes and does nothing.
 class Quiet extends Node:
 	var actors: Array = []
@@ -160,8 +167,9 @@ class Dummy extends Enemy:
 		char_id = id
 
 ## An open Bench holds a snapshot of GameState. Anything may be done to GameState while it is open; close()
-## (or simply dropping the last reference, also on an early return or a script error) puts every property back,
-## byte for byte, keeping the identity of every container that did not change.
+## puts every property back, byte for byte, keeping the identity of every container that did not change.
+## Only one Bench is open at a time. One that was left open (an early return, a script error) is closed by the
+## next Bench that opens and, failing that, at the end of the frame, so a preview can never leak into play.
 class Bench extends RefCounted:
 	var _bytes: Dictionary = {}     # container property -> var_to_bytes at open
 	var _orig: Dictionary = {}      # container property -> the container object itself
@@ -175,6 +183,7 @@ class Bench extends RefCounted:
 	var foes: Dictionary = {}       # archetype -> Dummy
 
 	func _init() -> void:
+		Preview.sweep()
 		for p in GameState.get_script().get_script_property_list():
 			if int(p.usage) & PROPERTY_USAGE_SCRIPT_VARIABLE == 0:
 				continue
@@ -189,15 +198,15 @@ class Bench extends RefCounted:
 		_audio = Audio.unlocked
 		Audio.unlocked = false
 		_open = true
-
-	func _notification(what: int) -> void:
-		if what == NOTIFICATION_PREDELETE:
-			close()
+		Preview._bench = self
+		Preview.sweep.call_deferred()
 
 	func close() -> void:
 		if not _open:
 			return
 		_open = false
+		if Preview._bench == self:
+			Preview._bench = null
 		if nico:
 			if nico.weapon_spr:
 				nico.weapon_spr.free()
@@ -322,7 +331,8 @@ class Bench extends RefCounted:
 		var out := {"hp": gs.hp, "max_hp": gs.max_hp(), "points": gs.points,
 			"walk": nico.walk_speed, "run": nico.run_speed, "getup": nico.getup_invuln}
 		for s in gs.STATS:
-			out[s] = gs.stat(s)
+			if s != "hp":
+				out[s] = gs.stat(s)
 		out["jab"] = strike("punch_a")
 		out["jab_dizzy"] = foe().dizzy_meter
 		out["dizzy_at"] = foe().dizzy_threshold
@@ -378,7 +388,8 @@ class Bench extends RefCounted:
 	func vitals() -> Dictionary:
 		var out := {"hp": GameState.hp, "max_hp": GameState.max_hp(), "food": GameState.food.duplicate()}
 		for s in GameState.STATS:
-			out[s] = GameState.stat(s)
+			if s != "hp":
+				out[s] = GameState.stat(s)
 		return out
 
 # ---------------------------------------------------------------- previews
