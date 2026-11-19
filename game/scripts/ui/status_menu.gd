@@ -111,6 +111,11 @@ func _build_stats() -> void:
 	var auto_b := Widgets.cycler("Auto-spend level-up points", ["On (balanced)", "Off (choose myself)"], 0 if gs.auto_alloc else 1, func(i): gs.auto_alloc = i == 0, 360)
 	auto_b.focus_entered.connect(func(): _info("Balanced auto-spend cycles ATK, DEF, TEC, AGI, HP. Turn it off to bank points and spend them here."))
 	body.add_child(auto_b)
+	var guide := UIKit.button("Build ideas: three ways to grow Nico", func():
+		if host and host.has_method("push_menu"):
+			host.push_menu(BuildGuideMenu.new()), 360)
+	guide.focus_entered.connect(func(): _info("Advice only: which stat, dishes and manuals suit a brawler, a weapon specialist or a counter fighter. Nothing is locked or chosen for you."))
+	body.add_child(guide)
 	body.add_child(UIKit.wrap_label("Each level: +7 HP, +1 ATK, +1 DEF, +0.5 AGI, +0.5 TEC and 1 stat point. Food gives small permanent boosts up to each stat's food cap. Coach Benny can refund your points later for a small fee.", 520, UIKit.DIM))
 	var st: Dictionary = gs.stats
 	body.add_child(UIKit.label("Enemies defeated %d   Knockouts %d   Meals %d   Playtime %s" % [int(st.get("defeated", 0)), int(st.get("deaths", 0)), int(st.get("food_eaten", 0)), UIKit.fmt_time(float(st.get("playtime", 0)))], UIKit.DIM))

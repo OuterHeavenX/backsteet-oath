@@ -138,6 +138,8 @@ func _ready() -> void:
 						w.push_menu(sm)
 					"shop": w.open_shop(parts[2])
 					"journal": w.push_menu(JournalMenu.new())
+					"builds": w.push_menu(BuildGuideMenu.new())
+					"manual": ManualPreviewMenu.ask(w, parts[2], parts[3] if parts.size() > 3 else "")
 					"map": w.push_menu(MapMenu.new())
 					"settings": w.push_menu(SettingsMenu.new())
 					"close": w.close_all_menus()
