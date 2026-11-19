@@ -115,6 +115,7 @@ func _physics_process(_d: float) -> void:
 	if w == null or not is_instance_valid(w) or not w.is_inside_tree():
 		return
 	if GameState.stage != last_stage:
+		_bot_shop()
 		stage_log.append({"stage": GameState.stage, "t": snappedf(frames / 60.0, 0.1), "level": GameState.level, "deaths": deaths})
 		print("[bot] t=%.1f stage=%s lvl=%d cash=%d deaths=%d" % [frames / 60.0, GameState.stage, GameState.level, GameState.cash, deaths])
 		last_stage = GameState.stage
@@ -353,7 +354,8 @@ func _finish(result: String) -> void:
 		"deaths": deaths, "final_level": GameState.level, "cash": GameState.cash, "stage": GameState.stage,
 		"breakdown_seconds": {}, "stages": stage_log, "room_seconds": {}, "notes": notes, "stuck_events": stuck_events,
 		"enemies_defeated": int(GameState.stats.get("defeated", 0)), "difficulty": Settings.difficulty,
-		"engine": Engine.get_version_info().string
+		"engine": Engine.get_version_info().string,
+		"shop_mode": OS.get_environment("AUTOPLAY_SHOP"), "shop_spent": shop_spent, "food_bonus": GameState.food.duplicate()
 	}
 	for k in counters:
 		rep.breakdown_seconds[k] = snappedf(counters[k] / 60.0, 0.1)
@@ -368,3 +370,44 @@ func _finish(result: String) -> void:
 	print("[bot] FINISHED result=%s minutes=%.1f deaths=%d level=%d" % [result, total / 60.0, deaths, GameState.level])
 	print(JSON.stringify(rep))
 	get_tree().quit(0 if result == "complete" else 1)
+
+## AUTOPLAY_SHOP=some|all: at each story stage the bot spends half / all of its cash on food with permanent
+## bonuses from the hubs it has reached, through the game's own purchase calls. It models "a player who
+## buys some upgrades" for difficulty measurements; it is not a claim about how people play.
+var shop_spent := 0
+func _bot_shop() -> void:
+	var mode := OS.get_environment("AUTOPLAY_SHOP")
+	if mode == "" or mode == "none":
+		return
+	var budget := GameState.cash if mode == "all" else int(GameState.cash * 0.5)
+	var hubs := {"diner": "intro", "noodle": "market", "canteen": "ironworks", "snack": "neon", "bait": "floodgate"}
+	var offers: Array = []
+	for shop_id in hubs:
+		if GameState.stage_index(GameState.stage) < GameState.stage_index(hubs[shop_id]):
+			continue
+		for id in Content.shops[shop_id].stock:
+			var it: Dictionary = Content.item(id)
+			for s in it.get("bonus", {}):
+				offers.append({"shop": shop_id, "id": id, "stat": s, "price": GameState.price_for(shop_id, int(it.price)), "gain": int(it.bonus[s])})
+	offers.sort_custom(func(a, b): return float(a.price) / a.gain < float(b.price) / b.gain)
+	var bought := true
+	while bought:
+		bought = false
+		# spread across stats: cheapest offer for the stat with the least food bonus so far (relative to its cap)
+		var best: Dictionary = {}
+		var best_fill := 2.0
+		for o in offers:
+			var cap := float(Content.food_caps.get(o.stat, 8))
+			var fill := float(GameState.food.get(o.stat, 0)) / cap
+			if fill >= 1.0 or int(o.price) > budget:
+				continue
+			if fill < best_fill:
+				best_fill = fill
+				best = o
+		if not best.is_empty() and GameState.spend(int(best.price)):
+			GameState.consume(best.id)
+			budget -= int(best.price)
+			shop_spent += int(best.price)
+			bought = true
+	if w and w.room and w.room.player:
+		w.room.player.refresh_stats()

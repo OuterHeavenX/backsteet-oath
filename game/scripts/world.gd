@@ -137,6 +137,7 @@ func _load_room(id: String, spawn: String, first: bool = false) -> void:
 	Audio.play_music(rd.get("music", "old_quarter"))
 	Audio.play_ambient(_ambient_for(rd))
 	hud.set_bosses([])
+	hud.set_timer("")      # no counter (cup, ladder, shutter, lights) outlives the room it belonged to
 	hud.refresh_objective()
 	room.player.lock_input(12)
 	await Story.on_room_enter(room, first)

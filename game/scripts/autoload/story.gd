@@ -93,6 +93,7 @@ func on_event(room: Node, id: String) -> void:
 		"cup_start": await _cup_start(room)
 		"ul_enter": await _ul_enter(room)
 		"ul_mid": await _ul_mid(room)
+		"storage_run": await _storage_run(room)
 
 # ---------------------------------------------------------------- helpers for scripted fights
 func _spawn_from_side(room: Node, id: String, side: int, opts: Dictionary = {}) -> Enemy:
@@ -196,8 +197,9 @@ func _intro(room: Node) -> void:
 	# fight: progress still follows the Chain Dogs going down, exactly as before.
 	var tut: Tutor = world.tutor
 	GameState.set_flag("tutor_v2")
-	for id in ["move", "combo", "guard", "throw"]:
-		tut.arm(id)
+	if GameState.ng_cycle == 0:
+		for id in ["move", "combo", "guard", "throw"]:
+			tut.arm(id)
 	room.lock_exits(true, "Help Dot first!")
 	room.token_cap = 1
 	# A safe moment to learn to move: the two Dogs keep leaning on Dot until Nico walks up, swings, or skips.
@@ -240,8 +242,9 @@ func _intro(room: Node) -> void:
 	GameState.set_flag("intro_done")
 	_note("eli_missing")
 	_set_stage("find_mara")
-	for id in ["door", "eat", "save"]:
-		tut.arm(id)
+	if GameState.ng_cycle == 0:
+		for id in ["door", "eat", "save"]:
+			tut.arm(id)
 	await room.walk_to(dot, Vector2(460, 222), 50.0)
 	if _valid(room):
 		room.remove_npc(dot)
@@ -304,6 +307,8 @@ func start_boss(room: Node, cfg: Dictionary) -> void:
 	if not _valid(room):
 		return
 	Audio.play_music(cfg.get("music", "boss"), 0.4)
+	if cfg.id == "kowal":
+		room.setup_work_lights([330, 640, 800])
 	room.begin_boss_fight(cfg, bosses)
 	_boss_tip(cfg.id)
 	busy = false
@@ -380,6 +385,7 @@ func boss_defeated(room: Node, cfg: Dictionary, _ids: Array) -> void:
 			GameState.give_key("gate_key")
 			_set_stage("warehouse")
 		"kowal":
+			room.end_light_contest()
 			room.vis.set_darkness(1.0, 1.2)
 			await _say("kowal_defeat")
 			GameState.defeat_boss("kowal")
@@ -898,6 +904,69 @@ func _ul_mid(room: Node) -> void:
 	room.impulse(Vector2(0, 1), 0.6)
 	Audio.sfx("alarm", -12.0)
 	await _say("ul_mid")
+
+# ---------------------------------------------------------------- Storage Floor: the shutter run
+## The east shutter starts coming down. Reach the door in time and the door crew is skipped (with a bonus that
+## stands in for the fight); miss it and the shutter has to be forced by beating that crew. Either way the
+## room is finished: nothing here can leave the way shut.
+const SHUTTER_SECONDS := 24.0
+const SHUTTER_BONUS_XP := 300
+const SHUTTER_BONUS_CASH := 40
+
+func _storage_run(room: Node) -> void:
+	var p: Player = room.player
+	Audio.sfx("alarm", -6.0)
+	world.toast("The office shutter is coming down! Get to the east door.", UIKit.DANGER)
+	var foes: Array = []
+	for id in ["grays_flanker", "grays_flanker", "grays_heavy"]:
+		foes.append(_spawn_from_side(room, id, 1))
+		if not await _wait(room, 0.3):
+			return
+	var left := SHUTTER_SECONDS * (1.35 if Settings.difficulty == "relaxed" else 1.0)
+	var made_it := false
+	while _valid(room):
+		if not get_tree().paused and not room.cutscene and not world.dialogue_active():
+			left -= Actor.DT
+		world.hud.set_timer("SHUTTER %d" % int(ceil(maxf(left, 0.0))))
+		if p.position.x >= room.width - 70.0 and not p.dead:
+			made_it = true
+			break
+		if left <= 0.0:
+			break
+		await get_tree().physics_frame
+	if not _valid(room):
+		return
+	world.hud.set_timer("")
+	if made_it:
+		GameState.set_flag("storage_run_done")
+		GameState.add_cash(SHUTTER_BONUS_CASH)
+		GameState.add_xp(SHUTTER_BONUS_XP)
+		Audio.sfx("quest_update")
+		world.toast("Under the shutter!  +%d XP  +$%d" % [SHUTTER_BONUS_XP, SHUTTER_BONUS_CASH], UIKit.CASHC)
+		world.autosave()
+		return
+	Audio.sfx("metal_clang")
+	room.lock_exits(true, "The shutter is down. Beat the door crew to raise it!")
+	world.toast("The shutter slams down. Beat the door crew to raise it.", UIKit.DANGER)
+	for id in ["grays_heavy", "grays_blocker"]:
+		foes.append(_spawn_from_side(room, id, 1))
+		if not await _wait(room, 0.3):
+			return
+	while _valid(room):
+		var alive := false
+		for e in foes:
+			if _alive(e):
+				alive = true
+		if not alive:
+			break
+		await get_tree().physics_frame
+	if not _valid(room):
+		return
+	GameState.set_flag("storage_run_done")
+	room.lock_exits(false)
+	Audio.sfx("door")
+	world.toast("The shutter grinds back up.")
+	world.autosave()
 
 # ---------------------------------------------------------------- side jobs (simple fetch/defeat pattern)
 ## Offer -> wait -> return. key == "" means the quest advances some other way (waves, counters).

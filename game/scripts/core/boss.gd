@@ -13,6 +13,15 @@ var retreat_at := 0.0
 var retreated := false
 var evade_cd := 0
 var phase_pending := false
+var snuff_target: WorkLight = null   # Kowal: the work light she is walking over to put out
+var snuff_cd := 0
+var snuff_walk := 0
+var snuff_stuck := 0
+var snuff_detour := 0
+var snuff_last_x := 0.0
+var snuffing := false
+var dark_t := 0
+var dark_waves := 0
 
 func setup_boss(id: String) -> void:
 	setup_enemy(id, Content.enemies.bosses[id].get("tier", 1))
@@ -64,14 +73,16 @@ func boss_update() -> void:
 			room.spawn_fx("sweat", Vector2(8, -height), 0.0, self, 20)
 		return
 	var frac := float(hp) / float(max_hp)
+	var ng: bool = GameState.ng_cycle > 0
 	match script_id:
 		"duke":
-			for th in [0.6, 0.3]:
+			# New Game+: he whistles three times, and a bottle-thrower comes with the pups
+			for th in (_ng_list("duke_summon_at", [0.75, 0.5, 0.25]) if ng else [0.6, 0.3]):
 				if frac <= th and not summons_done.has(th):
 					summons_done[th] = true
-					_summon(["dogs_brawler", "dogs_flanker"], "duke_whistle")
+					_summon(["dogs_brawler", "dogs_thrower"] if ng else ["dogs_brawler", "dogs_flanker"], "duke_whistle")
 		"sabine":
-			for th in [0.7, 0.35]:
+			for th in (_ng_list("sabine_summon_at", [0.75, 0.5, 0.25]) if ng else [0.7, 0.35]):
 				if frac <= th and not summons_done.has(th):
 					summons_done[th] = true
 					_summon(["grays_blocker", "grays_thrower"], "sabine_whistle")
@@ -81,7 +92,7 @@ func boss_update() -> void:
 				if room:
 					room.boss_retreat(self)
 		"rook":
-			if phase == 1 and frac <= 0.5 and not phase_pending:
+			if phase == 1 and frac <= (Content.tune("ngplus", "rook_phase_at", 0.6) if ng else 0.5) and not phase_pending:
 				phase_pending = true
 				phase = 2
 				hazard_t = 9999
@@ -90,28 +101,112 @@ func boss_update() -> void:
 			if phase == 2:
 				hazard_t -= 1
 				if hazard_t <= 0 and room:
-					hazard_t = randi_range(220, 300)
+					hazard_t = int(randi_range(220, 300) * (Content.tune("ngplus", "rook_crate_cd", 0.75) if ng else 1.0))
 					room.drop_hazard_crate(target.position if target else position)
 		"kowal":
-			# lights out at half health: the vault goes dark except her lantern, and two Moles join in
-			if frac <= 0.5 and phase == 1:
+			# Half health: she kills the work lights and fights by her lantern. From here the lights are a
+			# contest: she walks over to put the lit ones out (hit her in the wind-up to stop it), the player
+			# can switch them back on, and her Moles only climb out while every light is dark.
+			if frac <= (Content.tune("ngplus", "kowal_lights_at", 0.7) if ng else 0.5) and phase == 1:
 				phase = 2
 				ai_speed *= 1.1
 				walk_speed = ai_speed
+				snuff_cd = 420
 				if room:
 					if room.world and room.world.has_method("phase_beat"):
 						room.world.phase_beat()
 					if room.vis:
-						room.vis.set_darkness(0.45, 0.6)
 						room.vis.add_follow_light(self, 90.0, Color(1.0, 0.78, 0.45), 0.55, Vector2(10, -40))
-					_summon(["moles_brawler", "moles_flanker"], "kowal_dark")
+					if room.work_lights.is_empty():
+						# no lights in this room (older data): the original single blackout and summon
+						if room.vis:
+							room.vis.set_darkness(0.45, 0.6)
+						_summon(["moles_brawler", "moles_flanker"], "kowal_dark")
+					else:
+						room.world.bark(self, "kowal_dark")
+						room.begin_light_contest(position)
+			elif phase == 2 and room and not room.work_lights.is_empty():
+				_kowal_pick_light()
 		"otto":
-			if frac <= 0.5 and phase == 1:
+			if frac <= (Content.tune("ngplus", "otto_rage_at", 0.65) if ng else 0.5) and phase == 1:
 				phase = 2
 				ai_speed *= 1.15
 				walk_speed = ai_speed
 				if room:
 					room.float_text(position + Vector2(0, -70), "Otto's getting angry!", Color(1, 0.5, 0.3))
+
+## Kowal, phase two. Reinforcements only come out of full darkness (capped), and she breaks off now and then
+## to put out a lit light: a walk and a slow telegraphed swing that leaves her winded afterwards.
+## The clocks run in real time (every tick), whatever she is doing; only choosing a light needs her free.
+func think() -> void:
+	if script_id == "kowal" and phase == 2 and not dead and room and not room.work_lights.is_empty() and room.lights_contest:
+		if room.lit_lights() == 0:
+			dark_t += 1
+			var cap := 1 if Settings.difficulty == "relaxed" else 2
+			if dark_t >= 480 and dark_waves < cap and room.enemies_alive() <= 1:
+				dark_t = 0
+				dark_waves += 1
+				_summon(["moles_brawler", "moles_flanker"], "kowal_moles")
+		else:
+			dark_t = maxi(0, dark_t - 2)
+		if snuff_target == null and snuff_cd > 0:
+			snuff_cd -= 1
+	super.think()
+
+func _kowal_pick_light() -> void:
+	if snuff_target == null and snuff_cd <= 0 and room.lit_lights() > 0 and state in ["idle", "walk", "run"]:
+		snuff_target = room.nearest_light(position, true)
+		snuff_walk = 0
+		pending_attack = ""
+
+func _decide() -> void:
+	if snuff_target != null:
+		decide_cd = 10
+		return
+	super._decide()
+
+func _steer() -> void:
+	if snuff_target == null:
+		super._steer()
+		return
+	if not is_instance_valid(snuff_target) or not snuff_target.lit:
+		snuff_target = null
+		snuff_cd = 360
+		return
+	scripted_anim = ""
+	var side_x := -1.0 if position.x < snuff_target.position.x else 1.0
+	# clamp_ground nudges the spot out of any crate or machine standing by the wall
+	var goal: Vector2 = room.clamp_ground(Vector2(snuff_target.position.x + side_x * 34.0, room.walk_top + 12.0))
+	snuff_walk += 1
+	if snuff_walk > 420:
+		# could not get there (crowded or blocked): give up for now rather than stall the fight
+		snuff_target = null
+		snuff_cd = 300
+		return
+	# close enough to reach the lamp with the shovel (the swing covers 60 px and a deep lane band)
+	if absf(position.x - snuff_target.position.x) > 52.0 or absf(position.y - goal.y) > 26.0:
+		# body-blocked (usually by the player standing in her lane): step down a lane and go around
+		snuff_stuck = snuff_stuck + 1 if absf(position.x - snuff_last_x) < 0.25 else 0
+		snuff_last_x = position.x
+		if snuff_stuck > 24:
+			snuff_stuck = 0
+			snuff_detour = 55
+		if snuff_detour > 0:
+			snuff_detour -= 1
+			_move_toward(Vector2(goal.x, minf(position.y + 60.0, room.walk_bot - 6.0)), ai_speed * 1.25)
+		else:
+			_move_toward(goal, ai_speed * 1.25)
+		return
+	vel = Vector2.ZERO
+	facing = 1 if snuff_target.position.x > position.x else -1
+	if start_attack("kowal_snuff"):
+		snuffing = true
+		Audio.sfx("tell_heavy", -5.0, 0.0)
+		room.world.toast("Kowal goes for a work light! Hit her to stop it.")
+
+func _ng_list(key: String, fallback: Array) -> Array:
+	var v = Content.tuning.get("ngplus", {}).get(key, fallback)
+	return v if typeof(v) == TYPE_ARRAY and not v.is_empty() else fallback
 
 func _summon(ids: Array, line: String) -> void:
 	if room == null:
@@ -121,6 +216,14 @@ func _summon(ids: Array, line: String) -> void:
 
 func take_damage_and_react(attacker: Actor, d: Dictionary, raw: float, dir: int, force: bool) -> void:
 	super.take_damage_and_react(attacker, d, raw, dir, force)
+	if snuffing and state != "attack":
+		# knocked out of the swing: the light stays on
+		snuffing = false
+		if snuff_target != null and is_instance_valid(snuff_target) and snuff_target.lit and room:
+			room.float_text(snuff_target.position + Vector2(0, -52), "Light saved!", Color(1.0, 0.9, 0.6))
+			room.tutor_event("relight")
+		snuff_target = null
+		snuff_cd = 300
 	if script_id == "rook" and phase_pending and phase == 1 and state == "knockdown":
 		pass
 
@@ -143,7 +246,7 @@ func setup_visual_swap(id: String) -> void:
 
 func notice_attack(attacker: Actor) -> void:
 	if script_id == "jett" and can_act() and evade_cd <= 0 and absf(attacker.position.x - position.x) < 60 and absf(attacker.position.y - position.y) < 16:
-		if randf() < 0.35:
+		if randf() < (Content.tune("ngplus", "jett_evade", 0.5) if GameState.ng_cycle > 0 else 0.35):
 			evade_cd = 90
 			set_state("jump")
 			vz = 250.0
@@ -170,6 +273,9 @@ func on_attack_end() -> void:
 	super.on_attack_end()
 	# recovery windows after big moves
 	match atk_id:
+		"kowal_snuff":
+			tired = 46
+			snuffing = false
 		"duke_spin": tired = 40
 		"otto_charge": tired = 80 if atk_targets == 0 else 30
 		"otto_slam": tired = 36
@@ -251,6 +357,12 @@ func _launch_attack(id: String) -> void:
 
 func _attack_state() -> void:
 	super._attack_state()
+	if snuffing and state == "attack" and atk_id == "kowal_snuff" and atk_t == int(atk.get("startup", 20)) + 1:
+		room.snuff_light(snuff_target)
+		snuff_target = null
+		snuff_cd = int(540 * (Content.tune("ngplus", "kowal_snuff_cd", 0.7) if GameState.ng_cycle > 0 else 1.0))
+	if snuffing and state != "attack":
+		snuffing = false
 	if state == "attack" and atk_id in ["otto_slam", "rook_pound"] and atk_t == int(atk.get("startup", 20)) + 1:
 		room.spawn_fx("shockwave", position, 0.0)
 		room.shake(4)

@@ -20,7 +20,7 @@ const REMINDER_SECONDS := 24.0
 ## Ordered: earlier tips win when several have an opportunity.
 ## done: the gameplay event that completes it. when: opportunity test (see _opportunity). timed: informational
 ## tips with no single action complete after this many seconds on screen.
-const ORDER := ["move", "combo", "guard", "throw", "door", "eat", "run", "shoulder", "blocker", "unblockable", "food", "save"]
+const ORDER := ["move", "combo", "guard", "throw", "door", "eat", "run", "shoulder", "blocker", "lights", "unblockable", "food", "save"]
 const TIPS := {
 	"move": {"text": "Move with {move}. Line up level with a Chain Dog to reach him.", "done": "lane", "when": "enemy"},
 	"combo": {"text": "Press {punch} three times for a combo. The third hit knocks them down.", "done": "combo3", "when": "enemy"},
@@ -31,6 +31,7 @@ const TIPS := {
 	"run": {"text": "Double-tap a direction, or hold {run}, to run.", "done": "run", "when": "always"},
 	"shoulder": {"text": "Shoulder Charge: while running, press {punch}.", "done": "skill:shoulder", "when": "enemy"},
 	"blocker": {"text": "A blocker stops punches from the front. Finish a full combo, throw something heavy, or get behind them.", "done": "guard_broken", "when": "blocker"},
+	"lights": {"text": "Moles only come out in full dark. Relight a work light with {interact}, or hit Kowal as she winds up on one.", "done": "relight", "when": "lights"},
 	"unblockable": {"text": "A purple flash with a low double thump cannot be blocked. Step out of the lane or jump.", "done": "", "when": "always", "timed": 7.0},
 	"food": {"text": "Food heals, and most dishes add a small permanent bonus. The menu shows what each one does.", "done": "", "when": "always", "timed": 7.0},
 	"save": {"text": "Progress saves by itself when you enter a room. The Journal ({pause}) always shows where to go.", "done": "", "when": "quiet", "timed": 7.0},
@@ -205,6 +206,8 @@ func _opportunity(id: String) -> bool:
 			return r.enemies_alive() == 0 and not r.data.get("doors", []).is_empty()
 		"diner":
 			return r.room_id == "int_diner"
+		"lights":
+			return r.lights_contest
 		"blocker":
 			for a in r.actors:
 				if a is Enemy and not a.dead and a.team == Actor.TEAM_ENEMY and (a as Enemy).arche_id == "blocker" and r.on_screen(a, 0):

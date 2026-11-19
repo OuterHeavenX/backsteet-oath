@@ -20,5 +20,26 @@
   "lane_depth": 9.0,
   "lane_range": 170.0,
   "usable_range": 110.0
+ },
+ "ngplus": {
+  "_doc": "New Game+. scale_cap_cycle: enemy HP/power/reward multipliers stop growing after this cycle (the player's own damage is capped by level 20 and food caps, so unbounded HP growth only makes sponges). Composition and boss variations below apply from cycle 1.",
+  "scale_cap_cycle": 3,
+  "arm_brawler_from_cycle": 2,
+  "duke_summon_at": [
+   0.75,
+   0.5,
+   0.25
+  ],
+  "sabine_summon_at": [
+   0.75,
+   0.5,
+   0.25
+  ],
+  "otto_rage_at": 0.65,
+  "kowal_lights_at": 0.7,
+  "kowal_snuff_cd": 0.7,
+  "rook_phase_at": 0.6,
+  "rook_crate_cd": 0.75,
+  "jett_evade": 0.5
  }
 }

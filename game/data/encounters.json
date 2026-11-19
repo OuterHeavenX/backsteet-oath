@@ -1960,13 +1960,27 @@
       ],
       [
        "grays_weapon",
-       2
+       1
       ],
       [
        "grays_thrower",
        1
       ]
-     ]
+     ],
+     "say": "Watch the crane! Crates come down on the marked spots.",
+     "crane": {
+      "zones": [
+       [
+        930,
+        292
+       ],
+       [
+        1120,
+        304
+       ]
+      ],
+      "every": 5.0
+     }
     },
     {
      "id": "st3",
@@ -1985,28 +1999,8 @@
        "grays_brawler",
        1
       ]
-     ]
-    },
-    {
-     "id": "st4",
-     "at": 1780,
-     "requires": "!found_eli",
-     "lock": true,
-     "lock_text": "Rook's elite squad!",
-     "enemies": [
-      [
-       "grays_heavy",
-       2
-      ],
-      [
-       "grays_blocker",
-       1
-      ],
-      [
-       "grays_thrower",
-       1
-      ]
-     ]
+     ],
+     "requires": "found_eli"
     }
    ],
    "pickups": [
@@ -2025,7 +2019,14 @@
     "1": {
      "heal": 40
     }
-   }
+   },
+   "events": [
+    {
+     "id": "storage_run",
+     "at": 1480,
+     "requires": "!found_eli & !storage_run_done"
+    }
+   ]
   },
   "rw_office": {
    "npcs": [

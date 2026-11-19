@@ -443,7 +443,9 @@ func start_new_game_plus() -> void:
 
 ## Multipliers for New Game+ (1.0 on a first run).
 func ng_mult(kind: String) -> float:
-	var n := float(ng_cycle)
+	# Scaling stops growing after a few cycles: the player's damage is bounded (level cap, food caps), so
+	# ever-larger health pools would only stretch fights. Later cycles vary who shows up instead.
+	var n := float(mini(ng_cycle, int(Content.tune("ngplus", "scale_cap_cycle", 3.0))))
 	match kind:
 		"hp": return 1.0 + 0.35 * n
 		"power": return 1.0 + 0.25 * n

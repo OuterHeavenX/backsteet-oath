@@ -345,6 +345,12 @@ func _interact() -> void:
 		"enemy":
 			_grab_enemy(ctx.node)
 			return
+		"light":
+			# takes a moment with your back half-turned: switching a light on is a small risk
+			room.relight(ctx.node)
+			set_state("pickup")
+			vel = Vector2.ZERO
+			return
 	if held != "":
 		throw_held()
 
@@ -531,6 +537,8 @@ func context_short() -> String:
 			return "LIFT"
 		"enemy":
 			return "GRAB"
+		"light":
+			return "LIGHT"
 	if held != "":
 		return "THROW"
 	return ""
@@ -554,4 +562,6 @@ func current_context_text() -> String:
 			return "%s Lift %s" % [InputPrompts.tag("interact"), ctx.get("label", "")]
 		"enemy":
 			return "%s Grab" % InputPrompts.tag("interact")
+		"light":
+			return "%s %s" % [InputPrompts.tag("interact"), ctx.get("label", "Switch on")]
 	return ""

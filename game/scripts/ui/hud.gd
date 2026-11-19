@@ -244,6 +244,11 @@ func _process(delta: float) -> void:
 			weapon_label.text = "Fists"
 			weapon_label.add_theme_color_override("font_color", UIKit.DIM)
 		set_prompt(p.current_context_text() if not world.dialogue_active() and InputPrompts.kind != "touch" else "")
+	# the action prompt sits above the boss bar while one is showing
+	var prompt_y := -64.0 if boss_box.visible else -48.0
+	if prompt_label.offset_top != prompt_y:
+		prompt_label.offset_top = prompt_y
+		prompt_label.offset_bottom = prompt_y + 12.0
 	_update_boss()
 	_update_cinema(delta)
 	fps_label.visible = Settings.show_fps

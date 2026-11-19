@@ -1501,6 +1501,30 @@
    "air": true,
    "sfx": "kick_heavy",
    "hitstop": 5
+  },
+  "kowal_snuff": {
+   "anim": "swing",
+   "startup": 24,
+   "active": 6,
+   "recovery": 26,
+   "power": 10,
+   "x": [
+    4,
+    60
+   ],
+   "z": [
+    6,
+    64
+   ],
+   "depth": 14,
+   "hitstun": 26,
+   "kb": 170,
+   "launch": 120,
+   "knockdown": true,
+   "sfx": "weapon_hit_metal",
+   "telegraph": true,
+   "hitstop": 6,
+   "shake": 2
   }
  }
 }

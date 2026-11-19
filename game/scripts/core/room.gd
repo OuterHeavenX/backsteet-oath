@@ -60,6 +60,9 @@ var edge_msg_cd := 0
 var max_alive := 6
 var token_cap := -1               # scripted override for simultaneous attackers (-1 = difficulty default)
 var hazards: Array = []           # pending falling crates: {pos, t_end}
+var work_lights: Array = []       # switchable lights (Kowal's vault)
+var crane: Dictionary = {}        # active crane hazard on a wave: {wave, zones, every, t, i, marks}
+var lights_contest := false       # true while lights can be put out and switched back on
 
 # ---------------------------------------------------------------- build
 func build(id: String, spawn: String, w: Node) -> void:
@@ -399,8 +402,8 @@ func remove_projectile(p: Projectile) -> void:
 	projectiles.erase(p)
 	p.queue_free()
 
-func drop_hazard_crate(at: Vector2) -> void:
-	var target := clamp_ground(at + Vector2(randf_range(-10, 10), randf_range(-6, 6)))
+func drop_hazard_crate(at: Vector2, exact: bool = false) -> void:
+	var target := clamp_ground(at if exact else at + Vector2(randf_range(-10, 10), randf_range(-6, 6)))
 	spawn_fx("target_shadow", target, 0.0, null, 70)
 	hazards.append({"pos": target, "t_end": ticks + 72})
 	Audio.sfx("crate_fall", -4.0)
@@ -546,6 +549,7 @@ func _physics_process(_delta: float) -> void:
 	if not cutscene:
 		_update_events()
 		_update_waves()
+		_update_crane()
 		_check_exits()
 	_update_guides()
 	if parallax:
@@ -715,6 +719,8 @@ func _update_guides() -> void:
 			pk.set_guide(free_hands and absf(pk.position.x - player.position.x) < use_r, pk == target, blink)
 	if target is Enemy:
 		(target as Enemy).set_ring(CombatMarks.USE_COL, 0.55 + 0.4 * blink, 0.0, 1.8)
+	for wl in work_lights:
+		wl.set_guide(on and lights_contest and absf(wl.position.x - player.position.x) < 160.0, ctx.get("type", "") == "light" and ctx.get("node") == wl, blink)
 
 # ---------------------------------------------------------------- collision
 func move_actor(a: Actor, d: Vector2) -> Vector2:
@@ -948,10 +954,7 @@ func _start_wave(wv: Dictionary) -> void:
 	if _is_patrol(wv) and GameState.district_calm(district) == "thin" and list.size() >= 3:
 		list.pop_back()    # the gang's streets are quieter once its boss is beaten
 	if GameState.ng_cycle > 0:
-		# New Game+: one extra fighter per wave (never a duplicate of a named quest enemy)
-		var plain := list.filter(func(x): return not x.has("name"))
-		if not plain.is_empty():
-			list.append({"id": plain[randi() % plain.size()].id})
+		list = ngplus_wave(list)
 	for i in list.size():
 		var f := from
 		if from == "auto":
@@ -967,6 +970,99 @@ func _start_wave(wv: Dictionary) -> void:
 		delay += 28
 	if wv.has("say"):
 		world.toast(wv.say)
+	if wv.has("crane"):
+		_crane_begin(wv)
+
+## New Game+ composition. Instead of one more copy of somebody already there, a wave gains the kind of
+## fighter it is missing (a thrower, then a blocker to cover a thrower, then a flanker, then a heavy), so
+## the same street asks a different question. From the second cycle one brawler also comes armed.
+## Named quest fighters are never touched; the attacker cap and the on-screen cap are unchanged.
+func ngplus_wave(list: Array) -> Array:
+	var out: Array = list.duplicate(true)
+	var gang := ""
+	var kinds: Dictionary = {}
+	for x in out:
+		if typeof(x) != TYPE_DICTIONARY or x.has("name"):
+			continue
+		var parts: PackedStringArray = str(x.id).split("_")
+		if parts.size() == 2 and Content.enemies.get("archetypes", {}).has(parts[1]):
+			if gang == "":
+				gang = parts[0]
+			kinds[parts[1]] = int(kinds.get(parts[1], 0)) + 1
+	if gang == "":
+		return out
+	var add := "heavy"
+	if not kinds.has("thrower"):
+		add = "thrower"
+	elif not kinds.has("blocker"):
+		add = "blocker"
+	elif not kinds.has("flanker"):
+		add = "flanker"
+	var extra := {"id": "%s_%s" % [gang, add]}
+	if add == "blocker" and kinds.has("thrower"):
+		extra["protects"] = "%s_thrower" % gang
+	out.append(extra)
+	if GameState.ng_cycle >= int(Content.tune("ngplus", "arm_brawler_from_cycle", 2.0)):
+		for x in out:
+			if typeof(x) == TYPE_DICTIONARY and not x.has("name") and str(x.id) == "%s_brawler" % gang:
+				x["id"] = "%s_weapon" % gang
+				break
+	return out
+
+# A crane that keeps dropping crates on marked floor spots while a wave lasts. The spots are fixed and take
+# turns, so it is machinery either side can use: bait a heavy onto a mark, or get caught on one yourself.
+# Each drop leaves a crate behind to lift and throw.
+func _crane_begin(wv: Dictionary) -> void:
+	_crane_end()
+	var c: Dictionary = wv.crane
+	var zones: Array = []
+	var marks: Array = []
+	for z in c.get("zones", []):
+		var p := clamp_ground(Vector2(float(z[0]), float(z[1])))
+		zones.append(p)
+		var m := CombatMarks.Zone.new()
+		m.z_index = -14
+		m.position = p
+		m.look(CombatMarks.USE_COL, 24.0, 11.0, 0.25)
+		add_child(m)
+		marks.append(m)
+	if zones.is_empty():
+		return
+	var every := int(float(c.get("every", 5.0)) * 60.0)
+	crane = {"wave": wv.id, "zones": zones, "every": maxi(every, 150), "t": 100, "i": 0, "marks": marks}
+
+func _crane_end() -> void:
+	for m in crane.get("marks", []):
+		if is_instance_valid(m):
+			m.queue_free()
+	crane = {}
+
+func _update_crane() -> void:
+	if crane.is_empty():
+		return
+	if not active_waves.has(crane.wave):
+		_crane_end()
+		return
+	crane.t = int(crane.t) - 1
+	var zones: Array = crane.zones
+	var i: int = int(crane.i) % zones.size()
+	var mark: CombatMarks.Zone = crane.marks[i]
+	# the next spot pulses for the last second and a half before the drop
+	for k in zones.size():
+		var mk: CombatMarks.Zone = crane.marks[k]
+		var hot: bool = k == i and int(crane.t) < 90
+		mk.look(CombatMarks.DANGER_COL if hot else CombatMarks.USE_COL, 24.0, 11.0, (0.5 + 0.5 * sin(ticks * 0.5)) if hot else 0.25)
+	if int(crane.t) == 72:
+		# clear the crate left by the previous drop on this spot, so the marks never fill up with boxes
+		for pr in props.duplicate():
+			if pr.type == "crate" and pr.index >= 900 and not pr.broken and pr.position.distance_to(zones[i]) < 30.0:
+				pr.break_open()
+		drop_hazard_crate(zones[i], true)
+	if int(crane.t) <= 0:
+		crane.t = crane.every
+		crane.i = i + 1
+	if mark == null:
+		return
 
 func _spawn_wave_enemy(def: Dictionary, wid: String, from: String) -> void:
 	var x: float
@@ -1041,6 +1137,8 @@ func _wave_complete(wid: String) -> void:
 	waves_done[wid] = true
 	active_waves.erase(wid)
 	var wv := _wave_def(wid)
+	if crane.get("wave", "") == wid:
+		_crane_end()
 	GameState.wave_cleared(room_id, wid)
 	if wv.get("lock", false):
 		lock_exits(false)
@@ -1109,9 +1207,91 @@ func escort_down(n: NPC) -> void:
 func on_player_damaged(_d: int) -> void:
 	pass
 
+# ---------------------------------------------------------------- work lights (Kowal's vault)
+func setup_work_lights(xs: Array) -> void:
+	if not work_lights.is_empty():
+		return
+	for x in xs:
+		var wl := WorkLight.new()
+		world_node.add_child(wl)
+		wl.setup(self, Vector2(float(x), walk_top + 3.0))
+		work_lights.append(wl)
+
+func lit_lights() -> int:
+	var n := 0
+	for wl in work_lights:
+		if wl.lit:
+			n += 1
+	return n
+
+func nearest_light(p: Vector2, want_lit: bool, reach: float = INF) -> WorkLight:
+	var best: WorkLight = null
+	var best_d := reach
+	for wl in work_lights:
+		if wl.lit != want_lit:
+			continue
+		var d := absf(wl.position.x - p.x)
+		if d < best_d:
+			best_d = d
+			best = wl
+	return best
+
+## The lights go out all but one (the one farthest from `from`), and from here on they can be fought over.
+func begin_light_contest(from: Vector2) -> void:
+	if work_lights.is_empty():
+		return
+	lights_contest = true
+	var keep: WorkLight = null
+	var far := -1.0
+	for wl in work_lights:
+		var d := absf(wl.position.x - from.x)
+		if d > far:
+			far = d
+			keep = wl
+	for wl in work_lights:
+		wl.set_lit(wl == keep)
+	Audio.sfx("metal_clang", -4.0)
+	_apply_light_level(0.6)
+	tutor_arm("lights")
+
+func snuff_light(wl: WorkLight) -> void:
+	if wl == null or not is_instance_valid(wl) or not wl.lit:
+		return
+	wl.set_lit(false)
+	Audio.sfx("metal_clang", -3.0)
+	spawn_debris("debris_glass", wl.position + Vector2(0, -40))
+	world.toast("Kowal puts out a work light." if lit_lights() > 0 else "The vault goes dark.", UIKit.DANGER if lit_lights() == 0 else UIKit.CREAM)
+	_apply_light_level(0.5)
+
+func relight(wl: WorkLight) -> void:
+	if wl == null or not is_instance_valid(wl) or wl.lit:
+		return
+	wl.set_lit(true)
+	Audio.sfx("save", -2.0)
+	float_text(wl.position + Vector2(0, -52), "Light on!", Color(1.0, 0.9, 0.6))
+	tutor_event("relight")
+	_apply_light_level(0.4)
+
+func end_light_contest() -> void:
+	lights_contest = false
+	for wl in work_lights:
+		wl.set_lit(true)
+	if world and world.hud:
+		world.hud.set_timer("")
+
+## Room brightness follows the number of lights still on; the floor stays readable even with none.
+func _apply_light_level(secs: float) -> void:
+	if work_lights.is_empty() or vis == null:
+		return
+	var n := lit_lights()
+	var total := work_lights.size()
+	vis.set_darkness(1.0 if n >= total else lerpf(0.45, 0.88, float(n) / float(total)), secs)
+	if lights_contest and world and world.hud:
+		world.hud.set_timer("LIGHTS %d/%d" % [n, total])
+
 ## Arms a contextual tip the first time its situation comes up (no-op once seen, or on saves without tips).
 func tutor_arm(id: String) -> void:
-	if world and world.get("tutor") != null and GameState.has_flag("tutor_v2"):
+	if world and world.get("tutor") != null:
 		world.tutor.arm(id)
 
 ## Reports a real gameplay event to the tips director (a block, a throw, a door...). Safe without a world.
@@ -1206,6 +1386,10 @@ func find_context(p: Player) -> Dictionary:
 	for pr in props:
 		if pr.type == "bus_stop" and absf(pr.position.x - p.position.x) < 26 and absf(pr.position.y - p.position.y) < 20:
 			return {"type": "npc", "node": pr, "label": "Bus Stop"}
+	if lights_contest:
+		for wl in work_lights:
+			if not wl.lit and absf(wl.position.x - p.position.x) < 24 and p.position.y - wl.position.y < 26:
+				return {"type": "light", "node": wl, "label": "Switch on the work light"}
 	for pk in pickups:
 		if pk.kind != "weapon" or pk.collected or pk.z > 6:
 			continue
