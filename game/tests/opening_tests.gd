@@ -412,6 +412,21 @@ func test_benny_lesson() -> void:
 	await choose(3)
 	await until(func(): return not Story.busy and not w.dialogue.active, 600)
 	check(not GameState.has_skill("shoulder") and not GameState.has_flag("benny_lesson_done"), "declining keeps the offer for later")
+	# while the free lesson is on offer, the shop will not sell the same technique
+	GameState.cash = 100
+	var sm := ShopMenu.new()
+	sm.shop_id = "rec"
+	w.push_menu(sm)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(sm._free_lesson("shoulder") and not sm._free_lesson("rising"), "the shop marks Shoulder Charge as Benny's free lesson")
+	await sm._buy_skill("shoulder", "")
+	check(GameState.cash == 100 and not GameState.has_skill("shoulder") and w.menus.size() == 1, "and refuses to charge for it")
+	GameState.set_flag("benny_lesson_done")
+	check(not sm._free_lesson("shoulder"), "once the offer is gone it is an ordinary manual again")
+	GameState.set_flag("benny_lesson_done", false)
+	w.close_all_menus()
+	await frames(4)
 	# already owned (older save / New Game+): no duplicate, the offer retires
 	await start_world(func():
 		_in_room("int_rec", ["intro_seen", "intro_done", "tutor_v2", "met_mara"], "chain_dogs").call()

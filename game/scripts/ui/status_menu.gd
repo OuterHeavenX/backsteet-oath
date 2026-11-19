@@ -1,6 +1,8 @@
 class_name StatusMenu
 extends Menu
 ## Stats (with point spending + breakdown), Techniques (control cards), Bag (food/key items/gear), Weapons.
+## Focusing a stat, a dish, a weapon family or a workbench line shows what it would change, as numbers the
+## game itself computes (Preview / PreviewText), against a named reference fighter. Looking never changes anything.
 
 const TABS := ["Stats", "Techniques", "Bag", "Weapons"]
 var tab := 0
@@ -26,7 +28,7 @@ func build() -> void:
 	top.add_child(hint)
 	top.add_child(back_button())
 	var sc := ScrollContainer.new()
-	sc.custom_minimum_size = Vector2(540, 236)
+	sc.custom_minimum_size = Vector2(540, 176 if Settings.large_text else 196)
 	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	sc.follow_focus = true
 	c.add_child(sc)
@@ -34,6 +36,7 @@ func build() -> void:
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sc.add_child(body)
 	info_label = UIKit.wrap_label("", 540, UIKit.DIM)
+	info_label.custom_minimum_size = Vector2(540, 4 * (UIKit.base_size() + 3))
 	c.add_child(info_label)
 	match tab:
 		0: _build_stats()
@@ -45,6 +48,22 @@ func build() -> void:
 func _set_tab(i: int) -> void:
 	tab = i
 	rebuild()
+
+## Text under the list. Previews (strong) are set in the brighter colour so the numbers read first.
+func _info(text: String, strong: bool = false) -> void:
+	info_label.text = text
+	info_label.add_theme_color_override("font_color", UIKit.CREAM if strong else UIKit.DIM)
+
+## The weapon in Nico's hands right now ("" if none, or when the menu is not hosted by the game world).
+func _held() -> String:
+	var w = host
+	if w and w.get("room") and w.room and w.room.player:
+		return str(w.room.player.held)
+	return ""
+
+func _stat_info(s: String) -> String:
+	var t := "%s\n%s" % [GameState.STAT_INFO[s], PreviewText.stat_point(s, _held())]
+	return t + ("  Confirm to spend the point." if GameState.points > 0 else "  (No unspent point: you earn one each level.)")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if is_top():
@@ -79,7 +98,7 @@ func _build_stats() -> void:
 		var h := UIKit.hbox(6)
 		var b := UIKit.button(s.to_upper(), func(): _spend(s), 70)
 		b.custom_minimum_size = Vector2(70, 0)
-		b.focus_entered.connect(func(): info_label.text = gs.STAT_INFO[s] + ("   Confirm to spend a point (+%d)." % (gs.POINT_HP if s == "hp" else 1) if gs.points > 0 else ""))
+		b.focus_entered.connect(func(): _info(_stat_info(s), true))
 		h.add_child(b)
 		for v in [bd.total, bd.base, bd.level, bd.points, bd.food, bd.gear]:
 			var l := UIKit.label(str(v), UIKit.CREAM)
@@ -90,9 +109,14 @@ func _build_stats() -> void:
 		body.add_child(h)
 	body.add_child(UIKit.spacer(3))
 	var auto_b := Widgets.cycler("Auto-spend level-up points", ["On (balanced)", "Off (choose myself)"], 0 if gs.auto_alloc else 1, func(i): gs.auto_alloc = i == 0, 360)
-	auto_b.focus_entered.connect(func(): info_label.text = "Balanced auto-spend cycles ATK, DEF, TEC, AGI, HP. Turn it off to bank points and spend them here.")
+	auto_b.focus_entered.connect(func(): _info("Balanced auto-spend cycles ATK, DEF, TEC, AGI, HP. Turn it off to bank points and spend them here."))
 	body.add_child(auto_b)
-	body.add_child(UIKit.wrap_label("Each level: +7 HP, +1 ATK, +1 DEF, +0.5 AGI, +0.5 TEC and 1 stat point. Food gives small permanent boosts up to each stat's food cap. Coach Benny can refund your points later for a small fee.", 520, UIKit.DIM))
+	var guide := UIKit.button("Build ideas: three ways to grow Nico", func():
+		if host and host.has_method("push_menu"):
+			host.push_menu(BuildGuideMenu.new()), 360)
+	guide.focus_entered.connect(func(): _info("Advice only: which stat, dishes and manuals suit a brawler, a weapon specialist or a counter fighter. Nothing is locked or chosen for you."))
+	body.add_child(guide)
+	body.add_child(UIKit.wrap_label("Each level: +7 HP, +1 ATK, +1 DEF, +0.5 AGI, +0.5 TEC and 1 stat point. Food adds small boosts for good, up to each cap.", 600, UIKit.DIM))
 	var st: Dictionary = gs.stats
 	body.add_child(UIKit.label("Enemies defeated %d   Knockouts %d   Meals %d   Playtime %s" % [int(st.get("defeated", 0)), int(st.get("deaths", 0)), int(st.get("food_eaten", 0)), UIKit.fmt_time(float(st.get("playtime", 0)))], UIKit.DIM))
 
@@ -102,7 +126,7 @@ func _spend(s: String) -> void:
 		rebuild()
 	else:
 		Audio.sfx("deny", -6.0)
-		info_label.text = "No unspent points. You earn one every level."
+		_info("No unspent points. You earn one every level.")
 
 func _build_techniques() -> void:
 	body.add_child(UIKit.label("BASIC MOVES", UIKit.MUSTARD))
@@ -129,9 +153,15 @@ func _build_techniques() -> void:
 		var owned := GameState.has_skill(sid)
 		var h := UIKit.hbox(6)
 		h.add_child(UIKit.icon_rect(SpriteLib.icon(s.get("icon", "skill")), 16))
-		var b := UIKit.button(s.name if owned else "??? (not learned)", func(): pass, 150)
-		var how := Story.format_text(s.get("how", ""))
-		b.focus_entered.connect(func(): info_label.text = ("%s: %s  %s" % [s.name, how, s.desc]) if owned else "Find this manual in a shop.")
+		var b := UIKit.button(s.name if owned else "??? (not learned)", func():
+			if owned and host:
+				ManualPreviewMenu.ask(host, sid), 150)
+		var how := PreviewText.technique_how(sid)
+		b.focus_entered.connect(func():
+			if owned:
+				_info("%s: %s  %s\n%s" % [s.name, how, s.desc, " ".join(PreviewText.technique(sid))], true)
+			else:
+				_info("Find this manual in a shop."))
 		h.add_child(b)
 		h.add_child(UIKit.label(how if owned else "", UIKit.CREAM))
 		body.add_child(h)
@@ -146,7 +176,7 @@ func _build_bag() -> void:
 		var h := UIKit.hbox(6)
 		h.add_child(UIKit.icon_rect(SpriteLib.icon(it.get("icon", id)), 16))
 		var b := UIKit.button("Use %s" % it.get("name", id), func(): _use(i), 200)
-		b.focus_entered.connect(func(): info_label.text = it.get("desc", "") + "  " + ShopMenu.effect_text(id))
+		b.focus_entered.connect(func(): _info("%s  %s\n%s" % [it.get("desc", ""), ShopMenu.effect_text(id), PreviewText.food(id).text], true))
 		h.add_child(b)
 		h.add_child(UIKit.label(ShopMenu.effect_text(id), UIKit.DIM))
 		body.add_child(h)
@@ -160,7 +190,7 @@ func _build_bag() -> void:
 		h2.add_child(UIKit.icon_rect(SpriteLib.icon(it2.get("icon", k)), 16))
 		var n := int(GameState.key_items[k])
 		var b2 := UIKit.button(it2.get("name", k) + (" x%d" % n if n > 1 else ""), func(): pass, 200)
-		b2.focus_entered.connect(func(): info_label.text = it2.get("desc", ""))
+		b2.focus_entered.connect(func(): _info(it2.get("desc", "")))
 		h2.add_child(b2)
 		h2.add_child(UIKit.wrap_label(it2.get("desc", ""), 300, UIKit.DIM))
 		body.add_child(h2)
@@ -182,11 +212,11 @@ func _use(i: int) -> void:
 	var id: String = GameState.bag[i]
 	var it: Dictionary = Content.item(id)
 	if it.get("revive", false):
-		info_label.text = "Smelling salts work automatically when you're knocked out. Keep them in the bag."
+		_info("Smelling salts work automatically when you're knocked out. Keep them in the bag.")
 		Audio.sfx("deny", -6.0)
 		return
 	if GameState.hp >= GameState.max_hp() and it.get("bonus", {}).is_empty():
-		info_label.text = "You're already at full HP."
+		_info("You're already at full HP.")
 		Audio.sfx("deny", -6.0)
 		return
 	GameState.remove_from_bag(i)
@@ -195,7 +225,7 @@ func _use(i: int) -> void:
 	var w = host
 	if w and w.get("room") and w.room and w.room.player:
 		w.room.player.hp = GameState.hp
-	info_label.text = "Ate %s: +%d HP." % [it.get("name", id), int(res.heal)]
+	_info("Ate %s: +%d HP." % [it.get("name", id), int(res.heal)])
 	rebuild()
 
 func _build_weapons() -> void:
@@ -205,16 +235,21 @@ func _build_weapons() -> void:
 		var lv := GameState.mastery_level(fam)
 		var h := UIKit.hbox(6)
 		var b := UIKit.button(f.name, func(): pass, 170)
-		b.focus_entered.connect(func(): info_label.text = f.desc)
+		b.focus_entered.connect(func(): _info("%s\n%s" % [f.desc, PreviewText.mastery(fam, _held())], true))
 		h.add_child(b)
-		h.add_child(UIKit.label("*".repeat(lv) + ".".repeat(5 - lv) + "  Lv %d  (+%d%% damage)" % [lv, lv * 6], UIKit.CREAM))
+		h.add_child(UIKit.label("*".repeat(lv) + ".".repeat(5 - lv) + "  Lv %d" % lv, UIKit.CREAM))
 		body.add_child(h)
 	body.add_child(UIKit.spacer(3))
 	body.add_child(UIKit.label("MARA'S WORKBENCH UPGRADES", UIKit.MUSTARD))
 	for line in Content.upgrades:
 		var u: Dictionary = Content.upgrades[line]
 		var tier := GameState.upgrade_tier(line)
-		body.add_child(_row([u.name, "Tier %d / 3" % tier, u.desc], [130, 70, 330]))
+		var h3 := UIKit.hbox(6)
+		var ub := UIKit.button(u.name, func(): pass, 170)
+		ub.focus_entered.connect(func(): _info("%s  Mara upgrades these at her workbench in the Quinn Garage.\n%s" % [u.desc, PreviewText.workbench(line)], true))
+		h3.add_child(ub)
+		h3.add_child(UIKit.label("Tier %d / %d" % [tier, u.tiers.size()], UIKit.CREAM))
+		body.add_child(h3)
 	body.add_child(UIKit.spacer(3))
 	body.add_child(UIKit.label("WEAPON GUIDE", UIKit.MUSTARD))
 	for wid in Content.weapons:

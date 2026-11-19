@@ -388,7 +388,7 @@ func show_level_up(level: int, gains: Dictionary) -> void:
 	if str(gains.get("auto", "")) != "":
 		v.add_child(UIKit.wrap_label("Point auto-spent on %s (change in Status)." % str(gains.auto).to_upper(), 170, UIKit.DIM))
 	elif GameState.points > 0:
-		v.add_child(UIKit.wrap_label("+1 stat point! Spend it in Status %s." % InputPrompts.tag("status"), 170, UIKit.MUSTARD))
+		v.add_child(UIKit.wrap_label("+1 stat point! Spend it in Status %s. Build ideas are there too." % InputPrompts.tag("status"), 170, UIKit.MUSTARD))
 	levelup.visible = true
 	levelup_t = 3.2
 
