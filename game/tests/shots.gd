@@ -13,6 +13,9 @@ func _ready() -> void:
 	if OS.get_environment("SHOT_TOUCH") != "":
 		Settings.touch_controls = "on"
 		InputPrompts.kind = "touch"
+	if OS.get_environment("SHOT_LARGE") != "":
+		Settings.large_text = true
+		UIKit.build_theme()
 	var room_id := OS.get_environment("SHOT_ROOM")
 	GameState.reset_new_game()
 	if room_id != "":
@@ -64,6 +67,14 @@ func _ready() -> void:
 				w.hud.levelup.visible = false
 			"weapon":
 				w.room.player.equip_weapon(parts[1])
+			"hp":
+				# set current HP (for shop / status previews at less than full health)
+				GameState.hp = clampi(int(parts[1]), 1, GameState.max_hp())
+				w.room.player.hp = GameState.hp
+			"learn":
+				GameState.learn(parts[1])
+			"points":
+				GameState.points = int(parts[1])
 			"life":
 				# test harness: rebuild the room's background life from a fixture JSON (tests/fixtures/life/)
 				var lm = JSON.parse_string(FileAccess.get_file_as_string(parts[1] if parts[1].begins_with("res://") else "res://tests/fixtures/life/" + parts[1]))
@@ -121,6 +132,10 @@ func _ready() -> void:
 				match parts[1]:
 					"pause": w.open_pause()
 					"status": w.push_menu(StatusMenu.new())
+					"status_tab":
+						var sm := StatusMenu.new()
+						sm.tab = int(parts[2])
+						w.push_menu(sm)
 					"shop": w.open_shop(parts[2])
 					"journal": w.push_menu(JournalMenu.new())
 					"map": w.push_menu(MapMenu.new())

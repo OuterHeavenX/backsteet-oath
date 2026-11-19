@@ -150,7 +150,7 @@ static func technique(skill_id: String) -> Array:
 		return out
 	var who := _target()
 	if int(t["throw"]) > 0:
-		out.append("Damage against %s: %d to everyone the spin touches, then %d where the body lands (your jab does %d)." % [who, int(t.damage), int(t["throw"]), int(t.jab)])
+		out.append("Damage against %s: %d to everyone the spin touches, then the thrown body hits for %d (your jab does %d)." % [who, int(t.damage), int(t["throw"]), int(t.jab)])
 	elif int(t.hits) > 1:
 		out.append("Damage against %s: %d hits of %d (your jab does %d)." % [who, int(t.hits), int(t.damage), int(t.jab)])
 	else:
@@ -159,6 +159,10 @@ static func technique(skill_id: String) -> Array:
 		out.append(_cap(", ".join(t.flags)) + ".")
 	return out
 
-## A technique's input for the device in use, e.g. "While running: [Shift] + [J]".
-static func technique_input(skill_id: String) -> String:
-	return Story.format_text(Tutor.input_text(Content.skill(skill_id)))
+## How to do a technique on the device in use, e.g. "While running: [Shift] + [J]". Automatic techniques
+## have nothing to press, so they keep their own sentence.
+static func technique_how(skill_id: String) -> String:
+	var sk: Dictionary = Content.skill(skill_id)
+	if Preview.technique_attack(skill_id) == "":
+		return Story.format_text(str(sk.get("how", "")))
+	return Story.format_text(Tutor.input_text(sk))

@@ -17,6 +17,6 @@ func _ready() -> void:
 	for fam in Content.weapon_families:
 		print(fam, ": ", PreviewText.mastery(fam))
 	for sid in Content.skills:
-		print(sid, ": ", PreviewText.technique_input(sid), " | ", PreviewText.technique(sid))
+		print(sid, ": ", PreviewText.technique_how(sid), " | ", PreviewText.technique(sid))
 	print("unchanged: ", before == var_to_bytes(GameState.to_dict()), " audio ", Audio.unlocked, " blocked ", GameState.is_blocking_signals())
 	get_tree().quit(0)
