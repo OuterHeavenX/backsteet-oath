@@ -60,6 +60,10 @@
    "name": "Mr. Hollis",
    "portrait": "hollis"
   },
+  "hollis_sister": {
+   "name": "Miss Hollis",
+   "portrait": ""
+  },
   "benny": {
    "name": "Coach Benny",
    "portrait": "benny"
@@ -171,6 +175,26 @@
   "moles": {
    "name": "The Moles",
    "portrait": "moles"
+  },
+  "canal_jogger": {
+   "name": "Canal Jogger",
+   "portrait": ""
+  },
+  "yard_apprentice": {
+   "name": "Apprentice",
+   "portrait": ""
+  },
+  "velvet_tenant": {
+   "name": "Velvet St. Tenant",
+   "portrait": ""
+  },
+  "line_inspector": {
+   "name": "Transit Inspector",
+   "portrait": ""
+  },
+  "pump_clerk": {
+   "name": "Pump House Clerk",
+   "portrait": ""
   },
   "oq_busrider": {
    "name": "Bus Regular",

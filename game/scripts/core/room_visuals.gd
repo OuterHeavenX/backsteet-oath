@@ -50,13 +50,15 @@ func build(r: Node2D, bg_root: Node2D, glow_back: Node2D, glow_front: Node2D, fg
 	var dens := float(meta.get("density", 2))
 	var sc := 1.0 / dens
 	for L in meta.get("layers", []):
-		if not _visible_by_state(L):
-			continue
 		var node := Node2D.new()
 		bg_root.add_child(node)
 		var par := float(L.get("parallax", 1.0))
 		var rep := bool(L.get("repeat", false))
 		var entry := {"node": node, "parallax": par, "repeat": rep, "spr": null, "w_tx": 0.0, "y": float(L.get("y", 0)), "name": str(L.get("name", ""))}
+		if L.has("requires") or L.has("unless"):
+			# story-gated art is built hidden, so it can change while the room is on screen (refresh_state)
+			entry["gate"] = L
+			node.visible = _visible_by_state(L)
 		var x_tx := 0.0
 		for f in L.get("files", []):
 			var tex := SpriteLib.tex(_path(str(f)))
@@ -142,6 +144,13 @@ func _visible_by_state(e: Dictionary) -> bool:
 	if e.has("unless") and GameState.check(e.unless):
 		return false
 	return true
+
+## Re-checks story-gated layers against the current state, for art that changes while the player is in the room
+## (Kiki finishing her mural). A room built later reads the same conditions, so the two always agree.
+func refresh_state() -> void:
+	for L in layers:
+		if L.has("gate"):
+			(L.node as Node2D).visible = _visible_by_state(L.gate)
 
 func _path(f: String) -> String:
 	if f.begins_with("res://"):

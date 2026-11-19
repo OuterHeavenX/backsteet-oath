@@ -39,6 +39,28 @@
    "parallax": 1.0,
    "y": 0,
    "repeat": false
+  },
+  {
+   "name": "mural_tagged",
+   "files": [
+    "spacer_488.png",
+    "mural_tagged.png"
+   ],
+   "parallax": 1.0,
+   "y": 176.5,
+   "repeat": false,
+   "unless": "quest:mural=done"
+  },
+  {
+   "name": "mural_done",
+   "files": [
+    "spacer_488.png",
+    "mural_done.png"
+   ],
+   "parallax": 1.0,
+   "y": 176.5,
+   "repeat": false,
+   "requires": "quest:mural=done"
   }
  ],
  "fg": [
