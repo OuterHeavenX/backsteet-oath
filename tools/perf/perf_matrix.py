@@ -139,7 +139,7 @@ def summarise(args, configs):
              "best run (lowest average); `runs avg` lists every run's average so the run-to-run noise is visible. Times in ms."
              % (meta["sample_seconds"], meta["warmup_seconds"], args.repeats))
     for c in configs:
-        if c.startswith("no_") or c not in picked:
+        if (c.startswith("no_") and not args.all_tables) or c not in picked:
             continue
         L.append("")
         L.append("### Configuration `%s`" % c)
@@ -205,10 +205,13 @@ def main():
     ap.add_argument("--timeout", type=int, default=900)
     ap.add_argument("--force", action="store_true", help="re-run configurations that already have results")
     ap.add_argument("--summary-only", action="store_true")
+    ap.add_argument("--all-tables", action="store_true", help="print the full frame-time table for no_<system> configurations too")
     args = ap.parse_args()
     configs = [c for c in args.configs.split(",") if c]
     if args.profile:
         configs = ["base"] + ["no_" + s for s in PROFILE_SYSTEMS] + ["postfx_off", "reduced", "reduced_postfx_off"]
+    args.out = os.path.abspath(args.out)   # the harness runs with game/ as its working directory
+    args.game = os.path.abspath(args.game)
     os.makedirs(args.out, exist_ok=True)
     if not args.summary_only:
         for rep in range(args.repeats):
