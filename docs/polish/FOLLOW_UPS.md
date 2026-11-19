@@ -80,6 +80,9 @@ how the game runs on a GPU, a Steam Deck or a phone. The steps for a person to m
 `VALIDATION_REPORT.md`.
 
 ## Smaller items
+- Pre-existing no-ops the purchase previews exposed (left for a design decision): Throwable Object mastery can
+  never rise because only swings add mastery; the Heel Drop and Grip Tape tier 1 side-job rewards give nothing
+  if the player already bought them.
 - Possible older issue, **not confirmed by running it**: from reading the code, the postgame welcome line in the
   diner may be replaced by the ending's own diner dialogue, so players might never see it.
 - Regenerating the Market Gate art re-applies the mural layers automatically (`gen_env2.py` calls `mural.py`).

@@ -64,8 +64,27 @@ postgame, is silent when a side job was skipped, and resets in New Game+ (`game/
 | **One returning resident per district** once its boss falls, each with a line that names what changed, alongside the thinner patrols and the passers-by. | Extends the Old Quarter pattern to the Canal Market, Ironworks, Neon Mile, Underline and Floodgate. | `encounters.json` |
 | **The ending:** up to three people whose side jobs were finished sit in the diner for the final scene and say one line each, chosen by a fixed priority. With no side jobs done the scene is the original, line for line. If the radio was returned, Mara mentions it and a bandage is waiting before Rook. | Favours show up when it matters, without making a main-story-only ending feel incomplete. | `Story._rook_ending`, `ENDING_FAVOURS` |
 
-## 5b. Understandable progression and performance
-Built in two more parallel branches; described below once merged.
+## 5b. Understandable progression
+
+Previews are computed by running the game's own code on throwaway fighters and then restoring the save state
+exactly, so there are no duplicated formulas to drift (`game/scripts/core/preview.gd`; 418 checks in
+`game/tests/progression_tests.tscn` compare every preview with what really happens).
+
+| What the player gets | Why | Where |
+|---|---|---|
+| Food rows say what eating **now** would do: "HP 38/60 -> 62/62; Max HP +2 for good: 60 -> 62 (food bonus 0 -> 2 of 30)". Capped and partly capped bonuses are called out; the existing "(maxed)" labels stay. A meal that would change nothing is refused without a charge. | The shop showed list effects only; whether a dish would be wasted at full health or at the cap was left to the player. | `shop_menu.gd`, `preview_text.gd` |
+| Mara's workbench shows damage and durability before and after for a named reference weapon and fighter. Status shows what the next stat point, mastery level or workbench tier changes, in concrete numbers with the reference case named ("against a Chain Dogs brawler"). | Damage depends on the move, the weapon and the target, so every number names its case instead of implying a universal value. The reference fighter follows the toughest district reached. | `status_menu.gd` |
+| Pressing a manual opens a free preview: Nico performs the move with its real start-up, active and recovery timing, with the input for the current device, what it is for, and its damage against the reference fighter. Buy is only on that page. Learned techniques can be re-watched. | "Let players preview a manual's input and purpose" without charging or changing state. | `manual_preview.gd`, `move_demo.gd` |
+| Buying a manual arms its reminder for the next fights. | See section 1. | `Tutor.arm_skill` |
+| Status > Build ideas: brawler, weapon specialist, counter fighter. Each names the stat to favour (with its live next-point numbers), the cheapest dishes that raise it and where they are sold, and each manual's shop and whether it is learned, on the shelf or not yet. Advice only; nothing is locked or applied. The level-up banner points at it. | Lightweight guidance from existing systems, not classes. | `build_guide_menu.gd` |
+| All prices go through one function, so the price shown is the price charged; a standing discount shows the list price and its reason. Shoulder Charge is not sold while Benny's free lesson is still on offer. | Needed for the pharmacy's thanks (section 5) and to stop a wasted purchase. | `GameState.price_for`, `shop_menu.gd` |
+
+The economy was reviewed, not retuned: see `ECONOMY_REVIEW.md`. In short, income is back-loaded, permanent food
+is by far the strongest purchase (about $250 reaches every cap), and nothing needs farming.
+
+## 5c. Performance and load
+See `PERF_REPORT.md` (profiling harness, the cheaper grade and bloom pass, web load measurements). All numbers
+are from a software renderer in a container and say nothing about real GPUs, a Steam Deck or phones.
 
 ## 6. For playtesting
 - **Settings > Playtest log** (off by default) keeps first-time timestamps, tips done or skipped, stage times,
