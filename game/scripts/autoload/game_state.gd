@@ -186,6 +186,15 @@ func spend(amount: int) -> bool:
 	cash_changed.emit(cash, -amount)
 	return true
 
+## What a shop charges right now: the list price, less any standing favour that shop owes the player
+## (shops.json "discount": {"requires": <condition>, "off": 0.15, "note": "..."}). Every shop row and
+## purchase must use this so the shown price and the charged price can never differ.
+func price_for(shop_id: String, base: int) -> int:
+	var d = Content.shops.get(shop_id, {}).get("discount", {})
+	if typeof(d) == TYPE_DICTIONARY and d.has("requires") and check(str(d.requires)):
+		return maxi(1, int(round(float(base) * (1.0 - clampf(float(d.get("off", 0.0)), 0.0, 0.9)))))
+	return base
+
 func defeat_penalty() -> int:
 	return mini(int(ceil(float(cash) * 0.2)), 40)
 
