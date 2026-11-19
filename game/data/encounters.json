@@ -178,7 +178,8 @@
      "y": 236,
      "mode": "idle",
      "requires": "quest:dog=done",
-     "talk": true
+     "talk": true,
+     "label": "Pet Biscuit"
     },
     {
      "id": "townb",
@@ -521,7 +522,16 @@
      "x": 640,
      "y": 236,
      "mode": "idle",
-     "requires": "boss_duke"
+     "requires": "boss_duke",
+     "hide_if": "quest:mural=done"
+    },
+    {
+     "id": "kiki",
+     "x": 530,
+     "y": 236,
+     "mode": "idle",
+     "requires": "quest:mural=done",
+     "facing": -1
     }
    ],
    "waves": [
@@ -752,6 +762,14 @@
      "y": 236,
      "mode": "idle",
      "requires": "stage>=floodgate"
+    },
+    {
+     "id": "canal_jogger",
+     "sprite": "towna",
+     "x": 1230,
+     "y": 296,
+     "mode": "wander",
+     "requires": "boss_pikes"
     }
    ]
   },
@@ -771,6 +789,14 @@
      "mode": "idle",
      "requires": "boss_rook",
      "facing": -1
+    },
+    {
+     "id": "hollis_sister",
+     "sprite": "townd",
+     "x": 200,
+     "y": 226,
+     "mode": "idle",
+     "requires": "quest:escort=done"
     }
    ],
    "waves": [
@@ -887,6 +913,14 @@
      "x": 240,
      "y": 238,
      "mode": "idle"
+    },
+    {
+     "id": "yard_apprentice",
+     "sprite": "townc",
+     "x": 380,
+     "y": 234,
+     "mode": "idle",
+     "requires": "boss_otto"
     }
    ],
    "waves": [
@@ -1234,6 +1268,14 @@
      "x": 1400,
      "y": 240,
      "mode": "idle"
+    },
+    {
+     "id": "velvet_tenant",
+     "sprite": "townd",
+     "x": 1000,
+     "y": 236,
+     "mode": "idle",
+     "requires": "boss_jett"
     }
    ],
    "waves": [
@@ -1673,6 +1715,14 @@
      "mode": "idle",
      "requires": "alliance & !boss_sabine",
      "facing": -1
+    },
+    {
+     "id": "pump_clerk",
+     "sprite": "townb",
+     "x": 400,
+     "y": 236,
+     "mode": "idle",
+     "requires": "boss_sabine"
     }
    ],
    "waves": [
@@ -2087,6 +2137,14 @@
      "weapon": "baton",
      "x": 300,
      "y": 300
+    },
+    {
+     "key": "bandage",
+     "id": "night_kit",
+     "x": 650,
+     "y": 298,
+     "requires": "quest:radio=done & found_eli & !boss_rook",
+     "note": "From Ines's night crew"
     }
    ],
    "prop_contents": {
@@ -2115,6 +2173,15 @@
      "y": 232,
      "mode": "idle",
      "requires": "stage>=floodgate"
+    },
+    {
+     "id": "line_inspector",
+     "sprite": "townb",
+     "x": 1040,
+     "y": 234,
+     "mode": "idle",
+     "requires": "boss_kowal",
+     "facing": -1
     }
    ],
    "events": [

@@ -1001,6 +1001,13 @@
     "He's on the main floor, through that door. He'll be waiting. He always waits."
    ]
   ],
+  "eli_found_radio": [
+   [
+    "mara",
+    "neutral",
+    "Almost forgot. Ines flagged me down on the Mile. Her night crew is parked behind Price, and she sent this in for you."
+   ]
+  ],
   "rook_intro": [
    [
     "rook",
@@ -1180,6 +1187,69 @@
     "First one's free."
    ]
   ],
+  "ending_guest_dog": [
+   [
+    "alvarez",
+    "happy",
+    "Biscuit pulled me here the whole way. He knows who walked him home."
+   ]
+  ],
+  "ending_guest_radio": [
+   [
+    "ines",
+    "happy",
+    "The night crew has the radio and the Mile is quiet. First supper I've sat down to since spring."
+   ]
+  ],
+  "ending_guest_mural": [
+   [
+    "kiki",
+    "happy",
+    "Your diner's on my wall, Dot. That makes this place a landmark. Landmarks feed their artists."
+   ]
+  ],
+  "ending_guest_escort": [
+   [
+    "hollis",
+    "happy",
+    "My sister and I walked over together. The short way, this time. Nobody touched my hat."
+   ]
+  ],
+  "ending_guest_weights": [
+   [
+    "sal",
+    "happy",
+    "I brought the fish, Dot. Weighed honest, every ounce."
+   ]
+  ],
+  "ending_guest_punch": [
+   [
+    "otis",
+    "happy",
+    "Tickets, please. Force of habit. Tonight everybody rides free."
+   ]
+  ],
+  "ending_guest_parcels": [
+   [
+    "teddy",
+    "happy",
+    "Extra! Extra! Lucky Spoon full to the door! I'm writing that one up myself."
+   ]
+  ],
+  "ending_guest_score": [
+   [
+    "lacey",
+    "happy",
+    "Pip owes me a milkshake. Fair and square, this time."
+   ]
+  ],
+  "ending_guest_cup": [
+   [
+    "bigmo",
+    "happy",
+    "Somebody find the champ a seat! Everybody else, standing room."
+   ]
+  ],
   "postgame_welcome": [
    [
     "narrator",
@@ -1257,6 +1327,13 @@
     "mara",
     "happy",
     "As promised: Grip Tape on the house. Your weapons will hit harder and last longer."
+   ]
+  ],
+  "mara_tools": [
+   [
+    "mara",
+    "happy",
+    "Every socket is back where it lives. I painted QUINN on the box again. Bigger. Let Sticky Vic try walking off with it now."
    ]
   ],
   "escort_offer": [
@@ -1427,6 +1504,20 @@
     "For the record, Cabinet 3's joystick is broken. Nobody reads my logs."
    ]
   ],
+  "lacey_post": [
+   [
+    "lacey",
+    "happy",
+    "Best of nine with Pip, on a machine that works. He's up one. I've got nobody to blame, so I'm practicing."
+   ]
+  ],
+  "pip_post": [
+   [
+    "pip",
+    "happy",
+    "Lacey showed me the trick on stage four. I'm not supposed to tell anybody. So, uh, forget I said it."
+   ]
+  ],
   "cup_offer": [
    [
     "bigmo",
@@ -1572,6 +1663,13 @@
     "Snack bar's open. The joystick on Cabinet 3 is still broken. Nobody reads my logs."
    ]
   ],
+  "marv_3": [
+   [
+    "marv",
+    "happy",
+    "Somebody finally read my log. Cabinet 3 has a new joystick. I'm having the page framed."
+   ]
+  ],
   "gus_bait_1": [
    [
     "gus",
@@ -1584,6 +1682,13 @@
     "gus",
     "happy",
     "They're saying Greyline's finished. My old switch house might reopen. Me? I'm retiring. Fish don't testify."
+   ]
+  ],
+  "gus_bait_3": [
+   [
+    "gus",
+    "happy",
+    "Holt's men marched out past my window with their heads down. First night all year I've left the shutters open."
    ]
   ],
   "benny_1": [
@@ -1628,6 +1733,13 @@
     "My sister sends her regards, and a fruitcake. I'm afraid it's also a weapon."
    ]
   ],
+  "hollis_sister_1": [
+   [
+    "hollis_sister",
+    "happy",
+    "My brother made it to my door with his hat still on. He comes every Sunday now. The long way round, and proud of it."
+   ]
+  ],
   "rosa_1": [
    [
     "rosa",
@@ -1640,6 +1752,13 @@
     "rosa",
     "happy",
     "Business is slower now that people stopped getting beaten up. I'm not complaining. Mostly."
+   ]
+  ],
+  "rosa_3": [
+   [
+    "rosa",
+    "happy",
+    "Ines told me about the radio. Fifteen percent off for you, standing order. I'd still rather you stopped needing bandages."
    ]
   ],
   "mara_1": [
@@ -2119,6 +2238,28 @@
     "Artistic license."
    ]
   ],
+  "mural_unveil": [
+   [
+    "narrator",
+    "neutral",
+    "Kiki paints until the lamps come on. Nobody tags the wall."
+   ],
+   [
+    "kiki",
+    "happy",
+    "There. The canal, the bridge, Dot's diner, everybody. And you."
+   ],
+   [
+    "nico",
+    "surprised",
+    "That is a big cape."
+   ],
+   [
+    "kiki",
+    "happy",
+    "It's a big wall."
+   ]
+  ],
   "weights_offer": [
    [
     "sal",
@@ -2224,11 +2365,32 @@
     "Night shift on the Mile. Sprains, cuts, and a lot of people who swear they 'just tripped'."
    ]
   ],
+  "ines_post": [
+   [
+    "ines",
+    "happy",
+    "The radio's back on its hook and the night crew answers on the first call. Rosa takes a little off your bill now. Don't argue with her."
+   ]
+  ],
   "otis_chat": [
    [
     "otis",
     "happy",
     "Next stop, Floodgate Bridge. Mind the gap."
+   ]
+  ],
+  "otis_post": [
+   [
+    "otis",
+    "happy",
+    "That punch you dug out clicks all day now. I punched my own ticket this morning. Kessler Street to Floodgate, one way."
+   ]
+  ],
+  "otis_kowal": [
+   [
+    "otis",
+    "neutral",
+    "The Moles packed up their lamps and went. First time in years it's quiet enough down here to hear the drip."
    ]
   ],
   "kiki_chat": [
@@ -2242,7 +2404,7 @@
    [
     "kiki",
     "happy",
-    "Come back next week. The cape is coming along beautifully."
+    "Not one tag since. People stop and look for themselves on it. You're easy to find. Follow the cape."
    ]
   ],
   "sal_chat": [
@@ -2250,6 +2412,13 @@
     "sal",
     "neutral",
     "Mackerel's fresh, eel's fresher. Don't ask about the eel."
+   ]
+  ],
+  "sal_post": [
+   [
+    "sal",
+    "happy",
+    "Honest scale, honest fish. I hung those lead weights over the stall so everybody can see what Greyline tried to pull."
    ]
   ],
   "mae_chat": [
@@ -2379,6 +2548,41 @@
     "First sit-down breakfast I've had in a month. Dot says we've got you to thank, so: thanks."
    ]
   ],
+  "canal_jogger_1": [
+   [
+    "canal_jogger",
+    "happy",
+    "End to end along the Canal Walk, and nobody on the footbridge asking for a toll. First clean lap since the Pikes set up shop."
+   ]
+  ],
+  "yard_apprentice_1": [
+   [
+    "yard_apprentice",
+    "happy",
+    "I start Monday. Real shift, real pay. Last month the only way through this gate was past Otto's boys."
+   ]
+  ],
+  "velvet_tenant_1": [
+   [
+    "velvet_tenant",
+    "happy",
+    "Jett Vance just carried my shopping up four flights. Last month his Saints charged me a dollar to use my own stairs."
+   ]
+  ],
+  "line_inspector_1": [
+   [
+    "line_inspector",
+    "neutral",
+    "The city sent me down to see if this line can carry trains again. A month ago the Moles would have sent me back up in a bucket."
+   ]
+  ],
+  "pump_clerk_1": [
+   [
+    "pump_clerk",
+    "neutral",
+    "A year of Gray Jackets going through my lunch pail at that gate. Tonight the booth's empty and I walked straight through."
+   ]
+  ],
   "duke_after": [
    [
     "lot_neighbor",
@@ -2442,6 +2646,10 @@
   ],
   "marv": [
    {
+    "if": "quest:score=done",
+    "say": "marv_3"
+   },
+   {
     "if": "boss_jett",
     "say": "marv_2"
    },
@@ -2453,6 +2661,10 @@
    {
     "if": "boss_rook",
     "say": "gus_bait_2"
+   },
+   {
+    "if": "boss_sabine",
+    "say": "gus_bait_3"
    },
    {
     "say": "gus_bait_1"
@@ -2484,7 +2696,16 @@
     "say": "hollis_1"
    }
   ],
+  "hollis_sister": [
+   {
+    "say": "hollis_sister_1"
+   }
+  ],
   "rosa": [
+   {
+    "if": "quest:radio=done",
+    "say": "rosa_3"
+   },
    {
     "if": "boss_rook",
     "say": "rosa_2"
@@ -2501,6 +2722,10 @@
    {
     "if": "boss_otto",
     "say": "mara_3"
+   },
+   {
+    "if": "quest:tools=done",
+    "say": "mara_tools"
    },
    {
     "if": "boss_duke",
@@ -2611,20 +2836,40 @@
   ],
   "pip": [
    {
+    "if": "quest:score=done",
+    "say": "pip_post"
+   },
+   {
     "say": "score_pip"
    }
   ],
   "lacey": [
+   {
+    "if": "quest:score=done",
+    "say": "lacey_post"
+   },
    {
     "say": "score_ask"
    }
   ],
   "ines": [
    {
+    "if": "quest:radio=done",
+    "say": "ines_post"
+   },
+   {
     "say": "ines_chat"
    }
   ],
   "otis": [
+   {
+    "if": "quest:punch=done",
+    "say": "otis_post"
+   },
+   {
+    "if": "boss_kowal",
+    "say": "otis_kowal"
+   },
    {
     "say": "otis_chat"
    }
@@ -2640,12 +2885,41 @@
   ],
   "sal": [
    {
+    "if": "quest:weights=done",
+    "say": "sal_post"
+   },
+   {
     "say": "sal_chat"
    }
   ],
   "mae": [
    {
     "say": "mae_chat"
+   }
+  ],
+  "canal_jogger": [
+   {
+    "say": "canal_jogger_1"
+   }
+  ],
+  "yard_apprentice": [
+   {
+    "say": "yard_apprentice_1"
+   }
+  ],
+  "velvet_tenant": [
+   {
+    "say": "velvet_tenant_1"
+   }
+  ],
+  "line_inspector": [
+   {
+    "say": "line_inspector_1"
+   }
+  ],
+  "pump_clerk": [
+   {
+    "say": "pump_clerk_1"
    }
   ],
   "oq_busrider": [

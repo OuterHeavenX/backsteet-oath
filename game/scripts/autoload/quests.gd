@@ -126,6 +126,28 @@ func on_key_item(id: String) -> void:
 					set_step("weights", 1)
 				else:
 					_toast("Rigged weights recovered (%d/3)" % n, UIKit.CREAM)
+		_:
+			if Content.item(id).get("kind", "") in ["food", "medicine"]:
+				_gift(id)
+
+## A `key` pickup whose id is something Nico can eat or use is a gift left for him: the pickup stays put until it
+## is taken and is remembered once taken (like any key pickup), and what he gets is the item in his bag, or its
+## effect straight away when the bag is full. encounters.json may add a "note" saying who it is from.
+func _gift(id: String) -> void:
+	GameState.take_key(id)
+	var item_name := str(Content.item(id).get("name", id))
+	var from := ""
+	if world and world.get("room") != null and is_instance_valid(world.room):
+		for p in Content.encounters.get(world.room.room_id, {}).get("pickups", []):
+			if str(p.get("key", "")) == id and p.has("note"):
+				from = str(p.note) + ": "
+	if GameState.add_to_bag(id):
+		_toast("%s%s, in your bag." % [from, item_name], UIKit.CASHC)
+		return
+	var res: Dictionary = GameState.consume(id)
+	if world and world.get("room") != null and is_instance_valid(world.room) and world.room.player:
+		world.room.player.refresh_stats()
+	_toast("%s%s. Bag full, so Nico used it right away (+%d HP)." % [from, item_name, int(res.heal)], UIKit.CASHC)
 
 func _toast(msg: String, col: Color) -> void:
 	if world and world.has_method("toast"):

@@ -63,6 +63,7 @@ func on_room_enter(room: Node, _first: bool) -> void:
 	busy = false
 	_spawn_followers(room)
 	_calm_card(room)
+	_mural_notice(room)
 	if GameState.has_flag("game_complete") and not GameState.has_flag("postgame_welcomed") and room.room_id == "int_diner":
 		GameState.set_flag("postgame_welcomed")
 		await get_tree().create_timer(0.6, false).timeout
@@ -818,6 +819,10 @@ func _eli_found(room: Node) -> void:
 	GameState.set_flag("found_eli")
 	_note("eli_truth")
 	_set_stage("rook")
+	await _night_kit(room)
+	if not _valid(room):
+		busy = false
+		return
 	_walk_off(room, eli, Vector2(-40, eli.position.y))
 	_walk_off(room, mara, Vector2(-40, mara.position.y))
 	room.set_cutscene(false)
@@ -847,8 +852,9 @@ func _rook_ending(room: Node) -> void:
 	world._load_room("int_diner", "south")
 	var diner: Node = world.room
 	diner.set_cutscene(true)
+	_seat_ending_guests(diner)
 	await SceneFlow.fade_in(0.8)
-	await world.dialogue.play(Content.lines("ending_diner"))
+	await world.dialogue.play(ending_diner_lines())
 	await get_tree().create_timer(0.8).timeout
 	GameState.room = "int_diner"
 	GameState.spawn = "south"
@@ -885,6 +891,123 @@ func _ending_backdrop() -> Control:
 		tw.tween_property(r, "position:x", -20.0 + 6.0 * i, 9.0).set_trans(Tween.TRANS_SINE)
 		i += 1
 	return root
+
+# ---------------------------------------------------------------- the neighbourhood remembers
+## Side jobs that put a guest in the Lucky Spoon for the last scene, most personal first. Each has one line,
+## "ending_guest_<quest>" in dialogue.json, and its speaker is the guest. At most ENDING_GUEST_CAP of them speak so
+## the scene stays short; with no side jobs done the scene plays exactly as written.
+const ENDING_FAVOURS := ["dog", "radio", "mural", "escort", "weights", "punch", "parcels", "score", "cup"]
+const ENDING_GUEST_CAP := 3
+const ENDING_SEATS := [Vector2(286, 304), Vector2(452, 316), Vector2(366, 330)]
+const ENDING_COMPANIONS := {"alvarez": "biscuit"}
+
+## Quest ids whose guest speaks in the ending, in speaking order. Derived from saved quest states only.
+func ending_guests() -> Array:
+	var out: Array = []
+	for qid in ENDING_FAVOURS:
+		if out.size() >= ENDING_GUEST_CAP:
+			break
+		if Quests.state(qid) == "done" and not Content.lines("ending_guest_" + qid).is_empty():
+			out.append(qid)
+	return out
+
+## The diner scene with the guests' lines slotted in after Dot's "a full house".
+func ending_diner_lines() -> Array:
+	var lines: Array = Content.lines("ending_diner").duplicate()
+	var at := mini(1, lines.size())
+	for qid in ending_guests():
+		for l in Content.lines("ending_guest_" + qid):
+			lines.insert(at, l)
+			at += 1
+	return lines
+
+## Guests are only in the diner for the scene itself; afterwards everyone is back in their usual place.
+func _seat_ending_guests(diner: Node) -> void:
+	var i := 0
+	for qid in ending_guests():
+		var who := str(Content.lines("ending_guest_" + qid)[0][0])
+		var seat: Vector2 = ENDING_SEATS[i % ENDING_SEATS.size()]
+		i += 1
+		if diner.find_npc(who) != null:
+			continue
+		var face := 1 if seat.x < 380.0 else -1
+		diner.spawn_npc(who, who, seat, {"mode": "idle", "talk": false, "facing": face})
+		if ENDING_COMPANIONS.has(who):
+			var pal: String = ENDING_COMPANIONS[who]
+			diner.spawn_npc(pal, pal, seat + Vector2(22 * face, 6), {"mode": "idle", "talk": false, "facing": face})
+
+## Where a room's data puts an NPC in the current story state, so a scene and every later visit agree.
+func _npc_spot(room_id: String, npc_id: String) -> Variant:
+	for n in Content.encounters.get(room_id, {}).get("npcs", []):
+		if str(n.get("id", "")) != npc_id or not GameState.check(str(n.get("requires", ""))):
+			continue
+		if n.has("hide_if") and GameState.check(str(n.hide_if)):
+			continue
+		return Vector2(float(n.x), float(n.y))
+	return null
+
+const MURAL_ROOM := "cm_gate"
+const MURAL_VIEW_X := 392.0       # camera centre that frames the whole wall under the market arch
+
+func _kiki(room: Node, npc: NPC) -> void:
+	var was_done := Quests.state("mural") == "done"
+	await _side_job(npc, "mural", "", "mural_offer", "mural_wait", "mural_return")
+	if not was_done and Quests.state("mural") == "done":
+		await _mural_unveil(room, npc)
+
+## Wet Paint, finished: the wall is repainted while Nico is still there (a short fade stands in for an afternoon's
+## work). Nothing here is state of its own. The finished wall, Kiki's place beside it and her new line all follow
+## from quest:mural=done, so later visits, older saves and a skipped or interrupted scene all show the same thing.
+func _mural_unveil(room: Node, kiki: NPC) -> void:
+	GameState.set_flag("mural_seen")
+	if not _valid(room):
+		return
+	room.set_cutscene(true)
+	room.focus_camera(MURAL_VIEW_X)
+	await SceneFlow.fade_out(0.35)
+	if _valid(room):
+		room.vis.refresh_state()
+		var spot = _npc_spot(room.room_id, "kiki")
+		if spot != null and is_instance_valid(kiki):
+			kiki.position = spot
+			kiki.home = spot
+			kiki.facing = -1
+		room.player.facing = -1
+	await SceneFlow.fade_in(0.45)
+	if not _valid(room):
+		return
+	await _say("mural_unveil")
+	if not _valid(room):
+		return
+	room.release_camera()
+	room.set_cutscene(false)
+	world.autosave()
+
+## The finished wall seen for the first time without the scene above (a save from before it existed, or the scene
+## was cut short): say what changed, once.
+func _mural_notice(room: Node) -> void:
+	if room.room_id != MURAL_ROOM or GameState.has_flag("mural_seen") or Quests.state("mural") != "done":
+		return
+	GameState.set_flag("mural_seen")
+	world.toast("Kiki's mural is finished. The Market Gate wall is hers again.", UIKit.CASHC)
+
+## Static on the Line, repaid before Rook: Ines's night crew sends a kit in with Mara. It is the pickup
+## encounters.json keeps in the Holding Office (same persist key), dropped here so it is on the floor straight away.
+## Data decides if it exists and remembers when it was taken, so it can never be handed out twice.
+func _night_kit(room: Node) -> void:
+	for p in Content.encounters.get(room.room_id, {}).get("pickups", []):
+		if str(p.get("id", "")) != "night_kit" or not p.has("key"):
+			continue
+		var persist := "%s:pk:night_kit" % room.room_id
+		if GameState.is_collected(persist) or not GameState.check(str(p.get("requires", ""))):
+			return
+		for pk in room.pickups:
+			if is_instance_valid(pk) and pk.persist_key == persist:
+				return
+		await _say("eli_found_radio")
+		if _valid(room):
+			room.spawn_key(str(p.key), Vector2(float(p.x), float(p.y)), persist)
+		return
 
 # ---------------------------------------------------------------- the Underline (Act III opener)
 func _ul_enter(room: Node) -> void:
@@ -1332,7 +1455,7 @@ func talk(room: Node, npc: NPC) -> void:
 		"otis":
 			await _side_job(npc, "punch", "conductor_punch", "punch_offer", "punch_wait", "punch_return")
 		"kiki":
-			await _side_job(npc, "mural", "", "mural_offer", "mural_wait", "mural_return")
+			await _kiki(room, npc)
 		"sal":
 			await _sal(npc)
 		"hollis":
@@ -1348,7 +1471,7 @@ func talk(room: Node, npc: NPC) -> void:
 		"lacey":
 			await _lacey(room, npc)
 		"pip":
-			await _say("score_pip")
+			await _chat(npc)
 			if Quests.is_active("score"):
 				_score_clue("pip")
 		"townc":

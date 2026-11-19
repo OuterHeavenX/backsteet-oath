@@ -23,6 +23,10 @@ func _ready() -> void:
 		var st := OS.get_environment("SHOT_STAGE")
 		if st != "":
 			GameState.stage = st
+		# SHOT_QUESTS=mural,radio:active  -> side jobs to start in a given state (default: done)
+		for q in OS.get_environment("SHOT_QUESTS").split(",", false):
+			var qp := q.split(":")
+			GameState.quests[qp[0]] = {"state": qp[1] if qp.size() > 1 else "done", "step": 0, "data": {}}
 		GameState.room = room_id
 		GameState.spawn = OS.get_environment("SHOT_SPAWN") if OS.get_environment("SHOT_SPAWN") != "" else "west"
 	if OS.get_environment("SHOT_NG") != "":
@@ -98,6 +102,18 @@ func _ready() -> void:
 						a.hold = parts.size() < 2 or parts[1] != "off"
 			"flag":
 				GameState.set_flag(parts[1])
+			"quest":
+				# quest:<id>[:<state>[:<step>]]  set a side job's state mid-run (default: done)
+				GameState.quests[parts[1]] = {"state": parts[2] if parts.size() > 2 else "done", "step": int(parts[3]) if parts.size() > 3 else 0, "data": {}}
+			"story":
+				# story:<method>  call a Story method that takes the current room (e.g. story:_seat_ending_guests)
+				Story.call(parts[1], w.room)
+			"talk":
+				# talk:<npc id>  start a conversation with an NPC in the room (as if the player walked up and pressed Action)
+				var who = w.room.find_npc(parts[1])
+				if who != null:
+					w.room.player.position = who.position + Vector2(-26, 2)
+					w.room.talk_to(who)
 			"wavedone":
 				w.room.waves_done[parts[1]] = true
 			"killboss":
