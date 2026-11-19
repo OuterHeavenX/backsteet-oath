@@ -33,21 +33,28 @@ checkpoint so a later session can resume without repeating work.
 - [x] Kowal's work lights; Storage Floor crane + shutter run; `game/tests/campaign_tests.tscn`.
 - [x] New Game+: capped scaling, composition changes, boss variations (`tuning.json` ngplus).
 - [x] Late-game difficulty measured with shopping/non-shopping/Relaxed bots (no enemy numbers changed).
-- [ ] Neighbourhood remembers (mural, radio, residents, finale): agent branch `worktree-agent-a534d54f8cc06208f`.
-      Stopped once at a usage limit; resumed. Merge when it reports, or finish from its WIP commit.
-- [ ] Progression previews, manual preview, build guidance, economy review: agent branch
-      `worktree-agent-ac4bf485523b97fc1` (same situation).
+- [x] Neighbourhood remembers (mural, radio discount, residents, ending guests): merged; `consequence_tests`.
+- [x] Progression previews, manual preview, build ideas, economy review: merged; `progression_tests`.
 
 ## Performance / load / audio
-- [ ] Perf agent branch `worktree-agent-addcc4dc8b9b7bbf7` (harness committed; optimisation and report pending).
+- [x] Profiling harness, cheaper grade and bloom pass, lossless WebP method 6, web size/load tooling: merged;
+      `PERF_REPORT.md`.
 - [x] Tell sounds (heavy / unblockable / guard-break): generated, numerically distinct, NOT heard by anyone.
 
 ## Validation and deliverables
 - [x] Opt-in playtest log + `PLAYTEST_KIT.md`; `CHANGES.md`, `FOLLOW_UPS.md`, `SAVE_AND_NGPLUS_NOTES.md`.
 - [x] Real 1.3.0-rc1 saves load (`game/tests/oldsave_tests.tscn`, 13 fixtures).
 - [x] Version 1.4.0-rc1, changelog. Branch pushed to origin (no PR, no merge, no release).
-- [ ] After merging the agent branches: all suites, bot, web/Linux export + browser checks, after captures,
-      `VALIDATION_REPORT.md`, final pass over `CHANGES.md` sections 5 and README/KNOWN_ISSUES/HANDOFF.
+- [x] All suites and the bot on the merged tree; packages built from a clean checkout; web and Linux smoke tests
+      on the packaged files; before/after captures; `VALIDATION_REPORT.md`, `BUILD_AND_LAUNCH.md`.
+
+## Still open (needs people or hardware; see `FOLLOW_UPS.md` and `VALIDATION_REPORT.md`)
+- [ ] Run the five-person playtest (`PLAYTEST_KIT.md`).
+- [ ] Listen to the audio, including the three attack cues.
+- [ ] Measure on a real GPU, a Steam Deck and a phone; check the new bloom pass on real drivers.
+- [ ] Launch the Windows build.
+- [ ] Understand the rare `expansion_tests` weights failure (2 of about 44 runs; diagnostics are in the test).
+- [ ] Decide whether to publish 1.4.0-rc1 (itch.io, `release-builds`) and whether to merge into `main`.
 
 ## Suites (run from `game/`)
 `godot --headless res://tests/unit_tests.tscn`, then with `--fixed-fps 60`: `feature_tests`, `quest_tests`,

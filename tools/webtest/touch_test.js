@@ -28,7 +28,7 @@ const { chromium, devices } = require('playwright');
   await shot('t01_title');
   await tap(gw / 2, gh / 2); await wait(1200);
   await shot('t02_menu');
-  await tap(gw / 2, gh - 176 + 8); await wait(1200);           // New Game (first button)
+  await tap(124, gh - 181); await wait(1200);                  // New Game (first button; the title menu sits bottom-left since 1.1)
   await tap(gw / 2, gh / 2 - 26); await wait(7000);            // Slot 1
   await shot('t03_intro_dialogue');
   for (let i = 0; i < 4; i++) await tap(gw / 2, 200);          // tap the street to advance dialogue

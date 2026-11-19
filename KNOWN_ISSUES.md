@@ -31,9 +31,9 @@ run and every test suite pass on this build (see `docs/polish/VALIDATION_REPORT.
   - Distant skylines are flat silhouettes, and some floors are mild patterns.
 - `jump_punch` and the from-behind hit read weaker than the other animations.
 - Old Quarter skies are a cooler dusk (violet above an amber horizon) than the art-direction target's amber.
-- The web download is 74.5 MB in 1.3 (56.7 MB in 1.1, about half that in rc3) because of the 2× art and the 1.3
-  background layers. The Windows zip (102.3 MB) is split into two parts on the release-builds branch because of
-  GitHub's 100 MB file limit.
+- The web download is 62.8 MB (74.5 MB in 1.3) after a lossless texture setting change; it is still large because
+  of the 2× art. The Windows zip is 90.5 MB and no longer needs splitting for GitHub's 100 MB file limit.
+
 
 ## Minor issues
 - Difficulty rises from the Neon Mile on for players who never buy food or manuals: a bot that never shops is

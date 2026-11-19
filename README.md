@@ -50,7 +50,7 @@ godot --headless --import
 godot --headless --export-release "Web" ../build/web/index.html
 godot --headless --export-release "Linux" ../build/linux/BackstreetOath.x86_64
 godot --headless --export-release "Windows" ../build/windows/BackstreetOath.exe
-python3 ../tools/package.py 1.4.0-rc1   # versioned zips in release/
+python3 ../tools/package.py 1.4.0-rc1 --reimport-textures   # versioned zips in release/ (see docs/polish/BUILD_AND_LAUNCH.md)
 ```
 Regenerate the v2 art (Python 3 + Pillow + numpy; `pip install imagequant` for the final optimisation step):
 ```bash
