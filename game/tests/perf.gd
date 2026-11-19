@@ -295,6 +295,7 @@ func _run(sc: Dictionary) -> void:
 		guard += 1
 	var r: Room = w.room
 	r.enc = {}                              # no waves, story events or boss triggers: only what this scenario spawns
+	r.exits_locked = true                   # a long fight must not push the player through a room exit
 	await get_tree().create_timer(0.4).timeout
 	r.player.position = Vector2(clampf(r.width * 0.4, 200, r.width - 200), 290)
 	var boss: Node = null
