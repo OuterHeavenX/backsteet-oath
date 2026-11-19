@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Exports all platforms with Godot and writes versioned release zips + itch assets.
 
-Usage: python3 tools/package.py [version] [--no-export]
+Usage: python3 tools/package.py [version] [--no-export] [--reimport-textures]
+  --reimport-textures   delete the cached imported textures first, so they are re-encoded with the project's
+                        current lossless WebP setting (method 6 since 1.3 polish: same pixels, about 12 MB less
+                        per platform; an import cache made before that change keeps the larger files until
+                        this flag, or deleting game/.godot, forces a re-import: about 7 minutes on 4 cores)
 Outputs (release/):
   backstreet-oath-v<ver>-web.zip              index.html + files at the archive root (itch.io HTML upload)
   backstreet-oath-v<ver>-linux-x86_64.zip     BackstreetOath/ with binary (+x), .pck, start.sh (+x), docs
@@ -67,7 +71,12 @@ def sha(path):
 def main():
     os.makedirs(REL, exist_ok=True)
     if "--no-export" not in sys.argv:
-        subprocess.run([GODOT, "--headless", "--import"], cwd=GAME, capture_output=True, timeout=600)
+        if "--reimport-textures" in sys.argv:
+            imp = os.path.join(GAME, ".godot", "imported")
+            for f in os.listdir(imp) if os.path.isdir(imp) else []:
+                if f.endswith(".ctex"):
+                    os.remove(os.path.join(imp, f))
+        subprocess.run([GODOT, "--headless", "--import"], cwd=GAME, capture_output=True, timeout=3600)
         export("Web", os.path.join(BUILD, "web", "index.html"))
         export("Linux", os.path.join(BUILD, "linux", "BackstreetOath.x86_64"))
         export("Windows", os.path.join(BUILD, "windows", "BackstreetOath.exe"))

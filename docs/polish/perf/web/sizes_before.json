@@ -1,0 +1,55 @@
+{
+ "dir": "build/web_before",
+ "files": [
+  {
+   "file": "index.apple-touch-icon.png",
+   "bytes": 13305,
+   "gzip6_bytes": 13328
+  },
+  {
+   "file": "index.audio.position.worklet.js",
+   "bytes": 2973,
+   "gzip6_bytes": 1167
+  },
+  {
+   "file": "index.audio.worklet.js",
+   "bytes": 7298,
+   "gzip6_bytes": 2204
+  },
+  {
+   "file": "index.html",
+   "bytes": 8589,
+   "gzip6_bytes": 2696
+  },
+  {
+   "file": "index.icon.png",
+   "bytes": 14058,
+   "gzip6_bytes": 13989
+  },
+  {
+   "file": "index.js",
+   "bytes": 279815,
+   "gzip6_bytes": 68740
+  },
+  {
+   "file": "index.pck",
+   "bytes": 66185812,
+   "gzip6_bytes": 64374550
+  },
+  {
+   "file": "index.png",
+   "bytes": 21443,
+   "gzip6_bytes": 19338
+  },
+  {
+   "file": "index.wasm",
+   "bytes": 39514754,
+   "gzip6_bytes": 10114291
+  }
+ ],
+ "total": {
+  "bytes": 106048047,
+  "gzip6_bytes": 74610303,
+  "zip_bytes": 74540469
+ }
+}
