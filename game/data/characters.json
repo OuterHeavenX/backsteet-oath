@@ -171,6 +171,30 @@
   "moles": {
    "name": "The Moles",
    "portrait": "moles"
+  },
+  "oq_busrider": {
+   "name": "Bus Regular",
+   "portrait": ""
+  },
+  "oq_stoop": {
+   "name": "Teen from No. 12",
+   "portrait": ""
+  },
+  "oq_walker": {
+   "name": "Neighbor",
+   "portrait": ""
+  },
+  "lot_neighbor": {
+   "name": "Neighbor",
+   "portrait": ""
+  },
+  "lot_kid": {
+   "name": "Teen",
+   "portrait": ""
+  },
+  "diner_regular": {
+   "name": "Diner Regular",
+   "portrait": ""
   }
  }
 }

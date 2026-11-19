@@ -46,6 +46,7 @@ var counter_pending := 0
 var stuck_t := 0
 var leash := false
 var hold := false                 # scripted: stand where you are and do not attack until released
+var protect: Enemy = null         # bodyguard: while waiting, stand between the target and this ally
 
 func setup_enemy(id: String, district_tier: int, opts: Dictionary = {}) -> void:
 	enemy_id = id
@@ -310,6 +311,18 @@ func _steer() -> void:
 	# waiting: hold a lane at a distance, on our current side, spread out from friends
 	var hold := keep + (20.0 if drilled else 0.0)
 	var desired_w := Vector2(tp.x + side * hold, tp.y + lane_offset)
+	if protect != null and is_instance_valid(protect) and not protect.dead:
+		# cover the ally: stand on their lane, a step toward the target, with the guard up when it gets close
+		var toward := signf(tp.x - protect.position.x)
+		if toward == 0.0:
+			toward = -float(side)
+		desired_w = Vector2(protect.position.x + toward * 46.0, protect.position.y)
+		if absf(dx) < 110 and absf(position.y - tp.y) < 20 and randf() < 0.05 and state in ["idle", "walk"]:
+			_face_target()
+			set_state("guard")
+			guard_t = 99
+			guard_hold = 50
+			return
 	if drilled and room.count_team_near(self, 160) >= 2:
 		desired_w.x = tp.x + side * hold * 0.8
 	_move_toward(desired_w, ai_speed * 0.7)

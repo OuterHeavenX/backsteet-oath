@@ -115,6 +115,8 @@ func _ready() -> void:
 	await test_reference_and_devices()
 	await test_combat_camera()
 	await test_guides_and_tells()
+	await test_lieutenants()
+	await test_duke_and_street()
 	print("OPENING TESTS: %d passed, %d failed" % [passes, fails])
 	get_tree().quit(fails)
 
@@ -730,3 +732,163 @@ func test_guides_and_tells() -> void:
 		p.atk_t = i + 1
 		seen[p._attack_frame()] = true
 	check(seen.size() == 1, "a 3-tick wind-up shows one pose, not a flicker (%s)" % str(seen.keys()))
+
+# ---------------------------------------------------------------- Duke's lieutenants (Chain Lot c3)
+func test_lieutenants() -> void:
+	await start_world(_in_room("oq_chainlot", ["intro_seen", "intro_done", "met_mara", "duke_intro_seen", "tutor_v2"], "chain_dogs"))
+	GameState.spawn = "west"
+	var r := room()
+	var p: Player = r.player
+	r.waves_done["c1"] = true
+	r.waves_done["c2"] = true
+	p.position = Vector2(812, 300)
+	await until(func(): return enemies().size() == 3, 600)
+	check(enemies().size() == 3, "the lieutenants wave brings three fighters")
+	var thrower: Enemy = null
+	var blocker: Enemy = null
+	var brawler: Enemy = null
+	for e in enemies():
+		match (e as Enemy).arche_id:
+			"thrower": thrower = e
+			"blocker": blocker = e
+			"brawler": brawler = e
+	check(thrower != null and blocker != null and brawler != null, "a thrower, a blocker and a brawler")
+	if thrower != null and blocker != null and brawler != null:
+		check(blocker.protect == thrower, "the blocker is linked to cover the thrower")
+		check(thrower.position.x > p.position.x and blocker.position.x > p.position.x and brawler.position.x < p.position.x, "thrower and blocker arrive from the east, the brawler from behind")
+		check(r.exits_locked, "the fight is contained")
+		check(tut().state("blocker") != 0, "the blocker tip is armed for players who skipped Benny")
+		# while waiting, the blocker stands between the player and the thrower
+		brawler.hold = true
+		thrower.hold = true
+		thrower.position = Vector2(1060, 290)
+		p.position = Vector2(800, 290)
+		p.set_state("idle")
+		blocker.position = Vector2(1100, 330)
+		blocker.aggression = 0.0
+		blocker.intent = "wait"
+		blocker.pending_attack = ""
+		await frames(240)
+		check(blocker.position.x > p.position.x and blocker.position.x < thrower.position.x and absf(blocker.position.y - thrower.position.y) < 14.0,
+			"the blocker holds the line between the player and the thrower (%s)" % str(blocker.position))
+	# the crate left for the player survives enemy bottles, and a second liftable is in reach
+	var crate: Prop = null
+	var can: Prop = null
+	for pr in r.props:
+		if pr.type == "crate":
+			crate = pr
+		if pr.type == "trash_can" and absf(pr.position.x - 742.0) < 1.0:
+			can = pr
+	check(crate != null and can != null, "a crate and a trash can are placed near the fight")
+	if crate != null and thrower != null:
+		r.spawn_projectile(thrower, "bottle", Vector2(crate.position.x + 60.0, crate.position.y - 4.0), 12.0, -1, 1)
+		await frames(40)
+		check(is_instance_valid(crate) and not crate.broken, "an enemy bottle does not smash the crate")
+		r.spawn_projectile(p, "brick", Vector2(crate.position.x - 60.0, crate.position.y - 4.0), 12.0, 1, 1)
+		await frames(40)
+		check(not is_instance_valid(crate) or crate.broken, "the player's own throw still breaks a crate")
+	kill_all()
+	await until(func(): return not r.exits_locked, 600)
+	check(not r.exits_locked, "clearing the lieutenants unlocks the lot")
+
+# ---------------------------------------------------------------- Duke and the street afterwards
+func _count_bosses() -> int:
+	var n := 0
+	for a in room().actors:
+		if a is Boss:
+			n += 1
+	return n
+
+func _wave_would_start(wid: String) -> bool:
+	var r := room()
+	return not r.waves_done.has(wid)
+
+func test_duke_and_street() -> void:
+	# before Duke: Chain Dogs patrol Kettle Street and nobody strolls there
+	await start_world(_in_room("oq_kettle", ["intro_seen", "intro_done", "met_mara"], "chain_dogs"))
+	GameState.spawn = "west"
+	check(GameState.district_calm("old_quarter") == "", "the Old Quarter is not calm while Duke runs it")
+	check(room().find_npc("oq_busrider") == null, "nobody waits for a bus that does not run")
+	room().player.position = Vector2(900, 290)
+	await until(func(): return enemies().size() > 0, 600)
+	check(enemies().size() > 0, "Chain Dogs patrol Kettle Street before Duke")
+	await frames(600)
+	var strollers := 0
+	for n in room().npcs:
+		if n.mode == "pass":
+			strollers += 1
+	check(strollers == 0, "no passers-by on the home streets while the Dogs run them")
+	# the fight itself: only ever one Duke, even when the player stands past the trigger line as he falls
+	await start_world(_in_room("oq_chainlot", ["intro_seen", "intro_done", "met_mara", "duke_intro_seen", "tutor_v2"], "chain_dogs"))
+	GameState.spawn = "west"
+	var r := room()
+	var p: Player = r.player
+	for wid in ["c1", "c2", "c3"]:
+		r.waves_done[wid] = true
+	p.position = Vector2(980, 290)
+	await until(func(): return r.boss_active and not r.boss_actors.is_empty(), 900)
+	check(r.boss_active and _count_bosses() == 1, "Duke's fight starts")
+	p.position = Vector2(1000, 290)
+	var duke: Enemy = r.boss_actors[0]
+	duke.hp = 1
+	duke.take_damage_and_react(p, {"knockdown": true, "kb": 120, "launch": 140, "power": 99}, 99.0, 1, false)
+	var max_bosses := 0
+	for i in 200:
+		await frames(1)
+		max_bosses = maxi(max_bosses, _count_bosses())
+	check(max_bosses == 1, "no second Duke appears in the pause before the defeat scene (saw %d)" % max_bosses)
+	await until(func(): return GameState.has_flag("boss_duke") and not Story.busy and not w.dialogue.active, 2400)
+	check(GameState.has_flag("boss_duke") and GameState.stage == "market", "Duke's defeat advances the story")
+	check(r.boss_done and not r.boss_active, "the room knows its boss fight is over")
+	check(r.find_npc("lot_neighbor") != null and r.find_npc("lot_kid") != null, "neighbours come out into the Chain Lot")
+	check(GameState.has_flag("calm_seen_old_quarter"), "the change is announced once")
+	check(GameState.district_calm("old_quarter") == "clear", "the Old Quarter is calm after Duke")
+	check(not r.exits_locked, "the lot is unlocked after the scene")
+	await frames(120)
+	check(_count_bosses() <= 1 and enemies().is_empty(), "no fight restarts after the scene")
+	# revisits: the residents are there exactly once, and the Dogs' patrols are gone for good
+	w._load_room("oq_chainlot", "west")
+	await frames(90)
+	var n_res := 0
+	for n in room().npcs:
+		if n.npc_id in ["lot_neighbor", "lot_kid"]:
+			n_res += 1
+	check(n_res == 2, "the Chain Lot keeps its two residents on a revisit (found %d)" % n_res)
+	room().player.position = Vector2(400, 290)
+	await frames(240)
+	check(enemies().is_empty() and room().waves_done.has("c1"), "no Chain Dog patrol in the lot after Duke")
+	w._load_room("oq_kettle", "west")
+	await frames(90)
+	check(room().find_npc("oq_busrider") != null and room().find_npc("oq_stoop") != null, "residents are back on Kettle Street")
+	room().player.position = Vector2(1300, 290)
+	await frames(420)
+	check(enemies().is_empty(), "no Chain Dog patrol on Kettle Street after Duke")
+	var seen_pass := await until(func():
+		for n in room().npcs:
+			if n.mode == "pass":
+				return true
+		return false, 900)
+	check(seen_pass, "people walk Kettle Street again")
+	# survives save/load, and a save from before this change gets the same street from its boss flag alone
+	save_roundtrip()
+	check(GameState.district_calm("old_quarter") == "clear" and GameState.has_flag("calm_seen_old_quarter"), "the calm street survives save/load")
+	GameState.reset_new_game()
+	GameState.bosses["duke"] = true
+	check(GameState.district_calm("old_quarter") == "clear", "an older save past Duke gets the calm street from its boss record")
+	# New Game+ resets it with the story
+	GameState.flags["game_complete"] = true
+	GameState.start_new_game_plus()
+	check(GameState.district_calm("old_quarter") == "", "New Game+ puts the Chain Dogs back on the street")
+	# other districts thin out instead of clearing
+	await start_world(_in_room("cm_canalwalk", ["intro_seen", "intro_done", "met_mara", "boss_duke", "boss_pikes", "act1_done"], "ironworks"))
+	GameState.spawn = "west"
+	check(GameState.district_calm("canal_market") == "thin", "the Canal Market thins out after the Pikes")
+	var wdef: Dictionary = room()._wave_def("w1")
+	var full_n := 0
+	for en in wdef.get("enemies", []):
+		full_n += int(en[1]) if typeof(en) == TYPE_ARRAY else 1
+	room().player.position = Vector2(float(wdef.get("at", 0)) + 20.0, 290)
+	await until(func(): return not room().wave_queue.is_empty() or enemies().size() > 0, 600)
+	await frames(200)
+	check(room().is_patrol_wave("w1"), "w1 is an ordinary patrol")
+	check(full_n >= 3 and enemies().size() == full_n - 1, "a thinned patrol has one fighter fewer (%d of %d)" % [enemies().size(), full_n])

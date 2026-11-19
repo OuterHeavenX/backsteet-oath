@@ -262,12 +262,15 @@ func _process(delta: float) -> void:
 		levelup_t -= delta
 		if levelup_t <= 0.0:
 			levelup.visible = false
+	var in_scene: bool = world != null and world.room != null and (world.room.cutscene or world.dialogue_active())
 	if hint_t > 0.0:
 		hint_t -= delta
 		hint_panel.modulate.a = clampf(hint_t, 0.0, 1.0)
-		if hint_t <= 0.0:
+		if hint_t <= 0.0 or in_scene:
+			# a timed hint never sits over a conversation; it is simply dropped when a scene starts
+			hint_t = 0.0
 			_set_panel("", "")
-	elif lesson_text != "":
+	elif lesson_text != "" and not in_scene:
 		_set_panel(("GOT IT!  " + lesson_text) if lesson_done else lesson_text, "done" if lesson_done else "tip")
 	elif _panel_mode != "":
 		_set_panel("", "")

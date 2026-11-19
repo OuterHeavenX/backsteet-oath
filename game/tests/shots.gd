@@ -96,6 +96,27 @@ func _ready() -> void:
 						a.hold = parts.size() < 2 or parts[1] != "off"
 			"flag":
 				GameState.set_flag(parts[1])
+			"wavedone":
+				w.room.waves_done[parts[1]] = true
+			"killboss":
+				for b in w.room.boss_actors.duplicate():
+					if is_instance_valid(b):
+						b.hp = 1
+						b.take_damage_and_react(w.room.player, {"knockdown": true, "kb": 120, "launch": 140, "power": 99}, 99.0, 1, false)
+			"killall":
+				for a in w.room.actors.duplicate():
+					if a is Enemy and not a.dead and a.team == Actor.TEAM_ENEMY:
+						a.hp = 0
+						a.take_damage_and_react(w.room.hazard_actor, {"knockdown": true, "kb": 100, "launch": 120}, 0.0, 1, false)
+			"dlg":
+				# advance dialogue for N seconds
+				var t_end := Time.get_ticks_msec() + int(float(parts[1]) * 1000.0)
+				while Time.get_ticks_msec() < t_end:
+					if w.dialogue.active:
+						_act("ui_accept", true)
+						await get_tree().create_timer(0.05).timeout
+						_act("ui_accept", false)
+					await get_tree().create_timer(0.12).timeout
 			"menu":
 				match parts[1]:
 					"pause": w.open_pause()

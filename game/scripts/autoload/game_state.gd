@@ -389,14 +389,23 @@ func wave_cleared(room_id: String, wave_id: String) -> void:
 		waves[room_id] = {}
 	waves[room_id][wave_id] = visit_count
 
-## A wave is available if never cleared, or if it respawns and the player has visited 3+ rooms since.
-func wave_available(room_id: String, wave_id: String, respawns: bool) -> bool:
+## A wave is available if never cleared, or if it respawns and the player has visited `gap` rooms since.
+func wave_available(room_id: String, wave_id: String, respawns: bool, gap: int = 4) -> bool:
 	var w: Dictionary = waves.get(room_id, {})
 	if not w.has(wave_id):
 		return true
 	if not respawns:
 		return false
-	return visit_count - int(w[wave_id]) >= 4
+	return visit_count - int(w[wave_id]) >= gap
+
+## What has changed on a district's streets: "" while its gang boss still runs it, otherwise "clear"
+## (patrols are gone for good) or "thin" (smaller patrols that come back half as often). Derived from the
+## boss flags already in every save, so older saves, the postgame and New Game+ resets all just work.
+func district_calm(district: String) -> String:
+	var d = Content.story.get("districts", {}).get(district, {})
+	if typeof(d) != TYPE_DICTIONARY or not d.has("boss"):
+		return ""
+	return str(d.get("calm", "")) if has_flag("boss_" + str(d.boss)) else ""
 
 func is_collected(key: String) -> bool:
 	return bool(collected.get(key, false))

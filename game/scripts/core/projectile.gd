@@ -137,7 +137,10 @@ func _check_hits() -> void:
 				vz = 100.0
 		if kind != "roll" and kind != "break":
 			return
-	# breakable props
+	# breakable props: only the player's throws smash crates, so enemy bottles never destroy the things
+	# a room leaves out for the player to use
+	if team != Actor.TEAM_PLAYER:
+		return
 	for p in room.props:
 		if not p.breakable or p.broken:
 			continue

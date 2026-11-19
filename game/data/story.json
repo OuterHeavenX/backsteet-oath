@@ -117,5 +117,38 @@
   "Nobody fights alone.",
   "#",
   "Thanks for playing."
- ]
+ ],
+ "districts": {
+  "_doc": "What changes on a district's streets once its gang boss is beaten. calm: clear = patrols stop for good; thin = patrols lose one fighter and return half as often. card: shown once on the first street visit afterwards.",
+  "old_quarter": {
+   "boss": "duke",
+   "calm": "clear",
+   "card": "The Chain Dogs are off the street. People are coming back out."
+  },
+  "canal_market": {
+   "boss": "pikes",
+   "calm": "thin",
+   "card": "The Wharf Rats have pulled back from the stalls."
+  },
+  "ironworks": {
+   "boss": "otto",
+   "calm": "thin",
+   "card": "The Yard Boys keep their heads down now."
+  },
+  "neon_mile": {
+   "boss": "jett",
+   "calm": "thin",
+   "card": "The Neon Saints leave the Mile alone."
+  },
+  "underline": {
+   "boss": "kowal",
+   "calm": "thin",
+   "card": "The Moles have gone to ground."
+  },
+  "floodgate": {
+   "boss": "sabine",
+   "calm": "thin",
+   "card": "The Gray Jackets have lost the bridge."
+  }
+ }
 }

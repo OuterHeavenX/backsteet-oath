@@ -2329,6 +2329,60 @@
     "neutral",
     "That's enough. Shake it off, kid. No shame in a sparring knock."
    ]
+  ],
+  "oq_busrider_1": [
+   [
+    "oq_busrider",
+    "happy",
+    "First River Line bus in a month that actually showed up. Driver says nobody's jumped him since Duke went down."
+   ]
+  ],
+  "oq_stoop_1": [
+   [
+    "oq_stoop",
+    "happy",
+    "Mum lets me sit out front again. She says that's because of you. Is it because of you?"
+   ]
+  ],
+  "oq_walker_1": [
+   [
+    "oq_walker",
+    "neutral",
+    "The Chain Dogs used to charge me a dollar to walk past this spot. Now I just walk past it."
+   ]
+  ],
+  "lot_neighbor_1": [
+   [
+    "lot_neighbor",
+    "happy",
+    "We're turning the lot back into a ball court. Duke brought a broom. Didn't say a word, just started sweeping."
+   ]
+  ],
+  "lot_kid_1": [
+   [
+    "lot_kid",
+    "happy",
+    "You fought Duke Brannigan RIGHT HERE. I'm going to tell everybody I saw it. I didn't, but I'm going to tell them."
+   ]
+  ],
+  "diner_regular_1": [
+   [
+    "diner_regular",
+    "happy",
+    "First sit-down breakfast I've had in a month. Dot says we've got you to thank, so: thanks."
+   ]
+  ],
+  "duke_after": [
+   [
+    "lot_neighbor",
+    "surprised",
+    "Is that Duke Brannigan on the ground?"
+   ],
+   [
+    "lot_kid",
+    "happy",
+    "It IS. Hey, everybody! The Dogs are done! You can come out!"
+   ]
   ]
  },
  "npc": {
@@ -2585,6 +2639,36 @@
   "mae": [
    {
     "say": "mae_chat"
+   }
+  ],
+  "oq_busrider": [
+   {
+    "say": "oq_busrider_1"
+   }
+  ],
+  "oq_stoop": [
+   {
+    "say": "oq_stoop_1"
+   }
+  ],
+  "oq_walker": [
+   {
+    "say": "oq_walker_1"
+   }
+  ],
+  "lot_neighbor": [
+   {
+    "say": "lot_neighbor_1"
+   }
+  ],
+  "lot_kid": [
+   {
+    "say": "lot_kid_1"
+   }
+  ],
+  "diner_regular": [
+   {
+    "say": "diner_regular_1"
    }
   ]
  }

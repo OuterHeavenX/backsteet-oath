@@ -53,6 +53,7 @@ var active_waves: Dictionary = {}
 var boss_actors: Array = []
 var boss_active := false
 var boss_cfg: Dictionary = {}
+var boss_done := false            # this room's boss fight has been won (it must never start a second time)
 var transition_cd := 30
 var rain: Node2D
 var edge_msg_cd := 0
@@ -307,6 +308,8 @@ func spawn_enemy(id: String, pos: Vector2, opts: Dictionary = {}) -> Enemy:
 		e.ally = opts.ally
 		e.team = Actor.TEAM_PLAYER if opts.ally else Actor.TEAM_ENEMY
 	e.wave_id = opts.get("wave", e.wave_id)
+	if e.arche_id == "blocker" and not e.ally:
+		tutor_arm("blocker")
 	e.position = pos
 	e.facing = -1 if pos.x > (player.position.x if player else 0.0) else 1
 	add_actor(e)
@@ -851,9 +854,23 @@ func combat_active() -> bool:
 
 # ---------------------------------------------------------------- waves & bosses
 func _restore_cleared_waves() -> void:
+	var calm := GameState.district_calm(district)
 	for wv in enc.get("waves", []):
-		if not GameState.wave_available(room_id, wv.id, wv.get("respawn", false)):
+		var patrol := _is_patrol(wv)
+		if patrol and calm == "clear":
+			waves_done[wv.id] = true    # the gang no longer walks these streets
+			continue
+		if not GameState.wave_available(room_id, wv.id, wv.get("respawn", false), 8 if patrol and calm == "thin" else 4):
 			waves_done[wv.id] = true
+
+## A patrol is an ordinary respawning street wave: not a quest wave and without named fighters.
+func _is_patrol(wv: Dictionary) -> bool:
+	if not wv.get("respawn", false) or wv.get("on_clear", false) or "quest:" in str(wv.get("requires", "")):
+		return false
+	for e in wv.get("enemies", []):
+		if typeof(e) == TYPE_DICTIONARY and (e.has("name") or e.has("drops")):
+			return false
+	return true
 
 func _update_waves() -> void:
 	# pending spawns (staggered so reinforcements are readable)
@@ -879,9 +896,14 @@ func _update_waves() -> void:
 		var trig := player.position.x >= at if not wv.get("from_east", false) else player.position.x <= at
 		if not trig:
 			continue
+		if _is_patrol(wv) and GameState.district_calm(district) == "clear":
+			waves_done[wid] = true
+			continue
 		_start_wave(wv)
 	var bcfg: Dictionary = enc.get("boss", {})
-	if not bcfg.is_empty() and not boss_active and not GameState.has_flag("boss_" + bcfg.id):
+	# boss_done / Story.busy: the boss flag is only saved after the defeat scene, so without this a second
+	# fight could start in the pause before that scene if the player stood past the trigger line.
+	if not bcfg.is_empty() and not boss_active and not boss_done and not Story.busy and not GameState.has_flag("boss_" + bcfg.id):
 		if (not bcfg.has("requires") or GameState.check(bcfg.requires)) and player.position.x >= float(bcfg.get("at", 0)) and _visible_enemies() == 0 and wave_queue.is_empty():
 			# stragglers that wandered off-screen leave the arena instead of blocking the fight
 			for t in actors.duplicate():
@@ -923,6 +945,8 @@ func _start_wave(wv: Dictionary) -> void:
 				list.append({"id": e[0]})
 		else:
 			list.append(e)
+	if _is_patrol(wv) and GameState.district_calm(district) == "thin" and list.size() >= 3:
+		list.pop_back()    # the gang's streets are quieter once its boss is beaten
 	if GameState.ng_cycle > 0:
 		# New Game+: one extra fighter per wave (never a duplicate of a named quest enemy)
 		var plain := list.filter(func(x): return not x.has("name"))
@@ -936,6 +960,8 @@ func _start_wave(wv: Dictionary) -> void:
 				f = "left"
 		elif from == "both":
 			f = "right" if i % 2 == 0 else "left"
+		if typeof(list[i]) == TYPE_DICTIONARY and list[i].has("from"):
+			f = str(list[i].from)    # a wave can place each fighter on a chosen side
 		wave_queue.append([ticks + delay, list[i], wv.id, f])
 		wave_alive[wv.id] = int(wave_alive[wv.id]) + 1
 		delay += 28
@@ -963,6 +989,22 @@ func _spawn_wave_enemy(def: Dictionary, wid: String, from: String) -> void:
 	var e := spawn_enemy(def.id, clamp_ground(Vector2(x, y)) if not entering else Vector2(x, y), opts)
 	e.entering = entering and not on_screen(e, 20)
 	e.leash = true
+	if def.has("protects"):
+		e.set_meta("protects", str(def.protects))
+	_link_bodyguards(wid)
+
+## Bodyguards ("protects": "<enemy id>" in a wave) cover a wave-mate: they hold the line between the
+## player and that fighter. Linked as soon as both have arrived.
+func _link_bodyguards(wid: String) -> void:
+	for a in actors:
+		if a is Enemy and a.wave_id == wid and a.has_meta("protects") and (a.protect == null or not is_instance_valid(a.protect)):
+			for b in actors:
+				if b is Enemy and b != a and b.wave_id == wid and not b.dead and b.enemy_id == str(a.get_meta("protects")):
+					a.protect = b
+					break
+
+func is_patrol_wave(wid: String) -> bool:
+	return _is_patrol(_wave_def(wid))
 
 func lock_exits(on: bool, reason: String = "") -> void:
 	exits_locked = on
@@ -1024,6 +1066,7 @@ func _check_boss_done() -> void:
 		return
 	if boss_active and not boss_actors.is_empty():
 		boss_active = false
+		boss_done = true
 		var ids: Array = []
 		for b in boss_actors:
 			if is_instance_valid(b):

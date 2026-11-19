@@ -62,6 +62,7 @@ func _note(n: String) -> void:
 func on_room_enter(room: Node, _first: bool) -> void:
 	busy = false
 	_spawn_followers(room)
+	_calm_card(room)
 	if GameState.has_flag("game_complete") and not GameState.has_flag("postgame_welcomed") and room.room_id == "int_diner":
 		GameState.set_flag("postgame_welcomed")
 		await get_tree().create_timer(0.6, false).timeout
@@ -345,6 +346,7 @@ func boss_defeated(room: Node, cfg: Dictionary, _ids: Array) -> void:
 			GameState.defeat_boss("duke")
 			_note("gray_coat")
 			_set_stage("market")
+			await _duke_aftermath(room)
 			await _say("bus_unlocked")
 		"pikes":
 			await _say("pikes_defeat")
@@ -403,6 +405,49 @@ func boss_defeated(room: Node, cfg: Dictionary, _ids: Array) -> void:
 	Audio.play_music(Content.room(room.room_id).get("music", "old_quarter"), 1.2)
 	busy = false
 	world.autosave()
+
+## Neighbours come out as soon as Duke is down: the first visible sign that the street has changed.
+## They are the same two residents the Chain Lot keeps from then on (encounters.json, requires boss_duke).
+func _duke_aftermath(room: Node) -> void:
+	if not _valid(room):
+		return
+	var spots := {"lot_neighbor": Vector2(520, 300), "lot_kid": Vector2(690, 250)}
+	var sprites := {"lot_neighbor": "townd", "lot_kid": "townc"}
+	var modes := {"lot_neighbor": "wander", "lot_kid": "idle"}
+	var came: Array = []
+	var i := 0
+	for id in spots:
+		if room.find_npc(id) != null:
+			continue
+		var start := Vector2(maxf(room.cam_left() - 24.0, 12.0), 280.0 + i * 24.0)
+		var n: NPC = room.spawn_npc(id, sprites[id], start, {"mode": "idle", "talk": true})
+		came.append([n, spots[id], modes[id]])
+		i += 1
+	for c in came:
+		var n2: NPC = c[0]
+		var goal := Vector2(clampf(float(c[1].x), room.cam_left() + 50.0, room.cam_right() - 50.0), float(c[1].y))
+		room.walk_to(n2, goal, 95.0)
+	await _wait(room, 1.3)
+	if not _valid(room):
+		return
+	await _say("duke_after")
+	if not _valid(room):
+		return
+	for c in came:
+		var n3: NPC = c[0]
+		if is_instance_valid(n3):
+			n3.home = n3.position
+			n3.mode = c[2]
+	_calm_card(room)
+
+## One-time card the first time a street is visited after its gang boss fell: names what changed and why.
+func _calm_card(room: Node) -> void:
+	var dist := str(room.district)
+	if room.interior or GameState.district_calm(dist) == "" or GameState.has_flag("calm_seen_" + dist):
+		return
+	GameState.set_flag("calm_seen_" + dist)
+	var d: Dictionary = Content.story.get("districts", {}).get(dist, {})
+	world.hud.show_card(Content.district_name(dist), str(d.get("card", "The streets are quieter.")), UIKit.CASHC)
 
 func _walk_off(room: Node, a: Actor, tgt: Vector2) -> void:
 	var guard := 0

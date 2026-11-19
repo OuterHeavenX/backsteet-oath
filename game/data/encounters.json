@@ -24,6 +24,23 @@
      "mode": "idle",
      "requires": "boss_rook",
      "facing": -1
+    },
+    {
+     "id": "oq_busrider",
+     "sprite": "townb",
+     "x": 196,
+     "y": 232,
+     "mode": "idle",
+     "requires": "boss_duke",
+     "facing": -1
+    },
+    {
+     "id": "oq_stoop",
+     "sprite": "townc",
+     "x": 770,
+     "y": 234,
+     "mode": "idle",
+     "requires": "boss_duke"
     }
    ],
    "waves": [
@@ -134,6 +151,15 @@
      "mode": "idle",
      "requires": "boss_rook",
      "facing": -1
+    },
+    {
+     "id": "diner_regular",
+     "sprite": "townd",
+     "x": 150,
+     "y": 300,
+     "mode": "idle",
+     "requires": "boss_duke & !boss_rook",
+     "facing": 1
     }
    ]
   },
@@ -166,6 +192,14 @@
      "y": 236,
      "mode": "idle",
      "requires": "!stage==return_home"
+    },
+    {
+     "id": "oq_walker",
+     "sprite": "towna",
+     "x": 1250,
+     "y": 300,
+     "mode": "wander",
+     "requires": "boss_duke"
     }
    ],
    "waves": [
@@ -355,19 +389,21 @@
      "lock": true,
      "lock_text": "Duke's lieutenants step up!",
      "enemies": [
-      [
-       "dogs_thrower",
-       1
-      ],
-      [
-       "dogs_blocker",
-       1
-      ],
-      [
-       "dogs_brawler",
-       1
-      ]
-     ]
+      {
+       "id": "dogs_thrower",
+       "from": "right"
+      },
+      {
+       "id": "dogs_blocker",
+       "from": "right",
+       "protects": "dogs_thrower"
+      },
+      {
+       "id": "dogs_brawler",
+       "from": "left"
+      }
+     ],
+     "say": "Duke's lieutenants! One keeps his guard up to cover the bottle-thrower."
     },
     {
      "id": "tag1",
@@ -440,7 +476,25 @@
     "3": {
      "cash": 8
     }
-   }
+   },
+   "npcs": [
+    {
+     "id": "lot_neighbor",
+     "sprite": "townd",
+     "x": 520,
+     "y": 300,
+     "mode": "wander",
+     "requires": "boss_duke"
+    },
+    {
+     "id": "lot_kid",
+     "sprite": "townc",
+     "x": 690,
+     "y": 250,
+     "mode": "idle",
+     "requires": "boss_duke"
+    }
+   ]
   },
   "cm_gate": {
    "npcs": [

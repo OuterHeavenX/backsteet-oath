@@ -586,10 +586,18 @@ func _update_passersby(dt: float) -> void:
 		return
 	if room.player == null or Story.busy:
 		return
+	# People stay indoors while a gang runs the district and come back out once its boss is beaten.
+	var calm: bool = GameState.district_calm(str(room.district)) != ""
+	var home: bool = str(room.district) == "old_quarter"
+	var cap := 1
+	if calm:
+		cap = (4 if home else 3) if full else 2
+	elif home:
+		cap = 0
 	pass_timer -= dt
-	if pass_timer > 0.0 or passers.size() >= (3 if full else 1):
+	if pass_timer > 0.0 or passers.size() >= cap:
 		return
-	pass_timer = randf_range(5.0, 12.0)
+	pass_timer = randf_range(4.0, 9.0) if calm else randf_range(14.0, 26.0)
 	var dir := 1 if randf() < 0.5 else -1
 	var x: float = room.cam_left() - 30.0 if dir > 0 else room.cam_right() + 30.0
 	x = clampf(x, 16.0, room.width - 16.0)
