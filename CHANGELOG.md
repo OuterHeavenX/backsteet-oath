@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.4.0-rc1 (2026-11-19): gameplay, presentation and performance polish
+Not published. Full detail, with the reasoning for each change, is in `docs/polish/CHANGES.md`.
+- **An opening that teaches by doing:**
+  - One tip at a time, cleared only when the action is really done or skipped from Pause.
+  - The first fight gives a safe moment to learn to move, one attacker at a time, and a bottle to throw.
+  - Dot serves a plate on the house (healing plus a permanent bonus).
+  - Coach Benny teaches Shoulder Charge for free, with two optional no-stakes sparring rounds.
+  - Pause > Help & tips > Fighting tips; reminders for newly learned techniques.
+- **Fights that read better:**
+  - A slightly closer camera in fights (Settings > Combat camera), steadier framing.
+  - A keyline and ring on Nico, rings under enemies in his lane, highlights on things he can pick up
+    (Settings > Combat guides).
+  - Three attack tells with their own shape, tint and sound: can be guarded, cannot be guarded, breaks a guard.
+  - Heavy thrown objects break a raised guard.
+- **A town that changes:**
+  - When a gang boss falls, that district's patrols thin out (the Old Quarter's stop for good) and people come
+    back onto the streets. After Duke, neighbours walk into the Chain Lot and residents return to Kettle Street.
+- **Reworked encounters:**
+  - "Duke's lieutenants": a blocker covers a bottle-thrower.
+  - Kowal: a fight over three work lights. Her Moles only climb out in full darkness.
+  - Storage Floor: a crane that cuts both ways, then a timed run to the office door.
+- **New Game+:** scaling stops growing after cycle 3; waves gain the kind of fighter they lack; bosses change
+  thresholds and tempo but keep their attacks and tells.
+- **Fix:** a second boss fight could start in the pause before a boss's defeat scene.
+- **For playtests:** an opt-in local playtest log and a five-person playtest kit (`docs/polish/PLAYTEST_KIT.md`).
+- **Saves:** format unchanged. Thirteen real 1.3.0-rc1 saves load cleanly (`docs/polish/SAVE_AND_NGPLUS_NOTES.md`).
+
 ## 1.3.0-rc1 (2026-11-03): living, more real backgrounds
 - **Streets that move:**
   - **Sky:** clouds drift.

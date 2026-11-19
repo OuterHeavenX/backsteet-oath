@@ -1,4 +1,4 @@
-# Known Issues & Limitations (1.3.0-rc1)
+# Known Issues & Limitations (1.4.0-rc1)
 
 No known blocker or major bugs remain in the main campaign or on the tested platforms. The automated campaign
 run, feature tests, quest tests and unit tests all pass on the visual-upgrade build.
