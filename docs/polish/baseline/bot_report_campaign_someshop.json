@@ -1,0 +1,176 @@
+{
+  "breakdown_seconds": {
+    "combat": 1711.3,
+    "cutscene": 49.5,
+    "dialogue": 59.9,
+    "explore": 475.7,
+    "loading": 9.1,
+    "menu": 0.4
+  },
+  "cash": 1018,
+  "deaths": 4,
+  "difficulty": "normal",
+  "enemies_defeated": 241,
+  "engine": "4.7.2-stable (official)",
+  "final_level": 13,
+  "food_bonus": {
+    "agi": 8,
+    "atk": 8,
+    "def": 8,
+    "hp": 30,
+    "tec": 8
+  },
+  "game_seconds": 2311.8,
+  "minutes": 38.53,
+  "notes": [
+    "stuck in cm_gate at (992.0867, 305.4985) (stage market)",
+    "stuck in iy_spur at (789.7119, 230.0766) (stage ironworks)",
+    "stuck in iy_spur at (789.7119, 230.0766) (stage ironworks)",
+    "stuck in nm_rooftops at (1561.011, 295.0779) (stage rooftops)",
+    "stuck in nm_rooftops at (1561.011, 295.0779) (stage rooftops)",
+    "stuck in iy_foundry at (328.0403, 237.9501) (stage return_home)",
+    "stuck in iy_foundry at (327.5403, 237.9501) (stage return_home)",
+    "stuck in iy_foundry at (327.457, 237.9501) (stage return_home)",
+    "stuck in oq_brickrow at (1077.256, 227.09) (stage return_home)",
+    "stuck in oq_brickrow at (1075.276, 227.09) (stage return_home)",
+    "stuck in nm_marquee at (840.5144, 223.5289) (stage underline)",
+    "stuck in fr_bridge at (1721.249, 280.1619) (stage floodgate)",
+    "stuck in fr_pumpstation at (868.3535, 223.0996) (stage dockgate)",
+    "stuck in fr_pumpstation at (868.3535, 223.0996) (stage dockgate)",
+    "stuck in fr_pumpstation at (1667.796, 219.1568) (stage dockgate)",
+    "stuck in fr_pumpstation at (1670.314, 218.0) (stage dockgate)",
+    "stuck in fr_pumpstation at (1669.296, 218.0) (stage dockgate)",
+    "stuck in rw_storage at (1138.407, 304.0437) (stage warehouse)"
+  ],
+  "result": "complete",
+  "room_seconds": {
+    "cm_canalwalk": 74.8,
+    "cm_gate": 99.9,
+    "cm_pier": 78.5,
+    "fr_bridge": 100.3,
+    "fr_dockgate": 146.4,
+    "fr_pumpstation": 196.8,
+    "int_arcade": 2.7,
+    "int_diner": 4.3,
+    "int_garage": 30.6,
+    "int_switch": 42.4,
+    "iy_foundry": 161.0,
+    "iy_gate": 84.3,
+    "iy_spur": 92.1,
+    "nm_arcade": 92.3,
+    "nm_marquee": 135.3,
+    "nm_rooftops": 133.7,
+    "oq_brickrow": 116.4,
+    "oq_chainlot": 85.7,
+    "oq_kettle": 33.4,
+    "rw_dock": 88.1,
+    "rw_floor": 107.4,
+    "rw_office": 48.6,
+    "rw_storage": 121.5,
+    "ul_station": 85.4,
+    "ul_tunnel": 90.5,
+    "ul_vault": 50.5
+  },
+  "shop_mode": "some",
+  "shop_spent": 254,
+  "stage": "epilogue",
+  "stages": [
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "intro",
+      "t": 0.0
+    },
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "find_mara",
+      "t": 20.8
+    },
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "chain_dogs",
+      "t": 48.5
+    },
+    {
+      "deaths": 0,
+      "level": 3,
+      "stage": "market",
+      "t": 185.3
+    },
+    {
+      "deaths": 0,
+      "level": 4,
+      "stage": "pikes",
+      "t": 350.1
+    },
+    {
+      "deaths": 0,
+      "level": 5,
+      "stage": "ironworks",
+      "t": 434.4
+    },
+    {
+      "deaths": 0,
+      "level": 6,
+      "stage": "foundry",
+      "t": 612.6
+    },
+    {
+      "deaths": 0,
+      "level": 7,
+      "stage": "neon",
+      "t": 752.5
+    },
+    {
+      "deaths": 0,
+      "level": 8,
+      "stage": "rooftops",
+      "t": 861.2
+    },
+    {
+      "deaths": 0,
+      "level": 9,
+      "stage": "return_home",
+      "t": 990.4
+    },
+    {
+      "deaths": 0,
+      "level": 9,
+      "stage": "underline",
+      "t": 1150.0
+    },
+    {
+      "deaths": 1,
+      "level": 10,
+      "stage": "floodgate",
+      "t": 1484.9
+    },
+    {
+      "deaths": 1,
+      "level": 11,
+      "stage": "dockgate",
+      "t": 1594.6
+    },
+    {
+      "deaths": 3,
+      "level": 12,
+      "stage": "warehouse",
+      "t": 1938.8
+    },
+    {
+      "deaths": 3,
+      "level": 13,
+      "stage": "rook",
+      "t": 2198.3
+    },
+    {
+      "deaths": 4,
+      "level": 13,
+      "stage": "epilogue",
+      "t": 2301.9
+    }
+  ],
+  "stuck_events": 18
+}

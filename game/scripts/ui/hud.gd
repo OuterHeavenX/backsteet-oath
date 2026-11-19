@@ -55,6 +55,7 @@ var _panel_mode := ""            # "", "hint" (timed), "tip", "done"
 var _tip_style: StyleBox
 var _done_style: StyleBox
 const BAR_H := 30.0
+var boss_w := 340.0              # boss bar width (narrower between the touch stick and buttons on phones)
 
 func _init() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -259,10 +260,22 @@ func _process(delta: float) -> void:
 			var f := PerfStats.shown_fps
 			fps_label.text = "%d FPS  ·  slowest %d ms" % [int(round(f)), int(round(PerfStats.shown_worst))]
 			fps_label.add_theme_color_override("font_color", UIKit.CASHC if f >= 55.0 else (UIKit.MUSTARD if f >= 30.0 else UIKit.DANGER))
-	var right_pad := 84.0 if world and world.touch and world.touch.visible and not world.touch.docked else 6.0
+	var touch_overlay: bool = world != null and world.touch != null and world.touch.visible and not world.touch.docked
+	var right_pad := 84.0 if touch_overlay else 6.0
 	if obj_label.offset_right != -right_pad:
 		obj_label.offset_right = -right_pad
 		obj_label.offset_left = -right_pad - 258.0
+	# a counter (cup, ladder, shutter, lights) takes the objective's place while it runs
+	obj_label.visible = timer_label.text == ""
+	# on phones the boss bar fits between the stick and the buttons instead of running under them
+	var want_w := 286.0 if touch_overlay else 340.0
+	if boss_w != want_w:
+		boss_w = want_w
+		var bx := -boss_w * 0.5 - (22.0 if touch_overlay else 0.0)
+		boss_box.offset_left = bx
+		boss_box.offset_right = bx + boss_w
+		boss_draw.custom_minimum_size = Vector2(boss_w, 34)
+		boss_draw.queue_redraw()
 	if levelup.visible:
 		levelup_t -= delta
 		if levelup_t <= 0.0:
@@ -471,11 +484,12 @@ func _draw_plate() -> void:
 func _draw_boss() -> void:
 	var c := boss_draw
 	var fb := UIKit.font_big
-	c.draw_colored_polygon(PackedVector2Array([Vector2(0, 2), Vector2(340, 2), Vector2(332, 33), Vector2(-8, 33)]), Color(0.05, 0.03, 0.07, 0.72))
-	c.draw_string_outline(fb, Vector2(6, 15), boss_title, HORIZONTAL_ALIGNMENT_LEFT, 280, 11, 3, Color(0.05, 0.03, 0.07))
-	c.draw_string(fb, Vector2(6, 15), boss_title, HORIZONTAL_ALIGNMENT_LEFT, 280, 11, Color(1.0, 0.86, 0.8))
-	c.draw_string(UIKit.font_num, Vector2(266, 15), boss_hp_text.text, HORIZONTAL_ALIGNMENT_RIGHT, 64, 10, UIKit.CREAM)
-	_skew_bar(c, Rect2(4, 20, 324, 8), boss_frac, boss_trail_v, UIKit.DANGER, Color(0.22, 0.05, 0.08), 4.0)
+	var bw := boss_w
+	c.draw_colored_polygon(PackedVector2Array([Vector2(0, 2), Vector2(bw, 2), Vector2(bw - 8, 33), Vector2(-8, 33)]), Color(0.05, 0.03, 0.07, 0.72))
+	c.draw_string_outline(fb, Vector2(6, 15), boss_title, HORIZONTAL_ALIGNMENT_LEFT, bw - 60, 11, 3, Color(0.05, 0.03, 0.07))
+	c.draw_string(fb, Vector2(6, 15), boss_title, HORIZONTAL_ALIGNMENT_LEFT, bw - 60, 11, Color(1.0, 0.86, 0.8))
+	c.draw_string(UIKit.font_num, Vector2(bw - 74, 15), boss_hp_text.text, HORIZONTAL_ALIGNMENT_RIGHT, 64, 10, UIKit.CREAM)
+	_skew_bar(c, Rect2(4, 20, bw - 16, 8), boss_frac, boss_trail_v, UIKit.DANGER, Color(0.22, 0.05, 0.08), 4.0)
 
 # ---------------------------------------------------------------- cinematics
 func _update_cinema(delta: float) -> void:

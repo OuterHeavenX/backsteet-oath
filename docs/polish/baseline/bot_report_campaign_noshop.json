@@ -1,0 +1,175 @@
+{
+  "breakdown_seconds": {
+    "combat": 2436.3,
+    "cutscene": 51.7,
+    "dialogue": 61.0,
+    "explore": 506.9,
+    "loading": 9.1,
+    "menu": 2.0
+  },
+  "cash": 936,
+  "deaths": 17,
+  "difficulty": "normal",
+  "enemies_defeated": 269,
+  "engine": "4.7.2-stable (official)",
+  "final_level": 14,
+  "food_bonus": {
+    "agi": 0,
+    "atk": 0,
+    "def": 0,
+    "hp": 0,
+    "tec": 0
+  },
+  "game_seconds": 3092.7,
+  "minutes": 51.54,
+  "notes": [
+    "stuck in cm_gate at (975.6021, 222.208) (stage market)",
+    "stuck in cm_gate at (975.7838, 222.208) (stage market)",
+    "stuck in cm_gate at (974.5338, 222.208) (stage market)",
+    "stuck in cm_gate at (1309.209, 218.0) (stage market)",
+    "stuck in cm_gate at (1310.391, 218.0) (stage market)",
+    "stuck in iy_spur at (789.9272, 230.2919) (stage ironworks)",
+    "stuck in nm_arcade at (978.089, 228.0) (stage rooftops)",
+    "stuck in iy_foundry at (738.6665, 302.4924) (stage return_home)",
+    "stuck in oq_brickrow at (1074.323, 228.4707) (stage return_home)",
+    "stuck in oq_brickrow at (989.4241, 218.0) (stage return_home)",
+    "stuck in oq_brickrow at (989.4241, 218.0) (stage return_home)",
+    "stuck in oq_brickrow at (989.4241, 218.0) (stage return_home)",
+    "stuck in oq_brickrow at (989.4241, 218.0) (stage return_home)",
+    "stuck in nm_rooftops at (1317.458, 304.4084) (stage underline)",
+    "stuck in fr_dockgate at (447.142, 220.9577) (stage dockgate)",
+    "stuck in fr_dockgate at (445.347, 218.0) (stage dockgate)",
+    "stuck in rw_floor at (1082.453, 219.2766) (stage rook)"
+  ],
+  "result": "complete",
+  "room_seconds": {
+    "cm_canalwalk": 112.7,
+    "cm_gate": 109.7,
+    "cm_pier": 130.1,
+    "fr_bridge": 240.1,
+    "fr_dockgate": 165.8,
+    "fr_pumpstation": 105.6,
+    "int_arcade": 2.7,
+    "int_diner": 4.3,
+    "int_garage": 30.9,
+    "int_switch": 43.2,
+    "iy_foundry": 184.1,
+    "iy_gate": 113.1,
+    "iy_spur": 108.5,
+    "nm_arcade": 136.9,
+    "nm_marquee": 216.5,
+    "nm_rooftops": 230.9,
+    "oq_brickrow": 138.5,
+    "oq_chainlot": 87.9,
+    "oq_kettle": 33.5,
+    "rw_dock": 163.2,
+    "rw_floor": 142.7,
+    "rw_office": 94.0,
+    "rw_storage": 213.9,
+    "ul_station": 83.8,
+    "ul_tunnel": 127.7,
+    "ul_vault": 63.4
+  },
+  "shop_mode": "",
+  "shop_spent": 0,
+  "stage": "epilogue",
+  "stages": [
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "intro",
+      "t": 0.0
+    },
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "find_mara",
+      "t": 20.6
+    },
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "chain_dogs",
+      "t": 48.7
+    },
+    {
+      "deaths": 0,
+      "level": 3,
+      "stage": "market",
+      "t": 178.2
+    },
+    {
+      "deaths": 1,
+      "level": 4,
+      "stage": "pikes",
+      "t": 385.9
+    },
+    {
+      "deaths": 2,
+      "level": 5,
+      "stage": "ironworks",
+      "t": 525.9
+    },
+    {
+      "deaths": 3,
+      "level": 6,
+      "stage": "foundry",
+      "t": 733.4
+    },
+    {
+      "deaths": 3,
+      "level": 7,
+      "stage": "neon",
+      "t": 899.5
+    },
+    {
+      "deaths": 5,
+      "level": 8,
+      "stage": "rooftops",
+      "t": 1091.0
+    },
+    {
+      "deaths": 8,
+      "level": 9,
+      "stage": "return_home",
+      "t": 1339.8
+    },
+    {
+      "deaths": 8,
+      "level": 9,
+      "stage": "underline",
+      "t": 1544.3
+    },
+    {
+      "deaths": 10,
+      "level": 11,
+      "stage": "floodgate",
+      "t": 1942.3
+    },
+    {
+      "deaths": 11,
+      "level": 11,
+      "stage": "dockgate",
+      "t": 2193.6
+    },
+    {
+      "deaths": 12,
+      "level": 12,
+      "stage": "warehouse",
+      "t": 2472.3
+    },
+    {
+      "deaths": 16,
+      "level": 13,
+      "stage": "rook",
+      "t": 2943.7
+    },
+    {
+      "deaths": 17,
+      "level": 14,
+      "stage": "epilogue",
+      "t": 3082.8
+    }
+  ],
+  "stuck_events": 17
+}
