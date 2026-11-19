@@ -1,0 +1,65 @@
+# Gameplay, presentation and performance polish: what changed and why
+
+Branch `claude/gameplay-polish`, built on the 1.3.0-rc1 tree (`origin/main` 4b22770). Version in this branch:
+1.4.0-rc1. Nothing was published, merged into `main`, or uploaded.
+
+Each entry says what a player now experiences, why it was chosen, and where it lives. Items marked
+**needs players** are design hypotheses that only a playtest can settle (see `FOLLOW_UPS.md`).
+
+## 1. The opening teaches by doing (Kettle Street to Duke)
+
+| What the player gets | Why | Where |
+|---|---|---|
+| One tip on screen at a time. It stays until the action is really done (a landed combo, a blocked hit, a thrown object, a door entered) or is skipped from the pause menu. A green "GOT IT!" confirms the action that cleared it. | The 1.3 opening showed three timed hints that vanished whether or not anything was learned, and progress followed enemy defeats only. | `game/scripts/core/tutor.gd`, `hud.gd` |
+| The two Chain Dogs keep leaning on Dot until Nico walks up, swings, or skips: a safe moment to learn to move and line up. One attacker at a time in this first fight. | "Teach through safe situations" without adding a separate tutorial room. Tips never gate anything: the fight still ends when the Dogs are down, with tips on, off or skipped. | `story.gd` `_intro` |
+| The first Dog drops a bottle; the third Dog shows off for two seconds when he arrives. | The old hint pointed at a trash can 350 px away. Now the thing to throw is at Nico's feet at the moment the tip appears. | `story.gd` |
+| Dot serves one plate on the house: it heals and adds a permanent +2 max HP, and the message says so (with a different line at full health or at the food cap). | Shows the game's core loop (eat, get stronger for good) before any money is spent. Saved at once, so it can never be served twice. | `story.gd` `_dot_meal` |
+| Coach Benny teaches Shoulder Charge for free, then two optional sparring rounds: a patient partner to run at, then a blocker with a tire to throw. Sparring partners tap out instead of being knocked out, give no XP or cash, and a knockout costs nothing. "Spar a round" stays in his menu before Duke. | The cheapest manual teaches running, which nothing else taught, without making his other manuals pointless. The blocker round introduces guard-breaking in a place where failure is free. | `story.gd` `_benny_lesson`, `_spar` |
+| Pause > Help & tips > Fighting tips lists everything the opening teaches plus the inputs of learned techniques, in the current device's labels. | "Keep a way to revisit instructions." | `tips_menu.gd`, `help_menu.gd` |
+| A newly learned technique gets a short reminder at the start of later fights until it is used once; it retires by itself. | So a manual bought in a shop is not forgotten by the next street. | `Tutor.arm_skill` |
+| Saves from before this change are not sent back through any of it; the favours are offered only while such a save is still in the Old Quarter chapter. New Game+ skips the opening tips. | Requirement: existing saves are not forced into the new opening. | `tutor.gd`, `story.gd` |
+
+## 2. Fighters and fights are easier to read
+
+| What the player gets | Why | Where |
+|---|---|---|
+| The camera moves in to 1.16x during fights, eases back out 2.5 s after the last enemy, and leans toward the enemies instead of swinging with every turn. The bottom of the street stays fixed on screen. **Settings > Combat camera: Close / Wide.** | Screenshots showed fighters at about 13% of screen height with bright shop fronts competing for the eye. Enemy "on screen" tests use the framed width, so nothing can attack from outside the closer view (tested). **needs players**: the zoom amount. | `room.gd` `_update_camera`, `data/tuning.json` |
+| A thin cream keyline and a small ground ring on Nico. | Separates him from enemies and dark backgrounds (most visible in Kowal's vault). | `combat_marks.gd`, `actor.gd` |
+| A ring under any enemy standing in Nico's lane; it turns to the danger colour while that enemy winds up. | The commonest belt-scroller confusion is "why didn't that hit?". The ring answers it without text. | `room.gd` `_update_guides` |
+| A ring on things that can be lifted or picked up when Nico is near with free hands, and a pulsing outline on the one the Action button would take. | Distinguishes usable objects from scenery. **Settings > Combat guides: On / Off** switches all three aids. | `prop.gd`, `pickup.gd` |
+| Three kinds of attack tell, each with its own badge shape, body tint and sound: a red warning triangle (heavy, can be guarded), a purple crossed shield (cannot be guarded: step away or jump), an orange cracked shield (breaks a guard). Attacks that hit all around mark the ground they will cover. | 1.3 used one red flash and one "!" for everything. Shape and sound still read with flashes turned down or off (tested with flash 0). | `combat_marks.gd`, `enemy.gd`, `tools/audio/gen_audio.py` |
+| Telegraphed attacks lean back, lunge and settle, driven by the attack's own start-up/active/recovery ticks. Very fast wind-ups hold one pose instead of flickering two frames. | Result of `tools/anim_audit.py` (`ANIM_AUDIT.md`): the basic combo and every telegraphed attack already agreed with hit timing; these were the two real defects. | `actor.gd` |
+| Camera kicks are the same size on screen at any zoom; timed hints no longer sit over conversations; the action prompt sits above the boss bar. | Small defects found while capturing. | `room.gd`, `hud.gd` |
+
+Hit-stop, impact effects and input buffering were reviewed against the attack data and left as they were:
+there was no measurement here that justified changing them, and no way to feel them. They are in the follow-ups.
+
+## 3. Decisions and consequences in the opening
+
+| What the player gets | Why | Where |
+|---|---|---|
+| "Duke's lieutenants" (Chain Lot): a blocker stands between Nico and a bottle-thrower. A crate and a trash can are in reach. A full combo, a heavy throw, getting behind him, or going round to the thrower all work. | The 1.3 wave was three fighters arriving from random sides. Heavy objects thrown by the player now break a raised guard, and enemy bottles no longer smash crates left for the player. | `encounters.json` c3, `enemy.gd` `protect`, `projectile.gd` |
+| When Duke falls, neighbours walk into the Chain Lot, Duke leaves, and a card reads "Old Quarter: the Chain Dogs are off the street. People are coming back out." From then on there are no Chain Dog patrols in the Old Quarter, residents stand on Kettle Street, Brickrow and in the diner, a regular waits for the bus that runs again, and passers-by walk the streets (before Duke there are none). | The player goes east after Duke, so the change has to start where they are standing. It is derived from the boss flag alone, so it survives save/load, works for older saves, and resets in New Game+. | `story.gd` `_duke_aftermath`, `GameState.district_calm`, `story.json` districts |
+
+## 4. Across the campaign
+
+| What the player gets | Why | Where |
+|---|---|---|
+| Every district calms down once its gang boss is beaten: patrols lose one fighter and return half as often, passers-by come back, and a one-time card says so. | Backtracking through streets whose boss was already beaten was the largest block of repeated fighting in the bot's run (298 enemies before, 254 after the opening milestone, same final level). | `room.gd` `_is_patrol`, `room_life.gd` |
+| Kowal's vault has three work lights. At half health she leaves one on and fights by her lantern. She walks over to put lit ones out with a slow telegraphed swing: hit her in the wind-up and the light is saved; afterwards she is winded. Nico can switch a light back on with Action. Her Moles only climb out while every light is dark (two waves at most, one on Relaxed). A "LIGHTS 2/3" counter, toasts and sounds carry the state. | Turns the existing one-off blackout into a decision: spend a moment on a light, or keep hitting her in the dark while Moles arrive. The floor never goes below the 1.3 darkness level, tells and rings are unaffected by darkness, and the fight can always be finished with every light out (tested). | `work_light.gd`, `boss.gd`, `room.gd` |
+| Storage Floor: the big lock fight runs under a crane that drops crates on two marked spots in turn (it hurts whoever stands there, and leaves a crate to throw), with one fighter fewer. The two waves after it are replaced by a 24-second run to the office door: make it and the door crew is skipped for a bonus (300 XP, $40) that stands in for the fight; miss it and the shutter is forced by beating that crew. | Storage Floor was the longest single room before a boss (17 fighters in four waves). The run changes the rhythm from "another wave" to pressure and payoff, and failing it only means the old kind of fight. | `encounters.json` rw_storage, `room.gd` crane, `story.gd` `_storage_run` |
+| New Game+: enemy scaling stops growing after cycle 3; each wave gains the kind of fighter it lacks (a thrower, then a blocker that covers it) instead of a copy of someone already there; from cycle 2 one brawler comes armed; bosses keep their attacks and tells but change thresholds and tempo (Duke whistles three times, Kowal starts the lights earlier, Rook's crates fall faster). | 1.3 scaled health without limit (4x by cycle 9) while the player's damage is capped by level 20 and food caps. The attacker cap is unchanged (tested). | `room.gd` `ngplus_wave`, `boss.gd`, `tuning.json` |
+| A fix: a second boss fight could start in the pause before a boss's defeat scene if the player stood past the trigger line. | Found while capturing the new Duke scene; it predates this work. | `room.gd` `boss_done` |
+
+## 5. Understandable progression, quest consequences, performance
+These three areas were built in parallel branches and are described in their own sections below once merged:
+purchase and stat previews with a manual demo and build suggestions; visible outcomes for side jobs and the
+finale; frame-time profiling, optimisation and web load size.
+
+## 6. For playtesting
+- **Settings > Playtest log** (off by default) keeps first-time timestamps, tips done or skipped, stage times,
+  knockouts per room and purchases inside the save. It is read under Pause > Help & tips > Playtest notes and
+  nothing leaves the device.
+- `PLAYTEST_KIT.md`: a five-person first-time test with a facilitator script and observation sheet.
+- `tools/capture_polish.sh`: the fixed before/after capture set. `tools/anim_audit.py`: timing audit.
+- The campaign bot can model a shopper: `AUTOPLAY_SHOP=some|all`.
