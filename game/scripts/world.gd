@@ -10,6 +10,7 @@ var hud: HUD
 var dialogue: DialogueBox
 var touch: Node
 var rotate_overlay: Control
+var tutor: Tutor
 var menus: Array = []
 var transitioning := false
 var sim_hold := false
@@ -45,6 +46,9 @@ func _ready() -> void:
 		var dbg := DebugOverlay.new()
 		dbg.world = self
 		add_child(dbg)
+	tutor = Tutor.new()
+	tutor.world = self
+	add_child(tutor)
 	GameState.leveled_up.connect(_on_leveled)
 	InputPrompts.pad_disconnected.connect(_on_pad_disconnected)
 	Story.world = self
@@ -332,8 +336,8 @@ func _on_pad_disconnected() -> void:
 func on_player_defeated() -> void:
 	if defeated:
 		return
-	if Story.ladder_active and room and room.player:
-		# A ladder knockout ends the night (no defeat screen, no penalty): Nico gets back up at half HP.
+	if (Story.ladder_active or Story.sparring) and room and room.player:
+		# A ladder or sparring knockout ends the session (no defeat screen, no penalty): Nico gets back up at half HP.
 		Story.ladder_knockout()
 		var p: Player = room.player
 		await get_tree().create_timer(1.0).timeout

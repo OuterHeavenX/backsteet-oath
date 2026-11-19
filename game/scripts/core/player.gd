@@ -136,6 +136,7 @@ func _ground_control() -> void:
 		if want_run and vel.length() > 20:
 			if state != "run":
 				set_state("run")
+				room.tutor_event("run")
 		elif state == "run":
 			set_state("walk")
 	if kick_hold >= 45 and GameState.has_skill("oath") and not charging and (state in ["idle", "walk"]) and carried_actor == null:
@@ -399,6 +400,7 @@ func throw_carried(mult: float = 1.0) -> void:
 	e.lying = false
 	Audio.sfx("throw")
 	set_state("throw")
+	room.tutor_event("throw")
 
 func throw_held() -> void:
 	if held == "":
@@ -412,6 +414,7 @@ func throw_held() -> void:
 	room.spawn_projectile(self, id, from, hz, facing, dur)
 	Audio.sfx("throw")
 	set_state("throw")
+	room.tutor_event("throw")
 
 func spawn_projectile() -> void:
 	pass
@@ -457,9 +460,21 @@ func _recovery_ticks() -> int:
 	var cut := mini(GameState.stat("agi") / 6, 4)
 	return maxi(4, r - cut)
 
+## Techniques report their use so a "new technique" reminder can retire once the move has been done.
+func start_attack(id: String, def_override: Dictionary = {}) -> bool:
+	var ok := super.start_attack(id, def_override)
+	if ok and room and Tutor.SKILL_ATTACKS.has(id):
+		room.tutor_event("skill:" + str(Tutor.SKILL_ATTACKS[id]))
+	return ok
+
+func on_blocked(_attacker: Actor) -> void:
+	room.tutor_event("block")
+
 func on_hit_landed(target: Node, res: String) -> void:
 	if res == "miss":
 		return
+	if atk_id in ["punch_c", "kick_c"] and target is Actor:
+		room.tutor_event("combo3")
 	if atk_id.begins_with("swing") and held != "":
 		var fam: String = Content.weapon(held).get("family", "")
 		if GameState.add_mastery(fam, 1):
@@ -469,6 +484,7 @@ func on_hit_landed(target: Node, res: String) -> void:
 func on_perfect_guard(attacker: Actor) -> void:
 	super.on_perfect_guard(attacker)
 	perfect_counter_t = 26
+	room.tutor_event("perfect")
 	room.float_text(position + Vector2(0, -height - 10), "PERFECT!", Color(0.4, 1.0, 1.0))
 
 func apply_damage(dmg: int, attacker: Actor) -> int:

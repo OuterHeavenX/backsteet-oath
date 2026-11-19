@@ -1,0 +1,181 @@
+{
+  "breakdown_seconds": {
+    "combat": 2659.8,
+    "cutscene": 49.6,
+    "dialogue": 63.3,
+    "explore": 540.2,
+    "loading": 9.1,
+    "menu": 2.4
+  },
+  "cash": 851,
+  "deaths": 18,
+  "difficulty": "normal",
+  "enemies_defeated": 298,
+  "engine": "4.7.2-stable (official)",
+  "final_level": 14,
+  "game_seconds": 3351.5,
+  "minutes": 55.86,
+  "notes": [
+    "stuck in cm_canalwalk at (1400.743, 298.8246) (stage pikes)",
+    "stuck in cm_pier at (1231.91, 244.8783) (stage ironworks)",
+    "stuck in cm_pier at (1232.41, 244.8783) (stage ironworks)",
+    "stuck in cm_pier at (1230.075, 244.8783) (stage ironworks)",
+    "stuck in iy_spur at (790.4304, 230.4548) (stage ironworks)",
+    "stuck in iy_spur at (790.4304, 230.4548) (stage ironworks)",
+    "stuck in iy_spur at (790.4304, 230.4548) (stage ironworks)",
+    "stuck in nm_arcade at (978.089, 228.0) (stage rooftops)",
+    "stuck in nm_marquee at (962.3905, 220.6421) (stage return_home)",
+    "stuck in nm_marquee at (963.5465, 218.0) (stage return_home)",
+    "stuck in nm_marquee at (963.5465, 218.0) (stage return_home)",
+    "stuck in nm_marquee at (963.5465, 218.0) (stage return_home)",
+    "stuck in nm_marquee at (963.5465, 218.0) (stage return_home)",
+    "stuck in iy_foundry at (328.5761, 238.2467) (stage return_home)",
+    "stuck in iy_foundry at (327.3261, 238.2467) (stage return_home)",
+    "stuck in iy_foundry at (327.3261, 238.2467) (stage return_home)",
+    "stuck in iy_spur at (945.9724, 227.3674) (stage return_home)",
+    "stuck in iy_spur at (1383.745, 229.9473) (stage return_home)",
+    "stuck in iy_spur at (1669.477, 218.0) (stage return_home)",
+    "stuck in iy_spur at (1669.477, 218.0) (stage return_home)",
+    "stuck in oq_brickrow at (1076.147, 227.8766) (stage return_home)",
+    "stuck in oq_brickrow at (991.2659, 218.0) (stage return_home)",
+    "stuck in oq_brickrow at (1042.749, 227.1756) (stage underline)",
+    "stuck in ul_station at (1207.393, 228.1967) (stage underline)",
+    "stuck in ul_vault at (1081.714, 249.1196) (stage floodgate)",
+    "stuck in fr_bridge at (1151.027, 226.5549) (stage floodgate)",
+    "stuck in fr_pumpstation at (1881.406, 263.8557) (stage dockgate)",
+    "stuck in rw_dock at (1575.548, 301.1768) (stage warehouse)",
+    "stuck in rw_storage at (1029.018, 324.8222) (stage warehouse)",
+    "stuck in rw_storage at (1029.018, 324.8222) (stage warehouse)",
+    "stuck in rw_storage at (1029.394, 321.8657) (stage warehouse)",
+    "stuck in rw_floor at (1080.844, 221.0598) (stage rook)"
+  ],
+  "result": "complete",
+  "room_seconds": {
+    "cm_canalwalk": 99.2,
+    "cm_gate": 93.8,
+    "cm_pier": 145.2,
+    "fr_bridge": 152.3,
+    "fr_dockgate": 226.4,
+    "fr_pumpstation": 98.5,
+    "int_arcade": 2.7,
+    "int_diner": 4.3,
+    "int_garage": 30.8,
+    "int_switch": 45.8,
+    "iy_foundry": 204.1,
+    "iy_gate": 93.1,
+    "iy_spur": 193.2,
+    "nm_arcade": 179.7,
+    "nm_marquee": 279.4,
+    "nm_rooftops": 211.3,
+    "oq_brickrow": 137.5,
+    "oq_chainlot": 97.4,
+    "oq_kettle": 34.1,
+    "rw_dock": 103.6,
+    "rw_floor": 271.4,
+    "rw_office": 55.9,
+    "rw_storage": 239.4,
+    "ul_station": 141.2,
+    "ul_tunnel": 106.8,
+    "ul_vault": 95.4
+  },
+  "stage": "epilogue",
+  "stages": [
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "intro",
+      "t": 0.0
+    },
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "find_mara",
+      "t": 23.8
+    },
+    {
+      "deaths": 0,
+      "level": 1,
+      "stage": "chain_dogs",
+      "t": 49.3
+    },
+    {
+      "deaths": 0,
+      "level": 4,
+      "stage": "market",
+      "t": 163.8
+    },
+    {
+      "deaths": 1,
+      "level": 5,
+      "stage": "pikes",
+      "t": 352.4
+    },
+    {
+      "deaths": 2,
+      "level": 6,
+      "stage": "ironworks",
+      "t": 465.8
+    },
+    {
+      "deaths": 3,
+      "level": 7,
+      "stage": "foundry",
+      "t": 717.6
+    },
+    {
+      "deaths": 4,
+      "level": 8,
+      "stage": "neon",
+      "t": 877.3
+    },
+    {
+      "deaths": 5,
+      "level": 8,
+      "stage": "rooftops",
+      "t": 1037.5
+    },
+    {
+      "deaths": 7,
+      "level": 9,
+      "stage": "return_home",
+      "t": 1259.0
+    },
+    {
+      "deaths": 9,
+      "level": 10,
+      "stage": "underline",
+      "t": 1632.7
+    },
+    {
+      "deaths": 12,
+      "level": 11,
+      "stage": "floodgate",
+      "t": 2180.3
+    },
+    {
+      "deaths": 12,
+      "level": 12,
+      "stage": "dockgate",
+      "t": 2344.3
+    },
+    {
+      "deaths": 14,
+      "level": 13,
+      "stage": "warehouse",
+      "t": 2670.9
+    },
+    {
+      "deaths": 15,
+      "level": 14,
+      "stage": "rook",
+      "t": 3073.6
+    },
+    {
+      "deaths": 18,
+      "level": 14,
+      "stage": "epilogue",
+      "t": 3341.6
+    }
+  ],
+  "stuck_events": 32
+}

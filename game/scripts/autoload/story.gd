@@ -169,7 +169,7 @@ func _intro(room: Node) -> void:
 	var p: Player = room.player
 	room.set_cutscene(true)
 	var dot: NPC = room.spawn_npc("dot", "dot", Vector2(470, 232), {"mode": "cower", "talk": false})
-	var t1: Enemy = room.spawn_enemy("dogs_brawler", Vector2(520, 240), {"hp_mult": 0.7})
+	var t1: Enemy = room.spawn_enemy("dogs_brawler", Vector2(520, 240), {"hp_mult": 0.7, "drops": [{"weapon": "bottle"}]})
 	var t2: Enemy = room.spawn_enemy("dogs_brawler", Vector2(540, 268), {"hp_mult": 0.7})
 	for t in [t1, t2]:
 		t.facing = -1
@@ -191,21 +191,39 @@ func _intro(room: Node) -> void:
 	room.set_cutscene(false)
 	if not _valid(room):
 		return
-	world.hint("Move with {move}.  {punch} Punch  {kick} Kick  {jump} Jump.  Punch three times for a combo!", 9.0)
+	# Teach through play. The tips stay up until the action is actually done (or skipped) and never gate the
+	# fight: progress still follows the Chain Dogs going down, exactly as before.
+	var tut: Tutor = world.tutor
+	GameState.set_flag("tutor_v2")
+	for id in ["move", "combo", "guard", "throw"]:
+		tut.arm(id)
 	room.lock_exits(true, "Help Dot first!")
-	while _valid(room) and (is_instance_valid(t1) and not t1.dead) and (is_instance_valid(t2) and not t2.dead):
+	room.token_cap = 1
+	# A safe moment to learn to move: the two Dogs keep leaning on Dot until Nico walks up, swings, or skips.
+	for t in [t1, t2]:
+		t.hold = tut.is_pending("move")
+	while _valid(room) and tut.is_pending("move") and _alive(t1) and _alive(t2) and t1.hold and t2.hold \
+			and absf(p.position.x - t1.position.x) > 84.0 and absf(p.position.x - t2.position.x) > 84.0:
 		await get_tree().physics_frame
 	if not _valid(room):
 		return
-	world.hint("Hold {guard} to Guard. Tap it right before a hit for a PERFECT guard!", 7.0)
-	while _valid(room) and ((is_instance_valid(t1) and not t1.dead) or (is_instance_valid(t2) and not t2.dead)):
+	for t in [t1, t2]:
+		if _alive(t):
+			t.hold = false
+	while _valid(room) and (_alive(t1) or _alive(t2)):
 		await get_tree().physics_frame
 	if not _valid(room):
 		return
-	world.hint("One more! Grab the trash can with {interact} and throw it with {interact} or {punch}.", 8.0)
-	var ok := await _fight(room, [{"id": "dogs_flanker", "hp_mult": 0.8}], "Help Dot first!")
-	if not ok:
+	# One more arrives and shows off for a moment: time to pick up the bottle the first Dog dropped.
+	var fl: Enemy = _spawn_from_side(room, "dogs_flanker", 1, {"hp_mult": 0.8})
+	if tut.is_pending("throw"):
+		fl.taunt_t = 130
+		world.toast("One more! There's a bottle on the ground.")
+	while _valid(room) and _alive(fl):
+		await get_tree().physics_frame
+	if not _valid(room):
 		return
+	room.token_cap = -1
 	room.lock_exits(false)
 	await _wait(room, 0.6)
 	if not _valid(room):
@@ -220,12 +238,16 @@ func _intro(room: Node) -> void:
 	GameState.set_flag("intro_done")
 	_note("eli_missing")
 	_set_stage("find_mara")
-	world.hint("Walk up into doorways to go inside. Dot's diner is a safe hub: food and saving. Check your objective anytime in the Journal ({pause}).", 9.0)
+	for id in ["door", "eat", "save"]:
+		tut.arm(id)
 	await room.walk_to(dot, Vector2(460, 222), 50.0)
 	if _valid(room):
 		room.remove_npc(dot)
 	busy = false
 	world.autosave()
+
+func _alive(e) -> bool:
+	return e != null and is_instance_valid(e) and not e.dead
 
 func _mara_meet(room: Node) -> void:
 	room.set_cutscene(true)
@@ -863,8 +885,18 @@ func _sal(npc: NPC) -> void:
 
 # ---------------------------------------------------------------- Benny's ladder (Rec Center)
 func _benny(room: Node, npc: NPC) -> void:
+	if _benny_lesson_due():
+		if await _benny_lesson(room):
+			return
 	if not GameState.has_flag("boss_duke"):
-		await _shopkeeper(room, npc)
+		var pre: Dictionary = Content.shops.get(npc.shop, {})
+		var pc: int = await world.ask([npc.npc_id, "neutral", pre.get("greet", "Take a look.")], ["Shop", "Spar a round", "Chat", "Leave"])
+		match pc:
+			0: await world.open_shop(npc.shop)
+			1:
+				busy = false
+				await _spar(room, false)
+			2: await _chat(npc)
 		return
 	var shop: Dictionary = Content.shops.get(npc.shop, {})
 	var best := int(GameState.stats.get("ladder_best", 0))
@@ -880,6 +912,159 @@ func _benny(room: Node, npc: NPC) -> void:
 			busy = false
 			await _ladder(room)
 		2: await _chat(npc)
+
+# ---------------------------------------------------------------- opening favours (Dot's plate, Benny's lesson)
+## Offered once. New games get it whenever they first talk to Dot; saves from before this opening only get
+## it while they are still in the Old Quarter chapter, so nobody is pushed back into a tutorial.
+func _dot_meal_due() -> bool:
+	return not GameState.has_flag("dot_meal_done") and (GameState.has_flag("tutor_v2") or not GameState.has_flag("boss_duke"))
+
+## A plate on the house: shows that food heals and that a dish can add a permanent bonus.
+func _dot_meal(room: Node) -> void:
+	await _say("dot_meal_offer")
+	if not _valid(room):
+		return
+	# The flag goes first and the game saves straight after, so the plate can never be served twice.
+	GameState.set_flag("dot_meal_done")
+	var res: Dictionary = GameState.consume("pancakes")
+	room.player.refresh_stats()
+	Audio.sfx("eat")
+	var gain := int(res.bonus.get("hp", 0))
+	var perm := ("Max HP +%d for good." % gain) if gain > 0 else "You've had all the lasting good pancakes can do."
+	if int(res.heal) > 0:
+		world.toast("Pancake Stack: +%d HP. %s" % [int(res.heal), perm], UIKit.CASHC)
+	else:
+		world.toast("Already at full health. %s" % perm, UIKit.CASHC)
+	world.tutor.notify("eat")
+	world.tutor.arm("food")
+	world.autosave()
+	await _say("dot_meal_after")
+
+func _benny_lesson_due() -> bool:
+	return not GameState.has_flag("benny_lesson_done") and (GameState.has_flag("tutor_v2") or not GameState.has_flag("boss_duke"))
+
+## Benny's first lesson is free: Shoulder Charge, then (optionally) two short sparring rounds.
+## Returns true when the conversation is finished, false to fall through to his usual menu.
+func _benny_lesson(room: Node) -> bool:
+	if GameState.has_skill("shoulder"):
+		# Already known (a save from before this opening, or New Game+): nothing to hand out twice.
+		GameState.set_flag("benny_lesson_done")
+		await _say("benny_lesson_known")
+		return false
+	await _say("benny_lesson_offer")
+	if not _valid(room):
+		return true
+	var c: int = await world.ask(["benny", "happy", "First lesson is free. Want to try it on a sparring partner?"], ["Take the lesson", "Just teach me the move", "Not now"])
+	if c != 0 and c != 1:
+		return false
+	GameState.set_flag("benny_lesson_done")
+	GameState.learn("shoulder")
+	Audio.sfx("level_up", -4.0)
+	world.toast("Learned Shoulder Charge!", UIKit.MUSTARD)
+	world.autosave()
+	if c == 1:
+		world.tutor.arm_skill("shoulder")
+		await _say("benny_lesson_quick")
+		return true
+	busy = false
+	await _spar(room, true)
+	return true
+
+var sparring := false
+
+func _spar_partner(room: Node, id: String, nm: String, pos: Vector2) -> Enemy:
+	var e: Enemy = room.spawn_enemy(id, pos, {"name": nm, "tier": 1})
+	e.leash = true
+	e.xp_reward = 0
+	e.cash_range = [0, 0]
+	e.drops = []
+	e.power_mult *= 0.5
+	e.aggression = 0.4
+	e.max_hp = int(e.max_hp * 1.5)
+	e.hp = e.max_hp
+	e.min_hp = 1            # sparring partners tap out; they are never knocked out
+	e.facing = -1
+	return e
+
+func _spar_tap_out(room: Node, e: Enemy) -> void:
+	if not _alive(e) or not _valid(room):
+		return
+	e.team = Actor.TEAM_NEUTRAL
+	e.hold = true
+	e.invuln = 999
+	room.float_text(e.position + Vector2(0, -e.height - 12), "Taps out!", UIKit.CREAM)
+	var tw := e.create_tween()
+	tw.tween_interval(0.5)
+	tw.tween_property(e, "modulate:a", 0.0, 0.5)
+	await tw.finished
+	if is_instance_valid(e) and _valid(room):
+		room.remove_actor(e)
+
+## A sparring round runs until the partner is worn down to a third of their health, or (in the lesson) until
+## the thing being taught has actually been done. A knockout ends the session with no penalty.
+func _spar_round(room: Node, e: Enemy, tip: String) -> bool:
+	var tut: Tutor = world.tutor
+	var done_t := 0
+	while _valid(room) and not ladder_lost and _alive(e):
+		if e.hp <= int(e.max_hp * 0.34):
+			break
+		if tip != "" and not tut.is_pending(tip):
+			done_t += 1
+			if done_t > 70:
+				break
+		await get_tree().physics_frame
+	if not _valid(room):
+		return false
+	await _spar_tap_out(room, e)
+	return _valid(room) and not ladder_lost
+
+func _spar(room: Node, lesson: bool) -> void:
+	busy = true
+	sparring = true
+	ladder_lost = false
+	var tut: Tutor = world.tutor
+	var p: Player = room.player
+	room.lock_exits(true, "Finish the round with Benny's sparring partner first.")
+	world.hud.show_card("Sparring", "No stakes. Benny stops it if it goes bad.", UIKit.MUSTARD)
+	if lesson:
+		tut.arm("run")
+		tut.arm("shoulder")
+	var ok := await _wait(room, 0.8)
+	if ok:
+		# Round 1: a patient partner to run at.
+		var tully := _spar_partner(room, "dogs_brawler", "Tully", Vector2(570, 318))
+		ok = await _spar_round(room, tully, "shoulder" if lesson and tut.is_pending("shoulder") else "")
+	if ok:
+		await _say("benny_lesson_r2")
+		ok = _valid(room)
+	if ok:
+		# Round 2: a blocker. A full combo, a thrown tire or a step behind gets through the guard.
+		if tut.state("blocker") == 0:
+			tut.arm("blocker")
+		room.spawn_weapon_pickup("tire", Vector2(110, 322), -1, 0.0)
+		var brick := _spar_partner(room, "dogs_blocker", "Brick", Vector2(570, 318))
+		ok = await _spar_round(room, brick, "blocker" if tut.is_pending("blocker") else "")
+	for a in (room.actors.duplicate() if _valid(room) else []):
+		if a is Enemy and (a as Enemy).min_hp > 0:
+			room.remove_actor(a)
+	if _valid(room):
+		for pk in room.pickups.duplicate():
+			if pk.kind == "weapon" and pk.weapon_id == "tire":
+				pk.collect()
+		if p.held == "tire":
+			p.held = ""
+			p.weapon_spr.visible = false
+			if p.state == "carry":
+				p.set_state("idle")
+		room.lock_exits(false)
+	sparring = false
+	if _valid(room):
+		p.refresh_stats()
+		await _say("benny_spar_ko" if ladder_lost else ("benny_lesson_end" if lesson else "benny_spar_end"))
+	ladder_lost = false
+	busy = false
+	if world:
+		world.autosave()
 
 ## Opponents per bout (bout 9 is Mae). Tiers follow the player's level so the ladder stays a challenge.
 const LADDER := [
@@ -1008,7 +1193,12 @@ func talk(room: Node, npc: NPC) -> void:
 	busy = true
 	var id := npc.npc_id
 	match id:
-		"dot", "fong", "hank", "gus":
+		"dot":
+			if _dot_meal_due():
+				await _dot_meal(room)
+			else:
+				await _hub_keeper(room, npc)
+		"fong", "hank", "gus":
 			await _hub_keeper(room, npc)
 		"marv":
 			if Quests.is_active("score") and not GameState.has_key("arcade_log"):

@@ -45,6 +45,7 @@ var throw_item := "bottle"
 var counter_pending := 0
 var stuck_t := 0
 var leash := false
+var hold := false                 # scripted: stand where you are and do not attack until released
 
 func setup_enemy(id: String, district_tier: int, opts: Dictionary = {}) -> void:
 	enemy_id = id
@@ -166,6 +167,9 @@ func think() -> void:
 			_release_token()
 		return
 	if room == null:
+		return
+	if hold:
+		vel = vel.move_toward(Vector2.ZERO, 600 * DT)
 		return
 	target = room.pick_target(self)
 	if target == null:
@@ -449,6 +453,9 @@ func spawn_projectile() -> void:
 func take_damage_and_react(attacker: Actor, d: Dictionary, raw: float, dir: int, force: bool) -> void:
 	super.take_damage_and_react(attacker, d, raw, dir, force)
 	pending_attack = ""
+	hold = false
+	if arche_id == "blocker" and state == "knockdown" and attacker and attacker.team == TEAM_PLAYER and room:
+		room.tutor_event("guard_broken")
 	if token and state in ["knockdown"]:
 		_release_token()
 	if held != "" and state == "knockdown" and not is_boss:

@@ -49,6 +49,11 @@ var card_sub := ""
 var flash_rect: ColorRect
 var fps_label: Label
 var _fps_upd := 0.0
+var lesson_text := ""            # persistent tip from the Tutor ("" = none)
+var lesson_done := false         # true while the "got it" acknowledgement is showing
+var _panel_mode := ""            # "", "hint" (timed), "tip", "done"
+var _tip_style: StyleBox
+var _done_style: StyleBox
 const BAR_H := 30.0
 
 func _init() -> void:
@@ -113,7 +118,9 @@ func _ready() -> void:
 	add_child(prompt_label)
 
 	hint_panel = PanelContainer.new()
-	hint_panel.add_theme_stylebox_override("panel", UIKit.panel_style(Color(0.1, 0.07, 0.12, 0.82), UIKit.MUSTARD, 1))
+	_tip_style = UIKit.panel_style(Color(0.1, 0.07, 0.12, 0.82), UIKit.MUSTARD, 1)
+	_done_style = UIKit.panel_style(Color(0.07, 0.14, 0.09, 0.88), UIKit.CASHC, 1)
+	hint_panel.add_theme_stylebox_override("panel", _tip_style)
 	UIKit.place(hint_panel, Control.PRESET_CENTER_TOP, -200, 60, 400, 0)
 	hint_panel.custom_minimum_size = Vector2(400, 0)
 	hint_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -259,8 +266,18 @@ func _process(delta: float) -> void:
 		hint_t -= delta
 		hint_panel.modulate.a = clampf(hint_t, 0.0, 1.0)
 		if hint_t <= 0.0:
-			hint_label.text = ""
-			hint_panel.visible = false
+			_set_panel("", "")
+	elif lesson_text != "":
+		_set_panel(("GOT IT!  " + lesson_text) if lesson_done else lesson_text, "done" if lesson_done else "tip")
+	elif _panel_mode != "":
+		_set_panel("", "")
+	# toasts stack under the tip panel while it is up, so the two never overlap
+	var toast_y := 34.0
+	if hint_panel.visible:
+		toast_y = hint_panel.offset_top + hint_panel.size.y + 3.0
+	if toast_box.offset_top != toast_y:
+		toast_box.offset_top = toast_y
+		toast_box.offset_bottom = toast_y
 
 func set_timer(t: String) -> void:
 	timer_label.text = t
@@ -268,10 +285,27 @@ func set_timer(t: String) -> void:
 func show_hint(t: String, dur: float = 6.0) -> void:
 	if not Settings.show_hints:
 		return
-	hint_label.text = t
+	_set_panel(t, "hint")
 	hint_t = dur
+
+## Persistent tip from the Tutor. It stays until the Tutor clears it; a timed hint may cover it briefly.
+func set_lesson(t: String, done: bool) -> void:
+	lesson_text = t
+	lesson_done = done
+
+func _set_panel(t: String, mode: String) -> void:
+	if mode == "":
+		hint_label.text = ""
+		hint_panel.visible = false
+		_panel_mode = ""
+		return
+	if hint_label.text != t or _panel_mode != mode:
+		hint_label.text = t
+		hint_panel.add_theme_stylebox_override("panel", _done_style if mode == "done" else _tip_style)
+		hint_label.add_theme_color_override("font_color", UIKit.CASHC if mode == "done" else UIKit.MUSTARD)
+		hint_panel.size = Vector2(400, 0)
+		_panel_mode = mode
 	hint_panel.visible = true
-	hint_panel.size = Vector2(400, 0)
 	hint_panel.modulate.a = 1.0
 
 func set_bosses(list: Array) -> void:

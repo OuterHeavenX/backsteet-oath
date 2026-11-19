@@ -57,6 +57,7 @@ var transition_cd := 30
 var rain: Node2D
 var edge_msg_cd := 0
 var max_alive := 6
+var token_cap := -1               # scripted override for simultaneous attackers (-1 = difficulty default)
 var hazards: Array = []           # pending falling crates: {pos, t_end}
 
 # ---------------------------------------------------------------- build
@@ -715,6 +716,8 @@ func request_token(e: Enemy) -> bool:
 	var cap := 1 if Settings.difficulty == "relaxed" else 2
 	if boss_active:
 		cap = 1
+	if token_cap >= 0:
+		cap = mini(cap, token_cap)
 	if tokens.size() < cap:
 		tokens.append(e)
 		return true
@@ -969,6 +972,11 @@ func escort_down(n: NPC) -> void:
 func on_player_damaged(_d: int) -> void:
 	pass
 
+## Reports a real gameplay event to the tips director (a block, a throw, a door...). Safe without a world.
+func tutor_event(ev: String) -> void:
+	if world and world.get("tutor") != null:
+		world.tutor.notify(ev)
+
 func on_player_defeated() -> void:
 	if world:
 		world.on_player_defeated()
@@ -1033,6 +1041,7 @@ func try_door(d: Dictionary) -> void:
 		return
 	transition_cd = 60
 	Audio.sfx("door")
+	tutor_event("door")
 	world.change_room(d.to, d.get("spawn", "south"))
 
 func find_context(p: Player) -> Dictionary:

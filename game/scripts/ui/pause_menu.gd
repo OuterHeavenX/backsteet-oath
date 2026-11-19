@@ -18,6 +18,15 @@ func build() -> void:
 	btns.append(save_btn)
 	btns.append(UIKit.button("Settings", func(): host.push_menu(SettingsMenu.new()), 220))
 	btns.append(UIKit.button("Controls", func(): host.push_menu(ControlsMenu.new()), 220))
+	btns.append(UIKit.button("Fighting tips", func(): host.push_menu(TipsMenu.new()), 220))
+	var tut = host.get("tutor")
+	if tut != null and tut.enabled() and tut.any_armed():
+		btns.append(UIKit.button("Skip this tip" if tut.shown != "" else "Skip waiting tips", func():
+			if tut.shown != "":
+				tut.skip_current()
+			else:
+				tut.skip_all()
+			close(), 220))
 	btns.append(UIKit.button("Quit to Title", _quit, 220))
 	for b in btns:
 		c.add_child(b)

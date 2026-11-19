@@ -88,12 +88,12 @@
    [
     "dot",
     "happy",
-    "Go. And come back for pie. The diner's always open to you, hon."
+    "But first you come inside and eat. One plate, on the house. Nobody chases Chain Dogs on an empty stomach."
    ],
    [
     "nico",
     "happy",
-    "Always."
+    "Yes, ma'am."
    ]
   ],
   "mara_meet": [
@@ -150,7 +150,7 @@
    [
     "mara",
     "happy",
-    "Here. Twenty bucks for food. Dot will fix you up, and Coach Benny still sells fighting manuals at the rec center down the lane."
+    "Here. Twenty bucks for food. And stop by Coach Benny's rec center down the lane. First lesson's free for anybody taking on the Dogs."
    ],
    [
     "mara",
@@ -2250,6 +2250,84 @@
     "mae",
     "happy",
     "Benny's ladder runs every night now, by popular demand. Mostly mine."
+   ]
+  ],
+  "dot_meal_offer": [
+   [
+    "dot",
+    "happy",
+    "Sit. Pancakes, on the house, and don't argue."
+   ],
+   [
+    "dot",
+    "neutral",
+    "A hot plate puts you back on your feet. And a good one sticks to your ribs for good."
+   ]
+  ],
+  "dot_meal_after": [
+   [
+    "dot",
+    "happy",
+    "Every dish on that menu does something different, hon. Eat when you're hurt, not just when you're hungry."
+   ]
+  ],
+  "benny_lesson_offer": [
+   [
+    "benny",
+    "happy",
+    "Nico Vale. Dot rang. Says you flattened three Chain Dogs outside her window and you're going looking for more."
+   ],
+   [
+    "benny",
+    "neutral",
+    "Then you'll want my Shoulder Charge. Get a run going and put your whole weight through the first man in your way."
+   ]
+  ],
+  "benny_lesson_known": [
+   [
+    "benny",
+    "happy",
+    "You already throw my Shoulder Charge like you were born doing it. Nothing free left to teach you, kid."
+   ]
+  ],
+  "benny_lesson_quick": [
+   [
+    "benny",
+    "neutral",
+    "Run first, then punch. Double-tap the way you're going, or hold your run. Go on, then."
+   ]
+  ],
+  "benny_lesson_r2": [
+   [
+    "benny",
+    "neutral",
+    "Not bad. Now Brick. He keeps his hands up, so your jabs won't land from the front."
+   ],
+   [
+    "benny",
+    "happy",
+    "Finish the whole combo to crack his guard. Or throw that tire at him. Or just walk round the back. All three work."
+   ]
+  ],
+  "benny_lesson_end": [
+   [
+    "benny",
+    "happy",
+    "That's the lesson. The rest of my moves cost money, but they're worth every dollar. Go get your friend."
+   ]
+  ],
+  "benny_spar_end": [
+   [
+    "benny",
+    "happy",
+    "Good round. Come back any time you want to work on something."
+   ]
+  ],
+  "benny_spar_ko": [
+   [
+    "benny",
+    "neutral",
+    "That's enough. Shake it off, kid. No shame in a sparring knock."
    ]
   ]
  },

@@ -94,6 +94,7 @@ var projectile_spawned := false
 var telegraph_t := 0
 var last_attacker: Actor = null
 var bounced := false
+var min_hp := 0                     # sparring partners never drop below this (1 = cannot be knocked out)
 
 var visual: Node2D
 var body: Sprite2D
@@ -681,6 +682,8 @@ func receive_hit(attacker: Actor, d: Dictionary, raw: float, dir: int) -> String
 			guard_t = 0
 			Audio.sfx("guard_break")
 			room.spawn_fx("block_spark", hit_point(), 0.0)
+			if team == TEAM_ENEMY and attacker and attacker.team == TEAM_PLAYER:
+				room.tutor_event("guard_broken")
 			take_damage_and_react(attacker, d, raw * 0.5, dir, true)
 			return "hit"
 		guard_stun = 10
@@ -777,7 +780,7 @@ func dizzy_mult() -> float:
 
 func apply_damage(dmg: int, _attacker: Actor) -> int:
 	var before := hp
-	hp = maxi(0, hp - maxi(dmg, 0))
+	hp = maxi(mini(min_hp, before), hp - maxi(dmg, 0))
 	return before - hp
 
 # ---------------------------------------------------------------- carrying / weapons

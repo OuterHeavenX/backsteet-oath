@@ -115,8 +115,10 @@ func _check_hits() -> void:
 			room.float_text(t.position + Vector2(0, -60), "Caught!", Color(0.5, 1, 1))
 			finish()
 			return
+		# Heavy objects (crates, trash cans, tires, bricks) thrown by the player smash through a raised guard.
 		var d := {"power": raw, "kb": 160 if knockdown else 90, "launch": 140, "hitstun": 26, "knockdown": knockdown, "depth": 10,
-			"sfx": "weapon_hit_blunt", "fx": "hit_heavy" if knockdown else "hit_spark", "hitstop": 5, "shake": 1, "dizzy": 12}
+			"sfx": "weapon_hit_blunt", "fx": "hit_heavy" if knockdown else "hit_spark", "hitstop": 5, "shake": 1, "dizzy": 12,
+			"guard_break": knockdown and team == Actor.TEAM_PLAYER, "weapon": weapon_id}
 		var attacker: Actor = owner_actor if owner_actor and is_instance_valid(owner_actor) else room.hazard_actor
 		var res: String = t.receive_hit(attacker, d, raw, 1 if vx > 0 else -1)
 		if res == "miss":
