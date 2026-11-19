@@ -31,7 +31,7 @@ godot --headless --fixed-fps 60 res://tests/<suite>.tscn
 | `progression_tests` | new | 418 passed | every preview against the real result, prices, manual preview |
 | `oldsave_tests` | new | 120 passed | 13 real 1.3.0-rc1 saves |
 
-**Note on `expansion_tests`:** three linked checks in the "Heavy Thumb" weights job failed in 2 of about 30 runs
+**Note on `expansion_tests`:** three linked checks in the "Heavy Thumb" weights job failed in 2 of about 44 runs
 and passed in the rest. See "Open item" below.
 
 ## Campaign bot
@@ -95,12 +95,12 @@ See `docs/polish/BUILD_AND_LAUNCH.md` for sizes, checksums, launch steps and the
 files.
 
 ## Open item
-**Intermittent `expansion_tests` failure (weights job).** In 2 of about 30 runs the step "inspector drops weights
+**Intermittent `expansion_tests` failure (weights job).** In 2 of about 44 runs the step "inspector drops weights
 in cm_pier" failed and the two checks that depend on it followed. Both failures happened while other heavy jobs
-were running on the same machine; 22 consecutive runs since then passed. The test is frame-stepped, so machine
-load should not matter, which means the cause is not understood. Diagnostics were added to that step so the next
-failure prints the room state. It is listed here rather than hidden: treat a failure of that step as "re-run and
-read the DIAG line", not as proof of a new bug or of none.
+were running on the same machine; the 36 runs since then all passed, 14 of them with extra diagnostics waiting to
+print the room state, so the failure was never caught. The test is frame-stepped, so machine load should not
+matter, which means the cause is not understood. It is listed here rather than hidden: treat a failure of that
+step as "re-run and read the DIAG line", not as proof of a new bug or of none.
 
 ## Not verified
 | Area | State | What a person needs to do |
