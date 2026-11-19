@@ -145,6 +145,7 @@ func _complete(id: String) -> void:
 	if state(id) != ARMED:
 		return
 	_set_state(id, DONE)
+	Playtest.once("tip:" + id)
 	if shown == id and enabled():
 		celebrate_text = _format(id)
 		celebrate_t = CELEBRATE_SECONDS
@@ -167,6 +168,7 @@ func prefer(id: String) -> void:
 func skip(id: String) -> void:
 	if state(id) == ARMED:
 		_set_state(id, SKIPPED)
+		Playtest.once("skip:" + id)
 	if shown == id:
 		shown = ""
 		shown_t = 0.0

@@ -324,6 +324,7 @@ func set_stage(s: String) -> void:
 		push_warning("unknown stage " + s)
 		return
 	stage = s
+	Playtest.once("stage:" + s)
 	stage_changed.emit(s)
 
 func add_note(id: String) -> void:

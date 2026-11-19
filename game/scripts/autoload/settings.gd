@@ -50,6 +50,7 @@ var show_fps := false
 var post_fx := true                # colour grade + bloom screen pass (off by default on touch browsers)
 var combat_camera := "close"       # "close" (tighter framing in fights) or "wide" (the 1.3 framing)
 var combat_guides := true          # Nico's keyline, lane rings and the highlight on usable objects
+var playtest_log := false          # opt-in local playtest notes (kept in the save, never sent anywhere)
 var bindings: Dictionary = {}    # action -> {"keys": [...], "pad": [...]}
 
 func _ready() -> void:
@@ -206,6 +207,7 @@ func load_settings() -> void:
 	var cc: String = str(cfg.get_value("display", "combat_camera", combat_camera))
 	combat_camera = cc if cc in ["close", "wide"] else "close"
 	combat_guides = bool(cfg.get_value("access", "combat_guides", combat_guides))
+	playtest_log = bool(cfg.get_value("game", "playtest_log", playtest_log))
 	var saved_b = cfg.get_value("input", "bindings", {})
 	if typeof(saved_b) == TYPE_DICTIONARY:
 		for a in saved_b:
@@ -238,6 +240,7 @@ func save_settings() -> void:
 	cfg.set_value("display", "post_fx", post_fx)
 	cfg.set_value("display", "combat_camera", combat_camera)
 	cfg.set_value("access", "combat_guides", combat_guides)
+	cfg.set_value("game", "playtest_log", playtest_log)
 	cfg.save(PATH)
 	changed.emit()
 

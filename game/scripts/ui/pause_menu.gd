@@ -19,6 +19,8 @@ func build() -> void:
 	btns.append(UIKit.button("Settings", func(): host.push_menu(SettingsMenu.new()), 220))
 	btns.append(UIKit.button("Controls", func(): host.push_menu(ControlsMenu.new()), 220))
 	btns.append(UIKit.button("Fighting tips", func(): host.push_menu(TipsMenu.new()), 220))
+	if Settings.playtest_log:
+		btns.append(UIKit.button("Playtest notes", func(): host.push_menu(PlaytestMenu.new()), 220))
 	var tut = host.get("tutor")
 	if tut != null and tut.enabled() and tut.any_armed():
 		btns.append(UIKit.button("Skip this tip" if tut.shown != "" else "Skip waiting tips", func():

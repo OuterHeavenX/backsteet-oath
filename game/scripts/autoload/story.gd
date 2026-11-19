@@ -1136,6 +1136,7 @@ func _spar_round(room: Node, e: Enemy, tip: String) -> bool:
 func _spar(room: Node, lesson: bool) -> void:
 	busy = true
 	sparring = true
+	Playtest.count("sparring")
 	ladder_lost = false
 	var tut: Tutor = world.tutor
 	var p: Player = room.player

@@ -1296,6 +1296,11 @@ func tutor_arm(id: String) -> void:
 
 ## Reports a real gameplay event to the tips director (a block, a throw, a door...). Safe without a world.
 func tutor_event(ev: String) -> void:
+	match ev:
+		"throw": Playtest.once("first_throw")
+		"door": Playtest.once("first_door")
+		"eat": Playtest.once("first_meal")
+		"relight": Playtest.count("lights_on")
 	if world and world.get("tutor") != null:
 		world.tutor.notify(ev)
 

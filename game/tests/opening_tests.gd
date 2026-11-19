@@ -117,6 +117,7 @@ func _ready() -> void:
 	await test_guides_and_tells()
 	await test_lieutenants()
 	await test_duke_and_street()
+	await test_playtest_log()
 	print("OPENING TESTS: %d passed, %d failed" % [passes, fails])
 	get_tree().quit(fails)
 
@@ -892,3 +893,50 @@ func test_duke_and_street() -> void:
 	await frames(200)
 	check(room().is_patrol_wave("w1"), "w1 is an ordinary patrol")
 	check(full_n >= 3 and enemies().size() == full_n - 1, "a thinned patrol has one fighter fewer (%d of %d)" % [enemies().size(), full_n])
+
+# ---------------------------------------------------------------- opt-in playtest log
+func test_playtest_log() -> void:
+	Settings.playtest_log = false
+	await start_world(func():
+		GameState.set_flag("intro_seen"))
+	await until(func(): return enemies().size() == 2, 240)
+	var p: Player = room().player
+	var e: Enemy = enemies()[0]
+	p.position = Vector2(e.position.x - 24.0, e.position.y)
+	p.facing = 1
+	await tap("punch")
+	await frames(12)
+	tut().skip("guard")
+	check(not GameState.stats.has("pt"), "with the playtest log off nothing is recorded")
+	check(Playtest.lines().is_empty(), "and the notes page has nothing to show")
+	Settings.playtest_log = true
+	GameState.stats["playtime"] = 12.5
+	e = enemies()[0]
+	e.frozen = true
+	e.set_meta("scripted_freeze", true)
+	p.position = Vector2(e.position.x - 24.0, e.position.y)
+	p.facing = 1
+	p.set_state("idle")
+	await tap("punch")
+	await frames(12)
+	tut().notify("combo3")
+	tut().skip("throw")
+	var pt: Dictionary = GameState.stats.get("pt", {})
+	check(pt.has("first_hit") and float(pt.first_hit) >= 12.5, "with the log on the first hit is timestamped in play time")
+	check(pt.has("tip:combo") and pt.has("skip:throw"), "learned and skipped tips are noted")
+	var first: float = float(pt.first_hit)
+	GameState.stats["playtime"] = 40.0
+	p.set_state("idle")
+	await tap("punch")
+	await frames(12)
+	check(is_equal_approx(float(GameState.stats.pt.first_hit), first), "a first-time note is never overwritten")
+	save_roundtrip()
+	check(GameState.stats.get("pt", {}).has("first_hit"), "the notes travel with the save")
+	check(Playtest.lines().size() >= 2, "the notes page lists what was recorded")
+	var m := PlaytestMenu.new()
+	w.push_menu(m)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(w.menus.size() == 1, "the playtest notes page opens")
+	w.close_all_menus()
+	Settings.playtest_log = false

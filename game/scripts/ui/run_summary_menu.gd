@@ -43,6 +43,9 @@ func build() -> void:
 	cols.add_child(_column("PERFORMANCE", perf))
 	var dev := UIKit.wrap_label(PerfStats.device_line(), 450, UIKit.DIM)
 	c.add_child(dev)
+	if Settings.playtest_log and not Playtest.lines().is_empty():
+		var pb := UIKit.button("Playtest notes", func(): host.push_menu(PlaytestMenu.new()), 160)
+		c.add_child(pb)
 	var b := UIKit.button("Roll credits", close, 160)
 	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var row := UIKit.hbox(0)

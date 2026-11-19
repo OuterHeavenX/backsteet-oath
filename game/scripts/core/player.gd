@@ -53,6 +53,8 @@ func poll_input() -> void:
 		if Input.is_action_just_pressed(a) and input_lock <= 0 and not need_release.has(a):
 			buf[a] = tickc
 	move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	if move_input.length() > 0.3:
+		Playtest.once("first_move")
 	for d in ["move_left", "move_right"]:
 		if Input.is_action_just_pressed(d):
 			if tickc - int(last_tap[d]) < 16:
@@ -471,14 +473,18 @@ func start_attack(id: String, def_override: Dictionary = {}) -> bool:
 	var ok := super.start_attack(id, def_override)
 	if ok and room and Tutor.SKILL_ATTACKS.has(id):
 		room.tutor_event("skill:" + str(Tutor.SKILL_ATTACKS[id]))
+		Playtest.once("first_technique")
 	return ok
 
 func on_blocked(_attacker: Actor) -> void:
 	room.tutor_event("block")
+	Playtest.once("first_block")
 
 func on_hit_landed(target: Node, res: String) -> void:
 	if res == "miss":
 		return
+	if target is Actor:
+		Playtest.once("first_hit")
 	if atk_id in ["punch_c", "kick_c"] and target is Actor:
 		room.tutor_event("combo3")
 	if atk_id.begins_with("swing") and held != "":

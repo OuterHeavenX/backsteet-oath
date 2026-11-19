@@ -312,8 +312,13 @@ func open_pause() -> void:
 func open_shop(shop_id: String) -> void:
 	var m := ShopMenu.new()
 	m.shop_id = shop_id
+	var cash0 := GameState.cash
 	push_menu(m)
 	await m.closed
+	if GameState.cash < cash0:
+		Playtest.once("first_purchase")
+		Playtest.count("purchases")
+		Playtest.count("spent", "", cash0 - GameState.cash)
 
 func open_bus() -> void:
 	if not GameState.check(Content.services.bus.get("requires", "")):
@@ -352,6 +357,8 @@ func on_player_defeated() -> void:
 		return
 	defeated = true
 	GameState.stats.deaths = int(GameState.stats.get("deaths", 0)) + 1
+	Playtest.once("first_ko")
+	Playtest.count("ko", room.room_id if room else "?")
 	Audio.play_music("defeat", 0.3)
 	var loss := GameState.defeat_penalty()
 	await get_tree().create_timer(1.2).timeout
