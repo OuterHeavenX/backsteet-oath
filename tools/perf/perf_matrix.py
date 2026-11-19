@@ -87,7 +87,7 @@ def run_one(config, rep, args):
     cmd = ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (w, h), args.godot, "--resolution", args.resolution,
            "res://tests/perf.tscn"]
     t0 = time.time()
-    r = subprocess.run(cmd, cwd=GAME, env=env, capture_output=True, text=True, timeout=args.timeout)
+    r = subprocess.run(cmd, cwd=args.game, env=env, capture_output=True, text=True, timeout=args.timeout)
     if not os.path.exists(out):
         sys.stderr.write(r.stdout[-3000:] + r.stderr[-3000:])
         raise SystemExit("harness produced no output for " + config)
@@ -199,6 +199,8 @@ def main():
     ap.add_argument("--scenarios", default="", help="comma separated substrings of scenario names")
     ap.add_argument("--resolution", default="1280x720")
     ap.add_argument("--label", default="")
+    ap.add_argument("--game", default=GAME, help="project directory to measure (default: this checkout's game/); "
+                    "point it at a frozen copy to compare two builds or to keep editing while a run is in progress")
     ap.add_argument("--godot", default=shutil.which("godot") or "godot")
     ap.add_argument("--timeout", type=int, default=900)
     ap.add_argument("--force", action="store_true", help="re-run configurations that already have results")

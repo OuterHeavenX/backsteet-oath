@@ -15,6 +15,10 @@ extends Node
 ##   PERF_SEED=1988        RNG seed applied at the start of every scenario
 ##   PERF_LABEL=text       free-text label stored in the output
 ##   PERF_OUT=/path.json   JSON output (default user://perf.json)
+##   PERF_PAIRED=a,b|all   paired A/B profiling: after the normal sample, switch each named system off and on in
+##                         alternating short windows inside the same run (on-off, off-on, ...) and report the mean
+##                         difference. Slow drift of a shared machine cancels out, which the between-run
+##                         comparison cannot do. PERF_PAIR_WINDOW=0.6 (seconds per window), PERF_PAIRS=6.
 ## The saved user settings are not read or written: the harness sets effects/post_fx explicitly.
 ##
 ## The output always names the renderer. A software rasteriser (llvmpipe, SwiftShader) is NOT representative of
@@ -43,12 +47,17 @@ const THRESHOLDS := [[16.7, "over_16_7"], [20.0, "over_20"], [33.4, "over_33_4"]
 
 var seconds := 8.0
 var warmup := 1.0
+var paired: PackedStringArray = []
+var pair_window := 0.6
+var pairs := 6
+var base_disabled := ""
 var rng_seed := 1988
 var results: Array = []
 var meta: Dictionary = {}
 
 # scripted input, driven from the physics tick so every run plays the same script
 var _room: Room
+var _room_name := ""
 var _mode := ""
 var _tick := 0
 var _walk_dir := 1
@@ -96,7 +105,11 @@ func _ready() -> void:
 	Settings.flash = 1.0
 	Settings.screen_shake = 1.0
 	Settings.cinematic_bars = true
-	PerfDebug.set_from(OS.get_environment("PERF_DISABLE"))
+	base_disabled = OS.get_environment("PERF_DISABLE")
+	PerfDebug.set_from(base_disabled)
+	paired = OS.get_environment("PERF_PAIRED").split(",", false)
+	pair_window = maxf(0.2, float(_env("PERF_PAIR_WINDOW", "0.6")))
+	pairs = maxi(1, int(_env("PERF_PAIRS", "6")))
 	# uncapped: measure the frame, not the display's refresh
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	Engine.max_fps = 0
@@ -268,6 +281,7 @@ func _run(sc: Dictionary) -> void:
 	GameState.spawn = sc.spawn
 	_mode = ""
 	_room = null
+	_room_name = str(sc.name)
 	# ---- load: room build (script + resource loading) and the first frame (texture upload, shader compile)
 	var t_load := Time.get_ticks_usec()
 	var w = load("res://scenes/world.tscn").instantiate()
@@ -378,6 +392,8 @@ func _run(sc: Dictionary) -> void:
 		"video_mem_mb": snappedf(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0, 0.1),
 	})
 	res.merge(cpu)
+	if not paired.is_empty():
+		res["paired"] = await _run_paired(w, r, boss)
 	_mode = ""
 	_release_all()
 	# ---- transition: reload the same room inside the running world (a door/edge transition without the fade)
@@ -390,6 +406,176 @@ func _run(sc: Dictionary) -> void:
 	results.append(res)
 	w.queue_free()
 	await get_tree().create_timer(0.3).timeout
+
+# ---------------------------------------------------------------- paired A/B profiling
+## Rebuilds the grade/bloom pass with the baseline switches plus `extra` (or without `minus`).
+func _regrade(r: Room, extra: String, minus: String = "") -> void:
+	var life: RoomLife = r.vis.life
+	if life.grade_layer and is_instance_valid(life.grade_layer):
+		life.shaders_t.erase(life.grade_rect.material)
+		life.grade_layer.free()
+		life.grade_rect = null
+		life.bloom_group = null
+		life.bloom_down = null
+	var keep := PerfDebug.disabled.duplicate()
+	PerfDebug.set_from(base_disabled + "," + extra)
+	if minus != "":
+		PerfDebug.disabled.erase(minus)
+	if not PerfDebug.off("grade"):
+		life._make_grade(life.meta.grade)
+		(life.grade_rect.material as ShaderMaterial).set_shader_parameter("t", life.t)
+	PerfDebug.disabled = keep
+
+func _show(nodes: Array, on: bool) -> void:
+	for n in nodes:
+		if is_instance_valid(n):
+			n.visible = on
+
+## system name -> Callable(on: bool), only for systems this room actually has.
+func _toggles(w: Node, r: Room) -> Dictionary:
+	var t := {}
+	var vis: RoomVisuals = r.vis
+	var life: RoomLife = vis.life
+	if life.meta.has("grade") and Settings.post_fx and Settings.effects_full():
+		t["grade"] = func(on: bool): _regrade(r, "" if on else "grade")
+		t["bloom"] = func(on: bool): _regrade(r, "" if on else "bloom")
+		# "on" = the current bloom, "off" = the 1.3.0-rc1 reference pass, whatever the baseline is
+		t["fast_bloom"] = func(on: bool): _regrade(r, "" if on else "fast_bloom", "fast_bloom" if on else "")
+	var hazed := []
+	var par := []
+	var base := []
+	for L in vis.layers:
+		(base if str(L.name) == "base" else par).append(L.node)
+		for s in (L.node as Node).get_children():
+			if s is Sprite2D and s.material is ShaderMaterial:
+				hazed.append([s, s.material])
+	if not hazed.is_empty():
+		t["haze"] = func(on: bool):
+			for h in hazed:
+				h[0].material = h[1] if on else null
+	if not par.is_empty():
+		t["parallax"] = func(on: bool): _show(par, on)
+	if not base.is_empty():
+		t["base_layer"] = func(on: bool): _show(base, on)
+	if not vis.fg.is_empty():
+		t["fg"] = func(on: bool): r.fg_root.visible = on
+	if not vis.glows.is_empty():
+		var gl := vis.glows.map(func(G): return G.spr)
+		t["glows"] = func(on: bool): _show(gl, on)
+	if not vis.ambient_nodes.is_empty():
+		t["ambient"] = func(on: bool): _show(vis.ambient_nodes, on)
+	if vis.light_img != null:
+		var img := vis.light_img
+		t["lightmap"] = func(on: bool): vis.light_img = img if on else null
+	t["rim"] = func(on: bool): vis._rim_off = not on
+	if not vis.cast_shadow.is_empty():
+		var cs := vis.cast_shadow
+		t["cast"] = func(on: bool): vis.cast_shadow = cs if on else {}
+	if not vis.reflects.is_empty():
+		var rf := vis.reflects
+		t["reflect"] = func(on: bool): vis.reflects = rf if on else []
+	var life_all := []
+	var clouds := []
+	var lanes := []
+	for L in life.lanes:
+		(clouds if L.kind == "clouds" else lanes).append(L.node)
+	var groups := {"clouds": clouds, "lanes": lanes, "windows": life.windows.map(func(W): return W.root),
+		"sway": life.sways.map(func(S): return S.spr), "shafts": life.shafts.map(func(S): return S.spr),
+		"signs": [life.sign_root] if life.sign_root else [], "pigeons": [], "water": []}
+	for F in life.pigeons:
+		for B in F.birds:
+			groups.pigeons.append(B.spr)
+	var water_shader := RoomLife._shader(RoomLife.WATER_SHADER)
+	for c in life.base_front.get_children():
+		if c is ColorRect and c.material is ShaderMaterial and (c.material as ShaderMaterial).shader == water_shader:
+			groups.water.append(c)
+	for k in groups:
+		var nodes: Array = groups[k]
+		if nodes.is_empty():
+			continue
+		life_all.append_array(nodes)
+		t[k] = func(on: bool): _show(nodes, on)
+	if not life_all.is_empty():
+		t["life"] = func(on: bool): _show(life_all, on)
+	if r.rain:
+		t["rain"] = func(on: bool):
+			r.rain.visible = on
+			r.rain.set_physics_process(on)
+	t["actor_shader"] = func(on: bool):
+		for a in r.actors:
+			if a.get("body") != null and a.body:
+				a.body.material = a.mat if on else null
+				a.weapon_spr.material = a.mat if on else null
+	t["actors_props"] = func(on: bool): r.world_node.visible = on
+	if _mode == "fight":
+		t["combat_fx"] = func(on: bool):
+			if on:
+				PerfDebug.disabled.erase("combat_fx")
+			else:
+				PerfDebug.disabled["combat_fx"] = true
+	t["hud"] = func(on: bool): w.ui_layer.visible = on
+	return t
+
+## [avg frame ms, frames, avg draw calls] over one window, after letting the switch take effect.
+func _window(r: Room, boss: Node) -> Array:
+	for i in 3:
+		await get_tree().process_frame
+		_sustain(r, boss)
+	var t0 := Time.get_ticks_usec()
+	var n := 0
+	var dc := 0.0
+	while float(Time.get_ticks_usec() - t0) / 1e6 < pair_window:
+		await get_tree().process_frame
+		n += 1
+		dc += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)
+		_sustain(r, boss)
+	return [float(Time.get_ticks_usec() - t0) / 1000.0 / maxi(n, 1), n, dc / maxi(n, 1)]
+
+func _run_paired(w: Node, r: Room, boss: Node) -> Dictionary:
+	var out := {}
+	var tog := _toggles(w, r)
+	var names: Array = tog.keys() if "all" in paired else Array(paired)
+	for sys in names:
+		if not tog.has(sys):
+			continue
+		var f: Callable = tog[sys]
+		var diffs: Array = []
+		var on_ms := 0.0
+		var off_ms := 0.0
+		var on_dc := 0.0
+		var off_dc := 0.0
+		for k in pairs:
+			var a := [0.0, 0, 0.0]
+			var b := [0.0, 0, 0.0]
+			for on in ([true, false] if k % 2 == 0 else [false, true]):
+				f.call(on)
+				var m: Array = await _window(r, boss)
+				if on:
+					a = m
+				else:
+					b = m
+			diffs.append(float(a[0]) - float(b[0]))
+			on_ms += float(a[0])
+			off_ms += float(b[0])
+			on_dc += float(a[2])
+			off_dc += float(b[2])
+		f.call(true)
+		diffs.sort()
+		var mean := 0.0
+		for d in diffs:
+			mean += d
+		mean /= diffs.size()
+		var sd := 0.0
+		for d in diffs:
+			sd += (d - mean) * (d - mean)
+		sd = sqrt(sd / maxi(diffs.size() - 1, 1))
+		out[sys] = {"saved_ms": snappedf(mean, 0.01), "median_ms": snappedf(diffs[diffs.size() / 2], 0.01),
+			"sem_ms": snappedf(sd / sqrt(diffs.size()), 0.01), "pairs": diffs.size(),
+			"on_ms": snappedf(on_ms / pairs, 0.01), "off_ms": snappedf(off_ms / pairs, 0.01),
+			"on_draw_calls": snappedf(on_dc / pairs, 0.1), "off_draw_calls": snappedf(off_dc / pairs, 0.1)}
+		print("PAIRED %-18s %-14s on %6.2f  off %6.2f  saved %6.2f +/- %.2f ms  (draw calls %.0f -> %.0f)" % [_room_name, sys,
+			out[sys].on_ms, out[sys].off_ms, out[sys].saved_ms, out[sys].sem_ms, out[sys].on_draw_calls, out[sys].off_draw_calls])
+	return out
 
 func _stats(times: PackedFloat32Array) -> Dictionary:
 	var s := times.duplicate()

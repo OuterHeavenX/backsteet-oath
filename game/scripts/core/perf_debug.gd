@@ -7,6 +7,7 @@ extends RefCounted
 ## System names (comma separated in PERF_DISABLE / SHOT_DISABLE):
 ##   grade        the whole colour grade + bloom screen pass (same as Settings.post_fx = false)
 ##   bloom        keep the grade, drop the bloom (no blurred screen read)
+##   fast_bloom   switch the grid-vertex bloom off = draw the 1.3.0-rc1 reference pass (mipmapped screen blur chain)
 ##   haze         atmospheric haze material on the far/mid layers and lanes
 ##   parallax     the sky/far/mid parallax layers (overdraw behind the base layer)
 ##   fg           foreground framing sprites
